@@ -1,9 +1,9 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --no-update-notifier
 COPY . .
-RUN npm run build
+RUN npm run build --no-update-notifier
 
 FROM node:20-alpine
 WORKDIR /app

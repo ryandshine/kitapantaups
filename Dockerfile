@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --no-update-notifier
 
 # Copy source and build
 COPY . .
@@ -13,7 +13,7 @@ COPY . .
 ARG VITE_API_URL=https://api-kitapantaups.ditpps.com
 ENV VITE_API_URL=$VITE_API_URL
 
-RUN npm run build
+RUN npm run build --no-update-notifier
 
 # Stage 2: Serve
 FROM nginx:alpine
