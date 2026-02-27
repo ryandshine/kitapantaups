@@ -366,8 +366,8 @@ export const AduanDetailPage: React.FC = () => {
             perihal: aduan.perihal || '',
             ringkasanMasalah: aduan.ringkasanMasalah || '',
             status: aduan.status || 'baru',
-            picName: aduan.picName || '',
-            picId: aduan.picId || '',
+            picName: !isAdmin ? (user?.displayName || user?.email || '') : (aduan.picName || ''),
+            picId: !isAdmin ? (user?.id || '') : (aduan.picId || ''),
             lokasiDesa: aduan.lokasi?.desa || '',
             lokasiKecamatan: aduan.lokasi?.kecamatan || '',
             lokasiKabupaten: aduan.lokasi?.kabupaten || '',
@@ -1607,15 +1607,7 @@ export const AduanDetailPage: React.FC = () => {
                                 />
                                 {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
                             </>
-                        ) : (
-                            <Input
-                                label="PIC (Nama)"
-                                value={editForm.picName}
-                                disabled
-                                fullWidth
-                                helperText="Hanya Admin yang dapat menugaskan PIC"
-                            />
-                        )}
+                        ) : null}
                     </div>
 
                     {editForm.status === 'ditolak' && (
