@@ -1,0 +1,9 @@
+export { LoginPage } from './LoginPage';
+export { RegisterPage } from './RegisterPage';
+export { DashboardPage } from './DashboardPage';
+export { AduanDetailPage } from './AduanDetailPage';
+export { NewAduanPage } from './NewAduanPage';
+export { AduanListPage } from './AduanListPage';
+export { LaporanPage } from './LaporanPage';
+export { PengaturanPage } from './PengaturanPage';
+export { UserManagementPage } from './UserManagementPage';

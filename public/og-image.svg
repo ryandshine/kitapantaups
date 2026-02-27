@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1a2e1a"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532d;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#166534;stop-opacity:0.7"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="40" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Glow orbs -->
+  <circle cx="200" cy="150" r="180" fill="#14532d" opacity="0.25" filter="url(#glow)"/>
+  <circle cx="980" cy="500" r="150" fill="#1e3a5f" opacity="0.2" filter="url(#glow)"/>
+
+  <!-- Left green accent bar -->
+  <rect x="0" y="0" width="6" height="630" fill="#4ade80"/>
+
+  <!-- Shield icon (top left) -->
+  <g transform="translate(80, 72)">
+    <rect width="52" height="52" rx="14" fill="#166534" stroke="#4ade80" stroke-width="1.5"/>
+    <!-- Shield shape -->
+    <path d="M26 12 L38 17 L38 27 C38 32 32.5 36 26 38 C19.5 36 14 32 14 27 L14 17 Z" fill="none" stroke="#4ade80" stroke-width="2" stroke-linejoin="round"/>
+    <!-- Check mark -->
+    <path d="M21 26 L24.5 29.5 L31 23" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- App name -->
+  <text x="148" y="93" font-family="system-ui,-apple-system,sans-serif" font-size="22" font-weight="700" fill="#f0fdf4" letter-spacing="0.5">KitapantauPS</text>
+  <text x="148" y="114" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="500" fill="#4ade80" letter-spacing="3" text-transform="uppercase">DIREKTORAT PPS</text>
+
+  <!-- Divider line -->
+  <line x1="80" y1="148" x2="560" y2="148" stroke="#4ade80" stroke-width="1" opacity="0.3"/>
+
+  <!-- Main headline -->
+  <text x="80" y="228" font-family="system-ui,-apple-system,sans-serif" font-size="52" font-weight="700" fill="#f0fdf4" letter-spacing="-1">Sistem Informasi</text>
+  <text x="80" y="290" font-family="system-ui,-apple-system,sans-serif" font-size="52" font-weight="700" fill="#4ade80" letter-spacing="-1">Pengaduan</text>
+  <text x="80" y="352" font-family="system-ui,-apple-system,sans-serif" font-size="52" font-weight="700" fill="#f0fdf4" letter-spacing="-1">Perhutanan Sosial</text>
+
+  <!-- Subtitle -->
+  <text x="80" y="410" font-family="system-ui,-apple-system,sans-serif" font-size="18" fill="#94a3b8" font-weight="400">Platform terpadu pencatatan aduan, tindak lanjut,</text>
+  <text x="80" y="434" font-family="system-ui,-apple-system,sans-serif" font-size="18" fill="#94a3b8" font-weight="400">dan pelaporan operasional perhutanan sosial.</text>
+
+  <!-- Bottom copyright -->
+  <text x="80" y="560" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#475569">© 2026 Direktorat Pengendalian Perhutanan Sosial · Kementerian Kehutanan RI</text>
+
+  <!-- Right side: mock login card -->
+  <rect x="720" y="80" width="400" height="470" rx="20" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Card header -->
+  <rect x="720" y="80" width="400" height="120" rx="20" fill="#0f172a"/>
+  <rect x="720" y="160" width="400" height="40" fill="#0f172a"/>
+
+  <!-- Shield small in card -->
+  <rect x="756" y="106" width="40" height="40" rx="10" fill="#166534" stroke="#4ade80" stroke-width="1"/>
+  <path d="M776 115 L784 119 L784 126 C784 129 780.5 131.5 776 133 C771.5 131.5 768 129 768 126 L768 119 Z" fill="none" stroke="#4ade80" stroke-width="1.5"/>
+
+  <!-- Card title -->
+  <text x="756" y="170" font-family="system-ui,-apple-system,sans-serif" font-size="20" font-weight="700" fill="#f8fafc">Masuk ke Sistem</text>
+  <text x="756" y="192" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#94a3b8">Gunakan akun internal untuk mengakses dashboard.</text>
+
+  <!-- Email field -->
+  <rect x="756" y="220" width="328" height="44" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="776" y="247" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#475569">email@contoh.com</text>
+
+  <!-- Password field -->
+  <rect x="756" y="278" width="328" height="44" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+  <text x="776" y="305" font-family="system-ui,-apple-system,sans-serif" font-size="14" fill="#475569">••••••••</text>
+
+  <!-- Login button -->
+  <rect x="756" y="342" width="328" height="48" rx="12" fill="#166534"/>
+  <text x="920" y="372" font-family="system-ui,-apple-system,sans-serif" font-size="15" font-weight="600" fill="#f0fdf4" text-anchor="middle">Masuk</text>
+
+  <!-- Badge -->
+  <rect x="756" y="418" width="328" height="36" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+  <text x="920" y="441" font-family="system-ui,-apple-system,sans-serif" font-size="11" fill="#64748b" text-anchor="middle">🔒  Akses terbatas — hanya untuk petugas internal</text>
+
+  <!-- URL hint bottom right -->
+  <text x="1120" y="595" font-family="system-ui,-apple-system,sans-serif" font-size="13" fill="#4ade80" text-anchor="end" font-weight="500">kitapantaups.ditpps.com</text>
+</svg>
