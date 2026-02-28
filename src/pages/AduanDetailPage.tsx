@@ -166,31 +166,49 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                     {!editSelectedKps ? (
                         <>
-                            <KpsSearch onSelect={onSelectKps} />
+                            <KpsSearch
+                                onSelect={onSelectKps}
+                                placeholder="Ketik ID API KPS, Nama KPS, atau Nomor SK..."
+                            />
                             <p className="text-[10px] text-muted-foreground mt-2">
                                 Cari & pilih data Master KPS untuk mengisi otomatis lokasi.
                             </p>
                         </>
                     ) : (
                         <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div className="p-3 bg-white rounded-md border border-border shadow-sm flex flex-col gap-2">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-semibold text-foreground">{editSelectedKps.NAMA_KPS}</span>
-                                        <span className="text-[10px] text-muted-foreground font-mono">SK: {editSelectedKps.NO_SK}</span>
+                            <div className="p-3 bg-white rounded-md border border-border shadow-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
+                                        <span className="text-xs font-mono text-foreground">{editSelectedKps["KPS-ID"] || editSelectedKps.id_kps_api || '-'}</span>
                                     </div>
-                                    <Badge variant="outline" className="text-[10px] px-1.5 h-5 bg-primary/5 text-primary border-border">
-                                        {editSelectedKps.SKEMA}
-                                    </Badge>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 mt-1 pt-2 border-t border-slate-50">
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">Lokasi</span>
-                                        <span className="text-[10px] text-foreground font-medium">Desa {editSelectedKps.DESA}, Kec. {editSelectedKps.KECAMATAN}</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
+                                        <span className="text-xs font-semibold text-foreground">{editSelectedKps.NAMA_KPS || editSelectedKps.nama_kps || '-'}</span>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">Luas / KK</span>
-                                        <span className="text-[10px] text-foreground font-medium">{editSelectedKps.LUAS_SK} Ha / {editSelectedKps.JML_KK} KK</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
+                                        <span className="text-xs font-mono text-foreground">{editSelectedKps.NO_SK || editSelectedKps.nomor_sk || '-'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
+                                        <span className="text-xs font-semibold text-foreground">{editSelectedKps.KPS_TYPE || editSelectedKps.kps_type || editSelectedKps.SKEMA || editSelectedKps.jenis_kps || '-'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
+                                        <span className="text-xs text-foreground">{editSelectedKps.PROVINSI || editSelectedKps.lokasi_prov || '-'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
+                                        <span className="text-xs text-foreground">{editSelectedKps.KAB_KOTA || editSelectedKps.lokasi_kab || '-'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
+                                        <Badge variant="outline" className="w-fit">{(Number(editSelectedKps.LUAS_SK ?? editSelectedKps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
+                                        <Badge variant="outline" className="w-fit">{(Number(editSelectedKps.JML_KK ?? editSelectedKps.jumlah_kk ?? 0) || 0).toLocaleString('id-ID')} KK</Badge>
                                     </div>
                                 </div>
                             </div>
