@@ -276,9 +276,17 @@ export const AduanService = {
         if (data.driveFolderId) updateData.drive_folder_id = data.driveFolderId;
         if (data.picId !== undefined) updateData.pic_id = data.picId || null;
         if (data.picName !== undefined) updateData.pic_name = data.picName;
+        if (data.jumlahKK !== undefined) {
+            const parsedJumlahKk = Number(data.jumlahKK);
+            if (Number.isFinite(parsedJumlahKk)) updateData.jumlah_kk = parsedJumlahKk;
+        }
         if (data.perihal) updateData.surat_asal_perihal = data.perihal;
         if (data.ringkasanMasalah) updateData.ringkasan_masalah = data.ringkasanMasalah;
         if (data.kategoriMasalah) updateData.kategori_masalah = data.kategoriMasalah;
+        if (Array.isArray(data.id_kps_api)) updateData.id_kps_api = data.id_kps_api;
+        if (Array.isArray(data.nama_kps)) updateData.nama_kps = data.nama_kps;
+        if (Array.isArray(data.jenis_kps)) updateData.jenis_kps = data.jenis_kps;
+        if (Array.isArray(data.nomor_sk)) updateData.nomor_sk = data.nomor_sk;
         if (data.lokasi) {
             if (data.lokasi.provinsi) updateData.lokasi_prov = data.lokasi.provinsi;
             if (data.lokasi.kabupaten) updateData.lokasi_kab = data.lokasi.kabupaten;
