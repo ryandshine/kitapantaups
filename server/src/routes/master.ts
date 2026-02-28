@@ -36,17 +36,21 @@ master.get('/kps', async (c) => {
 
   if (search) {
     params.push(`%${search}%`)
-    conditions.push(`(nama_kps ILIKE $${params.length} OR nomor_sk ILIKE $${params.length})`)
+    conditions.push(`(m.nama_kps ILIKE $${params.length} OR m.nomor_sk ILIKE $${params.length} OR m.id_kps_api ILIKE $${params.length})`)
   }
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
   const [rows, countResult] = await Promise.all([
     pool.query(
-      `SELECT * FROM master_kps ${where} ORDER BY nama_kps LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      `SELECT m.*
+       FROM master_kps m
+       ${where}
+       ORDER BY m.nama_kps
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset]
     ),
-    pool.query(`SELECT COUNT(*) as total FROM master_kps ${where}`, params),
+    pool.query(`SELECT COUNT(*) as total FROM master_kps m ${where}`, params),
   ])
 
   return c.json({

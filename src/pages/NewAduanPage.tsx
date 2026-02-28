@@ -551,22 +551,36 @@ export const NewAduanPage: React.FC = () => {
                                                     {/* Card Body - Mini Grid */}
                                                     <div className="p-4 grid grid-cols-2 gap-4">
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Skema / Tipe</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.jenis_kps || '-'}</p>
-                                                        </div>
-                                                        <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Balai PSKL</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.balai || '-'}</p>
-                                                        </div>
-                                                        <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">ID KPS</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">ID API KPS</p>
                                                             <p className="text-xs font-medium text-foreground leading-none">{kps.id_kps_api || '-'}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Wilayah</p>
-                                                            <p className="text-xs font-medium text-foreground leading-tight">
-                                                                {kps.lokasi_prov}, {kps.lokasi_kab}
-                                                            </p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Nama KPS</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{kps.nama_kps || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">No SK</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{kps.nomor_sk || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">KPS Type</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.kps_type || kps.jenis_kps || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Provinsi</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.lokasi_prov || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Kabupaten</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.lokasi_kab || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Luas</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{(Number(kps.lokasi_luas_ha) || 0).toLocaleString('id-ID')} Ha</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Jumlah KK</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{(Number(kps.jumlah_kk) || 0).toLocaleString('id-ID')} KK</p>
                                                         </div>
                                                     </div>
                                                 </div>

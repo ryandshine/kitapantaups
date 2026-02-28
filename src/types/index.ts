@@ -2,6 +2,7 @@ export type Skema = 'HKm' | 'HTR' | 'HD' | 'HA' | 'IPHPS' | 'KulinKK';
 
 export interface KpsData {
     id_kps_api: string;
+    kps_type?: string;
     nama_kps: string;
     jenis_kps: string;
     nomor_sk: string;
@@ -23,6 +24,7 @@ export interface KpsData {
 
     // Legacy Uppercase Aliases (from PKPS API)
     "KPS-ID"?: string;
+    KPS_TYPE?: string;
     SKEMA?: string;
     NAMA_KPS?: string;
     NO_SK?: string;
@@ -309,4 +311,3 @@ export interface AppSettings {
     gemini_model: string;
     ai_custom_instructions?: string;
 }
-

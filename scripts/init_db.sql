@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS public.master_jenis_tl (
 CREATE TABLE IF NOT EXISTS public.master_kps (
   id             uuid        NOT NULL DEFAULT uuid_generate_v4(),
   id_kps_api     text        UNIQUE,
+  kps_type       text,
   nama_kps       text,
   jenis_kps      text,
   nomor_sk       text,

@@ -1039,6 +1039,15 @@ export const AduanDetailPage: React.FC = () => {
         visible: { y: 0, opacity: 1 }
     };
 
+    const primaryKpsId = selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || aduan.id_kps_api?.[0] || '-';
+    const primaryNamaKps = selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || aduan.nama_kps?.[0] || '-';
+    const primaryNoSk = selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || aduan.nomor_sk?.[0] || '-';
+    const primaryKpsType = selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || aduan.jenis_kps?.[0] || '-';
+    const primaryProvinsi = selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan.lokasi.provinsi || '-';
+    const primaryKabupaten = selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan.lokasi.kabupaten || '-';
+    const primaryLuasHa = Number(selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan.lokasi.luasHa ?? 0);
+    const primaryJumlahKk = Number(selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan.jumlahKK ?? aduan.jumlah_kk ?? 0);
+
     return (
         <motion.div
             initial="hidden"
@@ -1102,26 +1111,28 @@ export const AduanDetailPage: React.FC = () => {
                     <table className="w-full text-xs border-collapse border border-border">
                         <tbody>
                             <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">ID KPS</td>
-                                <td className="p-1.5 border border-border w-1/3">{selectedKpsInfo["KPS-ID"] || selectedKpsInfo.id_kps_api}</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">Tipe KPS</td>
-                                <td className="p-1.5 border border-border w-1/3">{selectedKpsInfo.SKEMA || selectedKpsInfo.jenis_kps}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">ID API KPS</td>
+                                <td className="p-1.5 border border-border w-1/3">{primaryKpsId}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">Nama KPS</td>
+                                <td className="p-1.5 border border-border w-1/3">{primaryNamaKps}</td>
                             </tr>
                             <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Nama KPS</td>
-                                <td className="p-1.5 border border-border" colSpan={3}>{selectedKpsInfo.NAMA_KPS || selectedKpsInfo.nama_kps}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">No SK</td>
+                                <td className="p-1.5 border border-border">{primaryNoSk}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">KPS Type</td>
+                                <td className="p-1.5 border border-border">{primaryKpsType}</td>
                             </tr>
                             <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Nomor SK</td>
-                                <td className="p-1.5 border border-border">{selectedKpsInfo.NO_SK || selectedKpsInfo.nomor_sk}</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Balai PSKL</td>
-                                <td className="p-1.5 border border-border">{selectedKpsInfo.BALAI || selectedKpsInfo.balai}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">Provinsi</td>
+                                <td className="p-1.5 border border-border">{primaryProvinsi}</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">Kabupaten</td>
+                                <td className="p-1.5 border border-border">{primaryKabupaten}</td>
                             </tr>
                             <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Lokasi</td>
-                                <td className="p-1.5 border border-border" colSpan={3}>
-                                    Kab. {selectedKpsInfo.KAB_KOTA || selectedKpsInfo.lokasi_kab}, Prov. {selectedKpsInfo.PROVINSI || selectedKpsInfo.lokasi_prov}
-                                </td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">Luas</td>
+                                <td className="p-1.5 border border-border">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</td>
+                                <td className="p-1.5 font-semibold bg-muted border border-border">Jumlah KK</td>
+                                <td className="p-1.5 border border-border">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1563,36 +1574,50 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
-                    {/* Lokasi Objek - Only shown if NOT using Master KPS */}
-                    {!selectedKpsInfo && (
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="bg-muted/30 py-4 border-b border-border/70">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
-                                    <MapPin className="h-4 w-4" />
-                                    Lokasi Objek
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-3 py-4">
+                    <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
+                        <CardHeader className="bg-muted/30 py-4 border-b border-border/70">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                                <MapPin className="h-4 w-4" />
+                                Lokasi Objek
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="py-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Balai PSKL</span>
-                                    <span className="font-semibold text-foreground">{aduan.lokasi.balaiName}</span>
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
+                                    <span className="text-sm font-mono text-foreground">{primaryKpsId}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Administrasi</span>
-                                    <span className="text-sm text-foreground">
-                                        Desa {aduan.lokasi.desa || '-'}, Kec. {aduan.lokasi.kecamatan || '-'}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Kab. {aduan.lokasi.kabupaten}, Prov. {aduan.lokasi.provinsi}
-                                    </span>
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
+                                    <span className="text-sm font-semibold text-foreground">{primaryNamaKps}</span>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Luas Wilayah</span>
-                                    <Badge variant="outline">{aduan.lokasi.luasHa} Ha</Badge>
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
+                                    <span className="text-sm font-mono text-foreground">{primaryNoSk}</span>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
+                                    <span className="text-sm font-semibold text-foreground">{primaryKpsType}</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
+                                    <span className="text-sm text-foreground">{primaryProvinsi}</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
+                                    <span className="text-sm text-foreground">{primaryKabupaten}</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
+                                    <Badge variant="outline" className="w-fit">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</Badge>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
+                                    <Badge variant="outline" className="w-fit">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</Badge>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
 
                     {/* Informasi Master KPS */}
                     <div className="flex flex-col gap-4">
@@ -1628,34 +1653,45 @@ export const AduanDetailPage: React.FC = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                             <div className="space-y-4">
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Nama Kelompok</p>
-                                                    <p className="font-semibold text-foreground">{selectedKpsInfo.NAMA_KPS || selectedKpsInfo.nama_kps || '-'}</p>
+                                                    <p className="text-xs text-muted-foreground mb-1">ID API KPS</p>
+                                                    <p className="text-sm font-mono text-foreground">{primaryKpsId}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Skema / Tipe</p>
-                                                    <p className="font-semibold">{selectedKpsInfo.SKEMA || selectedKpsInfo.jenis_kps || '-'}</p>
+                                                    <p className="text-xs text-muted-foreground mb-1">Nama KPS</p>
+                                                    <p className="font-semibold text-foreground">{primaryNamaKps}</p>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-4">
                                                 <div>
                                                     <p className="text-xs text-muted-foreground mb-1">No SK</p>
-                                                    <p className="text-sm font-mono">{selectedKpsInfo.NO_SK || selectedKpsInfo.nomor_sk || '-'}</p>
+                                                    <p className="text-sm font-mono">{primaryNoSk}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Balai PSKL</p>
-                                                    <p className="font-semibold">{selectedKpsInfo.BALAI || selectedKpsInfo.balai || '-'}</p>
+                                                    <p className="text-xs text-muted-foreground mb-1">KPS Type</p>
+                                                    <p className="font-semibold">{primaryKpsType}</p>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-4">
                                                 <div>
                                                     <p className="text-xs text-muted-foreground mb-1">Provinsi</p>
-                                                    <p className="text-sm font-semibold">{selectedKpsInfo.PROVINSI || selectedKpsInfo.lokasi_prov || '-'}</p>
+                                                    <p className="text-sm font-semibold">{primaryProvinsi}</p>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Kabupaten/Kota</p>
-                                                    <p className="text-sm font-semibold">{selectedKpsInfo.KAB_KOTA || selectedKpsInfo.lokasi_kab || '-'}</p>
+                                                    <p className="text-xs text-muted-foreground mb-1">Kabupaten</p>
+                                                    <p className="text-sm font-semibold">{primaryKabupaten}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground mb-1">Luas</p>
+                                                    <p className="text-sm font-semibold">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs text-muted-foreground mb-1">Jumlah KK</p>
+                                                    <p className="text-sm font-semibold">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</p>
                                                 </div>
                                             </div>
                                         </div>

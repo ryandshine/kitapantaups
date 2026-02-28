@@ -119,7 +119,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                     <div className="flex justify-between items-start mb-1">
                                         <div className="font-semibold text-foreground transition-colors group-hover:text-primary">{kps.nama_kps}</div>
                                         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-tight text-muted-foreground">
-                                            {kps.jenis_kps}
+                                            {kps.kps_type || kps.jenis_kps}
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-1 mt-1 text-[11px] text-muted-foreground">
