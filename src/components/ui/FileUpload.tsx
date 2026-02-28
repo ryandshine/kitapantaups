@@ -101,7 +101,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 )}
 
                 <div className="p-6 flex flex-col items-center justify-center text-center space-y-2">
-                    <div className="h-10 w-10 rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary">
+                    <div className="h-10 w-10 rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary flex items-center justify-center">
                         {multiple && files.length > 0 ? <Plus size={20} /> : <Upload size={20} />}
                     </div>
                     <div>
