@@ -228,6 +228,8 @@ export const AduanDetailPage: React.FC = () => {
     const [isLoadingUsers, setIsLoadingUsers] = useState(false);
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploadingSurat, setIsUploadingSurat] = useState(false);
+    const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+    const [uploadPickerKey, setUploadPickerKey] = useState(0);
     const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
     const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<{ id: string; fileName: string } | null>(null);
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
@@ -416,6 +418,30 @@ export const AduanDetailPage: React.FC = () => {
             updated.splice(idx, 1);
             return { ...prev, newFiles: updated };
         });
+    };
+
+    const resetUploadModal = () => {
+        setIsUploadModalOpen(false);
+        setUploadFiles([]);
+        setUploadPickerKey((k) => k + 1);
+    };
+
+    const handleUploadSubmit = async () => {
+        if (!aduan || uploadFiles.length === 0) {
+            setIsUploadModalOpen(false);
+            return;
+        }
+        setIsUploadingSurat(true);
+        try {
+            await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles);
+            await refetchAduan();
+            resetUploadModal();
+        } catch (err) {
+            console.error('Failed to upload documents:', err);
+            alert('Gagal mengunggah dokumen.');
+        } finally {
+            setIsUploadingSurat(false);
+        }
     };
 
     const openEditTlModal = (tl: TindakLanjut) => {
@@ -2091,7 +2117,7 @@ export const AduanDetailPage: React.FC = () => {
             {/* Upload Modal (Unified) */}
             <Modal
                 isOpen={isUploadModalOpen}
-                onClose={() => setIsUploadModalOpen(false)}
+                onClose={resetUploadModal}
                 title="Unggah Berkas Baru"
                 size="lg"
             >
@@ -2108,31 +2134,26 @@ export const AduanDetailPage: React.FC = () => {
                         </div>
 
                         <FileUpload
+                            key={`upload-${uploadPickerKey}`}
                             label="Pilih File (Bisa Banyak Sekaligus)"
                             helperText="Format: PDF, JPG, PNG, DOCX, ZIP, SHP, Audio."
                             initialFiles={[]}
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                             multiple={true}
-                            onFileSelected={async (files) => {
-                                if (files.length === 0 || !user) return;
-                                setIsUploadingSurat(true);
-                                try {
-                                    await AduanService.uploadAdditionalDocuments(aduan.id, files);
-                                    setIsUploadModalOpen(false);
-                                    // Refetch data via React Query instead of full page reload
-                                    await refetchAduan();
-                                } catch (err) {
-                                    console.error('Failed to upload documents:', err);
-                                    alert('Gagal mengunggah dokumen.');
-                                } finally {
-                                    setIsUploadingSurat(false);
-                                }
-                            }}
-                            onFileRemoved={() => { }}
+                            onFileSelected={(files) => setUploadFiles(files)}
+                            onFileRemoved={(idx) => setUploadFiles((prev) => prev.filter((_, i) => i !== idx))}
                             isLoading={isUploadingSurat}
                         />
                     </div>
                 </div>
+                <ModalFooter className="mt-4">
+                    <Button variant="ghost" onClick={resetUploadModal} disabled={isUploadingSurat}>
+                        Batal
+                    </Button>
+                    <Button variant="primary" onClick={handleUploadSubmit} isLoading={isUploadingSurat} disabled={uploadFiles.length === 0}>
+                        OK &amp; Upload
+                    </Button>
+                </ModalFooter>
             </Modal>
 
             {/* Print Only Footer */}
