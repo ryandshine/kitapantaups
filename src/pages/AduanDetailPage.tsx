@@ -451,6 +451,7 @@ export const AduanDetailPage: React.FC = () => {
                 updatedBy: user.id,
                 perihal: editForm.perihal,
                 ringkasanMasalah: editForm.ringkasanMasalah,
+                picId: editForm.picId,
                 picName: editForm.picName,
                 kpsId: editForm.kpsId,
                 skema: editForm.skema,
@@ -1425,7 +1426,7 @@ export const AduanDetailPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-xs text-muted-foreground">Dir. Pengendalian PS</p>
+                                            <p className="text-xs text-muted-foreground">Dit. Pengendalian PS</p>
                                         </div>
                                     </div>
                                 </div>

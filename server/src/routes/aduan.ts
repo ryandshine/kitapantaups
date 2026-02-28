@@ -265,6 +265,8 @@ const createAduanSchema = z.object({
   jumlah_kk: z.number().optional(),
   lokasi_lat: z.array(z.string()).optional(),
   lokasi_lng: z.array(z.string()).optional(),
+  pic_id: z.string().uuid().optional(),
+  pic_name: z.string().optional(),
 })
 
 // POST /aduan
@@ -287,8 +289,8 @@ aduan.post('/', zValidator('json', createAduanSchema), async (c) => {
       pengadu_nama, pengadu_instansi, kategori_masalah, ringkasan_masalah,
       nama_kps, jenis_kps, nomor_sk, id_kps_api,
       lokasi_prov, lokasi_kab, lokasi_kec, lokasi_desa, lokasi_luas_ha,
-      jumlah_kk, lokasi_lat, lokasi_lng, created_by
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+      jumlah_kk, lokasi_lat, lokasi_lng, created_by, pic_id, pic_name
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
     RETURNING *`,
     [
       nomorTiket, data.surat_nomor, data.surat_tanggal, data.surat_asal_perihal,
@@ -296,6 +298,7 @@ aduan.post('/', zValidator('json', createAduanSchema), async (c) => {
       data.nama_kps, data.jenis_kps, data.nomor_sk, data.id_kps_api,
       data.lokasi_prov, data.lokasi_kab, data.lokasi_kec, data.lokasi_desa, data.lokasi_luas_ha,
       data.jumlah_kk, data.lokasi_lat, data.lokasi_lng, user.userId,
+      data.pic_id || user.userId, data.pic_name || user.displayName,
     ]
   )
 
@@ -326,6 +329,8 @@ const updateAduanSchema = z.object({
   lokasi_lng: z.array(z.string()).optional(),
   surat_file_url: z.string().optional(),
   drive_folder_id: z.string().optional(),
+  pic_id: z.string().uuid().optional().nullable(),
+  pic_name: z.string().optional(),
 })
 
 // PATCH /aduan/:id

@@ -61,7 +61,7 @@ export const AduanService = {
         userId: string,
         userName: string
     ) => {
-        const payload = {
+        const payload: any = {
             surat_nomor: formData.surat_nomor,
             surat_tanggal: formData.surat_tanggal,
             surat_asal_perihal: formData.surat_asal_perihal,
@@ -81,6 +81,8 @@ export const AduanService = {
             jumlah_kk: formData.jumlah_kk,
             lokasi_lat: formData.lokasi_lat,
             lokasi_lng: formData.lokasi_lng,
+            pic_id: userId,
+            pic_name: userName,
         };
 
         // 1. Create the aduan record first
@@ -260,6 +262,8 @@ export const AduanService = {
         if (data.status) updateData.status = data.status;
         if (data.alasanPenolakan !== undefined) updateData.alasan_penolakan = data.alasanPenolakan;
         if (data.driveFolderId) updateData.drive_folder_id = data.driveFolderId;
+        if (data.picId !== undefined) updateData.pic_id = data.picId || null;
+        if (data.picName !== undefined) updateData.pic_name = data.picName;
         if (data.perihal) updateData.surat_asal_perihal = data.perihal;
         if (data.ringkasanMasalah) updateData.ringkasan_masalah = data.ringkasanMasalah;
         if (data.kategoriMasalah) updateData.kategori_masalah = data.kategoriMasalah;
@@ -373,7 +377,7 @@ export const AduanService = {
         },
         perihal: row.surat_asal_perihal || '',
         skema: '',
-        picId: '',
-        picName: '',
+        picId: row.pic_id || '',
+        picName: row.pic_name || '',
     }),
 };
