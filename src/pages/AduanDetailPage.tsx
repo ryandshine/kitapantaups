@@ -75,6 +75,21 @@ export const AduanDetailPage: React.FC = () => {
 
 
     const { data: qTindakLanjutList = [] } = useTindakLanjutList(aduan?.id);
+    const latestTindakLanjut = useMemo(() => {
+        if (!qTindakLanjutList.length) return null;
+        return [...qTindakLanjutList].sort((a, b) => {
+            const dateDiff = new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime();
+            if (dateDiff !== 0) return dateDiff;
+            return (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0);
+        })[0];
+    }, [qTindakLanjutList]);
+
+    const latestTindakLanjutLabel = useMemo(() => {
+        if (!latestTindakLanjut) return 'Tahap Saat Ini';
+        const dateLabel = formatDate(latestTindakLanjut.tanggal);
+        const detail = latestTindakLanjut.keterangan?.trim() || latestTindakLanjut.jenisTL || 'Tindak lanjut terbaru';
+        return `${dateLabel} • ${detail}`;
+    }, [latestTindakLanjut]);
     const suratMasukAttachment = useMemo(() => {
         if (!aduan?.suratMasuk?.fileUrl) return null;
         return {
@@ -926,9 +941,9 @@ export const AduanDetailPage: React.FC = () => {
                                             <motion.span
                                                 initial={{ opacity: 0, y: 5 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="text-[10px] font-medium text-foreground/80 bg-muted px-2 py-0.5 rounded-full"
+                                                className="text-[10px] font-medium text-foreground/80 bg-muted px-2 py-0.5 rounded-full max-w-[260px] line-clamp-1"
                                             >
-                                                Tahap Saat Ini
+                                                {latestTindakLanjutLabel}
                                             </motion.span>
                                         )}
                                         {isActive && isLastStep && (
