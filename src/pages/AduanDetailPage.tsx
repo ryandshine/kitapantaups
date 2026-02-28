@@ -21,7 +21,8 @@ import {
     Briefcase,
     Sparkles,
     Upload,
-    Settings
+    Settings,
+    Download
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -178,6 +179,7 @@ export const AduanDetailPage: React.FC = () => {
         alasanPenolakan: '',
     });
     const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
+    const [isDownloadingZip, setIsDownloadingZip] = useState(false);
 
     const [suratFile, setSuratFile] = useState<File | null>(null);
 
@@ -524,6 +526,43 @@ export const AduanDetailPage: React.FC = () => {
             }
         );
     };
+
+    const handleDownloadZip = async () => {
+        if (allAttachments.length === 0) return;
+        setIsDownloadingZip(true);
+        try {
+            const JSZip = (await import('jszip')).default;
+            const zip = new JSZip();
+            await Promise.all(
+                allAttachments.map(async (file, index) => {
+                    try {
+                        const res = await fetch(file.url);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const blob = await res.blob();
+                        const safeName = `${String(index + 1).padStart(2, '0')}_${file.fileName}`;
+                        zip.file(safeName, blob);
+                    } catch (err) {
+                        console.warn(`Gagal mengunduh ${file.fileName}:`, err);
+                    }
+                })
+            );
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lampiran-${aduan?.nomorTiket || aduan?.id || 'aduan'}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Gagal membuat ZIP:', err);
+            alert('Gagal membuat file ZIP. Silakan coba lagi.');
+        } finally {
+            setIsDownloadingZip(false);
+        }
+    };
+
     if (isLoadingAduan) {
         return (
             <div className="flex h-96 flex-col items-center justify-center gap-4">
@@ -1399,14 +1438,28 @@ export const AduanDetailPage: React.FC = () => {
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
                             <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/70 bg-muted/20">
                                 <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-foreground">Lampiran & Berkas</CardTitle>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-8 rounded-lg text-[10px] font-semibold uppercase border-border hover:bg-muted"
-                                    onClick={() => setIsUploadModalOpen(true)}
-                                >
-                                    <Upload size={12} className="mr-1.5" /> Upload
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                    {allAttachments.length > 0 && (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-border hover:bg-muted"
+                                            onClick={handleDownloadZip}
+                                            disabled={isDownloadingZip}
+                                        >
+                                            <Download size={12} className="mr-1.5" />
+                                            {isDownloadingZip ? 'Memproses...' : 'ZIP'}
+                                        </Button>
+                                    )}
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-border hover:bg-muted"
+                                        onClick={() => setIsUploadModalOpen(true)}
+                                    >
+                                        <Upload size={12} className="mr-1.5" /> Upload
+                                    </Button>
+                                </div>
                             </CardHeader>
                             <CardContent className="p-4 flex flex-col gap-4">
                                 {/* Unified Attachment List */}
