@@ -62,6 +62,285 @@ const formatDate = (date: Date): string => {
     }).format(new Date(date));
 };
 
+type EditAduanForm = {
+    perihal: string;
+    ringkasanMasalah: string;
+    picName: string;
+    lokasiDesa: string;
+    lokasiKecamatan: string;
+    lokasiKabupaten: string;
+    lokasiProvinsi: string;
+    lokasiLuasHa: number;
+    lokasiBalaiId: string;
+    lokasiBalaiName: string;
+    skema: Aduan['skema'];
+    jumlahKK: number;
+    skTerkait: string;
+    fileUrl: string;
+    driveFolderId: string;
+    kpsId: string;
+    asalSurat: string;
+    suratPerihal: string;
+    asalSuratKategori: string;
+    pengaduNama: string;
+    pengaduTelepon: string;
+    pengaduEmail: string;
+    picId: string;
+};
+
+type EditAduanModalProps = {
+    isOpen: boolean;
+    isAdmin: boolean;
+    aduan?: Aduan;
+    editForm: EditAduanForm;
+    editSelectedKps: KpsData | null;
+    picOptions: { value: string; label: string }[];
+    isLoadingUsers: boolean;
+    emailError?: string;
+    isEditSubmitting: boolean;
+    onSubmit: (e: React.FormEvent) => void;
+    onClose: () => void;
+    onEditInput: (field: keyof EditAduanForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    onSelectKps: (kps: KpsData) => void;
+    onResetKps: () => void;
+    onSelectPic: (value: string) => void;
+    onAsalSuratKategoriChange: (value: string) => void;
+    onSuratFileSelected: (files: File[]) => void;
+    onSuratFileRemoved: () => void;
+};
+
+const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
+
+const EditAduanModal: React.FC<EditAduanModalProps> = ({
+    isOpen,
+    isAdmin,
+    aduan,
+    editForm,
+    editSelectedKps,
+    picOptions,
+    isLoadingUsers,
+    emailError,
+    isEditSubmitting,
+    onSubmit,
+    onClose,
+    onEditInput,
+    onSelectKps,
+    onResetKps,
+    onSelectPic,
+    onAsalSuratKategoriChange,
+    onSuratFileSelected,
+    onSuratFileRemoved,
+}) => {
+    return (
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title="Edit Data Aduan"
+            description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
+            className="max-w-4xl rounded-2xl border-border/80 bg-white p-6"
+            size="xl"
+        >
+            <form onSubmit={onSubmit} className="flex flex-col gap-5">
+                <div className={`${editSectionClass} space-y-4`}>
+                    <Input
+                        label="Perihal / Judul Aduan"
+                        value={editForm.perihal}
+                        onChange={onEditInput('perihal')}
+                        required
+                        fullWidth
+                    />
+                    <Textarea
+                        label="Ringkasan Masalah"
+                        value={editForm.ringkasanMasalah}
+                        onChange={onEditInput('ringkasanMasalah')}
+                        rows={4}
+                        fullWidth
+                    />
+                </div>
+
+                <div className="bg-muted/25 p-4 rounded-xl border border-border/70">
+                    <label className="block text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                        <Sparkles size={16} />
+                        Identitas Kelompok / KPS
+                    </label>
+
+                    {!editSelectedKps ? (
+                        <>
+                            <KpsSearch onSelect={onSelectKps} />
+                            <p className="text-[10px] text-muted-foreground mt-2">
+                                Cari & pilih data Master KPS untuk mengisi otomatis lokasi.
+                            </p>
+                        </>
+                    ) : (
+                        <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <div className="p-3 bg-white rounded-md border border-border shadow-sm flex flex-col gap-2">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-semibold text-foreground">{editSelectedKps.NAMA_KPS}</span>
+                                        <span className="text-[10px] text-muted-foreground font-mono">SK: {editSelectedKps.NO_SK}</span>
+                                    </div>
+                                    <Badge variant="outline" className="text-[10px] px-1.5 h-5 bg-primary/5 text-primary border-border">
+                                        {editSelectedKps.SKEMA}
+                                    </Badge>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 mt-1 pt-2 border-t border-slate-50">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">Lokasi</span>
+                                        <span className="text-[10px] text-foreground font-medium">Desa {editSelectedKps.DESA}, Kec. {editSelectedKps.KECAMATAN}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">Luas / KK</span>
+                                        <span className="text-[10px] text-foreground font-medium">{editSelectedKps.LUAS_SK} Ha / {editSelectedKps.JML_KK} KK</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="self-end text-xs h-7 text-destructive hover:text-destructive hover:bg-destructive/5"
+                                onClick={onResetKps}
+                            >
+                                <Trash2 size={12} className="mr-1.5" /> Ganti / Cari Ulang
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                {isAdmin && (
+                    <div className={editSectionClass}>
+                        <Select
+                            label="PIC (Penanggung Jawab)"
+                            options={picOptions}
+                            value={editForm.picId || '__none__'}
+                            onChange={onSelectPic}
+                            fullWidth
+                            disabled={isLoadingUsers}
+                        />
+                        {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
+                    </div>
+                )}
+
+                <div className="bg-muted/25 p-4 rounded-xl border border-border/70 space-y-4">
+                    <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <User size={16} className="text-primary" />
+                        Identitas Pengadu
+                    </label>
+                    <Input
+                        label="Nama Pengadu / Kelompok"
+                        value={editForm.pengaduNama}
+                        onChange={onEditInput('pengaduNama')}
+                        fullWidth
+                        required
+                    />
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Input
+                            label="Nomor Telepon"
+                            value={editForm.pengaduTelepon}
+                            onChange={onEditInput('pengaduTelepon')}
+                            fullWidth
+                        />
+                        <Input
+                            label="Email Pengadu"
+                            placeholder="nama@email.com"
+                            value={editForm.pengaduEmail}
+                            onChange={onEditInput('pengaduEmail')}
+                            error={emailError}
+                            fullWidth
+                        />
+                    </div>
+                </div>
+
+                {!editSelectedKps && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Input
+                            label="Desa"
+                            value={editForm.lokasiDesa}
+                            onChange={onEditInput('lokasiDesa')}
+                            fullWidth
+                        />
+                        <Input
+                            label="Kecamatan"
+                            value={editForm.lokasiKecamatan}
+                            onChange={onEditInput('lokasiKecamatan')}
+                            fullWidth
+                        />
+                    </div>
+                )}
+
+                <div className={`${editSectionClass} grid grid-cols-1 sm:grid-cols-2 gap-4`}>
+                    <div className="sm:col-span-2">
+                        <label className="text-[10px] font-semibold text-primary uppercase tracking-widest block mb-2">Administrasi Surat</label>
+                    </div>
+                    <Select
+                        label="Kategori Asal"
+                        options={[
+                            { value: 'Masyarakat', label: 'Masyarakat' },
+                            { value: 'Kementerian', label: 'Kementerian' },
+                            { value: 'Direktorat', label: 'Direktorat' },
+                            { value: 'Balai', label: 'Balai' },
+                            { value: 'Lainnya', label: 'Lainnya' }
+                        ]}
+                        value={editForm.asalSuratKategori}
+                        onChange={onAsalSuratKategoriChange}
+                        fullWidth
+                    />
+                    {editForm.asalSuratKategori !== 'Masyarakat' && (
+                        <div className="sm:col-span-2">
+                            <Input
+                                label="Detail Asal Surat"
+                                value={editForm.asalSurat}
+                                onChange={onEditInput('asalSurat')}
+                                placeholder={`Nama ${editForm.asalSuratKategori.toLowerCase()}...`}
+                                fullWidth
+                                required
+                            />
+                        </div>
+                    )}
+                    <div className="sm:col-span-2">
+                        <Input
+                            label="Perihal Surat"
+                            value={editForm.suratPerihal || ''}
+                            onChange={onEditInput('suratPerihal')}
+                            placeholder="Masukkan perihal surat..."
+                            fullWidth
+                        />
+                    </div>
+                </div>
+
+                <div className={editSectionClass}>
+                    <FileUpload
+                        label="Ganti / Upload Surat Masuk (Lampiran)"
+                        helperText="Unggah berkas surat masuk baru (PDF/Gambar)"
+                        initialFiles={aduan?.suratMasuk?.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : []}
+                        onFileSelected={onSuratFileSelected}
+                        onFileRemoved={onSuratFileRemoved}
+                        accept=".pdf,image/*,.doc,.docx"
+                    />
+                </div>
+
+                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={onClose}
+                    >
+                        Batal
+                    </Button>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        isLoading={isEditSubmitting}
+                        leftIcon={<CheckCircle size={18} />}
+                    >
+                        Simpan Perubahan
+                    </Button>
+                </ModalFooter>
+            </form>
+        </Modal>
+    );
+};
+
 
 export const AduanDetailPage: React.FC = () => {
     const { nomorTiket } = useParams<{ nomorTiket: string }>();
@@ -86,8 +365,8 @@ export const AduanDetailPage: React.FC = () => {
     const latestTindakLanjutLabel = useMemo(() => {
         if (!latestTindakLanjut) return 'Tahap Saat Ini';
         const dateLabel = formatDate(latestTindakLanjut.tanggal);
-        const detail = latestTindakLanjut.keterangan?.trim() || latestTindakLanjut.jenisTL || 'Tindak lanjut terbaru';
-        return `${dateLabel} • ${detail}`;
+        const jenisTlLabel = latestTindakLanjut.jenisTL?.trim() || 'Tindak lanjut terbaru';
+        return `${jenisTlLabel} • ${dateLabel}`;
     }, [latestTindakLanjut]);
     const suratMasukAttachment = useMemo(() => {
         if (!aduan?.suratMasuk?.fileUrl) return null;
@@ -175,7 +454,7 @@ export const AduanDetailPage: React.FC = () => {
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const buildEditForm = (source?: typeof aduan | null) => ({
+    const buildEditForm = (source?: typeof aduan | null): EditAduanForm => ({
         perihal: source?.perihal || '',
         ringkasanMasalah: source?.ringkasanMasalah || '',
         picName: source?.picName || '',
@@ -186,7 +465,7 @@ export const AduanDetailPage: React.FC = () => {
         lokasiLuasHa: source?.lokasi?.luasHa || 0,
         lokasiBalaiId: source?.lokasi?.balaiId || '',
         lokasiBalaiName: source?.lokasi?.balaiName || '',
-        skema: source?.skema as any,
+        skema: source?.skema,
         jumlahKK: source?.jumlahKK || 0,
         skTerkait: source?.skTerkait || '',
         fileUrl: source?.suratMasuk?.fileUrl || '',
@@ -202,7 +481,7 @@ export const AduanDetailPage: React.FC = () => {
         picId: source?.picId || ''
     });
 
-    const [editForm, setEditForm] = useState(buildEditForm());
+    const [editForm, setEditForm] = useState<EditAduanForm>(buildEditForm());
 
     const [statusForm, setStatusForm] = useState({
         status: '',
@@ -240,9 +519,9 @@ export const AduanDetailPage: React.FC = () => {
         ],
         [users]
     );
-    const handleEditFieldChange = (field: keyof typeof editForm) => (value: any) =>
+    const handleEditFieldChange = (field: keyof EditAduanForm) => (value: string | number | undefined) =>
         setEditForm((prev) => ({ ...prev, [field]: value }));
-    const handleEditInput = (field: keyof typeof editForm) =>
+    const handleEditInput = (field: keyof EditAduanForm) =>
         (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
             handleEditFieldChange(field)(e.target.value);
 
@@ -1884,235 +2163,48 @@ export const AduanDetailPage: React.FC = () => {
             </Modal>
 
             {/* Edit Data Modal */}
-            <Modal
+            <EditAduanModal
                 isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                title="Edit Data Aduan"
-                description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-                className="max-w-4xl rounded-2xl border-border/80 bg-white p-6"
-                size="xl"
-            >
-                <form onSubmit={handleEditSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-border/70 bg-muted/20 p-4 space-y-4">
-                        <Input
-                            label="Perihal / Judul Aduan"
-                            value={editForm.perihal}
-                            onChange={handleEditInput('perihal')}
-                            required
-                            fullWidth
-                        />
-                        <Textarea
-                            label="Ringkasan Masalah"
-                            value={editForm.ringkasanMasalah}
-                            onChange={handleEditInput('ringkasanMasalah')}
-                            rows={4}
-                            fullWidth
-                        />
-                    </div>
-
-                    <div className="bg-muted/25 p-4 rounded-xl border border-border/70">
-                        <label className="block text-sm font-semibold text-primary mb-2 flex items-center gap-2">
-                            <Sparkles size={16} />
-                            Identitas Kelompok / KPS
-                        </label>
-
-                        {!editSelectedKps ? (
-                            <>
-                                <KpsSearch onSelect={handleKpsSelect} />
-                                <p className="text-[10px] text-muted-foreground mt-2">
-                                    Cari & pilih data Master KPS untuk mengisi otomatis lokasi.
-                                </p>
-                            </>
-                        ) : (
-                            <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                <div className="p-3 bg-white rounded-md border border-border shadow-sm flex flex-col gap-2">
-                                    <div className="flex items-start justify-between gap-2">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-semibold text-foreground">{editSelectedKps.NAMA_KPS}</span>
-                                            <span className="text-[10px] text-muted-foreground font-mono">SK: {editSelectedKps.NO_SK}</span>
-                                        </div>
-                                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 bg-primary/5 text-primary border-border">
-                                            {editSelectedKps.SKEMA}
-                                        </Badge>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2 mt-1 pt-2 border-t border-slate-50">
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-semibold text-muted-foreground uppercase">Lokasi</span>
-                                            <span className="text-[10px] text-foreground font-medium">Desa {editSelectedKps.DESA}, Kec. {editSelectedKps.KECAMATAN}</span>
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[9px] font-semibold text-muted-foreground uppercase">Luas / KK</span>
-                                            <span className="text-[10px] text-foreground font-medium">{editSelectedKps.LUAS_SK} Ha / {editSelectedKps.JML_KK} KK</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="self-end text-xs h-7 text-destructive hover:text-destructive hover:bg-destructive/5"
-                                    onClick={() => {
-                                        setEditSelectedKps(null);
-                                        setEditForm(prev => ({ ...prev, kpsId: '' }));
-                                    }}
-                                >
-                                    <Trash2 size={12} className="mr-1.5" /> Ganti / Cari Ulang
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-
-                    {isAdmin && (
-                        <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
-                            <Select
-                                label="PIC (Penanggung Jawab)"
-                                options={picOptions}
-                                value={editForm.picId || '__none__'}
-                                onChange={(val) => {
-                                    const normalizedValue = val === '__none__' ? '' : val;
-                                    const selectedUser = users.find(u => u.id === normalizedValue);
-                                    setEditForm(prev => ({
-                                        ...prev,
-                                        picId: normalizedValue,
-                                        picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
-                                    }));
-                                }}
-                                fullWidth
-                                disabled={isLoadingUsers}
-                            />
-                            {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
-                        </div>
-                    )}
-
-                    <div className="bg-muted/25 p-4 rounded-xl border border-border/70 space-y-4">
-                        <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                            <User size={16} className="text-primary" />
-                            Identitas Pengadu
-                        </label>
-                        <Input
-                            label="Nama Pengadu / Kelompok"
-                            value={editForm.pengaduNama}
-                            onChange={handleEditInput('pengaduNama')}
-                            fullWidth
-                            required
-                        />
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <Input
-                                label="Nomor Telepon"
-                                value={editForm.pengaduTelepon}
-                                onChange={handleEditInput('pengaduTelepon')}
-                                fullWidth
-                            />
-                            <Input
-                                label="Email Pengadu"
-                                placeholder="nama@email.com"
-                                value={editForm.pengaduEmail}
-                                onChange={handleEditInput('pengaduEmail')}
-                                error={emailError}
-                                fullWidth
-                            />
-                        </div>
-                    </div>
-
-                    {!editSelectedKps && (
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <Input
-                                label="Desa"
-                                value={editForm.lokasiDesa}
-                                onChange={handleEditInput('lokasiDesa')}
-                                fullWidth
-                            />
-                            <Input
-                                label="Kecamatan"
-                                value={editForm.lokasiKecamatan}
-                                onChange={handleEditInput('lokasiKecamatan')}
-                                fullWidth
-                            />
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/20 p-4 rounded-xl border border-border/70">
-                        <div className="sm:col-span-2">
-                            <label className="text-[10px] font-semibold text-primary uppercase tracking-widest block mb-2">Administrasi Surat</label>
-                        </div>
-                        <Select
-                            label="Kategori Asal"
-                            options={[
-                                { value: 'Masyarakat', label: 'Masyarakat' },
-                                { value: 'Kementerian', label: 'Kementerian' },
-                                { value: 'Direktorat', label: 'Direktorat' },
-                                { value: 'Balai', label: 'Balai' },
-                                { value: 'Lainnya', label: 'Lainnya' }
-                            ]}
-                            value={editForm.asalSuratKategori}
-                            onChange={(val) => {
-                                setEditForm(prev => ({
-                                    ...prev,
-                                    asalSuratKategori: val,
-                                    asalSurat: val === 'Masyarakat' ? 'Masyarakat' : prev.asalSurat === 'Masyarakat' ? '' : prev.asalSurat
-                                }));
-                            }}
-                            fullWidth
-                        />
-                        {editForm.asalSuratKategori !== 'Masyarakat' && (
-                            <div className="sm:col-span-2">
-                                <Input
-                                    label="Detail Asal Surat"
-                                    value={editForm.asalSurat}
-                                    onChange={handleEditInput('asalSurat')}
-                                    placeholder={`Nama ${editForm.asalSuratKategori.toLowerCase()}...`}
-                                    fullWidth
-                                    required
-                                />
-                            </div>
-                        )}
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Perihal Surat"
-                                value={editForm.suratPerihal || ''}
-                                onChange={handleEditInput('suratPerihal')}
-                                placeholder="Masukkan perihal surat..."
-                                fullWidth
-                            />
-                        </div>
-                    </div>
-
-                    <div className="bg-muted/20 p-4 rounded-xl border border-border/70">
-                        <FileUpload
-                            label="Ganti / Upload Surat Masuk (Lampiran)"
-                            helperText="Unggah berkas surat masuk baru (PDF/Gambar)"
-                            initialFiles={aduan.suratMasuk?.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : []}
-                            onFileSelected={(files) => setSuratFile(files[0] || null)}
-                            onFileRemoved={() => {
-                                setSuratFile(null);
-                                if (!aduan.suratMasuk?.fileUrl) {
-                                    setEditForm(prev => ({ ...prev, fileUrl: '' }));
-                                }
-                            }}
-                            accept=".pdf,image/*,.doc,.docx"
-                        />
-                    </div>
-
-
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={closeEditModal}
-                        >
-                            Batal
-                        </Button>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            isLoading={isEditSubmitting}
-                            leftIcon={<CheckCircle size={18} />}
-                        >
-                            Simpan Perubahan
-                        </Button>
-                    </ModalFooter>
-                </form>
-            </Modal>
+                isAdmin={isAdmin}
+                aduan={aduan}
+                editForm={editForm}
+                editSelectedKps={editSelectedKps}
+                picOptions={picOptions}
+                isLoadingUsers={isLoadingUsers}
+                emailError={emailError}
+                isEditSubmitting={isEditSubmitting}
+                onSubmit={handleEditSubmit}
+                onClose={closeEditModal}
+                onEditInput={handleEditInput}
+                onSelectKps={handleKpsSelect}
+                onResetKps={() => {
+                    setEditSelectedKps(null);
+                    setEditForm(prev => ({ ...prev, kpsId: '' }));
+                }}
+                onSelectPic={(val) => {
+                    const normalizedValue = val === '__none__' ? '' : val;
+                    const selectedUser = users.find(u => u.id === normalizedValue);
+                    setEditForm(prev => ({
+                        ...prev,
+                        picId: normalizedValue,
+                        picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
+                    }));
+                }}
+                onAsalSuratKategoriChange={(val) => {
+                    setEditForm(prev => ({
+                        ...prev,
+                        asalSuratKategori: val,
+                        asalSurat: val === 'Masyarakat' ? 'Masyarakat' : prev.asalSurat === 'Masyarakat' ? '' : prev.asalSurat
+                    }));
+                }}
+                onSuratFileSelected={(files) => setSuratFile(files[0] || null)}
+                onSuratFileRemoved={() => {
+                    setSuratFile(null);
+                    if (!aduan?.suratMasuk?.fileUrl) {
+                        setEditForm(prev => ({ ...prev, fileUrl: '' }));
+                    }
+                }}
+            />
 
             {/* Upload Modal (Unified) */}
             <Modal
