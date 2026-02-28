@@ -174,9 +174,23 @@ export const AduanDetailPage: React.FC = () => {
         picId: ''
     });
 
+    const [statusForm, setStatusForm] = useState({
+        status: '',
+        alasanPenolakan: '',
+    });
+    const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
+
     const [suratFile, setSuratFile] = useState<File | null>(null);
 
     const [editSelectedKps, setEditSelectedKps] = useState<KpsData | null>(null);
+
+    // Sync status form saat data aduan berubah
+    useEffect(() => {
+        if (aduan) {
+            setStatusForm({ status: aduan.status || 'baru', alasanPenolakan: aduan.alasanPenolakan || '' });
+        }
+    }, [aduan?.status, aduan?.alasanPenolakan]);
+
     const [users, setUsers] = useState<any[]>([]);
     const [masterStatuses, setMasterStatuses] = useState<{ id: number, nama_status: string }[]>([]);
     const [jenisTlOptions, setJenisTlOptions] = useState<{ id: number, nama_jenis_tl: string }[]>([]);
@@ -489,6 +503,37 @@ export const AduanDetailPage: React.FC = () => {
             alert(`Terjadi kesalahan: ${err.message || 'Error tidak diketahui'}`);
         }
     };
+
+    const handleStatusUpdate = () => {
+        if (!user || !aduan) return;
+        if (statusForm.status === 'ditolak' && !statusForm.alasanPenolakan.trim()) {
+            alert('Alasan penolakan wajib diisi jika status Ditolak.');
+            return;
+        }
+        setIsStatusSubmitting(true);
+        updateAduan(
+            {
+                id: aduan.id,
+                data: {
+                    updatedBy: user.id,
+                    status: statusForm.status as any,
+                    alasanPenolakan: statusForm.alasanPenolakan,
+                },
+            },
+            {
+                onSuccess: () => {
+                    setIsStatusSubmitting(false);
+                },
+                onError: (err: any) => {
+                    setIsStatusSubmitting(false);
+                    alert(`Gagal mengubah status: ${err.message || 'Error tidak diketahui'}`);
+                },
+            }
+        );
+    };
+    // TODO(Task3): wire handleStatusUpdate and isStatusSubmitting into JSX
+    void (handleStatusUpdate as unknown);
+    void (isStatusSubmitting as unknown);
 
     if (isLoadingAduan) {
         return (
