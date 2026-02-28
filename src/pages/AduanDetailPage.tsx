@@ -20,7 +20,8 @@ import {
     Trash2,
     Briefcase,
     Sparkles,
-    Upload
+    Upload,
+    Settings
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -148,7 +149,6 @@ export const AduanDetailPage: React.FC = () => {
     const [editForm, setEditForm] = useState({
         perihal: '',
         ringkasanMasalah: '',
-        status: '',
         picName: '',
         lokasiDesa: '',
         lokasiKecamatan: '',
@@ -166,7 +166,6 @@ export const AduanDetailPage: React.FC = () => {
         asalSurat: '',
         suratPerihal: '',
         asalSuratKategori: '',
-        alasanPenolakan: '',
 
         pengaduNama: '',
         pengaduTelepon: '',
@@ -206,7 +205,6 @@ export const AduanDetailPage: React.FC = () => {
             setEditForm({
                 perihal: aduan.perihal || '',
                 ringkasanMasalah: aduan.ringkasanMasalah || '',
-                status: aduan.status || 'baru',
                 picName: aduan.picName || '',
                 lokasiDesa: aduan.lokasi?.desa || '',
                 lokasiKecamatan: aduan.lokasi?.kecamatan || '',
@@ -225,7 +223,6 @@ export const AduanDetailPage: React.FC = () => {
                 asalSurat: aduan.suratMasuk?.asalSurat || '',
                 suratPerihal: aduan.suratMasuk?.perihal || '',
                 asalSuratKategori: aduan.suratMasuk?.asalSuratKategori || 'Masyarakat',
-                alasanPenolakan: aduan.alasanPenolakan || '',
 
                 pengaduNama: aduan.pengadu?.nama || '',
                 pengaduTelepon: aduan.pengadu?.telepon || '',
@@ -379,7 +376,6 @@ export const AduanDetailPage: React.FC = () => {
         setEditForm({
             perihal: aduan.perihal || '',
             ringkasanMasalah: aduan.ringkasanMasalah || '',
-            status: aduan.status || 'baru',
             picName: !isAdmin ? (user?.displayName || user?.email || '') : (aduan.picName || ''),
             picId: !isAdmin ? (user?.id || '') : (aduan.picId || ''),
             lokasiDesa: aduan.lokasi?.desa || '',
@@ -398,7 +394,6 @@ export const AduanDetailPage: React.FC = () => {
             suratPerihal: aduan.suratMasuk?.perihal || '',
             asalSuratKategori: aduan.suratMasuk?.asalSuratKategori || 'Masyarakat',
             driveFolderId: aduan.driveFolderId || '',
-            alasanPenolakan: aduan.alasanPenolakan || '',
 
             pengaduNama: aduan.pengadu.nama || '',
             pengaduTelepon: aduan.pengadu.telepon || '',
@@ -454,14 +449,12 @@ export const AduanDetailPage: React.FC = () => {
                 updatedBy: user.id,
                 perihal: editForm.perihal,
                 ringkasanMasalah: editForm.ringkasanMasalah,
-                status: editForm.status as any,
                 picName: editForm.picName,
                 kpsId: editForm.kpsId,
                 skema: editForm.skema,
                 jumlahKK: editForm.jumlahKK,
                 skTerkait: editForm.skTerkait,
                 driveFolderId: editForm.driveFolderId,
-                alasanPenolakan: editForm.alasanPenolakan,
                 suratMasuk: {
                     ...aduan.suratMasuk,
                     asalSurat: editForm.asalSurat,
@@ -531,10 +524,6 @@ export const AduanDetailPage: React.FC = () => {
             }
         );
     };
-    // TODO(Task3): wire handleStatusUpdate and isStatusSubmitting into JSX
-    void (handleStatusUpdate as unknown);
-    void (isStatusSubmitting as unknown);
-
     if (isLoadingAduan) {
         return (
             <div className="flex h-96 flex-col items-center justify-center gap-4">
@@ -921,6 +910,63 @@ export const AduanDetailPage: React.FC = () => {
                     })}
                 </div>
             </motion.div>
+
+            {/* Status Card — Admin Only */}
+            {isAdmin && (
+                <motion.div
+                    variants={itemVariants}
+                    className="no-print relative overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card p-6"
+                >
+                    <div className="flex items-center gap-2 mb-4">
+                        <Settings size={15} className="text-muted-foreground" />
+                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
+                            Ubah Status Aduan
+                        </span>
+                        <StatusBadge status={aduan.status} className="ml-auto" />
+                    </div>
+                    <div className="space-y-3">
+                        <Select
+                            label="Status Baru"
+                            options={masterStatuses.length > 0
+                                ? masterStatuses.map(s => ({ value: s.nama_status, label: s.nama_status.toUpperCase() }))
+                                : [
+                                    { value: 'proses', label: 'PROSES' },
+                                    { value: 'selesai', label: 'SELESAI' },
+                                    { value: 'ditolak', label: 'DITOLAK' },
+                                ]
+                            }
+                            value={statusForm.status}
+                            onChange={(val) => setStatusForm(prev => ({ ...prev, status: val, alasanPenolakan: val !== 'ditolak' ? '' : prev.alasanPenolakan }))}
+                            fullWidth
+                        />
+                        {statusForm.status === 'ditolak' && (
+                            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                <Textarea
+                                    label="Alasan Penolakan"
+                                    placeholder="Jelaskan alasan mengapa aduan ini ditolak..."
+                                    value={statusForm.alasanPenolakan}
+                                    onChange={(e) => setStatusForm(prev => ({ ...prev, alasanPenolakan: e.target.value }))}
+                                    fullWidth
+                                    rows={3}
+                                    required
+                                />
+                                <p className="text-[10px] text-destructive mt-1 flex items-center gap-1">
+                                    <AlertCircle size={10} /> Wajib diisi jika status Ditolak
+                                </p>
+                            </div>
+                        )}
+                        <Button
+                            type="button"
+                            onClick={handleStatusUpdate}
+                            disabled={isStatusSubmitting || statusForm.status === aduan.status}
+                            size="sm"
+                            className="w-full sm:w-auto"
+                        >
+                            {isStatusSubmitting ? 'Menyimpan...' : 'Simpan Status'}
+                        </Button>
+                    </div>
+                </motion.div>
+            )}
 
             {/* Mini TL Timeline */}
             <motion.div
@@ -1613,62 +1659,28 @@ export const AduanDetailPage: React.FC = () => {
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-xl border border-border/70 bg-muted/20 p-4">
-                        <Select
-                            label="Status Aduan"
-                            options={masterStatuses.length > 0
-                                ? masterStatuses.map(s => ({ value: s.nama_status, label: s.nama_status.toUpperCase() }))
-                                : [
-                                    { value: 'proses', label: 'Proses' },
-                                    { value: 'selesai', label: 'Selesai' },
-                                    { value: 'ditolak', label: 'Ditolak' }
-                                ]
-                            }
-                            value={editForm.status}
-                            onChange={(val) => setEditForm({ ...editForm, status: val })}
-                            fullWidth
-                            disabled={!isAdmin}
-                        />
-                        {isAdmin ? (
-                            <>
-                                <Select
-                                    label="PIC (Penanggung Jawab)"
-                                    options={[
-                                        { value: '__none__', label: '-- Pilih PIC --' },
-                                        ...users.map(u => ({ value: u.id, label: u.displayName || u.email }))
-                                    ]}
-                                    value={editForm.picId || '__none__'}
-                                    onChange={(val) => {
-                                        const normalizedValue = val === '__none__' ? '' : val;
-                                        const selectedUser = users.find(u => u.id === normalizedValue);
-                                        setEditForm({
-                                            ...editForm,
-                                            picId: normalizedValue,
-                                            picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
-                                        });
-                                    }}
-                                    fullWidth
-                                    disabled={isLoadingUsers}
-                                />
-                                {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
-                            </>
-                        ) : null}
-                    </div>
-
-                    {editForm.status === 'ditolak' && (
-                        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                            <Textarea
-                                label="Alasan Penolakan"
-                                placeholder="Jelaskan alasan mengapa aduan ini ditolak (misal: duplikat, tidak lengkap, dll)..."
-                                value={editForm.alasanPenolakan}
-                                onChange={(e) => setEditForm({ ...editForm, alasanPenolakan: e.target.value })}
+                    {isAdmin && (
+                        <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
+                            <Select
+                                label="PIC (Penanggung Jawab)"
+                                options={[
+                                    { value: '__none__', label: '-- Pilih PIC --' },
+                                    ...users.map(u => ({ value: u.id, label: u.displayName || u.email }))
+                                ]}
+                                value={editForm.picId || '__none__'}
+                                onChange={(val) => {
+                                    const normalizedValue = val === '__none__' ? '' : val;
+                                    const selectedUser = users.find(u => u.id === normalizedValue);
+                                    setEditForm({
+                                        ...editForm,
+                                        picId: normalizedValue,
+                                        picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
+                                    });
+                                }}
                                 fullWidth
-                                rows={3}
-                                required
+                                disabled={isLoadingUsers}
                             />
-                            <p className="text-[10px] text-destructive mt-1 flex items-center gap-1">
-                                <AlertCircle size={10} /> Wajib diisi jika status Ditolak
-                            </p>
+                            {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
                         </div>
                     )}
 
