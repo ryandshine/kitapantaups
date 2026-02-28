@@ -174,23 +174,29 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                     {editSelectedKpsList.length > 0 && (
                         <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div className="flex flex-wrap gap-2">
-                                {editSelectedKpsList.map((kps) => (
-                                    <div key={kps.id_kps_api} className="inline-flex items-center gap-2 rounded-full border border-border bg-white pl-3 pr-1 py-1 text-[10px]">
-                                        <span className="font-semibold text-foreground">{kps.nama_kps || kps.NAMA_KPS}</span>
-                                        <span className="text-muted-foreground font-mono">{kps.nomor_sk || kps.NO_SK}</span>
-                                        <button
-                                            type="button"
-                                            className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => onRemoveKps(kps.id_kps_api)}
-                                        >
-                                            <Trash2 size={11} />
-                                        </button>
-                                    </div>
-                                ))}
+                            <div className="mb-1 flex flex-wrap items-center gap-2">
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total KPS: {editSelectedKpsList.length}
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total Luas: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total KK: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0).toLocaleString('id-ID')}
+                                </Badge>
                             </div>
                             {editSelectedKpsList.map((kps) => (
                                 <div key={`card-${kps.id_kps_api}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
+                                    <div className="mb-2 flex justify-end">
+                                        <button
+                                            type="button"
+                                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => onRemoveKps(kps.id_kps_api)}
+                                        >
+                                            <Trash2 size={11} />
+                                            Hapus
+                                        </button>
+                                    </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
@@ -373,7 +379,7 @@ export const AduanDetailPage: React.FC = () => {
 
     // Queries - fetch by ticket number
     const { data: aduan, isLoading: isLoadingAduan, isError: isAduanError, refetch: refetchAduan } = useAduanByTicket(nomorTiket);
-    const { data: selectedKpsInfo, isLoading: isLoadingKps } = useKpsDetail(aduan?.id_kps_api?.[0] || aduan?.kpsId);
+    const { data: selectedKpsInfo } = useKpsDetail(aduan?.id_kps_api?.[0] || aduan?.kpsId);
 
 
     const { data: qTindakLanjutList = [] } = useTindakLanjutList(aduan?.id);
@@ -837,17 +843,35 @@ export const AduanDetailPage: React.FC = () => {
             picId: !isAdmin ? (user?.id || '') : baseForm.picId,
         });
 
-        // Initialize selected KPS list if exists
+        // Initialize selected KPS list from current aduan detail first (instant UI parity with detail view)
         const selectedIds = (aduan.id_kps_api && aduan.id_kps_api.length > 0)
             ? aduan.id_kps_api
             : (aduan.kpsId ? [aduan.kpsId] : []);
+        const fallbackList: KpsData[] = selectedIds.map((id, idx) => ({
+            id_kps_api: id,
+            nama_kps: aduan.nama_kps?.[idx] || '-',
+            jenis_kps: aduan.jenis_kps?.[idx] || '-',
+            nomor_sk: aduan.nomor_sk?.[idx] || '-',
+            lokasi_prov: aduan.lokasi?.provinsi || '',
+            lokasi_kab: aduan.lokasi?.kabupaten || '',
+            lokasi_kec: aduan.lokasi?.kecamatan || '',
+            lokasi_desa: aduan.lokasi?.desa || '',
+            lokasi_luas_ha: Number(aduan.lokasi?.luasHa || 0),
+            jumlah_kk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
+            kps_type: aduan.type_kps?.[idx] || aduan.jenis_kps?.[idx] || '-',
+        }));
+        setEditSelectedKpsList(fallbackList);
+
         if (selectedIds.length > 0) {
             try {
                 const list = await Promise.all(selectedIds.map((id) => KpsService.getKpsById(id)));
-                setEditSelectedKpsList(list.filter((item): item is KpsData => !!item));
+                const enriched = list
+                    .map((item, idx) => item || fallbackList[idx])
+                    .filter((item): item is KpsData => !!item);
+                setEditSelectedKpsList(enriched);
             } catch (err) {
                 console.error("Failed to load existing KPS data for edit", err);
-                setEditSelectedKpsList([]);
+                setEditSelectedKpsList(fallbackList);
             }
         } else {
             setEditSelectedKpsList([]);
@@ -1106,18 +1130,40 @@ export const AduanDetailPage: React.FC = () => {
         visible: { y: 0, opacity: 1 }
     };
 
-    const primaryKpsId = aduan.id_kps_api?.length ? aduan.id_kps_api.join(', ') : (selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || '-');
-    const primaryNamaKps = aduan.nama_kps?.length ? aduan.nama_kps.join(', ') : (selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || '-');
-    const primaryNoSk = aduan.nomor_sk?.length ? aduan.nomor_sk.join(', ') : (selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || '-');
-    const primaryKpsType = aduan.type_kps?.length
-        ? aduan.type_kps.join(', ')
-        : (aduan.jenis_kps?.length
-            ? aduan.jenis_kps.join(', ')
-            : (selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || '-'));
-    const primaryProvinsi = selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan.lokasi.provinsi || '-';
-    const primaryKabupaten = selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan.lokasi.kabupaten || '-';
-    const primaryLuasHa = Number(selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan.lokasi.luasHa ?? 0);
-    const primaryJumlahKk = Number(selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan.jumlahKK ?? aduan.jumlah_kk ?? 0);
+    const lokasiObjekItems = useMemo(() => {
+        const ids = aduan.id_kps_api || [];
+        const names = aduan.nama_kps || [];
+        const sks = aduan.nomor_sk || [];
+        const types = (aduan.type_kps && aduan.type_kps.length > 0 ? aduan.type_kps : aduan.jenis_kps) || [];
+        const maxLen = Math.max(ids.length, names.length, sks.length, types.length);
+
+        if (maxLen > 0) {
+            return Array.from({ length: maxLen }).map((_, idx) => ({
+                idApiKps: ids[idx] || (idx === 0 ? (selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || '-') : '-'),
+                namaKps: names[idx] || (idx === 0 ? (selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || '-') : '-'),
+                noSk: sks[idx] || (idx === 0 ? (selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || '-') : '-'),
+                kpsType: types[idx] || (idx === 0 ? (selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || '-') : '-'),
+                provinsi: idx === 0 ? (selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan.lokasi.provinsi || '-') : (aduan.lokasi.provinsi || '-'),
+                kabupaten: idx === 0 ? (selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan.lokasi.kabupaten || '-') : (aduan.lokasi.kabupaten || '-'),
+                luasHa: Number(idx === 0 ? (selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan.lokasi.luasHa ?? 0) : 0),
+                jumlahKk: Number(idx === 0 ? (selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan.jumlahKK ?? aduan.jumlah_kk ?? 0) : 0),
+            }));
+        }
+
+        return [{
+            idApiKps: '-',
+            namaKps: '-',
+            noSk: '-',
+            kpsType: '-',
+            provinsi: aduan.lokasi.provinsi || '-',
+            kabupaten: aduan.lokasi.kabupaten || '-',
+            luasHa: Number(aduan.lokasi.luasHa ?? aduan.lokasi_luas_ha ?? 0),
+            jumlahKk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
+        }];
+    }, [aduan, selectedKpsInfo]);
+
+    const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
+    const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
 
     return (
         <motion.div
@@ -1175,36 +1221,36 @@ export const AduanDetailPage: React.FC = () => {
                 </table>
             </div>
 
-            {/* Print Master KPS Info - If Available */}
-            {selectedKpsInfo && (
+            {/* Print Master KPS Info */}
+            {lokasiObjekItems.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4 avoid-break">
-                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-primary">DATA MASTER KPS (DATABASE TERVERIFIKASI)</h3>
+                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-primary">LOKASI OBJEK</h3>
                     <table className="w-full text-xs border-collapse border border-border">
+                        <thead>
+                            <tr className="bg-muted">
+                                <th className="p-1.5 border border-border text-left">ID API KPS</th>
+                                <th className="p-1.5 border border-border text-left">Nama KPS</th>
+                                <th className="p-1.5 border border-border text-left">No SK</th>
+                                <th className="p-1.5 border border-border text-left">KPS Type</th>
+                                <th className="p-1.5 border border-border text-left">Provinsi</th>
+                                <th className="p-1.5 border border-border text-left">Kabupaten</th>
+                                <th className="p-1.5 border border-border text-left">Luas</th>
+                                <th className="p-1.5 border border-border text-left">Jumlah KK</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">ID API KPS</td>
-                                <td className="p-1.5 border border-border w-1/3">{primaryKpsId}</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border w-1/6">Nama KPS</td>
-                                <td className="p-1.5 border border-border w-1/3">{primaryNamaKps}</td>
-                            </tr>
-                            <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">No SK</td>
-                                <td className="p-1.5 border border-border">{primaryNoSk}</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">KPS Type</td>
-                                <td className="p-1.5 border border-border">{primaryKpsType}</td>
-                            </tr>
-                            <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Provinsi</td>
-                                <td className="p-1.5 border border-border">{primaryProvinsi}</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Kabupaten</td>
-                                <td className="p-1.5 border border-border">{primaryKabupaten}</td>
-                            </tr>
-                            <tr>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Luas</td>
-                                <td className="p-1.5 border border-border">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</td>
-                                <td className="p-1.5 font-semibold bg-muted border border-border">Jumlah KK</td>
-                                <td className="p-1.5 border border-border">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</td>
-                            </tr>
+                            {lokasiObjekItems.map((item, index) => (
+                                <tr key={`print-kps-${index}`}>
+                                    <td className="p-1.5 border border-border">{item.idApiKps}</td>
+                                    <td className="p-1.5 border border-border">{item.namaKps}</td>
+                                    <td className="p-1.5 border border-border">{item.noSk}</td>
+                                    <td className="p-1.5 border border-border">{item.kpsType}</td>
+                                    <td className="p-1.5 border border-border">{item.provinsi}</td>
+                                    <td className="p-1.5 border border-border">{item.kabupaten}</td>
+                                    <td className="p-1.5 border border-border">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
+                                    <td className="p-1.5 border border-border">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')} KK</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
@@ -1589,124 +1635,59 @@ export const AduanDetailPage: React.FC = () => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="py-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
-                                    <span className="text-sm font-mono text-foreground">{primaryKpsId}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
-                                    <span className="text-sm font-semibold text-foreground">{primaryNamaKps}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
-                                    <span className="text-sm font-mono text-foreground">{primaryNoSk}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
-                                    <span className="text-sm font-semibold text-foreground">{primaryKpsType}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
-                                    <span className="text-sm text-foreground">{primaryProvinsi}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
-                                    <span className="text-sm text-foreground">{primaryKabupaten}</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
-                                    <Badge variant="outline" className="w-fit">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</Badge>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
-                                    <Badge variant="outline" className="w-fit">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</Badge>
-                                </div>
+                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total KPS: {lokasiObjekItems.length}
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total Luas: {totalLuasObjek.toLocaleString('id-ID')} Ha
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total KK: {totalKkObjek.toLocaleString('id-ID')}
+                                </Badge>
+                            </div>
+                            <div className="grid grid-cols-1 gap-3">
+                                {lokasiObjekItems.map((item, index) => (
+                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border/80 bg-white p-3">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
+                                                <span className="text-sm font-mono text-foreground">{item.idApiKps}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
+                                                <span className="text-sm font-semibold text-foreground">{item.namaKps}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
+                                                <span className="text-sm font-mono text-foreground">{item.noSk}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
+                                                <span className="text-sm font-semibold text-foreground">{item.kpsType}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
+                                                <span className="text-sm text-foreground">{item.provinsi}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
+                                                <span className="text-sm text-foreground">{item.kabupaten}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
+                                                <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
+                                                <Badge variant="outline" className="w-fit">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')} KK</Badge>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </CardContent>
                     </Card>
-
-                    {/* Informasi Master KPS */}
-                    <div className="flex flex-col gap-4">
-                        {isLoadingKps ? (
-                            <motion.div variants={itemVariants}>
-                                <Card className="rounded-2xl border border-border/80 shadow-sm">
-                                    <CardContent className="p-8 flex items-center justify-center text-muted-foreground">
-                                        <span className="loading loading-spinner loading-sm mr-2"></span>
-                                        Memuat data KPS...
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ) : selectedKpsInfo ? (
-                            <motion.div variants={itemVariants}>
-                                <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                                    <CardHeader className="border-b border-border/70 bg-muted/30 py-4">
-                                        <CardTitle className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-lg bg-muted text-foreground flex items-center justify-center">
-                                                    <Sparkles size={16} />
-                                                </div>
-                                                <span className="text-sm font-semibold">Data Master KPS</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
-                                                    Data Terverifikasi SI-PS
-                                                </Badge>
-                                                <span className="text-xs text-muted-foreground font-mono">{selectedKpsInfo["KPS-ID"]}</span>
-                                            </div>
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">ID API KPS</p>
-                                                    <p className="text-sm font-mono text-foreground">{primaryKpsId}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Nama KPS</p>
-                                                    <p className="font-semibold text-foreground">{primaryNamaKps}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">No SK</p>
-                                                    <p className="text-sm font-mono">{primaryNoSk}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">KPS Type</p>
-                                                    <p className="font-semibold">{primaryKpsType}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Provinsi</p>
-                                                    <p className="text-sm font-semibold">{primaryProvinsi}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Kabupaten</p>
-                                                    <p className="text-sm font-semibold">{primaryKabupaten}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Luas</p>
-                                                    <p className="text-sm font-semibold">{Number.isFinite(primaryLuasHa) ? primaryLuasHa.toLocaleString('id-ID') : 0} Ha</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs text-muted-foreground mb-1">Jumlah KK</p>
-                                                    <p className="text-sm font-semibold">{Number.isFinite(primaryJumlahKk) ? primaryJumlahKk.toLocaleString('id-ID') : 0} KK</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ) : null}
-                    </div>
 
 
 
