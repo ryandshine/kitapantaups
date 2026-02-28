@@ -284,7 +284,12 @@ export const AduanService = {
             if (data.lokasi.kabupaten) updateData.lokasi_kab = data.lokasi.kabupaten;
             if (data.lokasi.kecamatan) updateData.lokasi_kec = data.lokasi.kecamatan;
             if (data.lokasi.desa) updateData.lokasi_desa = data.lokasi.desa;
-            if (data.lokasi.luasHa !== undefined) updateData.lokasi_luas_ha = data.lokasi.luasHa;
+            if (data.lokasi.luasHa !== undefined) {
+                const parsedLuasHa = Number(data.lokasi.luasHa);
+                if (Number.isFinite(parsedLuasHa)) {
+                    updateData.lokasi_luas_ha = parsedLuasHa;
+                }
+            }
         }
         if (data.suratMasuk) {
             if (data.suratMasuk.nomorSurat) updateData.surat_nomor = data.suratMasuk.nomorSurat;

@@ -824,6 +824,7 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const handleKpsSelect = (kps: KpsData) => {
+        const parsedLuasHa = Number(kps.lokasi_luas_ha);
         setEditSelectedKps(kps);
         setEditForm(prev => ({
             ...prev,
@@ -831,7 +832,7 @@ export const AduanDetailPage: React.FC = () => {
             lokasiKecamatan: kps.lokasi_kec || prev.lokasiKecamatan,
             lokasiKabupaten: kps.lokasi_kab || prev.lokasiKabupaten,
             lokasiProvinsi: kps.lokasi_prov || prev.lokasiProvinsi,
-            lokasiLuasHa: kps.lokasi_luas_ha || prev.lokasiLuasHa,
+            lokasiLuasHa: Number.isFinite(parsedLuasHa) ? parsedLuasHa : prev.lokasiLuasHa,
             lokasiBalaiId: (kps.balai || '').toLowerCase().replace(/\s+/g, '_') || prev.lokasiBalaiId,
             lokasiBalaiName: kps.balai || prev.lokasiBalaiName,
             skema: (kps.jenis_kps as any) || prev.skema,
