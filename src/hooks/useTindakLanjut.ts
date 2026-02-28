@@ -31,3 +31,14 @@ export const useDeleteTindakLanjut = () => {
         },
     });
 };
+
+export const useUpdateTindakLanjut = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (data: any) => AduanService.updateTindakLanjut(data),
+        onSuccess: (_data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['aduan'] });
+            queryClient.invalidateQueries({ queryKey: ['aduan', 'tindak-lanjut', variables.aduanId] });
+        },
+    });
+};

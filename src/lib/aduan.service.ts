@@ -257,6 +257,18 @@ export const AduanService = {
         return true;
     },
 
+    updateTindakLanjut: async (data: Partial<TindakLanjut> & { id: string }) => {
+        await api.put(`/tindak-lanjut/${data.id}`, {
+            tanggal: data.tanggal instanceof Date ? data.tanggal.toISOString() : data.tanggal,
+            jenis_tl: data.jenisTL,
+            keterangan: data.keterangan,
+            nomor_surat_output: data.nomorSuratOutput,
+            file_urls: data.fileUrls,
+            link_drive: data.linkDrive,
+        });
+        return true;
+    },
+
     updateAduan: async (id: string, data: Partial<Aduan> & { updatedBy?: string }) => {
         const updateData: any = {};
         if (data.status) updateData.status = data.status;

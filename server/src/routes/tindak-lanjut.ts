@@ -27,6 +27,46 @@ tl.get('/', async (c) => {
   return c.json(result.rows)
 })
 
+// PUT /tindak-lanjut/:id
+export const updateTl = async (c: any) => {
+  const id = c.req.param('id')
+  const body = await c.req.json()
+
+  const dataParse = tlSchema.partial().safeParse(body)
+  if (!dataParse.success) {
+    return c.json({ error: 'Payload tidak valid', issues: dataParse.error.flatten() }, 400)
+  }
+
+  const data = dataParse.data
+
+  const result = await pool.query(
+    `UPDATE tindak_lanjut
+     SET tanggal = COALESCE($1, tanggal),
+         jenis_tl = COALESCE($2, jenis_tl),
+         keterangan = COALESCE($3, keterangan),
+         file_urls = COALESCE($4, file_urls),
+         nomor_surat_output = COALESCE($5, nomor_surat_output),
+         link_drive = COALESCE($6, link_drive)
+     WHERE id = $7
+     RETURNING *`,
+    [
+      data.tanggal ?? null,
+      data.jenis_tl ?? null,
+      data.keterangan ?? null,
+      data.file_urls ?? null,
+      data.nomor_surat_output ?? null,
+      data.link_drive ?? null,
+      id,
+    ]
+  )
+
+  if (result.rowCount === 0) {
+    return c.json({ error: 'Tindak lanjut tidak ditemukan' }, 404)
+  }
+
+  return c.json(result.rows[0])
+}
+
 // POST /aduan/:aduanId/tindak-lanjut
 tl.post('/', zValidator('json', tlSchema), async (c) => {
   const aduanId = c.req.param('aduanId')

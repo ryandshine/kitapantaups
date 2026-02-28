@@ -13,7 +13,7 @@ import { errorHandler } from './middleware/error.js'
 
 import authRoute from './routes/auth.js'
 import aduanRoute from './routes/aduan.js'
-import tlRoute, { deleteTl } from './routes/tindak-lanjut.js'
+import tlRoute, { deleteTl, updateTl } from './routes/tindak-lanjut.js'
 import masterRoute from './routes/master.js'
 import usersRoute from './routes/users.js'
 import dashboardRoute from './routes/dashboard.js'
@@ -109,6 +109,7 @@ app.route('/auth', authRoute)
 app.route('/aduan', aduanRoute)
 app.route('/aduan/:aduanId/tindak-lanjut', tlRoute)
 app.delete('/tindak-lanjut/:id', requireAuth, deleteTl)
+app.put('/tindak-lanjut/:id', requireAuth, updateTl)
 app.route('/master', masterRoute)
 app.route('/users', usersRoute)
 app.route('/dashboard', dashboardRoute)

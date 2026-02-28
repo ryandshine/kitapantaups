@@ -43,14 +43,14 @@ import {
     KpsSearch,
     FileUpload
 } from '../components/ui';
-import type { Aduan, KpsData } from '../types';
+import type { Aduan, KpsData, TindakLanjut } from '../types';
 import { AduanService } from '../lib/aduan.service';
 import { KpsService } from '../lib/kps.service';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAduan';
 import { useKpsDetail } from '../hooks/useKps';
-import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut } from '../hooks/useTindakLanjut';
+import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut, useUpdateTindakLanjut } from '../hooks/useTindakLanjut';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 
 const formatDate = (date: Date): string => {
@@ -143,6 +143,7 @@ export const AduanDetailPage: React.FC = () => {
     const { mutate: updateAduan, isPending: isEditSubmitting } = useUpdateAduan();
     const { mutate: deleteAduan, isPending: isDeleting } = useDeleteAduan();
     const { mutate: createTL, isPending: isTLSubmitting } = useCreateTindakLanjut();
+    const { mutate: updateTL, isPending: isUpdateTlSubmitting } = useUpdateTindakLanjut();
     const { mutate: deleteTL } = useDeleteTindakLanjut();
 
     const [detailError, setDetailError] = useState<string | null>(null);
@@ -157,6 +158,19 @@ export const AduanDetailPage: React.FC = () => {
         nomorSuratOutput: '',
         files: [] as File[]
     });
+    const [isEditTlModalOpen, setIsEditTlModalOpen] = useState(false);
+    const [editingTl, setEditingTl] = useState<TindakLanjut | null>(null);
+    const [editTlForm, setEditTlForm] = useState({
+        id: '',
+        jenisTL: '',
+        tanggal: new Date().toISOString().split('T')[0],
+        keterangan: '',
+        linkDrive: '',
+        nomorSuratOutput: '',
+        fileUrls: [] as string[],
+        newFiles: [] as File[]
+    });
+    const [editTlUploadProgress, setEditTlUploadProgress] = useState(0);
 
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -274,12 +288,12 @@ export const AduanDetailPage: React.FC = () => {
 
     // Fetch Jenis Tindak Lanjut when TL Modal opens
     useEffect(() => {
-        if (isTLModalOpen) {
+        if (isTLModalOpen || isEditTlModalOpen) {
             AduanService.getJenisTindakLanjut().then(data => {
                 setJenisTlOptions(data);
             });
         }
-    }, [isTLModalOpen]);
+    }, [isTLModalOpen, isEditTlModalOpen]);
 
 
 
@@ -382,6 +396,101 @@ export const AduanDetailPage: React.FC = () => {
         } catch (uploadError) {
             console.error('File upload failed:', uploadError);
             alert('Gagal mengunggah file. Silakan coba lagi.');
+        }
+    };
+
+    const removeExistingTlFile = (index: number) => {
+        setEditTlForm(prev => ({
+            ...prev,
+            fileUrls: prev.fileUrls.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleEditTlNewFiles = (files: File[]) => {
+        setEditTlForm(prev => ({ ...prev, newFiles: files }));
+    };
+
+    const handleEditTlNewFileRemoved = (idx: number) => {
+        setEditTlForm(prev => {
+            const updated = [...prev.newFiles];
+            updated.splice(idx, 1);
+            return { ...prev, newFiles: updated };
+        });
+    };
+
+    const openEditTlModal = (tl: TindakLanjut) => {
+        setEditingTl(tl);
+        setEditTlForm({
+            id: tl.id,
+            jenisTL: tl.jenisTL,
+            tanggal: new Date(tl.tanggal).toISOString().split('T')[0],
+            keterangan: tl.keterangan || '',
+            linkDrive: tl.linkDrive || '',
+            nomorSuratOutput: tl.nomorSuratOutput || '',
+            fileUrls: tl.fileUrls || [],
+            newFiles: []
+        });
+        setIsEditTlModalOpen(true);
+    };
+
+    const resetEditTlForm = () => {
+        setIsEditTlModalOpen(false);
+        setEditingTl(null);
+        setEditTlForm({
+            id: '',
+            jenisTL: '',
+            tanggal: new Date().toISOString().split('T')[0],
+            keterangan: '',
+            linkDrive: '',
+            nomorSuratOutput: '',
+            fileUrls: [],
+            newFiles: []
+        });
+        setEditTlUploadProgress(0);
+    };
+
+    const handleEditTlSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user || !aduan || !editingTl) return;
+
+        let uploadedUrls: string[] = [];
+        try {
+            if (editTlForm.newFiles.length > 0) {
+                uploadedUrls = await Promise.all(
+                    editTlForm.newFiles.map((file, idx) =>
+                        AduanService.uploadTindakLanjutFile(file, aduan.id, (p) => {
+                            setEditTlUploadProgress(Math.round((idx / editTlForm.newFiles!.length) * 100 + p / editTlForm.newFiles!.length));
+                        })
+                    )
+                );
+                setEditTlUploadProgress(0);
+            }
+
+            const mergedFileUrls = [...(editTlForm.fileUrls || []), ...uploadedUrls];
+
+            updateTL({
+                id: editTlForm.id,
+                aduanId: aduan.id,
+                tanggal: new Date(editTlForm.tanggal),
+                jenisTL: editTlForm.jenisTL,
+                keterangan: editTlForm.keterangan,
+                linkDrive: editTlForm.linkDrive,
+                nomorSuratOutput: editTlForm.nomorSuratOutput,
+                fileUrls: mergedFileUrls,
+                createdBy: user.id,
+                createdByName: user.displayName
+            }, {
+                onSuccess: () => {
+                    resetEditTlForm();
+                },
+                onError: (err: any) => {
+                    console.error(err);
+                    alert('Gagal memperbarui tindak lanjut.');
+                }
+            });
+        } catch (err) {
+            console.error('Gagal memperbarui tindak lanjut:', err);
+            alert('Gagal memperbarui tindak lanjut.');
         }
     };
 
@@ -1340,11 +1449,11 @@ export const AduanDetailPage: React.FC = () => {
                                                     <div className="text-xs text-muted-foreground mb-3 prose prose-slate prose-sm max-w-none leading-relaxed">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
-                                                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
-                                                        <div className="flex items-center gap-2">
-                                                            {tl.linkDrive && (
-                                                                <a
-                                                                    href={tl.linkDrive}
+                                                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
+                                                            <div className="flex items-center gap-2">
+                                                                {tl.linkDrive && (
+                                                                    <a
+                                                                        href={tl.linkDrive}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground hover:text-foreground bg-muted px-2 py-1 rounded-md transition-colors"
@@ -1374,13 +1483,22 @@ export const AduanDetailPage: React.FC = () => {
                                                                     })}
                                                                 </div>
                                                             )}
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
                                                             {isAdmin && (
                                                                 <button
-                                                                    onClick={() => {
-                                                                        if (confirm('Apakah Anda yakin ingin menghapus riwayat penanganan ini?')) {
-                                                                            deleteTL(tl.id);
+                                                                    onClick={() => openEditTlModal(tl)}
+                                                                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                                    title="Edit Tindak Lanjut"
+                                                                >
+                                                                    <Edit size={12} />
+                                                                </button>
+                                                            )}
+                                                                {isAdmin && (
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (confirm('Apakah Anda yakin ingin menghapus riwayat penanganan ini?')) {
+                                                                                deleteTL(tl.id);
                                                                         }
                                                                     }}
                                                                     className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
@@ -1604,6 +1722,136 @@ export const AduanDetailPage: React.FC = () => {
                             leftIcon={<Plus size={18} />}
                         >
                             Simpan TL
+                        </Button>
+                    </ModalFooter>
+                </form>
+            </Modal>
+
+            {/* Edit Tindak Lanjut Modal */}
+            <Modal
+                isOpen={isEditTlModalOpen}
+                onClose={resetEditTlForm}
+                title="Edit Tindak Lanjut"
+                description="Perbarui catatan tindak lanjut tanpa membuat catatan baru."
+                className="max-w-3xl rounded-2xl border-border/80 bg-white p-6"
+                size="xl"
+            >
+                <form onSubmit={handleEditTlSubmit} className="flex flex-col gap-5">
+                    <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
+                        <Select
+                            label="Jenis Tindak Lanjut"
+                            options={jenisTlOptions.length > 0
+                                ? jenisTlOptions.map(t => ({ value: t.nama_jenis_tl, label: t.nama_jenis_tl }))
+                                : [
+                                    { value: 'Telaah Administrasi', label: 'Telaah Administrasi' },
+                                    { value: 'Dokumen Lengkap / Puldasi', label: 'Dokumen Lengkap / Puldasi' },
+                                    { value: 'Sudah Puldasi / Agenda Rapat Pembahasan', label: 'Sudah Puldasi / Agenda Rapat Pembahasan' },
+                                    { value: 'ND Perubahan Persetujuan PS', label: 'ND Perubahan Persetujuan PS' },
+                                    { value: 'Surat Penolakan Aduan', label: 'Surat Penolakan Aduan' },
+                                    { value: 'Lainnya', label: 'Lainnya' }
+                                ]
+                            }
+                            value={editTlForm.jenisTL}
+                            onChange={(val) => setEditTlForm(prev => ({ ...prev, jenisTL: val }))}
+                            fullWidth
+                        />
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <Input
+                                label="Tanggal Tindak Lanjut"
+                                type="date"
+                                value={editTlForm.tanggal}
+                                onChange={(e) => setEditTlForm(prev => ({ ...prev, tanggal: e.target.value }))}
+                                required
+                                fullWidth
+                            />
+                            <Input
+                                label="Nomor Surat Output (Jika Ada)"
+                                placeholder="Contoh: S.123/PKPS/..."
+                                value={editTlForm.nomorSuratOutput}
+                                onChange={(e) => setEditTlForm(prev => ({ ...prev, nomorSuratOutput: e.target.value }))}
+                                fullWidth
+                                leftIcon={<FileText size={16} />}
+                            />
+                        </div>
+                        <Textarea
+                            label="Keterangan / Hasil TL"
+                            placeholder="Uraikan secara ringkas hasil dari tindak lanjut ini..."
+                            value={editTlForm.keterangan}
+                            onChange={(e) => setEditTlForm(prev => ({ ...prev, keterangan: e.target.value }))}
+                            rows={5}
+                            required
+                            fullWidth
+                        />
+                        <Input
+                            label="Link Drive (Opsional)"
+                            placeholder="https://drive.google.com/..."
+                            value={editTlForm.linkDrive}
+                            onChange={(e) => setEditTlForm(prev => ({ ...prev, linkDrive: e.target.value }))}
+                            fullWidth
+                            leftIcon={<FolderOpen size={16} />}
+                        />
+                    </div>
+
+                    <div className="space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                            Lampiran Saat Ini
+                        </label>
+                        {editTlForm.fileUrls.length === 0 ? (
+                            <p className="text-[11px] text-muted-foreground italic">Tidak ada lampiran.</p>
+                        ) : (
+                            <div className="flex flex-wrap gap-2">
+                                {editTlForm.fileUrls.map((url, idx) => {
+                                    const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${idx + 1}`;
+                                    return (
+                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white border border-border text-[10px] font-medium">
+                                            <FileText size={10} />
+                                            <span className="max-w-[180px] truncate">{fileName}</span>
+                                            <button
+                                                type="button"
+                                                className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-destructive transition-colors"
+                                                onClick={() => removeExistingTlFile(idx)}
+                                                title="Hapus lampiran ini"
+                                            >
+                                                <Trash2 size={11} />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="space-y-2 rounded-xl border border-border/70 bg-muted/20 p-4">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                            Tambah Lampiran Baru (Opsional)
+                        </label>
+                        <FileUpload
+                            key={editTlForm.id || 'edit-tl'}
+                            onFileSelected={handleEditTlNewFiles}
+                            onFileRemoved={handleEditTlNewFileRemoved}
+                            multiple
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
+                            maxSizeMB={10}
+                            helperText="Klik atau seret file dokumen/foto untuk menambah lampiran baru"
+                            uploadProgress={editTlUploadProgress}
+                        />
+                    </div>
+
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={resetEditTlForm}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            isLoading={isUpdateTlSubmitting}
+                            leftIcon={<CheckCircle size={18} />}
+                        >
+                            Simpan Perubahan
                         </Button>
                     </ModalFooter>
                 </form>
