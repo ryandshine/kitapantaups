@@ -162,32 +162,34 @@ export const AduanDetailPage: React.FC = () => {
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const [editForm, setEditForm] = useState({
-        perihal: '',
-        ringkasanMasalah: '',
-        picName: '',
-        lokasiDesa: '',
-        lokasiKecamatan: '',
-        lokasiKabupaten: '',
-        lokasiProvinsi: '',
-        lokasiLuasHa: 0,
-        lokasiBalaiId: '',
-        lokasiBalaiName: '',
-        skema: '' as any,
-        jumlahKK: 0,
-        skTerkait: '',
-        fileUrl: '',
-        driveFolderId: '',
-        kpsId: '',
-        asalSurat: '',
-        suratPerihal: '',
-        asalSuratKategori: '',
+    const buildEditForm = (source?: typeof aduan | null) => ({
+        perihal: source?.perihal || '',
+        ringkasanMasalah: source?.ringkasanMasalah || '',
+        picName: source?.picName || '',
+        lokasiDesa: source?.lokasi?.desa || '',
+        lokasiKecamatan: source?.lokasi?.kecamatan || '',
+        lokasiKabupaten: source?.lokasi?.kabupaten || '',
+        lokasiProvinsi: source?.lokasi?.provinsi || '',
+        lokasiLuasHa: source?.lokasi?.luasHa || 0,
+        lokasiBalaiId: source?.lokasi?.balaiId || '',
+        lokasiBalaiName: source?.lokasi?.balaiName || '',
+        skema: source?.skema as any,
+        jumlahKK: source?.jumlahKK || 0,
+        skTerkait: source?.skTerkait || '',
+        fileUrl: source?.suratMasuk?.fileUrl || '',
+        driveFolderId: source?.driveFolderId || '',
+        kpsId: source?.kpsId || '',
+        asalSurat: source?.suratMasuk?.asalSurat || '',
+        suratPerihal: source?.suratMasuk?.perihal || '',
+        asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
 
-        pengaduNama: '',
-        pengaduTelepon: '',
-        pengaduEmail: '',
-        picId: ''
+        pengaduNama: source?.pengadu?.nama || '',
+        pengaduTelepon: source?.pengadu?.telepon || '',
+        pengaduEmail: source?.pengadu?.email || '',
+        picId: source?.picId || ''
     });
+
+    const [editForm, setEditForm] = useState(buildEditForm());
 
     const [statusForm, setStatusForm] = useState({
         status: '',
@@ -216,38 +218,36 @@ export const AduanDetailPage: React.FC = () => {
     const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
     const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<{ id: string; fileName: string } | null>(null);
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
+    const picOptions = useMemo(
+        () => [
+            { value: '__none__', label: '-- Pilih PIC --' },
+            ...users.map(u => ({ value: u.id, label: u.displayName || u.email }))
+        ],
+        [users]
+    );
+    const handleEditFieldChange = (field: keyof typeof editForm) => (value: any) =>
+        setEditForm((prev) => ({ ...prev, [field]: value }));
+    const handleEditInput = (field: keyof typeof editForm) =>
+        (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+            handleEditFieldChange(field)(e.target.value);
+
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setEditSelectedKps(null);
+        setSuratFile(null);
+        setEditForm(buildEditForm(aduan));
+    };
 
     useEffect(() => {
         if (aduan) {
-            setEditForm({
-                perihal: aduan.perihal || '',
-                ringkasanMasalah: aduan.ringkasanMasalah || '',
-                picName: aduan.picName || '',
-                lokasiDesa: aduan.lokasi?.desa || '',
-                lokasiKecamatan: aduan.lokasi?.kecamatan || '',
-                lokasiKabupaten: aduan.lokasi?.kabupaten || '',
-                lokasiProvinsi: aduan.lokasi?.provinsi || '',
-                lokasiLuasHa: aduan.lokasi?.luasHa || 0,
-                lokasiBalaiId: aduan.lokasi?.balaiId || '',
-                lokasiBalaiName: aduan.lokasi?.balaiName || '',
-                skema: aduan.skema,
-                picId: aduan.picId || '',
-                jumlahKK: aduan.jumlahKK || 0,
-                skTerkait: aduan.skTerkait || '',
-                fileUrl: aduan.suratMasuk?.fileUrl || '',
-                driveFolderId: aduan.driveFolderId || '',
-                kpsId: aduan.kpsId || '',
-                asalSurat: aduan.suratMasuk?.asalSurat || '',
-                suratPerihal: aduan.suratMasuk?.perihal || '',
-                asalSuratKategori: aduan.suratMasuk?.asalSuratKategori || 'Masyarakat',
-
-                pengaduNama: aduan.pengadu?.nama || '',
-                pengaduTelepon: aduan.pengadu?.telepon || '',
-                pengaduEmail: aduan.pengadu?.email || ''
-            });
+            setEditForm(buildEditForm(aduan));
         }
     }, [aduan]);
 
+    const emailError = useMemo(() => {
+        if (!editForm.pengaduEmail) return undefined;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.pengaduEmail) ? undefined : 'Format email tidak valid';
+    }, [editForm.pengaduEmail]);
 
     // Final Error Mapping
     useEffect(() => {
@@ -258,22 +258,20 @@ export const AduanDetailPage: React.FC = () => {
 
     // Fetch Admin Data (Users & Statuses) when modal opens
     useEffect(() => {
-        if (isEditModalOpen) {
-            // Fetch Master Statuses
-            AduanService.getMasterStatuses().then(data => {
-                setMasterStatuses(data);
-            });
+        if (!isEditModalOpen) return;
 
-            // Fetch Users if Admin
-            if (isAdmin) {
-                setIsLoadingUsers(true);
-                AduanService.getUsersByRole().then(data => {
-                    setUsers(data);
-                    setIsLoadingUsers(false);
-                });
-            }
+        if (!masterStatuses.length) {
+            AduanService.getMasterStatuses().then(setMasterStatuses).catch(console.error);
         }
-    }, [isEditModalOpen, isAdmin]);
+
+        if (isAdmin && !users.length && !isLoadingUsers) {
+            setIsLoadingUsers(true);
+            AduanService.getUsersByRole()
+                .then(setUsers)
+                .catch(console.error)
+                .finally(() => setIsLoadingUsers(false));
+        }
+    }, [isEditModalOpen, isAdmin, masterStatuses.length, users.length, isLoadingUsers]);
 
     // Fetch Jenis Tindak Lanjut when TL Modal opens
     useEffect(() => {
@@ -390,31 +388,11 @@ export const AduanDetailPage: React.FC = () => {
 
     const openEditModal = async () => {
         if (!aduan) return;
+        const baseForm = buildEditForm(aduan);
         setEditForm({
-            perihal: aduan.perihal || '',
-            ringkasanMasalah: aduan.ringkasanMasalah || '',
-            picName: !isAdmin ? (user?.displayName || user?.email || '') : (aduan.picName || ''),
-            picId: !isAdmin ? (user?.id || '') : (aduan.picId || ''),
-            lokasiDesa: aduan.lokasi?.desa || '',
-            lokasiKecamatan: aduan.lokasi?.kecamatan || '',
-            lokasiKabupaten: aduan.lokasi?.kabupaten || '',
-            lokasiProvinsi: aduan.lokasi?.provinsi || '',
-            lokasiLuasHa: aduan.lokasi?.luasHa || 0,
-            lokasiBalaiId: aduan.lokasi?.balaiId || '',
-            lokasiBalaiName: aduan.lokasi?.balaiName || '',
-            skema: aduan.skema,
-            jumlahKK: aduan.jumlahKK || 0,
-            skTerkait: aduan.skTerkait || '',
-            fileUrl: aduan.suratMasuk?.fileUrl || '',
-            kpsId: aduan.kpsId || '',
-            asalSurat: aduan.suratMasuk?.asalSurat || '',
-            suratPerihal: aduan.suratMasuk?.perihal || '',
-            asalSuratKategori: aduan.suratMasuk?.asalSuratKategori || 'Masyarakat',
-            driveFolderId: aduan.driveFolderId || '',
-
-            pengaduNama: aduan.pengadu.nama || '',
-            pengaduTelepon: aduan.pengadu.telepon || '',
-            pengaduEmail: aduan.pengadu.email || ''
+            ...baseForm,
+            picName: !isAdmin ? (user?.displayName || user?.email || '') : baseForm.picName,
+            picId: !isAdmin ? (user?.id || '') : baseForm.picId,
         });
 
         // Initialize editSelectedKps if exists
@@ -1642,35 +1620,18 @@ export const AduanDetailPage: React.FC = () => {
                 size="xl"
             >
                 <form onSubmit={handleEditSubmit} className="flex flex-col gap-5">
-                    {/* Fetch Users on open if admin */}
-                    <div className="hidden">
-                        {isAdmin && isEditModalOpen && (
-                            <React.Fragment>
-                                {(() => {
-                                    if (users.length === 0 && !isLoadingUsers) {
-                                        setIsLoadingUsers(true);
-                                        UserService.getAllUsers()
-                                            .then(setUsers)
-                                            .catch(console.error)
-                                            .finally(() => setIsLoadingUsers(false));
-                                    }
-                                    return null;
-                                })()}
-                            </React.Fragment>
-                        )}
-                    </div>
                     <div className="rounded-xl border border-border/70 bg-muted/20 p-4 space-y-4">
                         <Input
                             label="Perihal / Judul Aduan"
                             value={editForm.perihal}
-                            onChange={(e) => setEditForm({ ...editForm, perihal: e.target.value })}
+                            onChange={handleEditInput('perihal')}
                             required
                             fullWidth
                         />
                         <Textarea
                             label="Ringkasan Masalah"
                             value={editForm.ringkasanMasalah}
-                            onChange={(e) => setEditForm({ ...editForm, ringkasanMasalah: e.target.value })}
+                            onChange={handleEditInput('ringkasanMasalah')}
                             rows={4}
                             fullWidth
                         />
@@ -1732,19 +1693,16 @@ export const AduanDetailPage: React.FC = () => {
                         <div className="rounded-xl border border-border/70 bg-muted/20 p-4">
                             <Select
                                 label="PIC (Penanggung Jawab)"
-                                options={[
-                                    { value: '__none__', label: '-- Pilih PIC --' },
-                                    ...users.map(u => ({ value: u.id, label: u.displayName || u.email }))
-                                ]}
+                                options={picOptions}
                                 value={editForm.picId || '__none__'}
                                 onChange={(val) => {
                                     const normalizedValue = val === '__none__' ? '' : val;
                                     const selectedUser = users.find(u => u.id === normalizedValue);
-                                    setEditForm({
-                                        ...editForm,
+                                    setEditForm(prev => ({
+                                        ...prev,
                                         picId: normalizedValue,
                                         picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
-                                    });
+                                    }));
                                 }}
                                 fullWidth
                                 disabled={isLoadingUsers}
@@ -1761,7 +1719,7 @@ export const AduanDetailPage: React.FC = () => {
                         <Input
                             label="Nama Pengadu / Kelompok"
                             value={editForm.pengaduNama}
-                            onChange={(e) => setEditForm({ ...editForm, pengaduNama: e.target.value })}
+                            onChange={handleEditInput('pengaduNama')}
                             fullWidth
                             required
                         />
@@ -1769,15 +1727,15 @@ export const AduanDetailPage: React.FC = () => {
                             <Input
                                 label="Nomor Telepon"
                                 value={editForm.pengaduTelepon}
-                                onChange={(e) => setEditForm({ ...editForm, pengaduTelepon: e.target.value })}
+                                onChange={handleEditInput('pengaduTelepon')}
                                 fullWidth
                             />
                             <Input
                                 label="Email Pengadu"
                                 placeholder="nama@email.com"
                                 value={editForm.pengaduEmail}
-                                onChange={(e) => setEditForm({ ...editForm, pengaduEmail: e.target.value })}
-                                error={editForm.pengaduEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.pengaduEmail) ? 'Format email tidak valid' : undefined}
+                                onChange={handleEditInput('pengaduEmail')}
+                                error={emailError}
                                 fullWidth
                             />
                         </div>
@@ -1788,13 +1746,13 @@ export const AduanDetailPage: React.FC = () => {
                             <Input
                                 label="Desa"
                                 value={editForm.lokasiDesa}
-                                onChange={(e) => setEditForm({ ...editForm, lokasiDesa: e.target.value })}
+                                onChange={handleEditInput('lokasiDesa')}
                                 fullWidth
                             />
                             <Input
                                 label="Kecamatan"
                                 value={editForm.lokasiKecamatan}
-                                onChange={(e) => setEditForm({ ...editForm, lokasiKecamatan: e.target.value })}
+                                onChange={handleEditInput('lokasiKecamatan')}
                                 fullWidth
                             />
                         </div>
@@ -1828,7 +1786,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <Input
                                     label="Detail Asal Surat"
                                     value={editForm.asalSurat}
-                                    onChange={(e) => setEditForm({ ...editForm, asalSurat: e.target.value })}
+                                    onChange={handleEditInput('asalSurat')}
                                     placeholder={`Nama ${editForm.asalSuratKategori.toLowerCase()}...`}
                                     fullWidth
                                     required
@@ -1839,7 +1797,7 @@ export const AduanDetailPage: React.FC = () => {
                             <Input
                                 label="Perihal Surat"
                                 value={editForm.suratPerihal || ''}
-                                onChange={(e) => setEditForm({ ...editForm, suratPerihal: e.target.value })}
+                                onChange={handleEditInput('suratPerihal')}
                                 placeholder="Masukkan perihal surat..."
                                 fullWidth
                             />
@@ -1867,7 +1825,7 @@ export const AduanDetailPage: React.FC = () => {
                         <Button
                             type="button"
                             variant="ghost"
-                            onClick={() => setIsEditModalOpen(false)}
+                            onClick={closeEditModal}
                         >
                             Batal
                         </Button>
