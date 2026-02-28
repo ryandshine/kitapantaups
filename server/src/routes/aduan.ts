@@ -37,7 +37,7 @@ aduan.get('/', async (c) => {
   }
   if (search) {
     params.push(`%${search}%`)
-    conditions.push(`(a.pengadu_nama ILIKE $${params.length} OR a.ringkasan_masalah ILIKE $${params.length} OR a.nomor_tiket ILIKE $${params.length} OR a.surat_asal_perihal ILIKE $${params.length})`)
+    conditions.push(`(a.pengadu_nama ILIKE $${params.length} OR a.ringkasan_masalah ILIKE $${params.length} OR a.nomor_tiket ILIKE $${params.length} OR a.surat_asal_perihal ILIKE $${params.length} OR a.lokasi_prov ILIKE $${params.length} OR a.lokasi_kab ILIKE $${params.length} OR a.lokasi_kec ILIKE $${params.length} OR a.lokasi_desa ILIKE $${params.length} OR array_to_string(a.nomor_sk, ' ') ILIKE $${params.length} OR array_to_string(a.nama_kps, ' ') ILIKE $${params.length})`)
   }
 
   const nomorTiket = c.req.query('nomor_tiket')
