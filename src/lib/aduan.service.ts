@@ -288,10 +288,10 @@ export const AduanService = {
         if (Array.isArray(data.jenis_kps)) updateData.jenis_kps = data.jenis_kps;
         if (Array.isArray(data.nomor_sk)) updateData.nomor_sk = data.nomor_sk;
         if (data.lokasi) {
-            if (data.lokasi.provinsi) updateData.lokasi_prov = data.lokasi.provinsi;
-            if (data.lokasi.kabupaten) updateData.lokasi_kab = data.lokasi.kabupaten;
-            if (data.lokasi.kecamatan) updateData.lokasi_kec = data.lokasi.kecamatan;
-            if (data.lokasi.desa) updateData.lokasi_desa = data.lokasi.desa;
+            if (data.lokasi.provinsi !== undefined) updateData.lokasi_prov = data.lokasi.provinsi;
+            if (data.lokasi.kabupaten !== undefined) updateData.lokasi_kab = data.lokasi.kabupaten;
+            if (data.lokasi.kecamatan !== undefined) updateData.lokasi_kec = data.lokasi.kecamatan;
+            if (data.lokasi.desa !== undefined) updateData.lokasi_desa = data.lokasi.desa;
             if (data.lokasi.luasHa !== undefined) {
                 const parsedLuasHa = Number(data.lokasi.luasHa);
                 if (Number.isFinite(parsedLuasHa)) {

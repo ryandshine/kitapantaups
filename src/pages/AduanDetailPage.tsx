@@ -517,6 +517,7 @@ export const AduanDetailPage: React.FC = () => {
     const [suratFile, setSuratFile] = useState<File | null>(null);
 
     const [editSelectedKpsList, setEditSelectedKpsList] = useState<KpsData[]>([]);
+    const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
 
     // Sync status form saat data aduan berubah
     useEffect(() => {
@@ -654,6 +655,10 @@ export const AduanDetailPage: React.FC = () => {
     const handleTLSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!user || !aduan) return;
+        if (!canInputRiwayatPenanganan) {
+            alert('Riwayat Penanganan hanya bisa diisi saat status aduan PROSES.');
+            return;
+        }
 
         let fileUrls: string[] = [];
 
@@ -1273,7 +1278,7 @@ export const AduanDetailPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" leftIcon={<FileText size={15} />} onClick={handlePrint} className="hidden h-9 rounded-xl px-4 sm:flex">
+                            <Button variant="outline" size="sm" leftIcon={<FileText size={15} />} onClick={handlePrint} className="h-9 rounded-xl px-4">
                                 Cetak
                             </Button>
                             {isAdmin && (
@@ -1742,6 +1747,7 @@ export const AduanDetailPage: React.FC = () => {
                                         variant="primary"
                                         leftIcon={<Plus size={14} />}
                                         onClick={() => setIsTLModalOpen(true)}
+                                        disabled={!canInputRiwayatPenanganan}
                                     >
                                         Tambah TL
                                     </Button>
@@ -1755,6 +1761,11 @@ export const AduanDetailPage: React.FC = () => {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6">
+                                {!canInputRiwayatPenanganan && (
+                                    <p className="mb-4 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[11px] font-medium text-muted-foreground">
+                                        Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
+                                    </p>
+                                )}
                                 <div className="flex flex-col gap-4">
                                     {qTindakLanjutList.length === 0 ? (
                                         <p className="text-sm text-muted-foreground text-center py-6 italic">
