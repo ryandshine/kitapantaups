@@ -132,11 +132,12 @@ export const AduanService = {
     extractStoragePath: (_url: string): string | null => null,
     generateTicketNumber: () => `ADU${new Date().getFullYear().toString().slice(2)}${Math.floor(100000 + Math.random() * 900000)}`,
 
-    getAduanList: async (page = 1, pageSize = 20, searchTerm?: string) => {
+    getAduanList: async (page = 1, pageSize = 20, searchTerm?: string, statusFilter?: string) => {
         const params = new URLSearchParams({ page: String(page), limit: String(pageSize) });
         if (searchTerm?.trim()) params.set('search', searchTerm.trim());
+        if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);
         const result = await api.get(`/aduan?${params}`);
-        return result.data || [];
+        return { data: result.data || [], total: result.total || 0 };
     },
 
     getAduanCount: async (filters?: { status?: string }) => {

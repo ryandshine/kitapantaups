@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, Columns3, Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -12,7 +12,7 @@ import {
     useReactTable,
     createColumnHelper
 } from '@tanstack/react-table';
-import { useAduanList, useAduanCount } from '../hooks/useAduan';
+import { useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
 
 const columnHelper = createColumnHelper<any>();
@@ -38,13 +38,14 @@ export const AduanListPage: React.FC = () => {
     const { density, setDensity, isCompact } = useUIDensity();
     const itemsPerPage = 10;
 
-    const { data: aduanList, isLoading: loadingItems } = useAduanList(currentPage, itemsPerPage, searchTerm);
-    const { data: totalCount = 0, isLoading: loadingCount } = useAduanCount(
-        statusFilter === 'all' ? undefined : { status: statusFilter }
-    );
+    const { data: aduanResult, isLoading: loadingItems } = useAduanList(currentPage, itemsPerPage, searchTerm, statusFilter);
 
-    const loading = loadingItems || loadingCount;
-    const displayList = useMemo<any[]>(() => aduanList || [], [aduanList]);
+    // Reset ke halaman 1 saat search atau filter berubah
+    useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter]);
+
+    const loading = loadingItems;
+    const displayList = useMemo<any[]>(() => aduanResult?.data || [], [aduanResult]);
+    const totalCount = aduanResult?.total || 0;
     const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
     const statusSummary = useMemo(() => {
         return displayList.reduce<Record<string, number>>((acc, row) => {

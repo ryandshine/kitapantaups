@@ -55,7 +55,8 @@ export const DashboardPage: React.FC = () => {
 
     // Consolidated Dashboard Stats Query
     const { data: stats, isLoading: isLoadingStats } = useDashboardStats();
-    const { data: recentAduan = [], isLoading: isLoadingAduan } = useAduanList(1, 5);
+    const { data: recentAduanResult, isLoading: isLoadingAduan } = useAduanList(1, 5);
+    const recentAduan = recentAduanResult?.data || [];
 
     const totalCount = stats?.total || 0;
     const totalDisposisi = stats?.by_status?.['baru'] || 0;
