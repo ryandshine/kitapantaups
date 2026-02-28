@@ -524,6 +524,40 @@ export const AduanDetailPage: React.FC = () => {
 
     const [editSelectedKpsList, setEditSelectedKpsList] = useState<KpsData[]>([]);
     const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
+    const lokasiObjekItems = useMemo(() => {
+        const ids = aduan?.id_kps_api || [];
+        const names = aduan?.nama_kps || [];
+        const sks = aduan?.nomor_sk || [];
+        const types = (aduan?.type_kps && aduan.type_kps.length > 0 ? aduan.type_kps : aduan?.jenis_kps) || [];
+        const maxLen = Math.max(ids.length, names.length, sks.length, types.length);
+
+        if (maxLen > 0) {
+            return Array.from({ length: maxLen }).map((_, idx) => ({
+                idApiKps: ids[idx] || (idx === 0 ? (selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || '-') : '-'),
+                namaKps: names[idx] || (idx === 0 ? (selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || '-') : '-'),
+                noSk: sks[idx] || (idx === 0 ? (selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || '-') : '-'),
+                kpsType: types[idx] || (idx === 0 ? (selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || '-') : '-'),
+                provinsi: idx === 0 ? (selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan?.lokasi?.provinsi || '-') : (aduan?.lokasi?.provinsi || '-'),
+                kabupaten: idx === 0 ? (selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan?.lokasi?.kabupaten || '-') : (aduan?.lokasi?.kabupaten || '-'),
+                luasHa: Number(idx === 0 ? (selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan?.lokasi?.luasHa ?? 0) : 0),
+                jumlahKk: Number(idx === 0 ? (selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0) : 0),
+            }));
+        }
+
+        return [{
+            idApiKps: '-',
+            namaKps: '-',
+            noSk: '-',
+            kpsType: '-',
+            provinsi: aduan?.lokasi?.provinsi || '-',
+            kabupaten: aduan?.lokasi?.kabupaten || '-',
+            luasHa: Number(aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0),
+            jumlahKk: Number(aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0),
+        }];
+    }, [aduan, selectedKpsInfo]);
+
+    const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
+    const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
 
     // Sync status form saat data aduan berubah
     useEffect(() => {
@@ -1129,41 +1163,6 @@ export const AduanDetailPage: React.FC = () => {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 }
     };
-
-    const lokasiObjekItems = useMemo(() => {
-        const ids = aduan.id_kps_api || [];
-        const names = aduan.nama_kps || [];
-        const sks = aduan.nomor_sk || [];
-        const types = (aduan.type_kps && aduan.type_kps.length > 0 ? aduan.type_kps : aduan.jenis_kps) || [];
-        const maxLen = Math.max(ids.length, names.length, sks.length, types.length);
-
-        if (maxLen > 0) {
-            return Array.from({ length: maxLen }).map((_, idx) => ({
-                idApiKps: ids[idx] || (idx === 0 ? (selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || '-') : '-'),
-                namaKps: names[idx] || (idx === 0 ? (selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || '-') : '-'),
-                noSk: sks[idx] || (idx === 0 ? (selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || '-') : '-'),
-                kpsType: types[idx] || (idx === 0 ? (selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || '-') : '-'),
-                provinsi: idx === 0 ? (selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan.lokasi.provinsi || '-') : (aduan.lokasi.provinsi || '-'),
-                kabupaten: idx === 0 ? (selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan.lokasi.kabupaten || '-') : (aduan.lokasi.kabupaten || '-'),
-                luasHa: Number(idx === 0 ? (selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan.lokasi.luasHa ?? 0) : 0),
-                jumlahKk: Number(idx === 0 ? (selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan.jumlahKK ?? aduan.jumlah_kk ?? 0) : 0),
-            }));
-        }
-
-        return [{
-            idApiKps: '-',
-            namaKps: '-',
-            noSk: '-',
-            kpsType: '-',
-            provinsi: aduan.lokasi.provinsi || '-',
-            kabupaten: aduan.lokasi.kabupaten || '-',
-            luasHa: Number(aduan.lokasi.luasHa ?? aduan.lokasi_luas_ha ?? 0),
-            jumlahKk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
-        }];
-    }, [aduan, selectedKpsInfo]);
-
-    const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
-    const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
 
     return (
         <motion.div
