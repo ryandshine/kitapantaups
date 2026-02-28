@@ -25,7 +25,7 @@ export const AduanListPage: React.FC = () => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
         tanggal_buat: false,
-        jenis_kps: false,
+        type_kps: false,
         nomor_sk: false,
         jumlah_kk: false,
         lokasi_kab: false,
@@ -63,12 +63,12 @@ export const AduanListPage: React.FC = () => {
         columnHelper.accessor('nomor_tiket', {
             header: 'Tiket',
             cell: info => (
-                <div className="space-y-1">
-                    <span className="inline-flex rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-bold text-foreground whitespace-nowrap">
+                <div className="space-y-1 min-w-0">
+                    <span className="inline-flex max-w-full rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-bold text-foreground whitespace-nowrap truncate">
                         {info.getValue()}
                     </span>
-                    <p className="text-[10px] text-muted-foreground">
-                        Dibuat: {formatDate(info.row.original.tanggal_buat)}
+                    <p className="text-[10px] text-muted-foreground truncate">
+                        Dibuat: {formatDate(info.row.original.created_at || info.row.original.createdAt || info.row.original.tanggal_buat)}
                     </p>
                 </div>
             ),
@@ -94,25 +94,25 @@ export const AduanListPage: React.FC = () => {
             header: 'KPS',
             cell: info => {
                 const nama = info.getValue();
-                const jenis = info.row.original.jenis_kps;
+                const typeKps = info.row.original.type_kps;
                 const noSk = info.row.original.nomor_sk;
                 return (
-                    <div className="max-w-[260px] space-y-1">
-                        <p className="text-xs font-semibold whitespace-normal break-words">
+                    <div className="space-y-1 min-w-0">
+                        <p className="text-xs font-semibold truncate">
                             {nama && nama.length > 0 ? nama.join(', ') : '-'}
                         </p>
-                        <p className="text-[10px] text-muted-foreground whitespace-normal break-words">
-                            Jenis: {jenis && jenis.length > 0 ? jenis.join(', ') : '-'}
+                        <p className="text-[10px] text-muted-foreground truncate">
+                            Type: {typeKps && typeKps.length > 0 ? typeKps.join(', ') : '-'}
                         </p>
-                        <p className="text-[10px] text-muted-foreground whitespace-normal break-words">
+                        <p className="text-[10px] text-muted-foreground truncate">
                             SK: {noSk && noSk.length > 0 ? noSk.join(', ') : '-'}
                         </p>
                     </div>
                 );
             },
         }),
-        columnHelper.accessor('jenis_kps', {
-            header: 'Jenis KPS',
+        columnHelper.accessor('type_kps', {
+            header: 'Type KPS',
             cell: info => {
                 const val = info.getValue();
                 return val && val.length > 0 ? val.join(', ') : '-';
@@ -138,10 +138,10 @@ export const AduanListPage: React.FC = () => {
                 const luas = Number(info.row.original.lokasi_luas_ha || 0).toFixed(2);
                 const kk = info.row.original.jumlah_kk ?? '-';
                 return (
-                    <div className="max-w-[300px] space-y-1">
-                        <p className="text-xs font-semibold whitespace-normal break-words">{prov}</p>
-                        <p className="text-[10px] text-muted-foreground whitespace-normal break-words">{kab} | {kec} | {desa}</p>
-                        <p className="text-[10px] text-muted-foreground">Luas {luas} Ha | KK {kk}</p>
+                    <div className="space-y-1 min-w-0">
+                        <p className="text-xs font-semibold truncate">{prov}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{kab} | {kec} | {desa}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">Luas {luas} Ha | KK {kk}</p>
                     </div>
                 );
             },
@@ -168,9 +168,9 @@ export const AduanListPage: React.FC = () => {
         columnHelper.accessor('pengadu_nama', {
             header: 'Pengadu',
             cell: info => (
-                <div className="max-w-[240px] space-y-1">
-                    <p className="text-xs font-semibold whitespace-normal break-words">{info.getValue() || '-'}</p>
-                    <p className="text-[10px] text-muted-foreground whitespace-normal break-words">{info.row.original.lembaga_pengadu || '-'}</p>
+                <div className="space-y-1 min-w-0">
+                    <p className="text-xs font-semibold truncate">{info.getValue() || '-'}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{info.row.original.lembaga_pengadu || '-'}</p>
                 </div>
             ),
         }),
@@ -180,9 +180,9 @@ export const AduanListPage: React.FC = () => {
         columnHelper.accessor('surat_nomor', {
             header: 'Surat',
             cell: info => (
-                <div className="space-y-1">
-                    <p className="max-w-[260px] text-xs font-semibold whitespace-normal break-words">{info.getValue() || '-'}</p>
-                    <p className="text-[10px] text-muted-foreground">Tanggal: {formatDate(info.row.original.surat_tanggal)}</p>
+                <div className="space-y-1 min-w-0">
+                    <p className="text-xs font-semibold truncate">{info.getValue() || '-'}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">Tanggal: {formatDate(info.row.original.surat_tanggal)}</p>
                 </div>
             ),
         }),
@@ -196,7 +196,7 @@ export const AduanListPage: React.FC = () => {
                 const val = info.getValue();
                 if (!val) return '-';
                 return (
-                    <p className="max-w-[360px] text-xs whitespace-normal break-words" title={val}>
+                    <p className="text-xs truncate" title={val}>
                         {val}
                     </p>
                 );
@@ -332,14 +332,14 @@ export const AduanListPage: React.FC = () => {
             </motion.div>
 
             <motion.div variants={itemVariants} className="overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card">
-                <div className="h-[600px] overflow-auto custom-scrollbar-horizontal">
+                <div className="h-[600px] overflow-auto">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
                             <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
                             <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
                         </div>
                     ) : (
-                        <Table className="min-w-[1280px] border-none shadow-none">
+                        <Table className="w-full min-w-[1120px] lg:min-w-0 lg:table-fixed border-none shadow-none">
                             <TableHeader className="z-20 bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur">
                                 {table.getHeaderGroups().map(headerGroup => (
                                     <TableRow key={headerGroup.id} className="hover:bg-transparent">

@@ -358,6 +358,7 @@ export const AduanService = {
         id_kps_api: row.id_kps_api || [],
         nama_kps: row.nama_kps || [],
         jenis_kps: row.jenis_kps || [],
+        type_kps: row.type_kps || [],
         nomor_sk: row.nomor_sk || [],
         lokasi_prov: row.lokasi_prov,
         lokasi_kab: row.lokasi_kab,

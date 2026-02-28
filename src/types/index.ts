@@ -148,6 +148,7 @@ export interface Aduan {
     id_kps_api: string[];
     nama_kps: string[];
     jenis_kps: string[];
+    type_kps?: string[];
     nomor_sk: string[];
 
     // Legacy / Transitional Aliases

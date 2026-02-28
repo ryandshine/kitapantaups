@@ -63,10 +63,19 @@ aduan.get('/', async (c) => {
 
   const [rows, countResult] = await Promise.all([
     pool.query(
-      `SELECT a.*, u.display_name as creator_name, COUNT(tl.id) as jumlah_tl
+      `SELECT
+         a.*,
+         u.display_name as creator_name,
+         COUNT(tl.id) as jumlah_tl,
+         COALESCE(
+           ARRAY_REMOVE(ARRAY_AGG(DISTINCT mk.kps_type), NULL),
+           ARRAY[]::text[]
+         ) as type_kps
        FROM aduan a
        LEFT JOIN users u ON u.id = a.created_by
        LEFT JOIN tindak_lanjut tl ON tl.aduan_id = a.id
+       LEFT JOIN LATERAL unnest(a.id_kps_api) AS kps_id ON true
+       LEFT JOIN master_kps mk ON mk.id_kps_api = kps_id
        ${where} 
        GROUP BY a.id, u.display_name
        ORDER BY a.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
@@ -163,7 +172,18 @@ aduan.get('/:id', async (c) => {
   const id = c.req.param('id')
   const [aduanResult, tlResult, docsResult] = await Promise.all([
     pool.query(
-      `SELECT a.*, u.display_name as creator_name
+      `SELECT
+         a.*,
+         u.display_name as creator_name,
+         COALESCE(
+           ARRAY(
+             SELECT DISTINCT mk.kps_type
+             FROM unnest(a.id_kps_api) AS kps_id
+             LEFT JOIN master_kps mk ON mk.id_kps_api = kps_id
+             WHERE mk.kps_type IS NOT NULL
+           ),
+           ARRAY[]::text[]
+         ) as type_kps
        FROM aduan a LEFT JOIN users u ON u.id = a.created_by
        WHERE a.id = $1`,
       [id]
