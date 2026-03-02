@@ -4,7 +4,7 @@ import { Button, Card, CardHeader, CardTitle, CardContent, Select } from '../com
 import { FIXED_REPORT_COLUMN_IDS, ReportService } from '../lib/report.service';
 
 export const LaporanPage: React.FC = () => {
-    const [format, setFormat] = useState('pdf');
+    const [format, setFormat] = useState('excel');
     const [selectedProvinsi, setSelectedProvinsi] = useState('all');
     const [provinces, setProvinces] = useState<string[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -65,7 +65,6 @@ export const LaporanPage: React.FC = () => {
                     <Select
                         label="Format"
                         options={[
-                            { value: 'pdf', label: 'PDF (.pdf)' },
                             { value: 'excel', label: 'Excel (.xlsx)' },
                             { value: 'csv', label: 'CSV (.csv)' }
                         ]}
@@ -93,7 +92,7 @@ export const LaporanPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <p className="text-xs text-muted-foreground">
-                        Laporan menggunakan format kolom baku ({FIXED_REPORT_COLUMN_IDS.length} kolom) dalam satu tabel matriks tanpa pengelompokan status.
+                        Laporan menggunakan format kolom baku ({FIXED_REPORT_COLUMN_IDS.length} kolom). Output tersedia dalam Excel (utama) dan CSV.
                     </p>
                 </CardContent>
             </Card>

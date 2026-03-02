@@ -1,7 +1,5 @@
 import { AduanService } from './aduan.service';
 import type { Aduan } from '../types';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -91,134 +89,132 @@ export const ReportService = {
                 .map((id) => REPORT_COLUMNS_MAP[id])
                 .filter(Boolean);
 
-            if (outputFormat === 'pdf') {
-                return ReportService.exportToPDF(data, columns, startDate, endDate, provinsi);
-            } else if (outputFormat === 'excel') {
+            if (outputFormat === 'excel') {
                 return ReportService.exportToExcel(data, columns, startDate, endDate, provinsi);
             } else if (outputFormat === 'csv') {
                 return ReportService.exportToCSV(data, columns, startDate, endDate, provinsi);
             }
+            return ReportService.exportToExcel(data, columns, startDate, endDate, provinsi);
         } catch (error) {
             console.error('Error generating report:', error);
             throw error;
         }
     },
 
-    exportToPDF: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, provinsi?: string) => {
-        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }) as any;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, provinsi);
-
-        const drawHeader = () => {
-            doc.setFillColor(15, 23, 42);
-            doc.rect(0, 0, pageWidth, 20, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.text(`${APP_NAME} - Laporan Data Matriks`, 14, 8.5);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            doc.text(AGENCY_NAME, 14, 14.2);
-
-            doc.setTextColor(17, 24, 39);
-            doc.setFont('helvetica', 'bold');
-            doc.setFontSize(13);
-            doc.text('Matriks Data Pengaduan', 14, 28);
-            doc.setFont('helvetica', 'normal');
-            doc.setFontSize(9);
-            doc.text(periodText, 14, 33.5);
-            doc.text(filterText, 14, 38.5);
-            doc.text(generatedText, 14, 43.5);
-            doc.text(`Total Data: ${data.length} baris`, pageWidth - 14, 43.5, { align: 'right' });
-        };
-
-        const drawFooter = () => {
-            const currentPage = doc.internal.getNumberOfPages();
-            doc.setDrawColor(209, 213, 219);
-            doc.line(14, pageHeight - 10.5, pageWidth - 14, pageHeight - 10.5);
-            doc.setFontSize(8);
-            doc.setTextColor(107, 114, 128);
-            doc.text(`${APP_NAME} • ${AGENCY_NAME}`, 14, pageHeight - 6.2);
-            doc.text(`Halaman ${currentPage}`, pageWidth - 14, pageHeight - 6.2, { align: 'right' });
-        };
-
-        const tableColumn = columns.map((c) => c.label);
-        const tableRows = data.length > 0
-            ? data.map((row) => columns.map((c) => safeText(c.getValue(row))))
-            : [[`Tidak ada data untuk filter yang dipilih (${filterText})`, ...Array(Math.max(columns.length - 1, 0)).fill('')]];
-        const colIndex = (id: string) => columns.findIndex((c) => c.id === id);
-        const colWidthStyles: Record<number, { cellWidth: number | 'wrap' }> = {};
-        const setWidth = (id: string, width: number | 'wrap') => {
-            const index = colIndex(id);
-            if (index >= 0) colWidthStyles[index] = { cellWidth: width };
-        };
-        setWidth('nomorTiket', 26);
-        setWidth('createdAt', 19);
-        setWidth('status', 15);
-        setWidth('namaKps', 42);
-        setWidth('nomorSk', 36);
-        setWidth('typeKps', 30);
-        setWidth('perihal', 44);
-        setWidth('provinsi', 20);
-        setWidth('kabupaten', 24);
-        setWidth('picName', 18);
-
-        autoTable(doc, {
-            head: [tableColumn],
-            body: tableRows,
-            startY: 50,
-            margin: { left: 14, right: 14, bottom: 14 },
-            styles: {
-                fontSize: 7,
-                cellPadding: 2,
-                textColor: [31, 41, 55],
-                lineColor: [219, 223, 230],
-                lineWidth: 0.1,
-                valign: 'top',
-                overflow: 'linebreak',
-                cellWidth: 'wrap',
-            },
-            headStyles: {
-                fillColor: [30, 41, 59],
-                textColor: 255,
-                fontStyle: 'bold',
-            },
-            alternateRowStyles: { fillColor: [248, 250, 252] },
-            theme: 'grid',
-            columnStyles: colWidthStyles,
-            didDrawPage: () => {
-                drawHeader();
-                drawFooter();
-            },
-            horizontalPageBreak: true,
-            horizontalPageBreakRepeat: 0,
-        });
-
-        doc.save(`Laporan_KitapantauPS_${format(new Date(), 'yyyyMMdd_HHmmss')}.pdf`);
-    },
-
     exportToExcel: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, provinsi?: string) => {
-        const docTitle = [['Laporan Pengaduan KitapantauPS']];
         const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, provinsi);
+        const tableHeader = ['No', ...columns.map(c => c.label)];
+        const tableRows = data.map((row, index) => [String(index + 1), ...columns.map(c => safeText(c.getValue(row)))]);
+        const totalColumns = tableHeader.length;
+        const lastColumn = XLSX.utils.encode_col(totalColumns - 1);
 
-        const metadata = [
-            [periodText],
-            [filterText],
-            [generatedText],
+        const sheetData: Array<Array<string>> = [
+            [APP_NAME],
+            [AGENCY_NAME],
+            [],
+            ['Laporan Data Pengaduan'],
+            [],
+            [periodText, '', '', '', filterText],
+            [generatedText, '', '', '', `Total Data: ${data.length} baris`],
             []
         ];
+        sheetData.push(tableHeader);
+        if (tableRows.length > 0) {
+            sheetData.push(...tableRows);
+        } else {
+            sheetData.push(['1', 'Tidak ada data untuk filter yang dipilih', ...Array(Math.max(totalColumns - 2, 0)).fill('')]);
+        }
 
-        const tableHeader = [columns.map(c => c.label)];
-        const tableRows = data.map(row => columns.map(c => safeText(c.getValue(row))));
+        const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+        const headerRowNumber = 9;
+        const dataStartRowNumber = headerRowNumber + 1;
+        const dataEndRowNumber = dataStartRowNumber + Math.max(tableRows.length, 1) - 1;
 
-        const combinedData = [...docTitle, ...metadata, ...tableHeader, ...tableRows];
+        worksheet['!merges'] = [
+            XLSX.utils.decode_range(`A1:${lastColumn}1`),
+            XLSX.utils.decode_range(`A2:${lastColumn}2`),
+            XLSX.utils.decode_range(`A4:${lastColumn}4`),
+            XLSX.utils.decode_range(`A6:D6`),
+            XLSX.utils.decode_range(`E6:${lastColumn}6`),
+            XLSX.utils.decode_range(`A7:D7`),
+            XLSX.utils.decode_range(`E7:${lastColumn}7`),
+        ];
+        worksheet['!autofilter'] = { ref: `A${headerRowNumber}:${lastColumn}${headerRowNumber}` };
+        (worksheet as any)['!freeze'] = { xSplit: 1, ySplit: dataStartRowNumber - 1, topLeftCell: `B${dataStartRowNumber}` };
 
-        const worksheet = XLSX.utils.aoa_to_sheet(combinedData);
+        const measureWidth = (value: string) => {
+            const lines = value.split('\n');
+            return Math.max(...lines.map((line) => line.length));
+        };
+        const columnWidths = tableHeader.map((header, index) => {
+            const maxValueWidth = Math.max(
+                header.length,
+                ...tableRows.map((row) => measureWidth(row[index] ?? ''))
+            );
+            const bounded = Math.min(Math.max(maxValueWidth + 2, index === 0 ? 5 : 12), index === 0 ? 7 : 45);
+            return { wch: bounded };
+        });
+        worksheet['!cols'] = columnWidths;
+
+        const setCellStyle = (address: string, style: any) => {
+            const cell = (worksheet as any)[address];
+            if (cell) cell.s = style;
+        };
+        const titleStyle = {
+            font: { bold: true, sz: 15, color: { rgb: '1F2937' } },
+            alignment: { horizontal: 'left', vertical: 'center' },
+        };
+        const subtitleStyle = {
+            font: { bold: true, sz: 11, color: { rgb: '374151' } },
+            alignment: { horizontal: 'left', vertical: 'center' },
+        };
+        const metaStyle = {
+            font: { sz: 10, color: { rgb: '4B5563' } },
+            alignment: { horizontal: 'left', vertical: 'center' },
+        };
+        const tableHeaderStyle = {
+            font: { bold: true, sz: 10, color: { rgb: 'FFFFFF' } },
+            fill: { fgColor: { rgb: '1E3A8A' } },
+            alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+            border: {
+                top: { style: 'thin', color: { rgb: 'D1D5DB' } },
+                bottom: { style: 'thin', color: { rgb: 'D1D5DB' } },
+                left: { style: 'thin', color: { rgb: 'D1D5DB' } },
+                right: { style: 'thin', color: { rgb: 'D1D5DB' } },
+            },
+        };
+        const bodyStyle = {
+            alignment: { vertical: 'top', wrapText: true },
+            border: {
+                top: { style: 'thin', color: { rgb: 'E5E7EB' } },
+                bottom: { style: 'thin', color: { rgb: 'E5E7EB' } },
+                left: { style: 'thin', color: { rgb: 'E5E7EB' } },
+                right: { style: 'thin', color: { rgb: 'E5E7EB' } },
+            },
+        };
+
+        setCellStyle('A1', titleStyle);
+        setCellStyle('A2', subtitleStyle);
+        setCellStyle('A4', { ...subtitleStyle, font: { bold: true, sz: 12, color: { rgb: '111827' } } });
+        setCellStyle('A6', metaStyle);
+        setCellStyle('E6', metaStyle);
+        setCellStyle('A7', metaStyle);
+        setCellStyle('E7', metaStyle);
+
+        for (let col = 0; col < totalColumns; col += 1) {
+            const headerAddress = XLSX.utils.encode_cell({ r: headerRowNumber - 1, c: col });
+            setCellStyle(headerAddress, tableHeaderStyle);
+        }
+        for (let row = dataStartRowNumber; row <= dataEndRowNumber; row += 1) {
+            for (let col = 0; col < totalColumns; col += 1) {
+                const bodyAddress = XLSX.utils.encode_cell({ r: row - 1, c: col });
+                setCellStyle(bodyAddress, bodyStyle);
+            }
+        }
+
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan');
-
-        XLSX.writeFile(workbook, `Laporan_KitapantauPS_${format(new Date(), 'yyyyMMdd_HHmmss')}.xlsx`);
+        XLSX.writeFile(workbook, `Laporan_Matriks_KitapantauPS_${format(new Date(), 'yyyyMMdd_HHmmss')}.xlsx`, { cellStyles: true });
     },
 
     exportToCSV: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, provinsi?: string) => {
@@ -232,8 +228,8 @@ export const ReportService = {
             []
         ];
 
-        const tableHeader = [columns.map(c => c.label)];
-        const tableRows = data.map(row => columns.map(c => safeText(c.getValue(row))));
+        const tableHeader = [['No', ...columns.map(c => c.label)]];
+        const tableRows = data.map((row, index) => [String(index + 1), ...columns.map(c => safeText(c.getValue(row)))]);
 
         const combinedData = [...docTitle, ...metadata, ...tableHeader, ...tableRows];
 
