@@ -173,6 +173,8 @@ CREATE TABLE IF NOT EXISTS public.aduan (
   surat_tanggal       date,
   surat_asal_perihal  text,
   pengadu_nama        text,
+  pengadu_telepon     text,
+  pengadu_email       text,
   pengadu_instansi    text,
   kategori_masalah    text REFERENCES public.master_kategori_masalah(nama_kategori),
   ringkasan_masalah   text,

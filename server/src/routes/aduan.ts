@@ -270,6 +270,8 @@ const createAduanSchema = z.object({
   surat_tanggal: z.string().optional(),
   surat_asal_perihal: z.string().optional(),
   pengadu_nama: z.string().min(1),
+  pengadu_telepon: z.string().optional(),
+  pengadu_email: z.string().email().optional().nullable(),
   pengadu_instansi: z.string().optional(),
   kategori_masalah: z.string().optional(),
   ringkasan_masalah: z.string().min(1),
@@ -306,15 +308,15 @@ aduan.post('/', zValidator('json', createAduanSchema), async (c) => {
   const result = await pool.query(
     `INSERT INTO aduan (
       nomor_tiket, surat_nomor, surat_tanggal, surat_asal_perihal,
-      pengadu_nama, pengadu_instansi, kategori_masalah, ringkasan_masalah,
+      pengadu_nama, pengadu_telepon, pengadu_email, pengadu_instansi, kategori_masalah, ringkasan_masalah,
       nama_kps, jenis_kps, nomor_sk, id_kps_api,
       lokasi_prov, lokasi_kab, lokasi_kec, lokasi_desa, lokasi_luas_ha,
       jumlah_kk, lokasi_lat, lokasi_lng, created_by, pic_id, pic_name
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
     RETURNING *`,
     [
       nomorTiket, data.surat_nomor, data.surat_tanggal, data.surat_asal_perihal,
-      data.pengadu_nama, data.pengadu_instansi, data.kategori_masalah, data.ringkasan_masalah,
+      data.pengadu_nama, data.pengadu_telepon, data.pengadu_email, data.pengadu_instansi, data.kategori_masalah, data.ringkasan_masalah,
       data.nama_kps, data.jenis_kps, data.nomor_sk, data.id_kps_api,
       data.lokasi_prov, data.lokasi_kab, data.lokasi_kec, data.lokasi_desa, data.lokasi_luas_ha,
       data.jumlah_kk, data.lokasi_lat, data.lokasi_lng, user.userId,
@@ -330,6 +332,8 @@ const updateAduanSchema = z.object({
   surat_tanggal: z.string().optional(),
   surat_asal_perihal: z.string().optional(),
   pengadu_nama: z.string().optional(),
+  pengadu_telepon: z.string().optional(),
+  pengadu_email: z.string().email().optional().nullable(),
   pengadu_instansi: z.string().optional(),
   kategori_masalah: z.string().optional(),
   ringkasan_masalah: z.string().optional(),

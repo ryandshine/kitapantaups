@@ -66,6 +66,8 @@ export const AduanService = {
             surat_tanggal: formData.surat_tanggal,
             surat_asal_perihal: formData.surat_asal_perihal,
             pengadu_nama: formData.pengadu_nama,
+            pengadu_telepon: formData.pengadu_telepon,
+            pengadu_email: formData.pengadu_email,
             pengadu_instansi: formData.pengadu_instansi,
             kategori_masalah: formData.kategori_masalah,
             ringkasan_masalah: formData.ringkasan_masalah,
@@ -84,6 +86,9 @@ export const AduanService = {
             pic_id: userId,
             pic_name: userName,
         };
+        if (typeof payload.pengadu_email === 'string' && payload.pengadu_email.trim() === '') {
+            delete payload.pengadu_email;
+        }
 
         // 1. Create the aduan record first
         const aduan = await api.post('/aduan', payload);
@@ -303,6 +308,14 @@ export const AduanService = {
             if (data.suratMasuk.nomorSurat) updateData.surat_nomor = data.suratMasuk.nomorSurat;
             if (data.suratMasuk.fileUrl !== undefined) updateData.surat_file_url = data.suratMasuk.fileUrl;
         }
+        if (data.pengadu) {
+            if (data.pengadu.nama !== undefined) updateData.pengadu_nama = data.pengadu.nama;
+            if (data.pengadu.telepon !== undefined) updateData.pengadu_telepon = data.pengadu.telepon;
+            if (data.pengadu.instansi !== undefined) updateData.pengadu_instansi = data.pengadu.instansi;
+            if (data.pengadu.email !== undefined) {
+                updateData.pengadu_email = data.pengadu.email?.trim() ? data.pengadu.email.trim() : null;
+            }
+        }
         if (Object.keys(updateData).length === 0) return true;
         await api.patch(`/aduan/${id}`, updateData);
         await ActivityService.logActivity({
@@ -383,7 +396,12 @@ export const AduanService = {
         createdByName: row.creator_name,
         updatedAt: new Date(row.updated_at),
         documents: row.documents || [],
-        pengadu: { nama: row.pengadu_nama || '', telepon: '', email: '', instansi: row.pengadu_instansi || '' },
+        pengadu: {
+            nama: row.pengadu_nama || '',
+            telepon: row.pengadu_telepon || '',
+            email: row.pengadu_email || '',
+            instansi: row.pengadu_instansi || ''
+        },
         suratMasuk: {
             nomorSurat: row.surat_nomor || '',
             tanggalSurat: row.surat_tanggal ? new Date(row.surat_tanggal) : new Date(),

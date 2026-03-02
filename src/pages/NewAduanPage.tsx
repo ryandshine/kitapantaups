@@ -203,6 +203,8 @@ export const NewAduanPage: React.FC = () => {
                     : formData.suratMasuk.tanggalSurat,
                 surat_asal_perihal: formData.suratMasuk.perihal,
                 pengadu_nama: formData.pengadu.nama,
+                pengadu_telepon: formData.pengadu.telepon,
+                pengadu_email: formData.pengadu.email?.trim() || undefined,
                 pengadu_instansi: formData.pengadu.instansi,
                 kategori_masalah: formData.kategoriMasalah,
                 ringkasan_masalah: formData.ringkasanMasalah,
