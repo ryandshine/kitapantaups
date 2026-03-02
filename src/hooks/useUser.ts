@@ -42,6 +42,17 @@ export const useToggleUserStatus = () => {
     });
 };
 
+export const useResetUserPassword = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ userId, password }: { userId: string, password: string }) =>
+            UserService.resetUserPassword(userId, password),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['users', 'list'] });
+        },
+    });
+};
+
 export const useDeleteUser = () => {
     const queryClient = useQueryClient();
     return useMutation({

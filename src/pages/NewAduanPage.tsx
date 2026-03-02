@@ -52,7 +52,7 @@ interface FormData {
 export const NewAduanPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { density, setDensity, isCompact } = useUIDensity();
+    const { isCompact } = useUIDensity();
 
     // Master data state
     const [kategoriOptions, setKategoriOptions] = useState<any[]>([]);
@@ -267,24 +267,6 @@ export const NewAduanPage: React.FC = () => {
                     <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
                         Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                     </p>
-                    <div className="pt-2">
-                        <div className="inline-flex items-center gap-1 rounded-xl border border-border bg-white p-1">
-                            <button
-                                type="button"
-                                onClick={() => setDensity('comfortable')}
-                                className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${density === 'comfortable' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                            >
-                                Comfortable
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setDensity('compact')}
-                                className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${density === 'compact' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                            >
-                                Compact
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
 

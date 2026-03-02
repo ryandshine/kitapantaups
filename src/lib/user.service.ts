@@ -54,6 +54,16 @@ export const UserService = {
         }
     },
 
+    resetUserPassword: async (userId: string, password: string) => {
+        try {
+            await api.patch(`/users/${userId}`, { password });
+            return true;
+        } catch (error) {
+            console.error('Error resetting user password:', error);
+            throw error;
+        }
+    },
+
     updateUserProfile: async (userId: string, data: Partial<User> & { password?: string }) => {
         try {
             const payload: any = {};

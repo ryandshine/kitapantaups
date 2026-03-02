@@ -22,7 +22,7 @@ export const AduanListPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([]);
-    const { density, setDensity, isCompact } = useUIDensity();
+    const { isCompact } = useUIDensity();
     const itemsPerPage = 10;
 
     const { data: aduanResult, isLoading: loadingItems } = useAduanList(currentPage, itemsPerPage, searchTerm, statusFilter);
@@ -214,22 +214,6 @@ export const AduanListPage: React.FC = () => {
                             onChange={setStatusFilter}
                             className={`flex-1 md:w-48 ${isCompact ? 'text-xs' : ''}`}
                         />
-                        <div className="hidden sm:flex items-center gap-1 rounded-xl border border-border bg-card p-1">
-                            <button
-                                type="button"
-                                onClick={() => setDensity('comfortable')}
-                                className={`h-8 rounded-lg px-3 text-xs font-medium transition-colors ${density === 'comfortable' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                            >
-                                Comfortable
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setDensity('compact')}
-                                className={`h-8 rounded-lg px-3 text-xs font-medium transition-colors ${density === 'compact' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                            >
-                                Compact
-                            </button>
-                        </div>
                     </div>
                 </div>
                 <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

@@ -120,6 +120,39 @@ export const DashboardPage: React.FC = () => {
         return { icon: Zap, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' };
     };
 
+    const getActivityContextTags = (activity: AppActivity): string[] => {
+        const metadata = activity.metadata || {};
+        const tags: string[] = [];
+
+        const ticket = metadata.nomor_tiket || metadata.nomorTiket;
+        if (typeof ticket === 'string' && ticket.trim()) {
+            tags.push(`Tiket: ${ticket}`);
+        }
+
+        if (activity.aduanId) {
+            tags.push(`Aduan: ${activity.aduanId.slice(0, 8)}`);
+        }
+
+        if (typeof metadata.jenisTL === 'string' && metadata.jenisTL.trim()) {
+            tags.push(`Jenis TL: ${metadata.jenisTL}`);
+        }
+
+        if (typeof metadata.file_name === 'string' && metadata.file_name.trim()) {
+            tags.push(`File: ${metadata.file_name}`);
+        }
+
+        if (Array.isArray(metadata.fields) && metadata.fields.length > 0) {
+            const visibleFields = metadata.fields.slice(0, 3).join(', ');
+            tags.push(
+                metadata.fields.length > 3
+                    ? `Field: ${visibleFields} +${metadata.fields.length - 3} lainnya`
+                    : `Field: ${visibleFields}`
+            );
+        }
+
+        return tags;
+    };
+
     const filteredActivities = activities.filter(activity => {
         if (activityFilter === 'all') return true;
         const systemTypes = ['user_login', 'user_logout', 'create_user', 'update_user', 'change_role', 'update_settings', 'ai_generate_summary', 'sync_master_data'];
@@ -319,6 +352,7 @@ export const DashboardPage: React.FC = () => {
                                 filteredActivities.map((activity, i) => {
                                     const ui = getActivityUI(activity.type);
                                     const Icon = ui.icon;
+                                    const contextTags = getActivityContextTags(activity);
                                     
                                     return (
                                         <div key={activity.id} className="flex gap-4 group">
@@ -337,6 +371,18 @@ export const DashboardPage: React.FC = () => {
                                                 <div className="text-xs font-medium text-foreground leading-snug group-hover:text-primary transition-colors prose prose-slate prose-xs max-w-none">
                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
                                                 </div>
+                                                {contextTags.length > 0 && (
+                                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                                        {contextTags.map((tag, idx) => (
+                                                            <span
+                                                                key={`${activity.id}-context-${idx}`}
+                                                                className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-foreground/80"
+                                                            >
+                                                                {tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 <p className="text-[10px] text-muted-foreground mt-1.5 font-medium flex items-center gap-2">
                                                     {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
                                                     <span className="w-1 h-1 rounded-full bg-border" />

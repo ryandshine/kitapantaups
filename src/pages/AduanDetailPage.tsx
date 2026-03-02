@@ -52,6 +52,7 @@ import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAd
 import { useKpsDetail } from '../hooks/useKps';
 import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut, useUpdateTindakLanjut } from '../hooks/useTindakLanjut';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { AduanPdfService } from '../lib/aduan-pdf.service';
 
 const formatDate = (date: Date): string => {
     if (!date) return '-';
@@ -519,6 +520,7 @@ export const AduanDetailPage: React.FC = () => {
     });
     const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
     const [isDownloadingZip, setIsDownloadingZip] = useState(false);
+    const [isExportingPdf, setIsExportingPdf] = useState(false);
 
     const [suratFile, setSuratFile] = useState<File | null>(null);
 
@@ -643,8 +645,17 @@ export const AduanDetailPage: React.FC = () => {
 
 
 
-    const handlePrint = () => {
-        window.print();
+    const handlePrint = async () => {
+        if (!aduan) return;
+        setIsExportingPdf(true);
+        try {
+            AduanPdfService.exportDetail(aduan, lokasiObjekItems, qTindakLanjutList);
+        } catch (err: any) {
+            console.error('Failed to export PDF:', err);
+            alert(`Gagal membuat PDF: ${err?.message || 'Error tidak diketahui'}`);
+        } finally {
+            setIsExportingPdf(false);
+        }
     };
 
     const handleDelete = async () => {
@@ -1323,8 +1334,15 @@ export const AduanDetailPage: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" leftIcon={<FileText size={15} />} onClick={handlePrint} className="h-9 rounded-xl px-4">
-                                Cetak
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                leftIcon={<FileText size={15} />}
+                                onClick={handlePrint}
+                                className="h-9 rounded-xl px-4"
+                                isLoading={isExportingPdf}
+                            >
+                                PDF
                             </Button>
                             {isAdmin && (
                                 <Button

@@ -3,6 +3,7 @@ import {
     useCreateUser,
     useUpdateUserRole,
     useToggleUserStatus,
+    useResetUserPassword,
     useDeleteUser
 } from '../hooks/useUser';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,7 +16,8 @@ import {
     CheckCircle,
     XCircle,
     ShieldAlert,
-    UserPlus
+    UserPlus,
+    KeyRound
 } from 'lucide-react';
 import {
     Card,
@@ -36,11 +38,15 @@ export const UserManagementPage: React.FC = () => {
     const { mutate: createUser, isPending: isCreating } = useCreateUser();
     const { mutate: updateUserRole } = useUpdateUserRole();
     const { mutate: toggleStatus } = useToggleUserStatus();
+    const { mutate: resetUserPassword, isPending: isResettingPassword } = useResetUserPassword();
     const { mutate: deleteUser } = useDeleteUser();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [selectedUserForPassword, setSelectedUserForPassword] = useState<User | null>(null);
+    const [passwordForm, setPasswordForm] = useState({ password: '', confirmPassword: '' });
     const [newUserForm, setNewUserForm] = useState({
         email: '',
         password: '',
@@ -80,6 +86,39 @@ export const UserManagementPage: React.FC = () => {
             onSettled: () => setUpdatingUserId(null),
             onError: () => alert('Gagal mengubah status user.')
         });
+    };
+
+    const openResetPasswordModal = (user: User) => {
+        setSelectedUserForPassword(user);
+        setPasswordForm({ password: '', confirmPassword: '' });
+        setIsPasswordModalOpen(true);
+    };
+
+    const handleResetPassword = () => {
+        if (!selectedUserForPassword) return;
+        if (passwordForm.password.length < 8) {
+            alert('Password minimal 8 karakter.');
+            return;
+        }
+        if (passwordForm.password !== passwordForm.confirmPassword) {
+            alert('Konfirmasi password tidak sama.');
+            return;
+        }
+
+        setUpdatingUserId(selectedUserForPassword.id);
+        resetUserPassword(
+            { userId: selectedUserForPassword.id, password: passwordForm.password },
+            {
+                onSuccess: () => {
+                    setIsPasswordModalOpen(false);
+                    setSelectedUserForPassword(null);
+                    setPasswordForm({ password: '', confirmPassword: '' });
+                    alert('Password user berhasil diperbarui.');
+                },
+                onError: () => alert('Gagal memperbarui password user.'),
+                onSettled: () => setUpdatingUserId(null),
+            }
+        );
     };
 
     const handleCreateUser = async () => {
@@ -222,16 +261,12 @@ export const UserManagementPage: React.FC = () => {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 text-center">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleToggleStatus(u)}
-                                                    disabled={u.id === currentUser?.id || updatingUserId === u.id}
+                                                <span
                                                     className={cn(
-                                                        "rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider",
+                                                        "inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider",
                                                         u.isActive
-                                                            ? "text-emerald-600 bg-emerald-50 hover:bg-emerald-100"
-                                                            : "text-rose-600 bg-rose-50 hover:bg-rose-100"
+                                                            ? "text-emerald-600 bg-emerald-50"
+                                                            : "text-rose-600 bg-rose-50"
                                                     )}
                                                 >
                                                     {u.isActive ? (
@@ -245,10 +280,34 @@ export const UserManagementPage: React.FC = () => {
                                                             Non-Aktif
                                                         </>
                                                     )}
-                                                </Button>
+                                                </span>
                                             </td>
                                             <td className="px-4 py-3 text-right">
                                                 <div className="flex items-center justify-end gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 px-2 text-[11px]"
+                                                        onClick={() => openResetPasswordModal(u)}
+                                                        disabled={updatingUserId === u.id}
+                                                    >
+                                                        <KeyRound className="h-3.5 w-3.5 mr-1" />
+                                                        Password
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className={cn(
+                                                            "h-8 px-2 text-[11px]",
+                                                            u.isActive
+                                                                ? "text-rose-700 border-rose-200 hover:bg-rose-50"
+                                                                : "text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                                        )}
+                                                        onClick={() => handleToggleStatus(u)}
+                                                        disabled={u.id === currentUser?.id || updatingUserId === u.id}
+                                                    >
+                                                        {u.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                                                    </Button>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
@@ -336,6 +395,64 @@ export const UserManagementPage: React.FC = () => {
                             disabled={isCreating}
                         >
                             {isCreating ? 'Membuat...' : 'Tambah Pengguna'}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={isPasswordModalOpen}
+                onClose={() => {
+                    if (isResettingPassword) return;
+                    setIsPasswordModalOpen(false);
+                    setSelectedUserForPassword(null);
+                }}
+                title="Reset Password Pengguna"
+                description="Admin dapat mengubah password user dari sini."
+            >
+                <div className="space-y-4">
+                    <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm">
+                        <p className="font-semibold text-foreground">{selectedUserForPassword?.displayName || '-'}</p>
+                        <p className="text-xs text-muted-foreground">{selectedUserForPassword?.email || '-'}</p>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground/80">Password Baru</label>
+                        <Input
+                            type="password"
+                            placeholder="Minimal 8 karakter"
+                            value={passwordForm.password}
+                            onChange={(e) => setPasswordForm((prev) => ({ ...prev, password: e.target.value }))}
+                            disabled={isResettingPassword}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-foreground/80">Konfirmasi Password</label>
+                        <Input
+                            type="password"
+                            placeholder="Ulangi password"
+                            value={passwordForm.confirmPassword}
+                            onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                            disabled={isResettingPassword}
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsPasswordModalOpen(false);
+                                setSelectedUserForPassword(null);
+                            }}
+                            disabled={isResettingPassword}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            variant="primary"
+                            onClick={handleResetPassword}
+                            disabled={isResettingPassword}
+                        >
+                            {isResettingPassword ? 'Menyimpan...' : 'Simpan Password'}
                         </Button>
                     </div>
                 </div>
