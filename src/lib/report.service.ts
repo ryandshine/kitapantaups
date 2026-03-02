@@ -16,6 +16,16 @@ const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
     nomorTiket: { id: 'nomorTiket', label: 'Nomor Tiket', getValue: (row) => row.nomorTiket || row.nomor_tiket },
     createdAt: { id: 'createdAt', label: 'Tanggal Buat', getValue: (row) => row.createdAt ? format(new Date(row.createdAt), 'dd MMM yyyy', { locale: id }) : '-' },
     status: { id: 'status', label: 'Status', getValue: (row) => row.status },
+    namaKps: {
+        id: 'namaKps',
+        label: 'Nama KPS',
+        getValue: (row) => row.nama_kps && row.nama_kps.length > 0 ? row.nama_kps.join(', ') : '-',
+    },
+    nomorSk: {
+        id: 'nomorSk',
+        label: 'No SK',
+        getValue: (row) => row.nomor_sk && row.nomor_sk.length > 0 ? row.nomor_sk.join(', ') : '-',
+    },
     typeKps: {
         id: 'typeKps',
         label: 'Type KPS',
@@ -25,18 +35,8 @@ const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
         }
     },
     perihal: { id: 'perihal', label: 'Perihal', getValue: (row) => row.perihal },
-    pengaduNama: { id: 'pengaduNama', label: 'Nama Pengadu', getValue: (row) => row.pengadu.nama },
-    pengaduTelepon: { id: 'pengaduTelepon', label: 'Telepon Pengadu', getValue: (row) => row.pengadu.telepon },
-    pengaduEmail: { id: 'pengaduEmail', label: 'Email Pengadu', getValue: (row) => row.pengadu.email || '-' },
-    pengaduInstansi: { id: 'pengaduInstansi', label: 'Instansi Pengadu', getValue: (row) => row.pengadu.instansi },
     provinsi: { id: 'provinsi', label: 'Provinsi', getValue: (row) => row.lokasi.provinsi },
     kabupaten: { id: 'kabupaten', label: 'Kabupaten', getValue: (row) => row.lokasi.kabupaten },
-    kecamatan: { id: 'kecamatan', label: 'Kecamatan', getValue: (row) => row.lokasi.kecamatan },
-    desa: { id: 'desa', label: 'Desa', getValue: (row) => row.lokasi.desa },
-    luasHa: { id: 'luasHa', label: 'Luas (Ha)', getValue: (row) => row.lokasi.luasHa },
-    nomorSurat: { id: 'nomorSurat', label: 'Nomor Surat', getValue: (row) => row.suratMasuk.nomorSurat },
-    tanggalSurat: { id: 'tanggalSurat', label: 'Tanggal Surat', getValue: (row) => row.suratMasuk.tanggalSurat ? format(row.suratMasuk.tanggalSurat, 'dd MMM yyyy', { locale: id }) : '-' },
-    skTerkait: { id: 'skTerkait', label: 'SK Terkait', getValue: (row) => row.skTerkait || '-' },
     picName: { id: 'picName', label: 'PIC', getValue: (row) => row.picName || '-' },
 };
 
@@ -44,20 +44,12 @@ export const FIXED_REPORT_COLUMN_IDS: string[] = [
     'nomorTiket',
     'createdAt',
     'status',
+    'namaKps',
+    'nomorSk',
     'typeKps',
     'perihal',
-    'pengaduNama',
-    'pengaduTelepon',
-    'pengaduEmail',
-    'pengaduInstansi',
     'provinsi',
     'kabupaten',
-    'kecamatan',
-    'desa',
-    'luasHa',
-    'nomorSurat',
-    'tanggalSurat',
-    'skTerkait',
     'picName',
 ];
 
@@ -155,6 +147,22 @@ export const ReportService = {
         const tableRows = data.length > 0
             ? data.map((row) => columns.map((c) => safeText(c.getValue(row))))
             : [[`Tidak ada data untuk filter yang dipilih (${filterText})`, ...Array(Math.max(columns.length - 1, 0)).fill('')]];
+        const colIndex = (id: string) => columns.findIndex((c) => c.id === id);
+        const colWidthStyles: Record<number, { cellWidth: number | 'wrap' }> = {};
+        const setWidth = (id: string, width: number | 'wrap') => {
+            const index = colIndex(id);
+            if (index >= 0) colWidthStyles[index] = { cellWidth: width };
+        };
+        setWidth('nomorTiket', 26);
+        setWidth('createdAt', 19);
+        setWidth('status', 15);
+        setWidth('namaKps', 42);
+        setWidth('nomorSk', 36);
+        setWidth('typeKps', 30);
+        setWidth('perihal', 44);
+        setWidth('provinsi', 20);
+        setWidth('kabupaten', 24);
+        setWidth('picName', 18);
 
         autoTable(doc, {
             head: [tableColumn],
@@ -178,6 +186,7 @@ export const ReportService = {
             },
             alternateRowStyles: { fillColor: [248, 250, 252] },
             theme: 'grid',
+            columnStyles: colWidthStyles,
             didDrawPage: () => {
                 drawHeader();
                 drawFooter();
