@@ -361,7 +361,6 @@ const updateAduanSchema = z.object({
   lokasi_lat: z.array(z.string()).optional(),
   lokasi_lng: z.array(z.string()).optional(),
   surat_file_url: z.string().optional(),
-  drive_folder_id: z.string().optional(),
   pic_id: z.string().uuid().optional().nullable(),
   pic_name: z.string().optional(),
 })

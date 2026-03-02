@@ -49,7 +49,6 @@ export const LaporanPage: React.FC = () => {
         { id: 'skTerkait', label: 'SK Terkait', category: 'Surat & Dokumen' },
 
         { id: 'picName', label: 'PIC', category: 'Penanganan' },
-        { id: 'deadline', label: 'Deadline', category: 'Penanganan' },
     ];
 
     const [selectedColumns, setSelectedColumns] = useState<string[]>(

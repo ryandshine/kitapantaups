@@ -14,7 +14,6 @@ const tlSchema = z.object({
   keterangan: z.string().optional(),
   file_urls: z.array(z.string()).optional(),
   nomor_surat_output: z.string().optional(),
-  link_drive: z.string().optional(),
 })
 
 // GET /aduan/:aduanId/tindak-lanjut
@@ -45,9 +44,8 @@ export const updateTl = async (c: any) => {
          jenis_tl = COALESCE($2, jenis_tl),
          keterangan = COALESCE($3, keterangan),
          file_urls = COALESCE($4, file_urls),
-         nomor_surat_output = COALESCE($5, nomor_surat_output),
-         link_drive = COALESCE($6, link_drive)
-     WHERE id = $7
+         nomor_surat_output = COALESCE($5, nomor_surat_output)
+     WHERE id = $6
      RETURNING *`,
     [
       data.tanggal ?? null,
@@ -55,7 +53,6 @@ export const updateTl = async (c: any) => {
       data.keterangan ?? null,
       data.file_urls ?? null,
       data.nomor_surat_output ?? null,
-      data.link_drive ?? null,
       id,
     ]
   )
@@ -80,10 +77,10 @@ tl.post('/', zValidator('json', tlSchema), async (c) => {
   const displayName = userResult.rows[0]?.display_name || user.email
 
   const result = await pool.query(
-    `INSERT INTO tindak_lanjut (aduan_id, tanggal, jenis_tl, keterangan, file_urls, nomor_surat_output, link_drive, created_by, created_by_name)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+    `INSERT INTO tindak_lanjut (aduan_id, tanggal, jenis_tl, keterangan, file_urls, nomor_surat_output, created_by, created_by_name)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
     [aduanId, data.tanggal, data.jenis_tl, data.keterangan, data.file_urls,
-     data.nomor_surat_output, data.link_drive, user.userId, displayName]
+     data.nomor_surat_output, user.userId, displayName]
   )
 
   return c.json(result.rows[0], 201)

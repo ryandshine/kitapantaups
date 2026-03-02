@@ -229,7 +229,6 @@ export const AduanService = {
                 keterangan: item.keterangan,
                 nomorSuratOutput: item.nomor_surat_output,
                 fileUrls: item.file_urls || [],
-                linkDrive: item.link_drive,
                 createdBy: item.created_by,
                 createdByName: item.created_by_name,
                 createdAt: new Date(item.created_at),
@@ -244,7 +243,6 @@ export const AduanService = {
             keterangan: data.keterangan,
             nomor_surat_output: data.nomorSuratOutput,
             file_urls: data.fileUrls,
-            link_drive: data.linkDrive,
         });
         await ActivityService.logActivity({
             type: 'create_tl',
@@ -269,7 +267,6 @@ export const AduanService = {
             keterangan: data.keterangan,
             nomor_surat_output: data.nomorSuratOutput,
             file_urls: data.fileUrls,
-            link_drive: data.linkDrive,
         });
         return true;
     },
@@ -278,7 +275,6 @@ export const AduanService = {
         const updateData: any = {};
         if (data.status) updateData.status = data.status;
         if (data.alasanPenolakan !== undefined) updateData.alasan_penolakan = data.alasanPenolakan;
-        if (data.driveFolderId) updateData.drive_folder_id = data.driveFolderId;
         if (data.picId !== undefined) updateData.pic_id = data.picId || null;
         if (data.picName !== undefined) updateData.pic_name = data.picName;
         if (data.jumlahKK !== undefined) {
@@ -391,7 +387,6 @@ export const AduanService = {
         lokasi_lng: Array.isArray(row.lokasi_lng) ? row.lokasi_lng.map(Number) : undefined,
         alasan_penolakan: row.alasan_penolakan,
         alasanPenolakan: row.alasan_penolakan,
-        driveFolderId: row.drive_folder_id,
         createdBy: row.created_by,
         createdByName: row.creator_name,
         updatedAt: new Date(row.updated_at),

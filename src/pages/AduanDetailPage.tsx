@@ -78,7 +78,6 @@ type EditAduanForm = {
     jumlahKK: number;
     skTerkait: string;
     fileUrl: string;
-    driveFolderId: string;
     kpsId: string;
     asalSurat: string;
     suratPerihal: string;
@@ -464,7 +463,6 @@ export const AduanDetailPage: React.FC = () => {
         jenisTL: 'Telaah Administrasi',
         tanggal: new Date().toISOString().split('T')[0],
         keterangan: '',
-        linkDrive: '',
         nomorSuratOutput: '',
         files: [] as File[]
     });
@@ -475,7 +473,6 @@ export const AduanDetailPage: React.FC = () => {
         jenisTL: '',
         tanggal: new Date().toISOString().split('T')[0],
         keterangan: '',
-        linkDrive: '',
         nomorSuratOutput: '',
         fileUrls: [] as string[],
         newFiles: [] as File[]
@@ -500,7 +497,6 @@ export const AduanDetailPage: React.FC = () => {
         jumlahKK: source?.jumlahKK || 0,
         skTerkait: source?.skTerkait || '',
         fileUrl: source?.suratMasuk?.fileUrl || '',
-        driveFolderId: source?.driveFolderId || '',
         kpsId: source?.id_kps_api?.[0] || source?.kpsId || '',
         asalSurat: source?.suratMasuk?.asalSurat || '',
         suratPerihal: source?.suratMasuk?.perihal || '',
@@ -732,7 +728,6 @@ export const AduanDetailPage: React.FC = () => {
                 tanggal: new Date(tlForm.tanggal),
                 jenisTL: tlForm.jenisTL,
                 keterangan: tlForm.keterangan,
-                linkDrive: tlForm.linkDrive,
                 nomorSuratOutput: tlForm.nomorSuratOutput,
                 fileUrls: fileUrls,
                 createdBy: user.id,
@@ -744,7 +739,6 @@ export const AduanDetailPage: React.FC = () => {
                         jenisTL: 'Telaah Administrasi',
                         tanggal: new Date().toISOString().split('T')[0],
                         keterangan: '',
-                        linkDrive: '',
                         nomorSuratOutput: '',
                         files: []
                     });
@@ -810,7 +804,6 @@ export const AduanDetailPage: React.FC = () => {
             jenisTL: tl.jenisTL,
             tanggal: new Date(tl.tanggal).toISOString().split('T')[0],
             keterangan: tl.keterangan || '',
-            linkDrive: tl.linkDrive || '',
             nomorSuratOutput: tl.nomorSuratOutput || '',
             fileUrls: tl.fileUrls || [],
             newFiles: []
@@ -826,7 +819,6 @@ export const AduanDetailPage: React.FC = () => {
             jenisTL: '',
             tanggal: new Date().toISOString().split('T')[0],
             keterangan: '',
-            linkDrive: '',
             nomorSuratOutput: '',
             fileUrls: [],
             newFiles: []
@@ -859,7 +851,6 @@ export const AduanDetailPage: React.FC = () => {
                 tanggal: new Date(editTlForm.tanggal),
                 jenisTL: editTlForm.jenisTL,
                 keterangan: editTlForm.keterangan,
-                linkDrive: editTlForm.linkDrive,
                 nomorSuratOutput: editTlForm.nomorSuratOutput,
                 fileUrls: mergedFileUrls,
                 createdBy: user.id,
@@ -1000,7 +991,6 @@ export const AduanDetailPage: React.FC = () => {
                 skema: editForm.skema,
                 jumlahKK: editForm.jumlahKK,
                 skTerkait: editForm.skTerkait,
-                driveFolderId: editForm.driveFolderId,
                 suratMasuk: {
                     ...aduan.suratMasuk,
                     asalSurat: editForm.asalSurat,
@@ -1804,17 +1794,6 @@ export const AduanDetailPage: React.FC = () => {
                                                     </div>
                                                         <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
                                                             <div className="flex items-center gap-2">
-                                                                {tl.linkDrive && (
-                                                                    <a
-                                                                        href={tl.linkDrive}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="inline-flex items-center gap-1.5 text-[10px] font-bold text-foreground hover:text-foreground bg-muted px-2 py-1 rounded-md transition-colors"
-                                                                >
-                                                                    <FolderOpen size={10} />
-                                                                    DOKUMEN TL
-                                                                </a>
-                                                            )}
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
                                                                     {tl.fileUrls.filter(Boolean).map((url, i) => {
@@ -2134,14 +2113,6 @@ export const AduanDetailPage: React.FC = () => {
                             rows={5}
                             required
                             fullWidth
-                        />
-                        <Input
-                            label="Link Drive (Opsional)"
-                            placeholder="https://drive.google.com/..."
-                            value={editTlForm.linkDrive}
-                            onChange={(e) => setEditTlForm(prev => ({ ...prev, linkDrive: e.target.value }))}
-                            fullWidth
-                            leftIcon={<FolderOpen size={16} />}
                         />
                     </div>
 

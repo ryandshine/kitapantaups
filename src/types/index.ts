@@ -120,7 +120,6 @@ export interface TindakLanjut {
     keterangan: string;
     nomorSuratOutput?: string;
     fileUrls: string[];
-    linkDrive?: string;
     createdBy: string;
     createdByName: string;
     createdAt: Date;
@@ -185,11 +184,9 @@ export interface Aduan {
     picName?: string;
     isBlocked?: boolean;
     blocking?: Blocking;
-    deadline?: Date | string;
     updatedBy?: string;
     jumlahKK?: number;
     alasanPenolakan?: string;
-    driveFolderId?: string;
 
     perihal?: string;
     kpsId?: string;
@@ -228,7 +225,7 @@ export interface Notification {
     aduanId?: string;
     title: string;
     message: string;
-    type: 'disposisi' | 'deadline' | 'update' | 'reminder' | 'escalation';
+    type: 'disposisi' | 'update' | 'reminder' | 'escalation';
     isRead: boolean;
     createdAt: Date;
     readAt?: Date;
