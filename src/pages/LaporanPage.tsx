@@ -93,7 +93,7 @@ export const LaporanPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <p className="text-xs text-muted-foreground">
-                        Laporan menggunakan format kolom baku ({FIXED_REPORT_COLUMN_IDS.length} kolom) dan otomatis menampilkan stack vertikal per grup status.
+                        Laporan menggunakan format kolom baku ({FIXED_REPORT_COLUMN_IDS.length} kolom) dalam satu tabel matriks tanpa pengelompokan status.
                     </p>
                 </CardContent>
             </Card>
