@@ -6,6 +6,14 @@ const activities = new Hono()
 
 activities.use('*', requireAuth)
 
+const getActorName = async (userId: string, fallbackEmail: string) => {
+  const result = await pool.query(
+    'SELECT display_name FROM users WHERE id = $1 LIMIT 1',
+    [userId]
+  )
+  return result.rows[0]?.display_name || fallbackEmail
+}
+
 // GET /activities?limit=&aduan_id=
 activities.get('/', async (c) => {
   const limit = Number(c.req.query('limit')) || 20
@@ -34,6 +42,7 @@ activities.get('/', async (c) => {
 activities.post('/', async (c) => {
   const body = await c.req.json()
   const user = c.get('user')
+  const actorName = await getActorName(user.userId, user.email)
 
   await pool.query(
     `INSERT INTO app_activities (type, description, aduan_id, user_id, user_name, metadata)
@@ -42,8 +51,8 @@ activities.post('/', async (c) => {
       body.type,
       body.description,
       body.aduan_id || null,
-      body.user_id || user.userId,
-      body.user_name || user.email,
+      user.userId,
+      actorName,
       body.metadata || {},
     ]
   )

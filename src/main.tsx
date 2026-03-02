@@ -4,6 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
 
+const storedTheme = localStorage.getItem('theme_mode')
+const initialTheme = storedTheme === 'light' || storedTheme === 'dark'
+  ? storedTheme
+  : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+document.documentElement.classList.toggle('dark', initialTheme === 'dark')
+document.documentElement.style.colorScheme = initialTheme
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -15,6 +15,14 @@ const aduan = new Hono()
 
 aduan.use('*', requireAuth)
 
+const getActorName = async (userId: string, fallbackEmail: string) => {
+  const result = await pool.query(
+    'SELECT display_name FROM users WHERE id = $1 LIMIT 1',
+    [userId]
+  )
+  return result.rows[0]?.display_name || fallbackEmail
+}
+
 // GET /aduan?status=&search=&page=&limit=&offset=&start_date=&end_date=&provinsi=
 aduan.get('/', async (c) => {
   const status = c.req.query('status')
@@ -250,13 +258,14 @@ aduan.delete('/:id/documents/:docId', requireAdmin, async (c) => {
 
   // Log activity
   const user = c.get('user')
+  const actorName = await getActorName(user.userId, user.email)
   await pool.query(
     `INSERT INTO app_activities (type, description, user_id, user_name, aduan_id, metadata)
      VALUES ('delete_document', $1, $2, $3, $4, $5)`,
     [
       `Menghapus dokumen: ${doc.file_name}`,
       user.userId,
-      user.email,
+      actorName,
       aduanId,
       JSON.stringify({ file_name: doc.file_name, file_url: doc.file_url })
     ]
