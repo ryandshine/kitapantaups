@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Menu, ChevronRight, Home, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../hooks/useTheme';
+import { Menu, ChevronRight, Home } from 'lucide-react';
 
 interface HeaderProps {
     onMenuClick: () => void;
@@ -18,7 +17,6 @@ export const Header: React.FC<HeaderProps> = ({
     user
 }) => {
     const location = useLocation();
-    const { isDark, toggleTheme } = useTheme();
 
     // Generate Breadcrumbs
     const breadcrumbs = useMemo(() => {
@@ -77,16 +75,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="flex items-center gap-3">
-                <button
-                    type="button"
-                    onClick={toggleTheme}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-foreground/80 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 transition-all active:scale-95"
-                    title={isDark ? 'Pindah ke mode terang' : 'Pindah ke mode gelap'}
-                    aria-label={isDark ? 'Pindah ke mode terang' : 'Pindah ke mode gelap'}
-                >
-                    {isDark ? <Sun size={15} /> : <Moon size={15} />}
-                </button>
-
                 {/* User Profile */}
                 {user && (
                     <div className="group flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all cursor-pointer active:scale-95">
