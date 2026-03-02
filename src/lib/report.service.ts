@@ -151,8 +151,6 @@ export const ReportService = {
             doc.text(`Halaman ${currentPage}`, pageWidth - 14, pageHeight - 6.2, { align: 'right' });
         };
 
-        drawHeader();
-
         const tableColumn = columns.map((c) => c.label);
         const tableRows = data.length > 0
             ? data.map((row) => columns.map((c) => safeText(c.getValue(row))))
@@ -164,12 +162,14 @@ export const ReportService = {
             startY: 50,
             margin: { left: 14, right: 14, bottom: 14 },
             styles: {
-                fontSize: 8,
-                cellPadding: 2.2,
+                fontSize: 7,
+                cellPadding: 2,
                 textColor: [31, 41, 55],
                 lineColor: [219, 223, 230],
                 lineWidth: 0.1,
                 valign: 'top',
+                overflow: 'linebreak',
+                cellWidth: 'wrap',
             },
             headStyles: {
                 fillColor: [30, 41, 59],
