@@ -1,11 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, Columns3, Plus, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Select, Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui';
 import {
     type SortingState,
-    type VisibilityState,
     flexRender,
     getCoreRowModel,
     getSortedRowModel,
@@ -23,18 +22,6 @@ export const AduanListPage: React.FC = () => {
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-        tanggal_buat: false,
-        type_kps: false,
-        nomor_sk: false,
-        jumlah_kk: false,
-        lokasi_kab: false,
-        lokasi_kec: false,
-        lokasi_desa: false,
-        lembaga_pengadu: false,
-        surat_tanggal: false,
-    });
-    const [showColumnPanel, setShowColumnPanel] = useState(false);
     const { density, setDensity, isCompact } = useUIDensity();
     const itemsPerPage = 10;
 
@@ -73,10 +60,6 @@ export const AduanListPage: React.FC = () => {
                 </div>
             ),
         }),
-        columnHelper.accessor('tanggal_buat', {
-            header: 'Tanggal Buat',
-            cell: info => formatDate(info.getValue()),
-        }),
         columnHelper.accessor('status', {
             header: 'Status',
             cell: info => {
@@ -111,23 +94,6 @@ export const AduanListPage: React.FC = () => {
                 );
             },
         }),
-        columnHelper.accessor('type_kps', {
-            header: 'Type KPS',
-            cell: info => {
-                const val = info.getValue();
-                return val && val.length > 0 ? val.join(', ') : '-';
-            },
-        }),
-        columnHelper.accessor('nomor_sk', {
-            header: 'No SK',
-            cell: info => {
-                const val = info.getValue();
-                return val && val.length > 0 ? val.join(', ') : '-';
-            },
-        }),
-        columnHelper.accessor('balai_ps', {
-            header: 'Balai PS',
-        }),
         columnHelper.accessor('lokasi_prov', {
             header: 'Lokasi',
             cell: info => {
@@ -146,36 +112,14 @@ export const AduanListPage: React.FC = () => {
                 );
             },
         }),
-        columnHelper.accessor('lokasi_luas_ha', {
-            header: 'Luas (Ha)',
-            cell: info => {
-                const val = info.getValue();
-                return val !== undefined ? Number(val).toFixed(2) : '0.00';
-            },
-        }),
-        columnHelper.accessor('jumlah_kk', {
-            header: 'KK',
-        }),
-        columnHelper.accessor('lokasi_kab', {
-            header: 'Kabupaten',
-        }),
-        columnHelper.accessor('lokasi_kec', {
-            header: 'Kecamatan',
-        }),
-        columnHelper.accessor('lokasi_desa', {
-            header: 'Desa',
-        }),
         columnHelper.accessor('pengadu_nama', {
             header: 'Pengadu',
             cell: info => (
                 <div className="space-y-1 min-w-0">
                     <p className="text-xs font-semibold truncate">{info.getValue() || '-'}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{info.row.original.lembaga_pengadu || '-'}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{info.row.original.pengadu_instansi || '-'}</p>
                 </div>
             ),
-        }),
-        columnHelper.accessor('lembaga_pengadu', {
-            header: 'Lembaga',
         }),
         columnHelper.accessor('surat_nomor', {
             header: 'Surat',
@@ -185,10 +129,6 @@ export const AduanListPage: React.FC = () => {
                     <p className="text-[10px] text-muted-foreground truncate">Tanggal: {formatDate(info.row.original.surat_tanggal)}</p>
                 </div>
             ),
-        }),
-        columnHelper.accessor('surat_tanggal', {
-            header: 'Tanggal Surat',
-            cell: info => formatDate(info.getValue()),
         }),
         columnHelper.accessor('ringkasan_masalah', {
             header: 'Ringkasan',
@@ -207,9 +147,8 @@ export const AduanListPage: React.FC = () => {
     const table = useReactTable({
         data: displayList,
         columns,
-        state: { sorting, columnVisibility },
+        state: { sorting },
         onSortingChange: setSorting,
-        onColumnVisibilityChange: setColumnVisibility,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
     });
@@ -299,34 +238,6 @@ export const AduanListPage: React.FC = () => {
                         <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Baru: {statusSummary.baru || 0}</Badge>
                         <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Proses: {statusSummary.proses || 0}</Badge>
                         <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Selesai: {statusSummary.selesai || 0}</Badge>
-                    </div>
-                    <div className="relative flex items-center gap-2">
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            leftIcon={<Columns3 size={14} />}
-                            onClick={() => setShowColumnPanel((prev) => !prev)}
-                        >
-                            Kolom
-                        </Button>
-                        {showColumnPanel && (
-                            <div className="absolute right-0 top-11 z-40 w-64 rounded-xl border border-border/80 bg-card p-3 shadow-lg backdrop-blur">
-                                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Tampilkan Kolom</p>
-                                <div className="max-h-72 space-y-1 overflow-auto pr-1">
-                                    {table.getAllLeafColumns().map((column) => (
-                                        <label key={column.id} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-muted/50">
-                                            <input
-                                                type="checkbox"
-                                                checked={column.getIsVisible()}
-                                                onChange={column.getToggleVisibilityHandler()}
-                                                className="h-3.5 w-3.5 rounded border-border"
-                                            />
-                                            <span className="truncate">{String(column.columnDef.header)}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </motion.div>
