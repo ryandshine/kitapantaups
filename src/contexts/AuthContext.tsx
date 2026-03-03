@@ -18,6 +18,14 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const fallbackDisplayName = (displayName: string | undefined, email: string | undefined) => {
+    const normalized = (displayName || '').trim();
+    if (normalized) return normalized;
+    const emailPrefix = (email || '').split('@')[0]?.trim();
+    if (emailPrefix) return emailPrefix;
+    return 'User';
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -31,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setUser({
                         id: data.id,
                         email: data.email,
-                        displayName: data.display_name,
+                        displayName: fallbackDisplayName(data.display_name, data.email),
                         role: data.role,
                         phone: data.phone,
                         photoURL: data.photo_url,
@@ -59,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser({
                 id: data.user.id,
                 email: data.user.email,
-                displayName: data.user.display_name,
+                displayName: fallbackDisplayName(data.user.display_name, data.user.email),
                 role: data.user.role,
                 phone: data.user.phone,
                 photoURL: data.user.photo_url,
@@ -128,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser({
                 id: data.id,
                 email: data.email,
-                displayName: data.display_name,
+                displayName: fallbackDisplayName(data.display_name, data.email),
                 role: data.role,
                 phone: data.phone,
                 photoURL: data.photo_url,

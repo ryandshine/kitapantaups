@@ -232,16 +232,20 @@ export const UserManagementPage: React.FC = () => {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <div className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-background shrink-0">
-                                                        {u.photoURL ? (
-                                                            <img src={u.photoURL} alt={u.displayName} className="h-full w-full object-cover" />
-                                                        ) : (
-                                                            <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-xs font-bold">
-                                                                {u.displayName.charAt(0).toUpperCase()}
-                                                            </div>
-                                                        )}
+                                                        {(() => {
+                                                            const safeDisplayName = (u.displayName || '').trim() || u.email?.split('@')[0] || 'User';
+                                                            const safeInitial = safeDisplayName.charAt(0).toUpperCase();
+                                                            return u.photoURL ? (
+                                                                <img src={u.photoURL} alt={safeDisplayName} className="h-full w-full object-cover" />
+                                                            ) : (
+                                                                <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-xs font-bold">
+                                                                    {safeInitial}
+                                                                </div>
+                                                            );
+                                                        })()}
                                                     </div>
                                                     <div className="flex flex-col leading-tight">
-                                                        <span className="font-semibold text-foreground">{u.displayName}</span>
+                                                        <span className="font-semibold text-foreground">{(u.displayName || '').trim() || u.email?.split('@')[0] || 'User'}</span>
                                                         <span className="text-xs text-muted-foreground">{u.email}</span>
                                                     </div>
                                                 </div>

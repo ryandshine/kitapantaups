@@ -71,6 +71,7 @@ export const DashboardLayout: React.FC = () => {
                     onMenuClick={() => setSidebarOpen(!sidebarOpen)}
                     user={user ? {
                         id: user.id,
+                        email: user.email,
                         displayName: user.displayName,
                         role: user.role,
                         photoURL: user.photoURL,

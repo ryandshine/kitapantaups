@@ -6,7 +6,8 @@ interface HeaderProps {
     onMenuClick: () => void;
     user?: {
         id: string;
-        displayName: string;
+        email?: string;
+        displayName?: string;
         role: string;
         photoURL?: string;
     };
@@ -17,6 +18,8 @@ export const Header: React.FC<HeaderProps> = ({
     user
 }) => {
     const location = useLocation();
+    const safeDisplayName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'User';
+    const safeInitial = safeDisplayName.charAt(0).toUpperCase();
 
     // Generate Breadcrumbs
     const breadcrumbs = useMemo(() => {
@@ -80,15 +83,15 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="group flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all cursor-pointer active:scale-95">
                         <div className="h-7 w-7 overflow-hidden rounded-full shadow-sm">
                             {user.photoURL ? (
-                                <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
+                                <img src={user.photoURL} alt={safeDisplayName} className="h-full w-full object-cover" />
                             ) : (
                                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-[10px] font-bold text-primary-foreground">
-                                    {user.displayName.charAt(0).toUpperCase()}
+                                    {safeInitial}
                                 </div>
                             )}
                         </div>
                         <div className="hidden flex-col items-start leading-none md:flex mr-1">
-                            <span className="text-[12px] font-semibold text-foreground">{user.displayName}</span>
+                            <span className="text-[12px] font-semibold text-foreground">{safeDisplayName}</span>
                         </div>
                     </div>
                 )}
