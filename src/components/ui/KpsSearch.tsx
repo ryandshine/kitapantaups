@@ -101,7 +101,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
             />
 
             {isOpen && (results.length > 0 || isLoading) && (
-                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-white shadow-lg animate-in fade-in zoom-in-95 duration-200">
+                <div className="absolute left-0 right-0 z-50 mt-1 w-full max-h-[min(22rem,calc(100vh-14rem))] overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-white shadow-lg animate-in fade-in zoom-in-95 duration-200">
                     {isLoading ? (
                         <div className="p-4 text-center text-sm text-muted-foreground italic">
                             Mencari data...
@@ -116,24 +116,24 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                     onClick={() => handleSelect(kps)}
                                     onMouseEnter={() => setSelectedIndex(index)}
                                 >
-                                    <div className="flex justify-between items-start mb-1">
-                                        <div className="font-semibold text-foreground transition-colors group-hover:text-primary">{kps.nama_kps}</div>
-                                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-tight text-muted-foreground">
+                                    <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
+                                        <div className="min-w-0 text-sm font-semibold text-foreground transition-colors group-hover:text-primary break-words">{kps.nama_kps}</div>
+                                        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-tight text-muted-foreground">
                                             {kps.kps_type || kps.jenis_kps}
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-1 mt-1 text-[11px] text-muted-foreground">
-                                        <div className="flex items-center gap-1.5">
+                                        <div className="flex flex-wrap items-center gap-1.5 break-all">
                                             <span className="font-semibold text-foreground/80">ID:</span> {kps.id_kps_api}
                                             <span className="mx-1">•</span>
-                                            <span className="font-semibold text-foreground/80">SK:</span> {kps.nomor_sk}
+                                            <span className="font-semibold text-foreground/80">SK:</span> <span className="break-words">{kps.nomor_sk}</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <MapPin size={10} />
-                                            {kps.lokasi_kab}, {kps.lokasi_prov}
+                                        <div className="flex min-w-0 items-start gap-1.5">
+                                            <MapPin size={10} className="mt-0.5 shrink-0" />
+                                            <span className="break-words">{kps.lokasi_kab}, {kps.lokasi_prov}</span>
                                         </div>
                                         {kps.balai && (
-                                            <div className="text-[10px] italic">Balai: {kps.balai}</div>
+                                            <div className="text-[10px] italic break-words">Balai: {kps.balai}</div>
                                         )}
                                     </div>
                                 </li>

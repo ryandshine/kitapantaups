@@ -34,7 +34,7 @@ import { cn } from '../lib/utils';
 
 export const UserManagementPage: React.FC = () => {
     const { user: currentUser, isAdmin } = useAuth();
-    const { data: users = [], isLoading: loading, refetch: fetchUsers } = useUsersList(isAdmin);
+    const { data: users = [], isLoading: loading } = useUsersList(isAdmin);
     const { mutate: createUser, isPending: isCreating } = useCreateUser();
     const { mutate: updateUserRole } = useUpdateUserRole();
     const { mutate: toggleStatus } = useToggleUserStatus();
@@ -169,14 +169,6 @@ export const UserManagementPage: React.FC = () => {
                         onClick={() => setIsAddModalOpen(true)}
                     >
                         Tambah Pengguna
-                    </Button>
-                    <Button
-                        variant="outline"
-                        leftIcon={<RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />}
-                        onClick={() => fetchUsers()}
-                        disabled={loading}
-                    >
-                        Refresh
                     </Button>
                 </div>
             </div>

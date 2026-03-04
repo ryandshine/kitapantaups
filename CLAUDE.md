@@ -30,8 +30,8 @@ Backend: Node.js (Hono) + PostgreSQL Lokal
 - **Port**: `5433` (host) → `5432` (container)
 - **Database**: `kitapantaups`
 - **User**: `gealgeolgeo`
-- **Password**: `Geo@Secure2026!`
-- **Connection string**: `postgresql://gealgeolgeo:Geo@Secure2026!@localhost:5433/kitapantaups`
+- **Password**: `GeoSecure2026R3set`
+- **Connection string**: `postgresql://gealgeolgeo:GeoSecure2026R3set@localhost:5433/kitapantaups`
 - **Script inisialisasi DB**: `scripts/init_db.sql`
 
 ### Tabel di `kitapantaups`

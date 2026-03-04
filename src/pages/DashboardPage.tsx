@@ -283,7 +283,7 @@ export const DashboardPage: React.FC = () => {
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
                                                 <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                                                    #{aduan.surat_nomor?.split('/').pop() || aduan.id.slice(0, 8)}
+                                                    {aduan.surat_nomor || `#${aduan.id.slice(0, 8)}`}
                                                 </span>
                                                 <span className={cn(
                                                     "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
