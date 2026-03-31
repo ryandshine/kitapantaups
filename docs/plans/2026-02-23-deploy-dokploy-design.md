@@ -7,7 +7,7 @@
 
 - **Backend:** Docker container via Dokploy, build dari `server/Dockerfile`
 - **Frontend:** Static files di-serve via `serve` (npx serve) di host, dikelola systemd, Traefik proxy ke localhost
-- **Domain backend:** `api.kitapantaups.ditpps.com`
+- **Domain backend:** `api-kitapantaups.ditpps.com`
 - **Domain frontend:** `kitapantaups.ditpps.com`
 
 ## Infrastruktur Existing
@@ -28,12 +28,12 @@
   - `JWT_SECRET`, `JWT_REFRESH_SECRET`
   - `PORT=3000`
   - `CORS_ORIGIN=https://kitapantaups.ditpps.com`
-  - `BASE_URL=https://api.kitapantaups.ditpps.com`
+  - `BASE_URL=https://api-kitapantaups.ditpps.com`
 - Dockerfile perlu tambah: `uploads/` volume mount agar file upload persisten
 
 ### Frontend (Static + systemd)
 
-- `.env.production`: `VITE_API_URL=https://api.kitapantaups.ditpps.com`
+- `.env.production`: `VITE_API_URL=https://api-kitapantaups.ditpps.com`
 - Build: `npm run build` → `dist/`
 - Serve: `serve` package (atau `npx serve`) di port `4173`
 - Systemd service: `/etc/systemd/system/sipantaups-frontend.service`

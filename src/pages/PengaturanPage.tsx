@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Input, Card, CardHeader, CardTitle, CardContent } from '../components/ui';
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
 import { Save as SaveIcon, User, Bell, Shield, Camera, Lock as LockIcon, UserCircle, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserService } from '../lib/user.service';
@@ -12,7 +12,14 @@ export const PengaturanPage: React.FC = () => {
     const [phone, setPhone] = useState(user?.phone || '');
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        if (!feedback) return;
+        const timeout = window.setTimeout(() => setFeedback(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [feedback]);
 
     const handleSave = async () => {
         if (!user) return;
@@ -23,10 +30,10 @@ export const PengaturanPage: React.FC = () => {
                 phone,
             });
             await refreshUser();
-            alert('Profil berhasil diperbarui!');
+            setFeedback({ type: 'success', message: 'Profil berhasil diperbarui.' });
         } catch (err) {
             console.error(err);
-            alert('Gagal memperbarui profil.');
+            setFeedback({ type: 'error', message: 'Gagal memperbarui profil.' });
         } finally {
             setIsSaving(false);
         }
@@ -37,7 +44,7 @@ export const PengaturanPage: React.FC = () => {
         if (!file || !user) return;
 
         if (file.size > 2 * 1024 * 1024) {
-            alert('Ukuran file maksimal 2MB');
+            setFeedback({ type: 'info', message: 'Ukuran file maksimal 2MB.' });
             return;
         }
 
@@ -45,10 +52,10 @@ export const PengaturanPage: React.FC = () => {
         try {
             await UserService.uploadPhoto(file);
             await refreshUser();
-            alert('Foto profil berhasil diperbarui!');
+            setFeedback({ type: 'success', message: 'Foto profil berhasil diperbarui.' });
         } catch (err) {
             console.error(err);
-            alert('Gagal mengunggah foto.');
+            setFeedback({ type: 'error', message: 'Gagal mengunggah foto.' });
         } finally {
             setIsUploading(false);
         }
@@ -66,6 +73,14 @@ export const PengaturanPage: React.FC = () => {
                 <h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">Pengaturan Akun</h1>
                 <p className="mt-2 text-muted-foreground">Kelola informasi pribadi, preferensi keamanan, dan notifikasi akun Anda.</p>
             </div>
+
+            {feedback && (
+                <FeedbackBanner
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                />
+            )}
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
                 <div className="flex flex-col gap-1 md:col-span-3">

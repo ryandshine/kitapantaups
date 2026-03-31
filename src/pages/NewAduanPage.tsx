@@ -10,7 +10,8 @@ import {
     Input,
     Select,
     Textarea,
-    FileUpload
+    FileUpload,
+    FeedbackBanner
 } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { AduanService } from '../lib/aduan.service';
@@ -49,6 +50,9 @@ interface FormData {
     ringkasanMasalah: string;
 }
 
+const resolveKpsType = (kps: KpsData) => [kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
+
 export const NewAduanPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -81,6 +85,7 @@ export const NewAduanPage: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const [formError, setFormError] = useState<string | null>(null);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
     // Fetch master data on mount
     useEffect(() => {
@@ -98,6 +103,11 @@ export const NewAduanPage: React.FC = () => {
         };
         loadMasterData();
     }, []);
+    useEffect(() => {
+        if (!feedback) return;
+        const timeout = window.setTimeout(() => setFeedback(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [feedback]);
     const [suratFiles, setSuratFiles] = useState<File[]>([]);
     const [docUploadProgress] = useState(0);
 
@@ -172,7 +182,7 @@ export const NewAduanPage: React.FC = () => {
 
         setFormData(prev => ({
             ...prev,
-            skema: kps.jenis_kps as any || prev.skema,
+            skema: resolveKpsType(kps) as any || prev.skema,
             lokasi: {
                 ...prev.lokasi,
                 provinsi: newList[0]?.lokasi_prov || prev.lokasi.provinsi,
@@ -220,7 +230,7 @@ export const NewAduanPage: React.FC = () => {
                 status: 'baru',
                 id_kps_api: selectedKpsList.map(k => String(k.id_kps_api)),
                 nama_kps: selectedKpsList.map(k => k.nama_kps),
-                jenis_kps: selectedKpsList.map(k => k.jenis_kps),
+                jenis_kps: selectedKpsList.map(k => resolveKpsType(k)),
                 nomor_sk: selectedKpsList.map(k => k.nomor_sk)
             };
 
@@ -235,11 +245,12 @@ export const NewAduanPage: React.FC = () => {
                 user.displayName
             );
 
-            alert('Aduan berhasil disimpan dan sedang diproses.');
-            navigate('/pengaduan');
+            setFeedback({ type: 'success', message: 'Aduan berhasil disimpan dan sedang diproses.' });
+            window.setTimeout(() => navigate('/pengaduan'), 700);
         } catch (err: any) {
             console.error('Submission failed:', err);
             setFormError(`Gagal menyimpan aduan: ${err.message}`);
+            setFeedback({ type: 'error', message: `Gagal menyimpan aduan: ${err.message}` });
         } finally {
             setIsSubmitting(false);
         }
@@ -275,6 +286,14 @@ export const NewAduanPage: React.FC = () => {
                     <AlertCircle size={20} />
                     <span className="font-medium">{formError}</span>
                 </div>
+            )}
+
+            {feedback && (
+                <FeedbackBanner
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                />
             )}
 
             <form onSubmit={handleSubmit} className={cn("flex flex-col", isCompact ? "gap-7" : "gap-10")}>

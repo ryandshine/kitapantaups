@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Download, Settings2 } from 'lucide-react';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select } from '../components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner } from '../components/ui';
+import { AduanService } from '../lib/aduan.service';
 import { FIXED_REPORT_COLUMN_IDS, ReportService } from '../lib/report.service';
 
 export const LaporanPage: React.FC = () => {
@@ -8,12 +9,18 @@ export const LaporanPage: React.FC = () => {
     const [selectedProvinsi, setSelectedProvinsi] = useState('all');
     const [provinces, setProvinces] = useState<string[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+    React.useEffect(() => {
+        if (!feedback) return;
+        const timeout = window.setTimeout(() => setFeedback(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [feedback]);
 
     // Fetch unique provinces from aduan table
     React.useEffect(() => {
         const fetchProvinces = async () => {
             try {
-                const { AduanService } = await import('../lib/aduan.service');
                 const data = await AduanService.getUniqueProvinces();
                 setProvinces(data);
             } catch (error) {
@@ -27,10 +34,10 @@ export const LaporanPage: React.FC = () => {
         setIsGenerating(true);
         try {
             await ReportService.generateReport(format, '', '', selectedProvinsi);
-            alert('Laporan berhasil diproses! File akan segera diunduh.');
+            setFeedback({ type: 'success', message: 'Laporan berhasil diproses. File akan segera diunduh.' });
         } catch (error) {
             console.error(error);
-            alert('Terjadi kesalahan saat membuat laporan.');
+            setFeedback({ type: 'error', message: 'Terjadi kesalahan saat membuat laporan.' });
         } finally {
             setIsGenerating(false);
         }
@@ -42,6 +49,14 @@ export const LaporanPage: React.FC = () => {
                 <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none">Laporan</h1>
                 <p className="mt-2 text-sm text-muted-foreground">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
             </div>
+
+            {feedback && (
+                <FeedbackBanner
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                />
+            )}
 
             <Card className="border border-border shadow-none">
                 <CardHeader className="pb-3">

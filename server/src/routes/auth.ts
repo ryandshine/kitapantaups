@@ -1,8 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import { pool } from '../db.js'
 import { requireAuth } from '../middleware/auth.js'
 import { bodyLimit } from 'hono/body-limit'
@@ -11,7 +9,17 @@ import { mkdir } from 'fs/promises'
 import { createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
 import path from 'path'
-import { fileURLToPath } from 'node:url'
+import {
+  clearRefreshTokenCookie,
+  readRefreshTokenFromRequest,
+  setRefreshTokenCookie,
+} from '../lib/auth-session.js'
+import {
+  buildUploadPublicUrl,
+  getUploadsRoot,
+  isAllowedUploadExtension,
+} from '../lib/upload.js'
+import { AuthServiceError, authService } from '../lib/auth-service.js'
 
 const auth = new Hono()
 
@@ -20,110 +28,79 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-// POST /auth/login
-auth.post('/login', zValidator('json', loginSchema), async (c) => {
-  const { email, password } = c.req.valid('json')
-
-  const result = await pool.query(
-    'SELECT * FROM users WHERE email = $1 AND is_active = true',
-    [email]
-  )
-  const user = result.rows[0]
-
-  if (!user || !(await bcrypt.compare(password, user.password_hash))) {
-    return c.json({ error: 'Email atau password salah' }, 401)
+const respondAuthError = (c: any, error: unknown) => {
+  if (error instanceof AuthServiceError) {
+    return c.json({ error: error.message }, error.status)
   }
 
-  const accessToken = jwt.sign(
-    { userId: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: '15m' }
-  )
+  throw error
+}
 
-  const refreshToken = jwt.sign(
-    { userId: user.id },
-    process.env.JWT_REFRESH_SECRET!,
-    { expiresIn: '7d' }
-  )
+// POST /auth/login
+auth.post('/login', zValidator('json', loginSchema), async (c) => {
+  try {
+    const { email, password } = c.req.valid('json')
+    const session = await authService.login({ email, password })
 
-  // Simpan refresh token di DB
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  await pool.query(
-    'INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES ($1, $2, $3)',
-    [user.id, refreshToken, expiresAt]
-  )
+    setRefreshTokenCookie(c, session.refreshToken, session.refreshTokenExpiresAt)
 
-  return c.json({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    user: {
-      id: user.id,
-      email: user.email,
-      display_name: user.display_name,
-      role: user.role,
-      phone: user.phone,
-      photo_url: user.photo_url,
-    },
-  })
+    return c.json({
+      access_token: session.accessToken,
+      user: session.user,
+    })
+  } catch (error) {
+    return respondAuthError(c, error)
+  }
 })
 
 // POST /auth/logout
 auth.post('/logout', requireAuth, async (c) => {
-  const user = c.get('user')
-  await pool.query('DELETE FROM sessions WHERE user_id = $1', [user.userId])
-  return c.json({ message: 'Logout berhasil' })
+  clearRefreshTokenCookie(c)
+
+  try {
+    const user = c.get('user')
+    const refreshToken = readRefreshTokenFromRequest(c)
+
+    await authService.logout(user.userId, refreshToken)
+
+    return c.json({ message: 'Logout berhasil' })
+  } catch (error) {
+    return respondAuthError(c, error)
+  }
 })
 
 // POST /auth/refresh
 auth.post('/refresh', async (c) => {
-  const body = await c.req.json().catch(() => ({}))
-  const refreshToken = body.refresh_token
-
-  if (!refreshToken) {
-    return c.json({ error: 'Refresh token diperlukan' }, 400)
-  }
-
-  let payload: { userId: string }
   try {
-    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as { userId: string }
-  } catch {
-    return c.json({ error: 'Refresh token tidak valid' }, 401)
+    const body = await c.req.json().catch(() => ({}))
+    const refreshToken = readRefreshTokenFromRequest(c, body.refresh_token)
+
+    if (!refreshToken) {
+      clearRefreshTokenCookie(c)
+      return c.json({ error: 'Refresh token diperlukan' }, 400)
+    }
+
+    const session = await authService.refresh(refreshToken)
+    setRefreshTokenCookie(c, session.refreshToken, session.refreshTokenExpiresAt)
+
+    return c.json({ access_token: session.accessToken })
+  } catch (error) {
+    if (error instanceof AuthServiceError && error.code === 'REFRESH_TOKEN_INVALID') {
+      clearRefreshTokenCookie(c)
+    }
+    return respondAuthError(c, error)
   }
-
-  // Cek di DB
-  const sessionResult = await pool.query(
-    'SELECT * FROM sessions WHERE refresh_token = $1 AND expires_at > now()',
-    [refreshToken]
-  )
-  if (sessionResult.rows.length === 0) {
-    return c.json({ error: 'Session tidak ditemukan atau kadaluarsa' }, 401)
-  }
-
-  const userResult = await pool.query(
-    'SELECT id, email, role FROM users WHERE id = $1 AND is_active = true',
-    [payload.userId]
-  )
-  const user = userResult.rows[0]
-  if (!user) return c.json({ error: 'User tidak ditemukan' }, 401)
-
-  const accessToken = jwt.sign(
-    { userId: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET!,
-    { expiresIn: '15m' }
-  )
-
-  return c.json({ access_token: accessToken })
 })
 
 // GET /auth/me
 auth.get('/me', requireAuth, async (c) => {
-  const user = c.get('user')
-  const result = await pool.query(
-    'SELECT id, email, display_name, role, phone, photo_url, is_active FROM users WHERE id = $1',
-    [user.userId]
-  )
-  if (result.rows.length === 0) return c.json({ error: 'User tidak ditemukan' }, 404)
-  return c.json(result.rows[0])
+  try {
+    const user = c.get('user')
+    const currentUser = await authService.getCurrentUser(user.userId)
+    return c.json(currentUser)
+  } catch (error) {
+    return respondAuthError(c, error)
+  }
 })
 
 const updateProfileSchema = z.object({
@@ -168,14 +145,13 @@ auth.post(
       return c.json({ error: 'File tidak ditemukan' }, 400)
     }
 
-    const ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png'])
     const ext = (file.name.split('.').pop() || '').toLowerCase()
-    if (!ALLOWED_EXTENSIONS.has(ext)) {
+    if (!['jpg', 'jpeg', 'png'].includes(ext) || !isAllowedUploadExtension(ext)) {
       return c.json({ error: 'Tipe file tidak diizinkan. Gunakan: jpg, png' }, 400)
     }
 
     const fileName = `profile_${randomUUID()}.${ext}`
-    const uploadDir = path.join(process.cwd(), 'uploads/profiles', user.userId)
+    const uploadDir = path.join(getUploadsRoot(), 'profiles', user.userId)
 
     await mkdir(uploadDir, { recursive: true })
     
@@ -184,7 +160,7 @@ auth.post(
     await pipeline(file.stream() as any, writeStream)
 
     const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`
-    const photoUrl = `${baseUrl}/uploads/profiles/${user.userId}/${fileName}`
+    const photoUrl = buildUploadPublicUrl(baseUrl, 'profiles', user.userId, fileName)
 
     await pool.query(
       'UPDATE users SET photo_url = $1 WHERE id = $2',

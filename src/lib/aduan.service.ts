@@ -4,6 +4,14 @@ import { ActivityService } from './activity.service';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const resolveKpsType = (kps: {
+    kps_type?: string | null;
+    jenis_kps?: string | null;
+    KPS_TYPE?: string | null;
+    SKEMA?: string | null;
+}) => [kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
+
 const uploadToServer = async (
     file: File | Blob,
     category: string,
@@ -73,7 +81,7 @@ export const AduanService = {
             ringkasan_masalah: formData.ringkasan_masalah,
             id_kps_api: selectedKpsList.map(k => k.id_kps_api),
             nama_kps: selectedKpsList.map(k => k.nama_kps),
-            jenis_kps: selectedKpsList.map(k => k.jenis_kps),
+            jenis_kps: selectedKpsList.map(k => resolveKpsType(k)),
             nomor_sk: selectedKpsList.map(k => k.nomor_sk),
             lokasi_prov: formData.lokasi_prov,
             lokasi_kab: formData.lokasi_kab,

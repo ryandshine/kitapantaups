@@ -2,15 +2,14 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { pool } from '../db.js'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
 
 const users = new Hono()
 
-users.use('*', requireAuth, requireAdmin)
-
-// GET /users
-users.get('/', async (c) => {
+// GET /users - Admin only
+users.get('/', requireAuth, requireAdmin, async (c) => {
   const result = await pool.query(
     'SELECT id, email, display_name, role, phone, photo_url, is_active, created_at, updated_at FROM users ORDER BY created_at DESC'
   )
@@ -21,20 +20,38 @@ const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   display_name: z.string().min(1),
-  role: z.enum(['admin', 'staf']),
+  role: z.enum(['admin', 'staf']).optional(),
   phone: z.string().optional(),
 })
 
-// POST /users
+// POST /users - Public registration or Admin creating user
 users.post('/', zValidator('json', createUserSchema), async (c) => {
   const data = c.req.valid('json')
+
+  // If not authenticated as admin, force role to 'staf'
+  let role = data.role || 'staf'
+  const authHeader = c.req.header('Authorization')
+  if (!authHeader) {
+    role = 'staf'
+  } else {
+    try {
+      const token = authHeader.replace('Bearer ', '')
+      const payload = jwt.verify(token, process.env.JWT_SECRET!) as any
+      if (payload.role !== 'admin') {
+        role = 'staf'
+      }
+    } catch {
+      role = 'staf'
+    }
+  }
+
   const hash = await bcrypt.hash(data.password, 12)
 
   const result = await pool.query(
     `INSERT INTO users (email, password_hash, display_name, role, phone)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING id, email, display_name, role, phone, is_active, created_at`,
-    [data.email, hash, data.display_name, data.role, data.phone]
+    [data.email, hash, data.display_name, role, data.phone]
   )
 
   return c.json(result.rows[0], 201)
@@ -48,8 +65,8 @@ const updateUserSchema = z.object({
   password: z.string().min(8).optional(),
 })
 
-// PATCH /users/:id
-users.patch('/:id', zValidator('json', updateUserSchema), async (c) => {
+// PATCH /users/:id - Admin only
+users.patch('/:id', requireAuth, requireAdmin, zValidator('json', updateUserSchema), async (c) => {
   const id = c.req.param('id')
   const data = c.req.valid('json')
 
@@ -79,8 +96,8 @@ users.patch('/:id', zValidator('json', updateUserSchema), async (c) => {
   return c.json(result.rows[0])
 })
 
-// DELETE /users/:id
-users.delete('/:id', async (c) => {
+// DELETE /users/:id - Admin only
+users.delete('/:id', requireAuth, requireAdmin, async (c) => {
   const id = c.req.param('id')
   const result = await pool.query('DELETE FROM users WHERE id = $1', [id])
   if (result.rowCount === 0) return c.json({ error: 'User tidak ditemukan' }, 404)

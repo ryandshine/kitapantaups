@@ -10,6 +10,8 @@ import { Readable } from 'node:stream'
 
 import { requireAuth } from './middleware/auth.js'
 import { errorHandler } from './middleware/error.js'
+import { canAccessUpload } from './lib/file-access.js'
+import { getUploadsRoot } from './lib/upload.js'
 
 import authRoute from './routes/auth.js'
 import aduanRoute from './routes/aduan.js'
@@ -21,28 +23,38 @@ import activitiesRoute from './routes/activities.js'
 import settingsRoute from './routes/settings.js'
 
 const app = new Hono()
+const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
 
 // Middleware global
 app.use('*', logger())
 
 // CORS (Hono built-in middleware)
 app.use('*', cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: corsOrigin === '*'
+    ? (origin) => origin || 'http://localhost:5173'
+    : corsOrigin,
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
-  maxAge: 86400,
   credentials: true,
+  maxAge: 86400,
 }))
 
 // Static files (uploaded documents)
+app.use('/uploads/*', requireAuth)
 app.get('/uploads/*', async (c) => {
   const relativePath = decodeURIComponent(c.req.path.replace(/^\/uploads\//, ''))
   if (!relativePath || relativePath.includes('..')) {
     return c.json({ error: 'Path file tidak valid' }, 400)
   }
 
-  const uploadsRoot = path.join(process.cwd(), 'uploads')
+  const user = c.get('user')
+  const allowed = await canAccessUpload(relativePath, user)
+  if (!allowed) {
+    return c.json({ error: 'Akses file ditolak' }, 403)
+  }
+
+  const uploadsRoot = getUploadsRoot()
   let absolutePath = path.join(uploadsRoot, relativePath)
 
   // Backward compatibility: legacy URLs used /uploads/<filename> (no aduan folder).
@@ -120,7 +132,7 @@ app.route('/settings', settingsRoute)
 app.onError((err, c) => errorHandler(err, c))
 app.notFound((c) => c.json({ error: 'Route tidak ditemukan' }, 404))
 
-const port = Number(process.env.PORT) || 3000
+const port = Number(process.env.PORT) || 3001
 console.log(`KITAPANTAUPS API running on port ${port}`)
 
 serve({ fetch: app.fetch, port })

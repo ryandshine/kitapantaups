@@ -19,6 +19,7 @@ import {
     AlertTriangle,
     Trash2,
     Briefcase,
+    Zap,
     Sparkles,
     Upload,
     Settings,
@@ -41,10 +42,12 @@ import {
     Select,
     Textarea,
     KpsSearch,
-    FileUpload
+    FileUpload,
+    ConfirmDialog
 } from '../components/ui';
 import type { Aduan, KpsData, TindakLanjut } from '../types';
 import { AduanService } from '../lib/aduan.service';
+import { ActivityService } from '../lib/activity.service';
 import { KpsService } from '../lib/kps.service';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
@@ -108,6 +111,11 @@ type EditAduanModalProps = {
     onSuratFileSelected: (files: File[]) => void;
     onSuratFileRemoved: () => void;
 };
+
+type FeedbackState = {
+    type: 'success' | 'error' | 'info';
+    message: string;
+} | null;
 
 const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
 
@@ -456,6 +464,7 @@ export const AduanDetailPage: React.FC = () => {
     const { mutate: deleteTL } = useDeleteTindakLanjut();
 
     const [detailError, setDetailError] = useState<string | null>(null);
+    const [feedback, setFeedback] = useState<FeedbackState>(null);
 
     // Modal State
     const [isTLModalOpen, setIsTLModalOpen] = useState(false);
@@ -556,6 +565,60 @@ export const AduanDetailPage: React.FC = () => {
 
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
     const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
+    const normalizedStatus = (aduan?.status || 'baru').toLowerCase();
+    const nextActionLabel = useMemo(() => {
+        if (!aduan) return '-';
+        if (normalizedStatus === 'baru') {
+            return isAdmin
+                ? 'Tinjau aduan lalu ubah status ke PROSES agar penanganan bisa dimulai.'
+                : 'Menunggu admin meninjau dan memulai proses aduan.';
+        }
+        if (normalizedStatus === 'proses') {
+            return qTindakLanjutList.length > 0
+                ? `Lanjutkan penanganan dari catatan terakhir: ${latestTindakLanjut?.jenisTL || 'tindak lanjut terbaru'}.`
+                : 'Tambahkan catatan tindak lanjut pertama untuk memulai jejak penanganan.';
+        }
+        if (normalizedStatus === 'selesai') {
+            return 'Aduan sudah ditutup. Tinjau kembali lampiran dan riwayat bila diperlukan.';
+        }
+        if (normalizedStatus === 'ditolak') {
+            return 'Aduan ditutup dengan status ditolak. Pastikan alasan penolakan dan dokumen pendukung lengkap.';
+        }
+        return 'Tinjau detail aduan dan lanjutkan proses sesuai kebutuhan.';
+    }, [aduan, isAdmin, latestTindakLanjut?.jenisTL, normalizedStatus, qTindakLanjutList.length]);
+    const statusAccentClass = normalizedStatus === 'selesai'
+        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700'
+        : normalizedStatus === 'ditolak'
+            ? 'border-destructive/20 bg-destructive/10 text-destructive'
+            : normalizedStatus === 'proses'
+                ? 'border-primary/20 bg-primary/10 text-primary'
+                : 'border-amber-500/20 bg-amber-500/10 text-amber-700';
+    const overviewCards = [
+        {
+            label: 'Tanggal Masuk',
+            value: formatDate(aduan?.createdAt || new Date()),
+            hint: 'Waktu aduan tercatat',
+            icon: Calendar,
+        },
+        {
+            label: 'Penanggung Jawab',
+            value: aduan?.picName || 'Belum ditentukan',
+            hint: isAdmin ? 'Bisa diubah dari panel admin' : 'PIC aktif saat ini',
+            icon: User,
+        },
+        {
+            label: 'Lampiran',
+            value: `${allAttachments.length} berkas`,
+            hint: suratMasukAttachment ? 'Termasuk surat masuk' : 'Belum ada surat masuk',
+            icon: FolderOpen,
+        },
+        {
+            label: 'Riwayat Proses',
+            value: `${qTindakLanjutList.length} catatan`,
+            hint: latestTindakLanjut ? latestTindakLanjutLabel : 'Belum ada tindak lanjut',
+            icon: Clock,
+        },
+    ];
 
     // Sync status form saat data aduan berubah
     useEffect(() => {
@@ -574,6 +637,8 @@ export const AduanDetailPage: React.FC = () => {
     const [uploadPickerKey, setUploadPickerKey] = useState(0);
     const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
     const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<{ id: string; fileName: string } | null>(null);
+    const [isDeleteAduanConfirmOpen, setIsDeleteAduanConfirmOpen] = useState(false);
+    const [deleteTlConfirm, setDeleteTlConfirm] = useState<{ id: string; label: string } | null>(null);
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
     const picOptions = useMemo(
         () => [
@@ -610,6 +675,12 @@ export const AduanDetailPage: React.FC = () => {
     useEffect(() => {
         if (isAduanError) setDetailError('Gagal memuat detail aduan.');
     }, [isAduanError]);
+
+    useEffect(() => {
+        if (!feedback) return;
+        const timeout = window.setTimeout(() => setFeedback(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [feedback]);
 
 
 
@@ -648,7 +719,7 @@ export const AduanDetailPage: React.FC = () => {
             AduanPdfService.exportDetail(aduan, lokasiObjekItems, qTindakLanjutList);
         } catch (err: any) {
             console.error('Failed to export PDF:', err);
-            alert(`Gagal membuat PDF: ${err?.message || 'Error tidak diketahui'}`);
+            setFeedback({ type: 'error', message: `Gagal membuat PDF: ${err?.message || 'Error tidak diketahui'}` });
         } finally {
             setIsExportingPdf(false);
         }
@@ -657,14 +728,7 @@ export const AduanDetailPage: React.FC = () => {
     const handleDelete = async () => {
         if (!aduan || !isAdmin || !user) return;
 
-        const confirmed = window.confirm(
-            `Apakah Anda yakin ingin menghapus aduan "${aduan.nomorTiket}"?\n\nTindakan ini tidak dapat dibatalkan.`
-        );
-
-        if (!confirmed) return;
-
         // Log activity BEFORE deleting (since aduan_id will be gone after delete)
-        const { ActivityService } = await import('../lib/activity.service');
         await ActivityService.logActivity({
             type: 'delete_aduan',
             description: `Menghapus aduan: ${aduan.nomorTiket || ''} - ${(aduan.perihal || '').substring(0, 30)}...`,
@@ -675,14 +739,20 @@ export const AduanDetailPage: React.FC = () => {
 
         deleteAduan(aduan.id, {
             onSuccess: () => {
-                alert('Aduan berhasil dihapus.');
+                setFeedback({ type: 'success', message: 'Aduan berhasil dihapus.' });
                 navigate('/pengaduan');
             },
             onError: (err: any) => {
                 console.error(err);
-                alert(`Gagal menghapus aduan: ${err.message || 'Error tidak diketahui'}`);
+                setFeedback({ type: 'error', message: `Gagal menghapus aduan: ${err.message || 'Error tidak diketahui'}` });
             }
         });
+    };
+
+    const handleDeleteTlConfirm = () => {
+        if (!deleteTlConfirm) return;
+        deleteTL(deleteTlConfirm.id);
+        setDeleteTlConfirm(null);
     };
 
     const handleDeleteDocument = async () => {
@@ -693,7 +763,7 @@ export const AduanDetailPage: React.FC = () => {
             setDeleteConfirmDoc(null);
             refetchAduan();
         } catch (err: any) {
-            alert(`Gagal menghapus dokumen: ${err.message || 'Error tidak diketahui'}`);
+            setFeedback({ type: 'error', message: `Gagal menghapus dokumen: ${err.message || 'Error tidak diketahui'}` });
         } finally {
             setDeletingDocId(null);
         }
@@ -703,7 +773,7 @@ export const AduanDetailPage: React.FC = () => {
         e.preventDefault();
         if (!user || !aduan) return;
         if (!canInputRiwayatPenanganan) {
-            alert('Riwayat Penanganan hanya bisa diisi saat status aduan PROSES.');
+            setFeedback({ type: 'info', message: 'Riwayat penanganan hanya bisa diisi saat status aduan PROSES.' });
             return;
         }
 
@@ -745,12 +815,12 @@ export const AduanDetailPage: React.FC = () => {
                 },
                 onError: (err) => {
                     console.error(err);
-                    alert('Gagal menyimpan tindak lanjut.');
+                    setFeedback({ type: 'error', message: 'Gagal menyimpan tindak lanjut.' });
                 }
             });
         } catch (uploadError) {
             console.error('File upload failed:', uploadError);
-            alert('Gagal mengunggah file. Silakan coba lagi.');
+            setFeedback({ type: 'error', message: 'Gagal mengunggah file. Silakan coba lagi.' });
         }
     };
 
@@ -789,9 +859,10 @@ export const AduanDetailPage: React.FC = () => {
             await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles);
             await refetchAduan();
             resetUploadModal();
+            setFeedback({ type: 'success', message: 'Dokumen berhasil diunggah.' });
         } catch (err) {
             console.error('Failed to upload documents:', err);
-            alert('Gagal mengunggah dokumen.');
+            setFeedback({ type: 'error', message: 'Gagal mengunggah dokumen.' });
         } finally {
             setIsUploadingSurat(false);
         }
@@ -861,12 +932,12 @@ export const AduanDetailPage: React.FC = () => {
                 },
                 onError: (err: any) => {
                     console.error(err);
-                    alert('Gagal memperbarui tindak lanjut.');
+                    setFeedback({ type: 'error', message: 'Gagal memperbarui tindak lanjut.' });
                 }
             });
         } catch (err) {
             console.error('Gagal memperbarui tindak lanjut:', err);
-            alert('Gagal memperbarui tindak lanjut.');
+            setFeedback({ type: 'error', message: 'Gagal memperbarui tindak lanjut.' });
         }
     };
 
@@ -1024,19 +1095,19 @@ export const AduanDetailPage: React.FC = () => {
                 },
                 onError: (err: any) => {
                     console.error(err);
-                    alert(`Gagal menyimpan perubahan: ${err.message || 'Error tidak diketahui'}`);
+                    setFeedback({ type: 'error', message: `Gagal menyimpan perubahan: ${err.message || 'Error tidak diketahui'}` });
                 }
             });
         } catch (err: any) {
             console.error('Error in submission:', err);
-            alert(`Terjadi kesalahan: ${err.message || 'Error tidak diketahui'}`);
+            setFeedback({ type: 'error', message: `Terjadi kesalahan: ${err.message || 'Error tidak diketahui'}` });
         }
     };
 
     const handleStatusUpdate = () => {
         if (!user || !aduan) return;
         if (statusForm.status === 'ditolak' && !statusForm.alasanPenolakan.trim()) {
-            alert('Alasan penolakan wajib diisi jika status Ditolak.');
+            setFeedback({ type: 'info', message: 'Alasan penolakan wajib diisi jika status Ditolak.' });
             return;
         }
         setIsStatusSubmitting(true);
@@ -1052,10 +1123,11 @@ export const AduanDetailPage: React.FC = () => {
             {
                 onSuccess: () => {
                     setIsStatusSubmitting(false);
+                    setFeedback({ type: 'success', message: 'Status aduan berhasil diperbarui.' });
                 },
                 onError: (err: any) => {
                     setIsStatusSubmitting(false);
-                    alert(`Gagal mengubah status: ${err.message || 'Error tidak diketahui'}`);
+                    setFeedback({ type: 'error', message: `Gagal mengubah status: ${err.message || 'Error tidak diketahui'}` });
                 },
             }
         );
@@ -1091,7 +1163,7 @@ export const AduanDetailPage: React.FC = () => {
             URL.revokeObjectURL(url);
         } catch (err) {
             console.error('Gagal membuat ZIP:', err);
-            alert('Gagal membuat file ZIP. Silakan coba lagi.');
+            setFeedback({ type: 'error', message: 'Gagal membuat file ZIP. Silakan coba lagi.' });
         } finally {
             setIsDownloadingZip(false);
         }
@@ -1172,6 +1244,29 @@ export const AduanDetailPage: React.FC = () => {
             variants={containerVariants}
             className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
         >
+            {feedback && (
+                <div className="sticky top-20 z-30 no-print">
+                    <div
+                        className={cn(
+                            "mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
+                            feedback.type === 'success' && "border-emerald-500/20 bg-emerald-50 text-emerald-800",
+                            feedback.type === 'error' && "border-destructive/20 bg-destructive/10 text-destructive",
+                            feedback.type === 'info' && "border-primary/20 bg-primary/10 text-primary"
+                        )}
+                    >
+                        {feedback.type === 'error' ? <AlertTriangle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
+                        <p className="text-sm font-medium">{feedback.message}</p>
+                        <button
+                            type="button"
+                            onClick={() => setFeedback(null)}
+                            className="ml-auto rounded-md px-2 py-1 text-xs font-semibold opacity-70 transition hover:opacity-100"
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Print Header - Only visible when printing */}
             <div className="hidden print:block print-header">
                 <div>
@@ -1296,9 +1391,10 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="rounded-2xl border border-border/60 bg-white/90 dark:bg-card/90 px-5 py-4 shadow-sm backdrop-blur-xl">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="flex flex-col gap-3">
+                <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white/90 px-5 py-5 shadow-sm backdrop-blur-xl">
+                    <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-primary/5 via-transparent to-transparent pointer-events-none" />
+                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+                        <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
                                 <Button
                                     variant="ghost"
@@ -1316,66 +1412,110 @@ export const AduanDetailPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3">
-                                <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
-                                <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
+                            <div className="flex flex-col gap-3">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
+                                </div>
+                                <p className="max-w-3xl text-sm text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <div className={cn(
+                                    "inline-flex w-fit items-start gap-2 rounded-2xl border px-3 py-2 text-xs font-medium",
+                                    statusAccentClass
+                                )}>
+                                    <Sparkles size={14} className="mt-0.5 shrink-0" />
+                                    <span>{nextActionLabel}</span>
+                                </div>
                             </div>
-                            <p className="max-w-3xl text-sm text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                leftIcon={<FileText size={15} />}
-                                onClick={handlePrint}
-                                className="h-9 rounded-xl px-4"
-                                isLoading={isExportingPdf}
-                            >
-                                PDF
-                            </Button>
-                            {isAdmin && (
+                        <div className="flex flex-col gap-3 xl:items-end">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:w-[420px]">
+                                {overviewCards.map((card) => (
+                                    <div key={card.label} className="rounded-2xl border border-border/70 bg-white/80 p-3 shadow-sm">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{card.label}</p>
+                                            <card.icon size={13} className="text-muted-foreground" />
+                                        </div>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{card.hint}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2">
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="sm"
-                                    leftIcon={<Trash2 size={15} />}
-                                    onClick={handleDelete}
-                                    isLoading={isDeleting}
-                                    className="h-9 rounded-xl px-4 text-destructive hover:bg-destructive/10"
+                                    leftIcon={<FileText size={15} />}
+                                    onClick={handlePrint}
+                                    className="h-9 rounded-xl px-4"
+                                    isLoading={isExportingPdf}
                                 >
-                                    Hapus
+                                    PDF
                                 </Button>
-                            )}
-                            <Button
-                                variant="primary"
-                                size="sm"
-                                leftIcon={<Edit size={15} />}
-                                onClick={openEditModal}
-                                className="h-9 rounded-xl px-4"
-                            >
-                                Edit Data
-                            </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    leftIcon={<Upload size={15} />}
+                                    onClick={() => setIsUploadModalOpen(true)}
+                                    className="h-9 rounded-xl px-4"
+                                >
+                                    Upload
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    leftIcon={<Edit size={15} />}
+                                    onClick={openEditModal}
+                                    className="h-9 rounded-xl px-4"
+                                >
+                                    Edit Data
+                                </Button>
+                                {isAdmin && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        leftIcon={<Trash2 size={15} />}
+                                        onClick={() => setIsDeleteAduanConfirmOpen(true)}
+                                        isLoading={isDeleting}
+                                        className="h-9 rounded-xl px-4 text-destructive hover:bg-destructive/10"
+                                    >
+                                        Hapus
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <motion.div variants={itemVariants} className="no-print grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <motion.div variants={itemVariants} className="no-print grid grid-cols-1 gap-3 lg:grid-cols-[1.7fr_1fr]">
                 <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Status</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{(aduan.status || '-').toUpperCase()}</p>
+                    <div className="flex items-start gap-3">
+                        <div className="rounded-2xl bg-primary/10 p-2.5 text-primary">
+                            <Sparkles size={18} />
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Fokus Penanganan</p>
+                            <p className="text-sm font-semibold text-foreground">{nextActionLabel}</p>
+                            <p className="text-xs text-muted-foreground">
+                                {canInputRiwayatPenanganan
+                                    ? 'Riwayat penanganan sudah terbuka. Tambah catatan baru jika ada perkembangan.'
+                                    : 'Riwayat penanganan baru bisa ditambah saat status aduan berada di PROSES.'}
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Tanggal Masuk</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{formatDate(aduan.createdAt || new Date())}</p>
-                </div>
-                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">PIC</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{aduan.picName || 'Belum ditentukan'}</p>
-                </div>
-                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Total Tindak Lanjut</p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">{qTindakLanjutList.length} catatan</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Kondisi Saat Ini</p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
+                        {aduan.picName && <Badge variant="outline">{aduan.picName}</Badge>}
+                        <Badge variant="outline">{lokasiObjekItems.length} KPS</Badge>
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                        {latestTindakLanjut ? `Update terakhir: ${latestTindakLanjutLabel}.` : 'Belum ada update tindak lanjut yang tercatat.'}
+                    </p>
                 </div>
             </motion.div>
 
@@ -1828,14 +1968,10 @@ export const AduanDetailPage: React.FC = () => {
                                                             )}
                                                                 {isAdmin && (
                                                                     <button
-                                                                        onClick={() => {
-                                                                            if (confirm('Apakah Anda yakin ingin menghapus riwayat penanganan ini?')) {
-                                                                                deleteTL(tl.id);
-                                                                        }
-                                                                    }}
-                                                                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                                                                    title="Hapus Riwayat"
-                                                                >
+                                                                        onClick={() => setDeleteTlConfirm({ id: tl.id, label: tl.jenisTL })}
+                                                                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                                        title="Hapus Riwayat"
+                                                                    >
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             )}
@@ -1856,6 +1992,71 @@ export const AduanDetailPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-6 self-start xl:col-span-4 xl:sticky xl:top-28">
+                    <motion.div variants={itemVariants}>
+                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
+                            <CardHeader className="border-b border-border/70 bg-muted/20 py-4">
+                                <CardTitle className="flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-foreground">
+                                    <Zap className="h-4 w-4" />
+                                    Panel Tindakan
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4 p-5">
+                                <div className={cn(
+                                    "rounded-2xl border px-3 py-3 text-sm",
+                                    statusAccentClass
+                                )}>
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em]">Aksi berikutnya</p>
+                                    <p className="mt-1 font-semibold">{nextActionLabel}</p>
+                                </div>
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        leftIcon={<FileText size={14} />}
+                                        onClick={handlePrint}
+                                        isLoading={isExportingPdf}
+                                        className="justify-start"
+                                    >
+                                        Export PDF
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        leftIcon={<Upload size={14} />}
+                                        onClick={() => setIsUploadModalOpen(true)}
+                                        className="justify-start"
+                                    >
+                                        Upload Berkas
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        leftIcon={<Plus size={14} />}
+                                        onClick={() => setIsTLModalOpen(true)}
+                                        disabled={!canInputRiwayatPenanganan}
+                                        className="justify-start"
+                                    >
+                                        Tambah TL
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        leftIcon={<Edit size={14} />}
+                                        onClick={openEditModal}
+                                        className="justify-start"
+                                    >
+                                        Edit Aduan
+                                    </Button>
+                                </div>
+                                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-3 text-xs leading-relaxed text-muted-foreground">
+                                    {isAdmin
+                                        ? 'Sebagai admin, Anda juga dapat mengubah status dan menghapus aduan dari panel di halaman ini.'
+                                        : 'Perubahan status dan penghapusan aduan hanya dapat dilakukan oleh admin.'}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
@@ -1868,8 +2069,18 @@ export const AduanDetailPage: React.FC = () => {
                                         </div>
                                         <div>
                                             <p className="font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-xs text-muted-foreground">Dit. Pengendalian PS</p>
+                                            <p className="text-xs text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
                                         </div>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3">
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
+                                        <p className="mt-1 text-sm font-semibold text-foreground">{lokasiObjekItems.length}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Lampiran</p>
+                                        <p className="mt-1 text-sm font-semibold text-foreground">{allAttachments.length}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -2295,6 +2506,36 @@ export const AduanDetailPage: React.FC = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={isDeleteAduanConfirmOpen}
+                onOpenChange={setIsDeleteAduanConfirmOpen}
+                title="Hapus Aduan"
+                description={
+                    <>
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">{aduan.nomorTiket}</span>?
+                        Tindakan ini permanen dan tidak dapat dibatalkan.
+                    </>
+                }
+                confirmLabel="Hapus Aduan"
+                confirmVariant="destructive"
+                isLoading={isDeleting}
+                onConfirm={handleDelete}
+            />
+
+            <ConfirmDialog
+                open={!!deleteTlConfirm}
+                onOpenChange={(open) => !open && setDeleteTlConfirm(null)}
+                title="Hapus Riwayat Penanganan"
+                description={
+                    <>
+                        Catatan tindak lanjut <span className="font-semibold text-foreground">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
+                    </>
+                }
+                confirmLabel="Hapus Riwayat"
+                confirmVariant="destructive"
+                onConfirm={handleDeleteTlConfirm}
+            />
         </motion.div>
     );
 };

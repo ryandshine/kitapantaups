@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE TABLE IF NOT EXISTS public.sessions (
   id            uuid        NOT NULL DEFAULT uuid_generate_v4(),
   user_id       uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  refresh_token text        NOT NULL UNIQUE,
+  refresh_token_hash text   NOT NULL UNIQUE,
   expires_at    timestamptz NOT NULL,
   created_at    timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT sessions_pkey PRIMARY KEY (id)
@@ -295,7 +295,7 @@ CREATE INDEX IF NOT EXISTS idx_tl_aduan_id         ON public.tindak_lanjut(aduan
 CREATE INDEX IF NOT EXISTS idx_activities_aduan_id ON public.app_activities(aduan_id);
 CREATE INDEX IF NOT EXISTS idx_activities_created  ON public.app_activities(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id    ON public.sessions(user_id);
-CREATE INDEX IF NOT EXISTS idx_sessions_token      ON public.sessions(refresh_token);
+CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON public.sessions(refresh_token_hash);
 CREATE INDEX IF NOT EXISTS idx_aduan_docs_aduan_id ON public.aduan_documents(aduan_id);
 
 -- ============================================================
@@ -340,27 +340,27 @@ INSERT INTO public.master_status (nama_status) VALUES
 ON CONFLICT (nama_status) DO NOTHING;
 
 INSERT INTO public.master_kategori_masalah (nama_kategori) VALUES
-  ('Konflik Lahan'),
-  ('Batas Wilayah'),
-  ('Perizinan'),
-  ('Lingkungan'),
-  ('Sosial'),
-  ('Lainnya')
+  ('konflik areal'),
+  ('perlindungan'),
+  ('dan lain-lain')
 ON CONFLICT (nama_kategori) DO NOTHING;
 
 INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
-  ('Surat Keluar'),
-  ('Rapat Koordinasi'),
-  ('Verifikasi Lapangan'),
-  ('Mediasi'),
-  ('Rekomendasi'),
-  ('Lainnya')
+  ('Telaah Administrasi'),
+  ('Hasil Telaah Dikembalikan'),
+  ('Puldasi'),
+  ('Agenda Rapat Pembahasan'),
+  ('Agenda Evaluasi'),
+  ('Agenda Pembahasan Hasil Evaluasi'),
+  ('ND Perubahan Persetujuan PS'),
+  ('Surat Penolakan Aduan')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
 
 -- ============================================================
 -- AKUN ADMIN AWAL
--- password: Admin@1234 (bcrypt hash)
+-- password: Admin@123 (bcrypt hash)
 -- ============================================================
 INSERT INTO public.users (email, password_hash, display_name, role) VALUES
-  ('admin@sipantaups.local', crypt('Admin@1234', gen_salt('bf')), 'Administrator', 'admin')
+  ('admin@kitapantaups.local', crypt('Admin@123', gen_salt('bf')), 'Administrator', 'admin'),
+  ('demo@klhk.go.id', crypt('Demo@123', gen_salt('bf')), 'Demo User (KLHK)', 'admin')
 ON CONFLICT (email) DO NOTHING;

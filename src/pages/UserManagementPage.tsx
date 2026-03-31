@@ -27,7 +27,9 @@ import {
     Button,
     Input,
     Select,
-    Modal
+    Modal,
+    FeedbackBanner,
+    ConfirmDialog
 } from '../components/ui';
 import type { User } from '../types';
 import { cn } from '../lib/utils';
@@ -53,28 +55,38 @@ export const UserManagementPage: React.FC = () => {
         displayName: '',
         role: 'staf' as 'admin' | 'staf'
     });
+    const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+    const [deleteCandidate, setDeleteCandidate] = useState<User | null>(null);
+
+    React.useEffect(() => {
+        if (!feedback) return;
+        const timeout = window.setTimeout(() => setFeedback(null), 4000);
+        return () => window.clearTimeout(timeout);
+    }, [feedback]);
 
     const handleRoleChange = async (userId: string, newRole: any) => {
         setUpdatingUserId(userId);
         updateUserRole({ userId, newRole }, {
             onSettled: () => setUpdatingUserId(null),
-            onError: () => alert('Gagal memperbarui role user.')
+            onSuccess: () => setFeedback({ type: 'success', message: 'Role user berhasil diperbarui.' }),
+            onError: () => setFeedback({ type: 'error', message: 'Gagal memperbarui role user.' })
         });
     };
 
     const handleDeleteUser = async (user: User) => {
         if (user.id === currentUser?.id) {
-            alert('Anda tidak bisa menghapus akun Anda sendiri.');
+            setFeedback({ type: 'info', message: 'Anda tidak bisa menghapus akun Anda sendiri.' });
             return;
         }
-
-        const confirmed = window.confirm(`Apakah Anda yakin ingin menghapus user "${user.displayName}"?\n\nData user ini akan hilang dari sistem.`);
-        if (!confirmed) return;
 
         setUpdatingUserId(user.id);
         deleteUser(user.id, {
             onSettled: () => setUpdatingUserId(null),
-            onError: () => alert('Gagal menghapus user.')
+            onSuccess: () => {
+                setDeleteCandidate(null);
+                setFeedback({ type: 'success', message: 'User berhasil dihapus.' });
+            },
+            onError: () => setFeedback({ type: 'error', message: 'Gagal menghapus user.' })
         });
     };
 
@@ -84,7 +96,8 @@ export const UserManagementPage: React.FC = () => {
         setUpdatingUserId(user.id);
         toggleStatus({ userId: user.id, isActive: !user.isActive }, {
             onSettled: () => setUpdatingUserId(null),
-            onError: () => alert('Gagal mengubah status user.')
+            onSuccess: () => setFeedback({ type: 'success', message: `Status user berhasil diubah menjadi ${!user.isActive ? 'aktif' : 'non-aktif'}.` }),
+            onError: () => setFeedback({ type: 'error', message: 'Gagal mengubah status user.' })
         });
     };
 
@@ -97,11 +110,11 @@ export const UserManagementPage: React.FC = () => {
     const handleResetPassword = () => {
         if (!selectedUserForPassword) return;
         if (passwordForm.password.length < 8) {
-            alert('Password minimal 8 karakter.');
+            setFeedback({ type: 'info', message: 'Password minimal 8 karakter.' });
             return;
         }
         if (passwordForm.password !== passwordForm.confirmPassword) {
-            alert('Konfirmasi password tidak sama.');
+            setFeedback({ type: 'info', message: 'Konfirmasi password tidak sama.' });
             return;
         }
 
@@ -113,9 +126,9 @@ export const UserManagementPage: React.FC = () => {
                     setIsPasswordModalOpen(false);
                     setSelectedUserForPassword(null);
                     setPasswordForm({ password: '', confirmPassword: '' });
-                    alert('Password user berhasil diperbarui.');
+                    setFeedback({ type: 'success', message: 'Password user berhasil diperbarui.' });
                 },
-                onError: () => alert('Gagal memperbarui password user.'),
+                onError: () => setFeedback({ type: 'error', message: 'Gagal memperbarui password user.' }),
                 onSettled: () => setUpdatingUserId(null),
             }
         );
@@ -123,7 +136,7 @@ export const UserManagementPage: React.FC = () => {
 
     const handleCreateUser = async () => {
         if (!newUserForm.email || !newUserForm.password || !newUserForm.displayName) {
-            alert('Semua field wajib diisi.');
+            setFeedback({ type: 'info', message: 'Semua field wajib diisi.' });
             return;
         }
 
@@ -131,9 +144,10 @@ export const UserManagementPage: React.FC = () => {
             onSuccess: () => {
                 setIsAddModalOpen(false);
                 setNewUserForm({ email: '', password: '', displayName: '', role: 'staf' });
+                setFeedback({ type: 'success', message: 'Pengguna baru berhasil dibuat.' });
             },
             onError: (error: any) => {
-                alert(`Gagal membuat user: ${error.message}`);
+                setFeedback({ type: 'error', message: `Gagal membuat user: ${error.message}` });
             }
         });
     };
@@ -172,6 +186,14 @@ export const UserManagementPage: React.FC = () => {
                     </Button>
                 </div>
             </div>
+
+            {feedback && (
+                <FeedbackBanner
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                />
+            )}
 
             <Card>
                 <CardHeader className="bg-muted/30 pb-4">
@@ -308,7 +330,7 @@ export const UserManagementPage: React.FC = () => {
                                                         variant="ghost"
                                                         size="sm"
                                                         className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
-                                                        onClick={() => handleDeleteUser(u)}
+                                                        onClick={() => setDeleteCandidate(u)}
                                                         disabled={u.id === currentUser?.id || updatingUserId === u.id}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
@@ -453,6 +475,22 @@ export const UserManagementPage: React.FC = () => {
                     </div>
                 </div>
             </Modal>
+
+            <ConfirmDialog
+                open={!!deleteCandidate}
+                onOpenChange={(open) => !open && setDeleteCandidate(null)}
+                title="Hapus Pengguna"
+                description={
+                    <>
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">{deleteCandidate?.displayName || '-'}</span>?
+                        Data user ini akan hilang dari sistem.
+                    </>
+                }
+                confirmLabel="Hapus Pengguna"
+                confirmVariant="destructive"
+                isLoading={!!deleteCandidate && updatingUserId === deleteCandidate.id}
+                onConfirm={() => deleteCandidate && handleDeleteUser(deleteCandidate)}
+            />
         </div>
     );
 };

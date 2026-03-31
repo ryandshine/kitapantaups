@@ -15,5 +15,5 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p /app/uploads
 VOLUME ["/app/uploads"]
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "dist/index.js"]

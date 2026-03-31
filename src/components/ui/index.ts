@@ -8,6 +8,8 @@ export * from './textarea';
 export * from './dialog';
 export * from './table';
 export * from './separator';
+export * from './feedback-banner';
+export * from './confirm-dialog';
 
 // Compatibility Wrappers & Custom Components
 export { Modal, ModalFooter } from './Modal';

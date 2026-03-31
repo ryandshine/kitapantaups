@@ -63,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setError(null);
         try {
             const data = await api.post('/auth/login', { email, password });
-            setTokens(data.access_token, data.refresh_token);
+            setTokens(data.access_token);
             setUser({
                 id: data.user.id,
                 email: data.user.email,
@@ -87,16 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         setError(null);
         try {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            setUser({
-                id: 'demo-user-id',
-                email: 'demo@klhk.go.id',
-                displayName: 'Demo User (KLHK)',
-                role: 'admin',
-                isActive: true,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            });
+            await login('demo@klhk.go.id', 'Demo@123');
         } catch {
             setError('Gagal masuk sebagai demo.');
         } finally {

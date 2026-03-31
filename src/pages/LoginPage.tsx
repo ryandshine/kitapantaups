@@ -8,7 +8,7 @@ import { Button } from '../components/ui/button';
 
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, loginAsGuest } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +105,35 @@ export const LoginPage: React.FC = () => {
                                     Masuk ke Dashboard
                                 </Button>
                             </form>
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <span className="w-full border-t border-border/60" />
+                                </div>
+                                <div className="relative flex justify-center text-xs uppercase">
+                                    <span className="bg-card px-2 text-muted-foreground">Atau</span>
+                                </div>
+                            </div>
+
+                            <Button
+                                type="button"
+                                variant="outline"
+                                fullWidth
+                                className="h-11 border-border/60 bg-secondary/10 hover:bg-secondary/20"
+                                onClick={async () => {
+                                    try {
+                                        setIsLoading(true);
+                                        await loginAsGuest();
+                                        navigate('/');
+                                    } catch (err: any) {
+                                        setError(err.message || 'Gagal masuk sebagai demo.');
+                                    } finally {
+                                        setIsLoading(false);
+                                    }
+                                }}
+                            >
+                                Masuk sebagai Demo (KLHK)
+                            </Button>
                         </CardContent>
                     </Card>
 

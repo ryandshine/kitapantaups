@@ -5,11 +5,19 @@ import { bodyLimit } from 'hono/body-limit'
 import { pool } from '../db.js'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
 import path from 'path'
-import { fileURLToPath } from 'node:url'
-import { writeFile, mkdir, unlink } from 'fs/promises'
+import { mkdir, unlink } from 'fs/promises'
 import { createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
 import { randomUUID } from 'crypto'
+import {
+  buildUploadPublicUrl,
+  getAllowedUploadExtensions,
+  getUploadsRoot,
+  isAllowedUploadExtension,
+  resolveStoredUploadPathFromUrl,
+  sanitizePathSegment,
+} from '../lib/upload.js'
+import { generateAduanTicketNumber } from '../lib/aduan-ticket.js'
 
 const aduan = new Hono()
 
@@ -127,24 +135,21 @@ aduan.post(
       return c.json({ error: 'Aduan tidak ditemukan' }, 404)
     }
 
-    const safeAduanId = rawAduanId.replace(/[^a-zA-Z0-9_-]/g, '')
+    const safeAduanId = sanitizePathSegment(rawAduanId)
     if (!safeAduanId) {
       return c.json({ error: 'aduan_id tidak valid' }, 400)
     }
 
-    const nomorTiketFolder = (aduanCheck.rows[0].nomor_tiket as string).replace(/[^a-zA-Z0-9_-]/g, '')
+    const nomorTiketFolder = sanitizePathSegment(aduanCheck.rows[0].nomor_tiket as string)
 
-    const ALLOWED_EXTENSIONS = new Set(['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'zip', 'shp', 'dbf', 'prj', 'shx', 'mp3', 'm4a', 'wav', 'ogg', 'aac'])
     const ext = (file.name.split('.').pop() || '').toLowerCase()
-    if (!ALLOWED_EXTENSIONS.has(ext)) {
-      return c.json({ error: 'Tipe file tidak diizinkan. Gunakan: pdf, jpg, png, doc, docx, xls, xlsx, zip, shp, dbf, prj, shx, mp3, m4a, wav, ogg, aac' }, 400)
+    if (!isAllowedUploadExtension(ext)) {
+      return c.json({ error: `Tipe file tidak diizinkan. Gunakan: ${getAllowedUploadExtensions().join(', ')}` }, 400)
     }
 
-    const safeCategory = ((body['category'] as string) || 'dokumen').replace(/[^a-zA-Z0-9_-]/g, '')
+    const safeCategory = sanitizePathSegment((body['category'] as string) || 'dokumen')
     const fileName = `${safeCategory}_${randomUUID()}.${ext}`
-
-    const __dirname = path.dirname(fileURLToPath(import.meta.url))
-    const uploadDir = path.join(__dirname, '../uploads', nomorTiketFolder)
+    const uploadDir = path.join(getUploadsRoot(), nomorTiketFolder)
 
     await mkdir(uploadDir, { recursive: true })
     
@@ -163,17 +168,9 @@ aduan.post(
     }
 
     const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`
-    return c.json({ url: `${baseUrl}/uploads/${nomorTiketFolder}/${fileName}` })
+    return c.json({ url: buildUploadPublicUrl(baseUrl, nomorTiketFolder, fileName) })
   }
 )
-
-// GET /aduan/provinces
-aduan.get('/provinces', async (c) => {
-  const result = await pool.query(
-    `SELECT DISTINCT lokasi_prov FROM aduan WHERE lokasi_prov IS NOT NULL ORDER BY lokasi_prov`
-  )
-  return c.json(result.rows.map((r: any) => r.lokasi_prov))
-})
 
 // GET /aduan/:id
 aduan.get('/:id', async (c) => {
@@ -219,9 +216,10 @@ const addDocumentSchema = z.object({
 aduan.post('/:id/documents', zValidator('json', addDocumentSchema), async (c) => {
   const aduanId = c.req.param('id')
   const body = c.req.valid('json')
+  const user = c.get('user')
   await pool.query(
-    `INSERT INTO aduan_documents (aduan_id, file_url, file_name, file_category) VALUES ($1, $2, $3, $4)`,
-    [aduanId, body.file_url, body.file_name, body.file_category || 'dokumen']
+    `INSERT INTO aduan_documents (aduan_id, file_url, file_name, file_category, created_by) VALUES ($1, $2, $3, $4, $5)`,
+    [aduanId, body.file_url, body.file_name, body.file_category || 'dokumen', user.userId]
   )
   return c.json({ message: 'Dokumen berhasil ditambahkan' }, 201)
 })
@@ -244,10 +242,7 @@ aduan.delete('/:id/documents/:docId', requireAdmin, async (c) => {
 
   // Hapus file fisik dari disk
   try {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url))
-    // file_url format: http://host/uploads/aduanId/filename
-    const urlPath = new URL(doc.file_url).pathname // /uploads/aduanId/filename
-    const filePath = path.join(__dirname, '..', urlPath)
+    const filePath = resolveStoredUploadPathFromUrl(doc.file_url)
     await unlink(filePath).catch(() => {}) // tidak error kalau file sudah tidak ada
   } catch {
     // URL tidak valid atau path tidak bisa diparsing — tetap lanjut hapus dari DB
@@ -310,7 +305,7 @@ aduan.post('/', zValidator('json', createAduanSchema), async (c) => {
     [year]
   )
   const count = Number(countResult.rows[0].count) + 1
-  const nomorTiket = `ADU${year.toString().slice(2)}${String(count).padStart(6, '0')}`
+  const nomorTiket = generateAduanTicketNumber(year, count)
 
   const result = await pool.query(
     `INSERT INTO aduan (
@@ -365,6 +360,10 @@ aduan.patch('/:id', zValidator('json', updateAduanSchema), async (c) => {
   const id = c.req.param('id')
   const user = c.get('user')
   const data = c.req.valid('json')
+
+  if ((data.status !== undefined || data.alasan_penolakan !== undefined) && user.role !== 'admin') {
+    return c.json({ error: 'Akses ditolak: hanya admin yang dapat mengubah status aduan' }, 403)
+  }
 
   const sets: string[] = []
   const params: any[] = []

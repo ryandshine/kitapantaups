@@ -1,16 +1,22 @@
-const API_URL = import.meta.env.VITE_API_URL
+const rawApiUrl = import.meta.env.VITE_API_URL
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+const productionUrl = 'https://api-kitapantaups.ditpps.com'
+const defaultUrl = isLocal ? 'http://localhost:3001' : productionUrl
+const API_URL = (rawApiUrl && rawApiUrl !== 'undefined' && rawApiUrl !== '') 
+  ? rawApiUrl.replace(/\/$/, '') 
+  : defaultUrl
 
 if (!API_URL) {
-  console.warn('VITE_API_URL is not defined. API calls might fail.')
+  console.warn('VITE_API_URL is not defined. API calls will fail if not using relative paths.')
 }
 
 function getToken(): string | null {
   return localStorage.getItem('access_token')
 }
 
-export function setTokens(accessToken: string, refreshToken: string) {
+export function setTokens(accessToken: string) {
   localStorage.setItem('access_token', accessToken)
-  localStorage.setItem('refresh_token', refreshToken)
+  localStorage.removeItem('refresh_token')
 }
 
 export function clearTokens() {
@@ -19,14 +25,12 @@ export function clearTokens() {
 }
 
 async function refreshAccessToken(): Promise<string | null> {
-  const refreshToken = localStorage.getItem('refresh_token')
-  if (!refreshToken) return null
-
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      credentials: 'include',
+      body: JSON.stringify({}),
     })
 
     if (!res.ok) return null
@@ -49,13 +53,34 @@ export async function apiFetch(path: string, options: RequestInit = {}, allowRet
   }
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  let res = await fetch(`${API_URL}${path}`, { ...options, headers })
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  const fullUrl = `${API_URL}${normalizedPath}`
+
+  let res: Response
+  try {
+    console.debug(`API Request: ${options.method || 'GET'} ${fullUrl}`)
+    res = await fetch(fullUrl, { ...options, headers, credentials: 'include' })
+  } catch (err: any) {
+    console.error('API Fetch Error Details:', {
+      url: fullUrl,
+      method: options.method || 'GET',
+      error: err,
+      message: err.message,
+      stack: err.stack
+    })
+    
+    if (err.name === 'TypeError' && (err.message === 'Failed to fetch' || err.message.includes('NetworkError'))) {
+      throw new Error(`Gagal terhubung ke API: ${fullUrl}. Periksa koneksi internet, sertifikat SSL, atau status server (CORS/Down).`)
+    }
+    throw err
+  }
 
   if (
     res.status === 401 &&
     allowRetry &&
-    path !== '/auth/login' &&
-    path !== '/auth/refresh'
+    normalizedPath !== '/auth/login' &&
+    normalizedPath !== '/auth/refresh'
   ) {
     const nextAccessToken = await refreshAccessToken()
     if (nextAccessToken) {
@@ -63,7 +88,15 @@ export async function apiFetch(path: string, options: RequestInit = {}, allowRet
         ...headers,
         Authorization: `Bearer ${nextAccessToken}`,
       }
-      res = await fetch(`${API_URL}${path}`, { ...options, headers: retryHeaders })
+      try {
+        res = await fetch(fullUrl, { ...options, headers: retryHeaders, credentials: 'include' })
+      } catch (err: any) {
+        console.error('API Retry Fetch Error:', err)
+        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+          throw new Error(`Gagal terhubung ke API saat mencoba ulang (${fullUrl}).`)
+        }
+        throw err
+      }
     } else {
       clearTokens()
       throw new Error('Sesi login habis. Silakan login ulang.')

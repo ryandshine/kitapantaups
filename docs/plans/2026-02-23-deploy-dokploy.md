@@ -79,7 +79,7 @@ git commit -m "feat(docker): tambah uploads volume di Dockerfile backend"
 
 ```bash
 cat > /home/ryandshinevps/kitapantaups/.env.production << 'EOF'
-VITE_API_URL=https://api.kitapantaups.ditpps.com
+VITE_API_URL=https://api-kitapantaups.ditpps.com
 EOF
 ```
 
@@ -89,7 +89,7 @@ EOF
 cat /home/ryandshinevps/kitapantaups/.env.production
 ```
 
-Expected: `VITE_API_URL=https://api.kitapantaups.ditpps.com`
+Expected: `VITE_API_URL=https://api-kitapantaups.ditpps.com`
 
 **Step 3: Commit**
 
@@ -272,7 +272,7 @@ JWT_SECRET=sipantaups-jwt-secret-2026-secure-key
 JWT_REFRESH_SECRET=sipantaups-refresh-secret-2026-key
 PORT=3000
 CORS_ORIGIN=https://kitapantaups.ditpps.com
-BASE_URL=https://api.kitapantaups.ditpps.com
+BASE_URL=https://api-kitapantaups.ditpps.com
 NODE_ENV=production
 ```
 
@@ -281,7 +281,7 @@ NODE_ENV=production
 **Step 5: Konfigurasi Domain**
 
 Di tab **Domains**:
-- Domain: `api.kitapantaups.ditpps.com`
+- Domain: `api-kitapantaups.ditpps.com`
 - HTTPS: aktifkan (Let's Encrypt)
 - Port container: `3000`
 
@@ -304,7 +304,7 @@ Klik **Deploy**. Tunggu build selesai.
 **Step 8: Verifikasi**
 
 ```bash
-curl -s https://api.kitapantaups.ditpps.com/
+curl -s https://api-kitapantaups.ditpps.com/
 ```
 
 Expected: `{"status":"ok","service":"SIPANTAUPS API"}`
@@ -316,7 +316,7 @@ Expected: `{"status":"ok","service":"SIPANTAUPS API"}`
 **Step 1: Test backend HTTPS**
 
 ```bash
-curl -s https://api.kitapantaups.ditpps.com/ | python3 -m json.tool
+curl -s https://api-kitapantaups.ditpps.com/ | python3 -m json.tool
 ```
 
 Expected: `{"status": "ok", "service": "SIPANTAUPS API"}`
@@ -324,7 +324,7 @@ Expected: `{"status": "ok", "service": "SIPANTAUPS API"}`
 **Step 2: Test login via API**
 
 ```bash
-curl -s -X POST https://api.kitapantaups.ditpps.com/auth/login \
+curl -s -X POST https://api-kitapantaups.ditpps.com/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@sipantaups.local","password":"Admin@1234"}' | python3 -m json.tool | head -10
 ```
@@ -343,7 +343,7 @@ Expected: `200`
 
 ```bash
 curl -vI https://kitapantaups.ditpps.com/ 2>&1 | grep -E "SSL|certificate|issuer|expire"
-curl -vI https://api.kitapantaups.ditpps.com/ 2>&1 | grep -E "SSL|certificate|issuer|expire"
+curl -vI https://api-kitapantaups.ditpps.com/ 2>&1 | grep -E "SSL|certificate|issuer|expire"
 ```
 
 **Step 5: Jika semua OK, commit catatan deploy**
