@@ -1,62 +1,22 @@
 import { Hono } from 'hono'
-import { pool } from '../db.js'
 import { requireAuth } from '../middleware/auth.js'
+import { ActivityService } from '../services/activity.service.js'
 
 const activities = new Hono()
-
 activities.use('*', requireAuth)
-
-const getActorName = async (userId: string, fallbackEmail: string) => {
-  const result = await pool.query(
-    'SELECT display_name FROM users WHERE id = $1 LIMIT 1',
-    [userId]
-  )
-  return result.rows[0]?.display_name || fallbackEmail
-}
 
 // GET /activities?limit=&aduan_id=
 activities.get('/', async (c) => {
-  const limit = Number(c.req.query('limit')) || 20
-  const aduanId = c.req.query('aduan_id')
-
-  const conditions: string[] = []
-  const params: any[] = []
-
-  if (aduanId) {
-    params.push(aduanId)
-    conditions.push(`aduan_id = $${params.length}`)
-  }
-
-  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
-  params.push(limit)
-
-  const result = await pool.query(
-    `SELECT * FROM app_activities ${where} ORDER BY created_at DESC LIMIT $${params.length}`,
-    params
-  )
-
-  return c.json(result.rows)
+  const result = await ActivityService.getActivities(c.req.query())
+  return c.json(result)
 })
 
 // POST /activities
 activities.post('/', async (c) => {
   const body = await c.req.json()
   const user = c.get('user')
-  const actorName = await getActorName(user.userId, user.email)
 
-  await pool.query(
-    `INSERT INTO app_activities (type, description, aduan_id, user_id, user_name, metadata)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [
-      body.type,
-      body.description,
-      body.aduan_id || null,
-      user.userId,
-      actorName,
-      body.metadata || {},
-    ]
-  )
-
+  await ActivityService.createActivity(body, user)
   return c.json({ ok: true }, 201)
 })
 

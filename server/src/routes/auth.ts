@@ -1,25 +1,15 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
-import { pool } from '../db.js'
 import { requireAuth } from '../middleware/auth.js'
 import { bodyLimit } from 'hono/body-limit'
-import { randomUUID } from 'crypto'
-import { mkdir } from 'fs/promises'
-import { createWriteStream } from 'node:fs'
-import { pipeline } from 'node:stream/promises'
-import path from 'path'
 import {
   clearRefreshTokenCookie,
   readRefreshTokenFromRequest,
   setRefreshTokenCookie,
 } from '../lib/auth-session.js'
-import {
-  buildUploadPublicUrl,
-  getUploadsRoot,
-  isAllowedUploadExtension,
-} from '../lib/upload.js'
 import { AuthServiceError, authService } from '../lib/auth-service.js'
+import { StorageService } from '../services/storage.service.js'
 
 const auth = new Hono()
 
@@ -113,22 +103,11 @@ auth.patch('/profile', requireAuth, zValidator('json', updateProfileSchema), asy
   const user = c.get('user')
   const data = c.req.valid('json')
 
-  const sets: string[] = []
-  const params: any[] = []
+  const result = await authService.updateProfile(user.userId, data)
+  
+  if (!result) return c.json({ error: 'Tidak ada field yang diupdate' }, 400)
 
-  if (data.display_name !== undefined) { params.push(data.display_name); sets.push(`display_name = $${params.length}`) }
-  if (data.phone !== undefined) { params.push(data.phone); sets.push(`phone = $${params.length}`) }
-
-  if (sets.length === 0) return c.json({ error: 'Tidak ada field yang diupdate' }, 400)
-
-  params.push(user.userId)
-  const result = await pool.query(
-    `UPDATE users SET ${sets.join(', ')} WHERE id = $${params.length}
-     RETURNING id, email, display_name, role, phone, photo_url, is_active`,
-    params
-  )
-
-  return c.json(result.rows[0])
+  return c.json(result)
 })
 
 // POST /auth/photo — upload profile photo
@@ -141,33 +120,16 @@ auth.post(
     const body = await c.req.parseBody()
     const file = body['file'] as File | undefined
 
-    if (!file || typeof file === 'string') {
-      return c.json({ error: 'File tidak ditemukan' }, 400)
+    try {
+      if (!file) throw new Error('File tidak valid')
+      const photoUrl = await StorageService.saveProfilePhoto(file, user.userId)
+      
+      await authService.updatePhoto(user.userId, photoUrl)
+      
+      return c.json({ photo_url: photoUrl })
+    } catch (error: any) {
+      return c.json({ error: error.message || 'Gagal mengupload foto' }, 400)
     }
-
-    const ext = (file.name.split('.').pop() || '').toLowerCase()
-    if (!['jpg', 'jpeg', 'png'].includes(ext) || !isAllowedUploadExtension(ext)) {
-      return c.json({ error: 'Tipe file tidak diizinkan. Gunakan: jpg, png' }, 400)
-    }
-
-    const fileName = `profile_${randomUUID()}.${ext}`
-    const uploadDir = path.join(getUploadsRoot(), 'profiles', user.userId)
-
-    await mkdir(uploadDir, { recursive: true })
-    
-    const writePath = path.join(uploadDir, fileName)
-    const writeStream = createWriteStream(writePath)
-    await pipeline(file.stream() as any, writeStream)
-
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`
-    const photoUrl = buildUploadPublicUrl(baseUrl, 'profiles', user.userId, fileName)
-
-    await pool.query(
-      'UPDATE users SET photo_url = $1 WHERE id = $2',
-      [photoUrl, user.userId]
-    )
-
-    return c.json({ photo_url: photoUrl })
   }
 )
 

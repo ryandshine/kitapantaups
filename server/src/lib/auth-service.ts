@@ -354,6 +354,36 @@ export const createAuthService = (dbPool: AuthDbPool = pool) => {
         return user
       })
     },
+
+    updateProfile: async (userId: string, data: { display_name?: string; phone?: string }) => {
+      return withAuthClient('update-profile', async (client) => {
+        const sets: string[] = []
+        const params: any[] = []
+
+        if (data.display_name !== undefined) { params.push(data.display_name); sets.push(`display_name = $${params.length}`) }
+        if (data.phone !== undefined) { params.push(data.phone); sets.push(`phone = $${params.length}`) }
+
+        if (sets.length === 0) return null
+
+        params.push(userId)
+        const result = await client.query(
+          `UPDATE users SET ${sets.join(', ')} WHERE id = $${params.length}
+           RETURNING id, email, display_name, role, phone, photo_url, is_active`,
+          params
+        )
+
+        return result.rows[0]
+      })
+    },
+
+    updatePhoto: async (userId: string, photoUrl: string) => {
+      return withAuthClient('update-photo', async (client) => {
+        await client.query(
+          'UPDATE users SET photo_url = $1 WHERE id = $2',
+          [photoUrl, userId]
+        )
+      })
+    },
   }
 }
 
