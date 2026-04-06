@@ -205,6 +205,8 @@ CREATE TABLE IF NOT EXISTS public.aduan (
   jumlah_kk           integer     DEFAULT 0,
   alasan_penolakan    text,
   surat_file_url      text,
+  pic_id              uuid        REFERENCES public.users(id),
+  pic_name            text,
   created_by          uuid        REFERENCES public.users(id),
   updated_by          uuid        REFERENCES public.users(id),
   created_at          timestamptz NOT NULL DEFAULT now(),

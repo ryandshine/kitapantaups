@@ -856,10 +856,17 @@ export const AduanDetailPage: React.FC = () => {
         }
         setIsUploadingSurat(true);
         try {
-            await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles);
+            const uploadResult = await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles);
             await refetchAduan();
             resetUploadModal();
-            setFeedback({ type: 'success', message: 'Dokumen berhasil diunggah.' });
+            if (uploadResult.errors.length > 0) {
+                setFeedback({
+                    type: 'info',
+                    message: `Sebagian dokumen gagal diunggah (${uploadResult.errors.length} file).`
+                });
+            } else {
+                setFeedback({ type: 'success', message: 'Dokumen berhasil diunggah.' });
+            }
         } catch (err) {
             console.error('Failed to upload documents:', err);
             setFeedback({ type: 'error', message: 'Gagal mengunggah dokumen.' });

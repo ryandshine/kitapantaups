@@ -2,7 +2,7 @@ const rawApiUrl = import.meta.env.VITE_API_URL
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 const productionUrl = 'https://api-kitapantaups.ditpps.com'
 const defaultUrl = isLocal ? 'http://localhost:3001' : productionUrl
-const API_URL = (rawApiUrl && rawApiUrl !== 'undefined' && rawApiUrl !== '') 
+export const API_URL = (rawApiUrl && rawApiUrl !== 'undefined' && rawApiUrl !== '') 
   ? rawApiUrl.replace(/\/$/, '') 
   : defaultUrl
 

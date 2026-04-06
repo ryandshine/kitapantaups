@@ -1,8 +1,6 @@
-import { api } from './api';
+import { api, API_URL } from './api';
 import type { Aduan, User, TindakLanjut } from '../types';
 import { ActivityService } from './activity.service';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 const resolveKpsType = (kps: {
     kps_type?: string | null;
@@ -11,6 +9,11 @@ const resolveKpsType = (kps: {
     SKEMA?: string | null;
 }) => [kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
+
+const getErrorMessage = (error: unknown) => {
+    if (error instanceof Error && error.message) return error.message;
+    return 'Terjadi kesalahan yang tidak diketahui';
+};
 
 const uploadToServer = async (
     file: File | Blob,
@@ -68,7 +71,7 @@ export const AduanService = {
         files: { documents?: File[] },
         userId: string,
         userName: string
-    ) => {
+    ): Promise<{ id: string; nomorTiket?: string; uploadErrors: string[] }> => {
         const payload: any = {
             surat_nomor: formData.surat_nomor,
             surat_tanggal: formData.surat_tanggal,
@@ -100,15 +103,17 @@ export const AduanService = {
 
         // 1. Create the aduan record first
         const aduan = await api.post('/aduan', payload);
+        const uploadErrors: string[] = [];
 
         // 2. Upload & register document files if provided
         const documentFiles = files?.documents?.filter(f => f instanceof File) ?? [];
         if (documentFiles.length > 0) {
             try {
-                await AduanService.uploadAdditionalDocuments(aduan.id, documentFiles);
+                const uploadResult = await AduanService.uploadAdditionalDocuments(aduan.id, documentFiles);
+                uploadErrors.push(...uploadResult.errors);
             } catch (uploadErr) {
-                // Non-fatal: aduan sudah tersimpan, tapi lampiran gagal
                 console.error('File upload failed (aduan sudah tersimpan):', uploadErr);
+                uploadErrors.push(getErrorMessage(uploadErr));
             }
         }
 
@@ -122,7 +127,11 @@ export const AduanService = {
             metadata: { nomor_tiket: aduan.nomor_tiket },
         });
 
-        return aduan.id;
+        return {
+            id: aduan.id,
+            nomorTiket: aduan.nomor_tiket,
+            uploadErrors,
+        };
     },
 
     uploadFileToBucket: async (f: File, _b: string, _id: string): Promise<string> => {
@@ -134,15 +143,21 @@ export const AduanService = {
     uploadTindakLanjutFile: async (f: File | Blob, aduanId: string, onProgress?: (p: number) => void): Promise<string> => {
         return uploadToServer(f, 'tindak_lanjut', aduanId, onProgress);
     },
-    uploadAdditionalDocuments: async (id: string, files: File[]): Promise<void> => {
+    uploadAdditionalDocuments: async (id: string, files: File[]): Promise<{ errors: string[] }> => {
+        const errors: string[] = [];
         for (const file of files) {
-            const fileUrl = await uploadToServer(file, 'dokumen', id);
-            await api.post(`/aduan/${id}/documents`, {
-                file_url: fileUrl,
-                file_name: file.name,
-                file_category: 'dokumen',
-            });
+            try {
+                const fileUrl = await uploadToServer(file, 'dokumen', id);
+                await api.post(`/aduan/${id}/documents`, {
+                    file_url: fileUrl,
+                    file_name: file.name,
+                    file_category: 'dokumen',
+                });
+            } catch (error) {
+                errors.push(`${file.name}: ${getErrorMessage(error)}`);
+            }
         }
+        return { errors };
     },
     extractStoragePath: (_url: string): string | null => null,
     generateTicketNumber: () => `ADU${new Date().getFullYear().toString().slice(2)}${Math.floor(100000 + Math.random() * 900000)}`,
@@ -212,7 +227,7 @@ export const AduanService = {
     getUniqueProvinces: async () => {
         try {
             const result = await api.get('/aduan/provinces');
-            return result.data || [];
+            return Array.isArray(result) ? result : (result.data || []);
         } catch { return []; }
     },
 

@@ -90,15 +90,15 @@ export const AduanRepository = {
         pengadu_nama, pengadu_telepon, pengadu_email, pengadu_instansi, kategori_masalah, ringkasan_masalah,
         nama_kps, jenis_kps, nomor_sk, id_kps_api,
         lokasi_prov, lokasi_kab, lokasi_kec, lokasi_desa, lokasi_luas_ha,
-        jumlah_kk, lokasi_lat, lokasi_lng, created_by
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+        jumlah_kk, lokasi_lat, lokasi_lng, pic_id, pic_name, created_by
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
       RETURNING *`,
       [
         nomorTiket, data.surat_nomor, data.surat_tanggal, data.surat_asal_perihal,
         data.pengadu_nama, data.pengadu_telepon, data.pengadu_email, data.pengadu_instansi, data.kategori_masalah, data.ringkasan_masalah,
         data.nama_kps, data.jenis_kps, data.nomor_sk, data.id_kps_api,
         data.lokasi_prov, data.lokasi_kab, data.lokasi_kec, data.lokasi_desa, data.lokasi_luas_ha,
-        data.jumlah_kk, data.lokasi_lat, data.lokasi_lng, userId,
+        data.jumlah_kk, data.lokasi_lat, data.lokasi_lng, data.pic_id, data.pic_name, userId,
       ]
     )
     return result.rows[0]

@@ -105,6 +105,8 @@ const createAduanSchema = z.object({
   jumlah_kk: z.number().optional(),
   lokasi_lat: z.array(z.string()).optional(),
   lokasi_lng: z.array(z.string()).optional(),
+  pic_id: z.string().uuid().optional().nullable(),
+  pic_name: z.string().optional(),
 })
 
 // POST /aduan
@@ -141,6 +143,8 @@ const updateAduanSchema = z.object({
   lokasi_lat: z.array(z.string()).optional(),
   lokasi_lng: z.array(z.string()).optional(),
   surat_file_url: z.string().optional(),
+  pic_id: z.string().uuid().optional().nullable(),
+  pic_name: z.string().optional(),
 })
 
 // PATCH /aduan/:id
