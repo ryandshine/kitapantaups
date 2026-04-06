@@ -296,6 +296,7 @@ export const AduanService = {
 
     updateAduan: async (id: string, data: Partial<Aduan> & { updatedBy?: string }) => {
         const updateData: any = {};
+        const resolvedPerihal = data.perihal !== undefined ? data.perihal : data.suratMasuk?.perihal;
         if (data.status) updateData.status = data.status;
         if (data.alasanPenolakan !== undefined) updateData.alasan_penolakan = data.alasanPenolakan;
         if (data.picId !== undefined) updateData.pic_id = data.picId || null;
@@ -304,9 +305,9 @@ export const AduanService = {
             const parsedJumlahKk = Number(data.jumlahKK);
             if (Number.isFinite(parsedJumlahKk)) updateData.jumlah_kk = parsedJumlahKk;
         }
-        if (data.perihal) updateData.surat_asal_perihal = data.perihal;
-        if (data.ringkasanMasalah) updateData.ringkasan_masalah = data.ringkasanMasalah;
-        if (data.kategoriMasalah) updateData.kategori_masalah = data.kategoriMasalah;
+        if (resolvedPerihal !== undefined) updateData.surat_asal_perihal = resolvedPerihal;
+        if (data.ringkasanMasalah !== undefined) updateData.ringkasan_masalah = data.ringkasanMasalah;
+        if (data.kategoriMasalah !== undefined) updateData.kategori_masalah = data.kategoriMasalah;
         if (Array.isArray(data.id_kps_api)) updateData.id_kps_api = data.id_kps_api;
         if (Array.isArray(data.nama_kps)) updateData.nama_kps = data.nama_kps;
         if (Array.isArray(data.jenis_kps)) updateData.jenis_kps = data.jenis_kps;
@@ -324,7 +325,7 @@ export const AduanService = {
             }
         }
         if (data.suratMasuk) {
-            if (data.suratMasuk.nomorSurat) updateData.surat_nomor = data.suratMasuk.nomorSurat;
+            if (data.suratMasuk.nomorSurat !== undefined) updateData.surat_nomor = data.suratMasuk.nomorSurat;
             if (data.suratMasuk.fileUrl !== undefined) updateData.surat_file_url = data.suratMasuk.fileUrl;
         }
         if (data.pengadu) {

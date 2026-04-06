@@ -25,19 +25,22 @@ aduan.post(
   '/upload',
   bodyLimit({ maxSize: 10 * 1024 * 1024, onError: (c) => c.json({ error: 'File terlalu besar (maks 10 MB)' }, 413) }),
   async (c) => {
-    const body = await c.req.parseBody()
-    const file = body['file'] as File | undefined
-    const rawAduanId = body['aduan_id'] as string
-    const category = body['category'] as string || 'dokumen'
-
-    if (!file || !rawAduanId) {
-      return c.json({ error: 'File dan aduan_id wajib diisi' }, 400)
-    }
-
     try {
+      const body = await c.req.parseBody()
+      const file = body['file'] as File | undefined
+      const rawAduanId = body['aduan_id'] as string
+      const category = body['category'] as string || 'dokumen'
+
+      if (!file || !rawAduanId) {
+        return c.json({ error: 'File dan aduan_id wajib diisi' }, 400)
+      }
+
       const result = await AduanService.uploadFile(file, rawAduanId, category)
       return c.json(result)
     } catch (error: any) {
+      if (typeof error?.message === 'string' && error.message.toLowerCase().includes('aborted')) {
+        return c.json({ error: 'Upload dibatalkan atau koneksi terputus saat mengirim file' }, 408)
+      }
       const status = error.message.includes('tidak ditemukan') ? 404 : 400
       return c.json({ error: error.message || 'Gagal menyimpan file' }, status as any)
     }
@@ -162,7 +165,14 @@ aduan.patch('/:id', zValidator('json', updateAduanSchema), async (c) => {
     if (!result) return c.json({ error: 'Aduan tidak ditemukan' }, 404)
     return c.json(result)
   } catch (error: any) {
-    return c.json({ error: error.message }, 403)
+    const message = error?.message || 'Gagal memperbarui aduan'
+    const loweredMessage = String(message).toLowerCase()
+    const status =
+      loweredMessage.includes('akses ditolak') ? 403 :
+        loweredMessage.includes('tidak ditemukan') ? 404 :
+          loweredMessage.includes('invalid') || loweredMessage.includes('violates') ? 400 :
+            500
+    return c.json({ error: message }, status as any)
   }
 })
 

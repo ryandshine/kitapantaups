@@ -648,7 +648,18 @@ export const AduanDetailPage: React.FC = () => {
         [users]
     );
     const handleEditFieldChange = (field: keyof EditAduanForm) => (value: string | number | undefined) =>
-        setEditForm((prev) => ({ ...prev, [field]: value }));
+        setEditForm((prev) => {
+            if (field === 'perihal' || field === 'suratPerihal') {
+                const nextValue = typeof value === 'string' ? value : String(value ?? '');
+                return {
+                    ...prev,
+                    perihal: nextValue,
+                    suratPerihal: nextValue,
+                };
+            }
+
+            return { ...prev, [field]: value };
+        });
     const handleEditInput = (field: keyof EditAduanForm) =>
         (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
             handleEditFieldChange(field)(e.target.value);
@@ -1048,11 +1059,28 @@ export const AduanDetailPage: React.FC = () => {
         if (!user || !aduan) return;
 
         try {
-
+            if (emailError) {
+                setFeedback({ type: 'info', message: emailError });
+                return;
+            }
+            if (!editForm.pengaduNama.trim()) {
+                setFeedback({ type: 'info', message: 'Nama pengadu wajib diisi.' });
+                return;
+            }
+            if (!editForm.perihal.trim()) {
+                setFeedback({ type: 'info', message: 'Perihal aduan wajib diisi.' });
+                return;
+            }
 
             let suratFileUrl = editForm.fileUrl;
+            let uploadWarning: string | null = null;
             if (suratFile) {
-                suratFileUrl = await AduanService.uploadSuratMasuk(suratFile, aduan.id);
+                try {
+                    suratFileUrl = await AduanService.uploadSuratMasuk(suratFile, aduan.id);
+                } catch (uploadError: any) {
+                    console.error('Failed to upload surat masuk during edit:', uploadError);
+                    uploadWarning = uploadError?.message || 'Lampiran surat masuk gagal diunggah.';
+                }
             }
 
             const updateData: Partial<Aduan> & { updatedBy?: string } = {
@@ -1099,6 +1127,17 @@ export const AduanDetailPage: React.FC = () => {
                     setIsEditModalOpen(false);
                     setEditSelectedKpsList([]);
                     setSuratFile(null);
+                    setFeedback(
+                        uploadWarning
+                            ? {
+                                type: 'info',
+                                message: `Perubahan data tersimpan, tetapi upload surat masuk gagal: ${uploadWarning}`
+                            }
+                            : {
+                                type: 'success',
+                                message: 'Perubahan aduan berhasil disimpan.'
+                            }
+                    );
                 },
                 onError: (err: any) => {
                     console.error(err);
