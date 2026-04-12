@@ -234,7 +234,6 @@ export interface User {
     displayName: string;
     role: 'admin' | 'staf';
     phone?: string;
-    photoURL?: string;
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;

@@ -2,14 +2,12 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { requireAuth } from '../middleware/auth.js'
-import { bodyLimit } from 'hono/body-limit'
 import {
   clearRefreshTokenCookie,
   readRefreshTokenFromRequest,
   setRefreshTokenCookie,
 } from '../lib/auth-session.js'
 import { AuthServiceError, authService } from '../lib/auth-service.js'
-import { StorageService } from '../services/storage.service.js'
 
 const auth = new Hono()
 
@@ -109,28 +107,5 @@ auth.patch('/profile', requireAuth, zValidator('json', updateProfileSchema), asy
 
   return c.json(result)
 })
-
-// POST /auth/photo — upload profile photo
-auth.post(
-  '/photo',
-  requireAuth,
-  bodyLimit({ maxSize: 2 * 1024 * 1024, onError: (c) => c.json({ error: 'File terlalu besar (maks 2 MB)' }, 413) }),
-  async (c) => {
-    const user = c.get('user')
-    const body = await c.req.parseBody()
-    const file = body['file'] as File | undefined
-
-    try {
-      if (!file) throw new Error('File tidak valid')
-      const photoUrl = await StorageService.saveProfilePhoto(file, user.userId)
-      
-      await authService.updatePhoto(user.userId, photoUrl)
-      
-      return c.json({ photo_url: photoUrl })
-    } catch (error: any) {
-      return c.json({ error: error.message || 'Gagal mengupload foto' }, 400)
-    }
-  }
-)
 
 export default auth

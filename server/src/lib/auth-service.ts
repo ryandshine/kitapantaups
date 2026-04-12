@@ -376,14 +376,6 @@ export const createAuthService = (dbPool: AuthDbPool = pool) => {
       })
     },
 
-    updatePhoto: async (userId: string, photoUrl: string) => {
-      return withAuthClient('update-photo', async (client) => {
-        await client.query(
-          'UPDATE users SET photo_url = $1 WHERE id = $2',
-          [photoUrl, userId]
-        )
-      })
-    },
   }
 }
 

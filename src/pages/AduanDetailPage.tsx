@@ -73,6 +73,37 @@ const resolveKpsType = (kps?: Partial<KpsData>) =>
 const getKpsReference = (kps?: Partial<KpsData>) =>
     kps?.source_reference || [kps?.source_skema, kps?.source_raw_id].filter(Boolean).join(' / ') || '-';
 
+const getNormalizedKpsId = (kps?: Partial<KpsData>) =>
+    kps?.id || kps?.id_kps_api || kps?.['KPS-ID'] || '';
+
+const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
+    const normalizedId = getNormalizedKpsId(kps);
+    const normalizedType = resolveKpsType(kps);
+
+    return {
+        ...(kps as KpsData),
+        id: normalizedId,
+        id_kps_api: kps?.id_kps_api || normalizedId,
+        nama_kps: kps?.nama_kps || kps?.NAMA_KPS || kps?.nama_lembaga || '-',
+        jenis_kps: kps?.jenis_kps || kps?.KPS_TYPE || normalizedType || '',
+        nomor_sk: kps?.nomor_sk || kps?.NO_SK || kps?.surat_keputusan || '',
+        lokasi_prov: kps?.lokasi_prov || kps?.PROVINSI || kps?.provinsi || '',
+        lokasi_kab: kps?.lokasi_kab || kps?.KAB_KOTA || kps?.kabupaten || '',
+        lokasi_kec: kps?.lokasi_kec || kps?.kecamatan || '',
+        lokasi_desa: kps?.lokasi_desa || kps?.desa || '',
+        lokasi_luas_ha: Number(kps?.lokasi_luas_ha ?? kps?.LUAS_SK ?? kps?.luas_total ?? 0) || 0,
+        jumlah_kk: Number(kps?.jumlah_kk ?? kps?.JML_KK ?? kps?.jumlah_anggota ?? 0) || 0,
+        kps_type: normalizedType,
+        nama_lembaga: kps?.nama_lembaga || kps?.nama_kps || kps?.NAMA_KPS || '',
+        surat_keputusan: kps?.surat_keputusan || kps?.nomor_sk || kps?.NO_SK || '',
+        skema: kps?.skema || normalizedType || '',
+        source_reference: kps?.source_reference || normalizedId,
+        source_skema: kps?.source_skema || kps?.SKEMA || '',
+        source_raw_id: kps?.source_raw_id || '',
+        balai: kps?.balai || '',
+    };
+};
+
 type EditAduanForm = {
     perihal: string;
     ringkasanMasalah: string;
@@ -101,9 +132,9 @@ type EditAduanForm = {
 type EditAduanModalProps = {
     isOpen: boolean;
     isAdmin: boolean;
-    aduan?: Aduan;
     editForm: EditAduanForm;
     editSelectedKpsList: KpsData[];
+    suratFile: File | null;
     picOptions: { value: string; label: string }[];
     isLoadingUsers: boolean;
     emailError?: string;
@@ -126,12 +157,25 @@ type FeedbackState = {
 
 const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
 
+const getFileAccessErrorMessage = async (response: Response) => {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+        const payload = await response.json().catch(() => null);
+        if (typeof payload?.error === 'string' && payload.error.trim()) {
+            return payload.error;
+        }
+    }
+
+    const fallbackText = await response.text().catch(() => '');
+    return fallbackText.trim() || `HTTP ${response.status}`;
+};
+
 const EditAduanModal: React.FC<EditAduanModalProps> = ({
     isOpen,
     isAdmin,
-    aduan,
     editForm,
     editSelectedKpsList,
+    suratFile,
     picOptions,
     isLoadingUsers,
     emailError,
@@ -200,13 +244,15 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     Total KK: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
-                            {editSelectedKpsList.map((kps) => (
-                                <div key={`card-${kps.id}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
+                            {editSelectedKpsList.map((kps) => {
+                                const kpsId = getNormalizedKpsId(kps);
+                                return (
+                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
                                     <div className="mb-2 flex justify-end">
                                         <button
                                             type="button"
                                             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => onRemoveKps(kps.id)}
+                                            onClick={() => onRemoveKps(kpsId)}
                                         >
                                             <Trash2 size={11} />
                                             Hapus
@@ -215,7 +261,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID KPS</span>
-                                            <span className="text-xs font-mono text-foreground break-all">{kps.id || '-'}</span>
+                                            <span className="text-xs font-mono text-foreground break-all">{kpsId || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Referensi Sumber</span>
@@ -251,7 +297,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     )}
                 </div>
@@ -360,11 +406,12 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                 <div className={editSectionClass}>
                     <FileUpload
                         label="Ganti / Upload Surat Masuk (Lampiran)"
-                        helperText="Unggah berkas surat masuk baru (PDF/Gambar)"
-                        initialFiles={aduan?.suratMasuk?.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : []}
+                        helperText="Unggah surat masuk baru: PDF, JPG, PNG, DOC, atau DOCX"
+                        initialFiles={suratFile ? [suratFile] : (editForm.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : [])}
                         onFileSelected={onSuratFileSelected}
                         onFileRemoved={onSuratFileRemoved}
-                        accept=".pdf,image/*,.doc,.docx"
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        maxSizeMB={10}
                     />
                 </div>
 
@@ -502,31 +549,34 @@ export const AduanDetailPage: React.FC = () => {
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const buildEditForm = (source?: typeof aduan | null): EditAduanForm => ({
-        perihal: source?.perihal || '',
-        ringkasanMasalah: source?.ringkasanMasalah || '',
-        picName: source?.picName || '',
-        lokasiDesa: source?.lokasi?.desa || '',
-        lokasiKecamatan: source?.lokasi?.kecamatan || '',
-        lokasiKabupaten: source?.lokasi?.kabupaten || '',
-        lokasiProvinsi: source?.lokasi?.provinsi || '',
-        lokasiLuasHa: source?.lokasi?.luasHa || 0,
-        lokasiBalaiId: source?.lokasi?.balaiId || '',
-        lokasiBalaiName: source?.lokasi?.balaiName || '',
-        skema: source?.skema,
-        jumlahKK: source?.jumlahKK || 0,
-        skTerkait: source?.skTerkait || '',
-        fileUrl: source?.suratMasuk?.fileUrl || '',
-        kpsId: source?.kps_ids?.[0] || source?.id_kps_api?.[0] || source?.kpsId || '',
-        asalSurat: source?.suratMasuk?.asalSurat || '',
-        suratPerihal: source?.suratMasuk?.perihal || '',
-        asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
+    const buildEditForm = (source?: typeof aduan | null): EditAduanForm => {
+        const firstKps = source?.kps_items?.[0];
 
-        pengaduNama: source?.pengadu?.nama || '',
-        pengaduTelepon: source?.pengadu?.telepon || '',
-        pengaduEmail: source?.pengadu?.email || '',
-        picId: source?.picId || ''
-    });
+        return {
+            perihal: source?.perihal || '',
+            ringkasanMasalah: source?.ringkasanMasalah || '',
+            picName: source?.picName || '',
+            lokasiDesa: source?.lokasi?.desa || firstKps?.lokasi_desa || '',
+            lokasiKecamatan: source?.lokasi?.kecamatan || firstKps?.lokasi_kec || '',
+            lokasiKabupaten: source?.lokasi?.kabupaten || firstKps?.lokasi_kab || '',
+            lokasiProvinsi: source?.lokasi?.provinsi || firstKps?.lokasi_prov || '',
+            lokasiLuasHa: source?.lokasi?.luasHa || Number(source?.lokasi_luas_ha ?? firstKps?.lokasi_luas_ha ?? 0) || 0,
+            lokasiBalaiId: source?.lokasi?.balaiId || '',
+            lokasiBalaiName: source?.lokasi?.balaiName || '',
+            skema: source?.skema || ((resolveKpsType(firstKps) || undefined) as Aduan['skema']),
+            jumlahKK: source?.jumlahKK || Number(source?.jumlah_kk ?? firstKps?.jumlah_kk ?? 0) || 0,
+            skTerkait: source?.skTerkait || source?.nomor_sk?.filter(Boolean).join('; ') || firstKps?.nomor_sk || '',
+            fileUrl: source?.suratMasuk?.fileUrl || '',
+            kpsId: source?.kps_ids?.[0] || source?.id_kps_api?.[0] || source?.kpsId || getNormalizedKpsId(firstKps),
+            asalSurat: source?.suratMasuk?.asalSurat || '',
+            suratPerihal: source?.suratMasuk?.perihal || '',
+            asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
+            pengaduNama: source?.pengadu?.nama || '',
+            pengaduTelepon: source?.pengadu?.telepon || '',
+            pengaduEmail: source?.pengadu?.email || '',
+            picId: source?.picId || ''
+        };
+    };
 
     const [editForm, setEditForm] = useState<EditAduanForm>(buildEditForm());
 
@@ -541,6 +591,51 @@ export const AduanDetailPage: React.FC = () => {
     const [suratFile, setSuratFile] = useState<File | null>(null);
 
     const [editSelectedKpsList, setEditSelectedKpsList] = useState<KpsData[]>([]);
+    const fetchAuthorizedFile = async (url: string) => {
+        const token = localStorage.getItem('access_token');
+        const headers: Record<string, string> = {};
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(url, {
+            headers,
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(await getFileAccessErrorMessage(response));
+        }
+
+        return response;
+    };
+
+    const openProtectedFile = async (url: string, fileName: string) => {
+        const previewWindow = window.open('', '_blank', 'noopener,noreferrer');
+
+        try {
+            const response = await fetchAuthorizedFile(url);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            if (previewWindow) {
+                previewWindow.location.href = blobUrl;
+            } else {
+                window.open(blobUrl, '_blank', 'noopener,noreferrer');
+            }
+
+            window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        } catch (error) {
+            previewWindow?.close();
+            console.error('Failed to open protected file:', error);
+            setFeedback({
+                type: 'error',
+                message: `Gagal membuka file ${fileName}: ${error instanceof Error ? error.message : 'Akses ditolak.'}`
+            });
+        }
+    };
+
     const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
     const lokasiObjekItems = useMemo(() => {
         const ids = (aduan?.kps_ids && aduan.kps_ids.length > 0) ? aduan.kps_ids : (aduan?.id_kps_api || []);
@@ -980,50 +1075,54 @@ export const AduanDetailPage: React.FC = () => {
         });
 
         // Initialize selected KPS list from current aduan detail first (instant UI parity with detail view)
-        const selectedIds = (aduan.kps_ids && aduan.kps_ids.length > 0)
-            ? aduan.kps_ids
-            : (aduan.id_kps_api && aduan.id_kps_api.length > 0)
-            ? aduan.id_kps_api
-            : (aduan.kpsId ? [aduan.kpsId] : []);
-        const fallbackList: KpsData[] = selectedIds.map((id: string, idx: number) => ({
-            id,
-            id_kps_api: id,
-            nama_kps: aduan.nama_kps?.[idx] || '-',
-            jenis_kps: aduan.jenis_kps?.[idx] || '-',
-            nomor_sk: aduan.nomor_sk?.[idx] || '-',
-            lokasi_prov: aduan.lokasi?.provinsi || '',
-            lokasi_kab: aduan.lokasi?.kabupaten || '',
-            lokasi_kec: aduan.lokasi?.kecamatan || '',
-            lokasi_desa: aduan.lokasi?.desa || '',
-            lokasi_luas_ha: Number(aduan.lokasi?.luasHa || 0),
-            jumlah_kk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
-            kps_type: aduan.type_kps?.[idx] || aduan.jenis_kps?.[idx] || '-',
-        }));
+        const fallbackList: KpsData[] = Array.isArray(aduan.kps_items) && aduan.kps_items.length > 0
+            ? aduan.kps_items.map((item) => normalizeSelectedKps(item))
+            : (((aduan.kps_ids && aduan.kps_ids.length > 0)
+                ? aduan.kps_ids
+                : (aduan.id_kps_api && aduan.id_kps_api.length > 0)
+                ? aduan.id_kps_api
+                : (aduan.kpsId ? [aduan.kpsId] : [])
+            ) as string[]).map((id: string, idx: number) => normalizeSelectedKps({
+                id,
+                id_kps_api: id,
+                nama_kps: aduan.nama_kps?.[idx] || '-',
+                jenis_kps: aduan.jenis_kps?.[idx] || aduan.type_kps?.[idx] || '-',
+                nomor_sk: aduan.nomor_sk?.[idx] || '-',
+                lokasi_prov: aduan.lokasi?.provinsi || '',
+                lokasi_kab: aduan.lokasi?.kabupaten || '',
+                lokasi_kec: aduan.lokasi?.kecamatan || '',
+                lokasi_desa: aduan.lokasi?.desa || '',
+                lokasi_luas_ha: Number(aduan.lokasi?.luasHa ?? aduan.lokasi_luas_ha ?? 0),
+                jumlah_kk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
+                kps_type: aduan.type_kps?.[idx] || aduan.jenis_kps?.[idx] || '-',
+            }));
+        const selectedIds = fallbackList.map((item) => getNormalizedKpsId(item)).filter(Boolean);
         setEditSelectedKpsList(fallbackList);
 
         if (selectedIds.length > 0) {
             try {
                 const list = await Promise.all(selectedIds.map((id: string) => KpsService.getKpsById(id)));
                 const enriched = list
-                    .map((item, idx: number) => item || fallbackList[idx])
+                    .map((item, idx: number) => normalizeSelectedKps(item || fallbackList[idx]))
                     .filter((item): item is KpsData => !!item);
                 setEditSelectedKpsList(enriched);
             } catch (err) {
-                console.error("Failed to load existing KPS data for edit", err);
+                console.error('Failed to load existing KPS data for edit', err);
                 setEditSelectedKpsList(fallbackList);
             }
         } else {
-            setEditSelectedKpsList([]);
+            setEditSelectedKpsList(fallbackList);
         }
 
         setIsEditModalOpen(true);
     };
 
     const handleKpsSelect = (kps: KpsData) => {
+        const normalizedKps = normalizeSelectedKps(kps);
         setEditSelectedKpsList((prev) => {
-            const nextId = kps.id || kps.id_kps_api || '';
-            if (prev.some((item) => (item.id || item.id_kps_api || '') === nextId)) return prev;
-            const nextList = [...prev, kps];
+            const nextId = getNormalizedKpsId(normalizedKps);
+            if (prev.some((item) => getNormalizedKpsId(item) === nextId)) return prev;
+            const nextList = [...prev, normalizedKps];
             const totalLuas = nextList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0);
             const totalKK = nextList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0);
             const first = nextList[0];
@@ -1047,7 +1146,7 @@ export const AduanDetailPage: React.FC = () => {
 
     const handleRemoveSelectedKps = (kpsId: string) => {
         setEditSelectedKpsList((prev) => {
-            const nextList = prev.filter((item) => (item.id || item.id_kps_api) !== kpsId);
+            const nextList = prev.filter((item) => getNormalizedKpsId(item) !== kpsId);
             const totalLuas = nextList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0);
             const totalKK = nextList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0);
             const first = nextList[0];
@@ -1088,18 +1187,21 @@ export const AduanDetailPage: React.FC = () => {
             }
 
             let suratFileUrl = editForm.fileUrl;
-            let uploadWarning: string | null = null;
             if (suratFile) {
                 try {
                     suratFileUrl = await AduanService.uploadSuratMasuk(suratFile, aduan.id);
                 } catch (uploadError: any) {
                     console.error('Failed to upload surat masuk during edit:', uploadError);
-                    uploadWarning = uploadError?.message || 'Lampiran surat masuk gagal diunggah.';
+                    setFeedback({
+                        type: 'error',
+                        message: `Upload surat masuk gagal: ${uploadError?.message || 'Lampiran surat masuk gagal diunggah.'}`
+                    });
+                    return;
                 }
             }
 
             const updateData: Partial<Aduan> & { updatedBy?: string } = {
-                kps_ids: editSelectedKpsList.map((kps) => kps.id || kps.id_kps_api || '').filter(Boolean),
+                kps_ids: editSelectedKpsList.map((kps) => getNormalizedKpsId(kps)).filter(Boolean),
                 nama_kps: editSelectedKpsList.map((kps) => kps.nama_kps || kps.NAMA_KPS || '').filter(Boolean),
                 jenis_kps: editSelectedKpsList.map((kps) => kps.kps_type || kps.jenis_kps || kps.KPS_TYPE || '').filter(Boolean),
                 nomor_sk: editSelectedKpsList.map((kps) => kps.nomor_sk || kps.NO_SK || '').filter(Boolean),
@@ -1141,17 +1243,10 @@ export const AduanDetailPage: React.FC = () => {
                     setIsEditModalOpen(false);
                     setEditSelectedKpsList([]);
                     setSuratFile(null);
-                    setFeedback(
-                        uploadWarning
-                            ? {
-                                type: 'info',
-                                message: `Perubahan data tersimpan, tetapi upload surat masuk gagal: ${uploadWarning}`
-                            }
-                            : {
-                                type: 'success',
-                                message: 'Perubahan aduan berhasil disimpan.'
-                            }
-                    );
+                    setFeedback({
+                        type: 'success',
+                        message: 'Perubahan aduan berhasil disimpan.'
+                    });
                 },
                 onError: (err: any) => {
                     console.error(err);
@@ -1202,8 +1297,7 @@ export const AduanDetailPage: React.FC = () => {
             await Promise.all(
                 allAttachments.map(async (file, index) => {
                     try {
-                        const res = await fetch(file.url);
-                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        const res = await fetchAuthorizedFile(file.url);
                         const blob = await res.blob();
                         const safeName = `${String(index + 1).padStart(2, '0')}_${file.fileName}`;
                         zip.file(safeName, blob);
@@ -2000,17 +2094,16 @@ export const AduanDetailPage: React.FC = () => {
                                                                         const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${i + 1}`;
                                                                         const displayName = fileName.includes('_') ? fileName.split('_').slice(1).join('_') : fileName;
                                                                         return (
-                                                                            <a
+                                                                            <button
                                                                                 key={i}
-                                                                                href={url}
-                                                                                target="_blank"
-                                                                                rel="noopener noreferrer"
+                                                                                type="button"
+                                                                                onClick={() => void openProtectedFile(url, displayName)}
                                                                                 className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-muted text-foreground hover:bg-muted transition-colors text-[10px] font-medium border border-border"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
                                                                                 <span className="max-w-[150px] truncate">{displayName}</span>
-                                                                            </a>
+                                                                            </button>
                                                                         );
                                                                     })}
                                                                 </div>
@@ -2215,15 +2308,14 @@ export const AduanDetailPage: React.FC = () => {
                                                         )}
                                                     </button>
                                                 )}
-                                                <a
-                                                    href={file.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                <button
+                                                    type="button"
+                                                    onClick={() => void openProtectedFile(file.url, file.fileName)}
                                                     className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-primary transition-colors"
                                                     title="Buka File"
                                                 >
                                                     <ExternalLink size={14} />
-                                                </a>
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
@@ -2456,9 +2548,9 @@ export const AduanDetailPage: React.FC = () => {
             <EditAduanModal
                 isOpen={isEditModalOpen}
                 isAdmin={isAdmin}
-                aduan={aduan}
                 editForm={editForm}
                 editSelectedKpsList={editSelectedKpsList}
+                suratFile={suratFile}
                 picOptions={picOptions}
                 isLoadingUsers={isLoadingUsers}
                 emailError={emailError}
@@ -2484,12 +2576,15 @@ export const AduanDetailPage: React.FC = () => {
                         asalSurat: val === 'Masyarakat' ? 'Masyarakat' : prev.asalSurat === 'Masyarakat' ? '' : prev.asalSurat
                     }));
                 }}
-                onSuratFileSelected={(files) => setSuratFile(files[0] || null)}
-                onSuratFileRemoved={() => {
-                    setSuratFile(null);
-                    if (!aduan?.suratMasuk?.fileUrl) {
+                onSuratFileSelected={(files) => {
+                    setSuratFile(files[0] || null);
+                    if (files[0]) {
                         setEditForm(prev => ({ ...prev, fileUrl: '' }));
                     }
+                }}
+                onSuratFileRemoved={() => {
+                    setSuratFile(null);
+                    setEditForm(prev => ({ ...prev, fileUrl: '' }));
                 }}
             />
 

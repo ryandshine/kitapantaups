@@ -416,7 +416,10 @@ export const AduanService = {
         }
         if (data.suratMasuk) {
             if (data.suratMasuk.nomorSurat !== undefined) updateData.surat_nomor = data.suratMasuk.nomorSurat;
-            if (data.suratMasuk.fileUrl !== undefined) updateData.surat_file_url = data.suratMasuk.fileUrl;
+            if (data.suratMasuk.fileUrl !== undefined) {
+                const normalizedFileUrl = typeof data.suratMasuk.fileUrl === 'string' ? data.suratMasuk.fileUrl.trim() : data.suratMasuk.fileUrl;
+                updateData.surat_file_url = normalizedFileUrl ? normalizedFileUrl : null;
+            }
         }
         if (data.pengadu) {
             if (data.pengadu.nama !== undefined) updateData.pengadu_nama = data.pengadu.nama;
@@ -453,7 +456,7 @@ export const AduanService = {
             const data = await api.get('/users');
             return (data || []).map((u: any) => ({
                 id: u.id, email: u.email, displayName: u.display_name,
-                role: u.role, phone: u.phone, photoURL: u.photo_url,
+                role: u.role, phone: u.phone,
                 isActive: u.is_active, createdAt: new Date(u.created_at), updatedAt: new Date(u.updated_at),
             } as User));
         } catch { return []; }

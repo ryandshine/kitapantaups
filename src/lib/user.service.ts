@@ -7,7 +7,6 @@ const mapUser = (u: any): User => ({
     displayName: u.display_name,
     role: u.role,
     phone: u.phone,
-    photoURL: u.photo_url,
     isActive: u.is_active,
     createdAt: new Date(u.created_at),
     updatedAt: new Date(u.updated_at),
@@ -92,28 +91,6 @@ export const UserService = {
             throw error;
         }
     },
-
-    uploadPhoto: async (file: File): Promise<string> => {
-        const token = localStorage.getItem('access_token');
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-        const res = await fetch(`${API_URL}/auth/photo`, {
-            method: 'POST',
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            body: formData,
-        });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({ error: res.statusText }));
-            throw new Error(err.error || 'Gagal upload foto');
-        }
-
-        const data = await res.json();
-        return data.photo_url;
-    },
-
     deleteUser: async (userId: string) => {
         try {
             await api.delete(`/users/${userId}`);

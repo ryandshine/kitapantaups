@@ -34,6 +34,19 @@ import {
 import type { User } from '../types';
 import { cn } from '../lib/utils';
 
+const UserAvatar: React.FC<{ user: User }> = ({ user }) => {
+    const safeDisplayName = (user.displayName || '').trim() || user.email?.split('@')[0] || 'User';
+    const safeInitial = safeDisplayName.charAt(0).toUpperCase();
+
+    return (
+        <div className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-background shrink-0">
+            <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-xs font-bold">
+                {safeInitial}
+            </div>
+        </div>
+    );
+};
+
 export const UserManagementPage: React.FC = () => {
     const { user: currentUser, isAdmin } = useAuth();
     const { data: users = [], isLoading: loading } = useUsersList(isAdmin);
@@ -245,19 +258,7 @@ export const UserManagementPage: React.FC = () => {
                                         <tr key={u.id} className="border-b hover:bg-muted/20 transition-colors">
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-background shrink-0">
-                                                        {(() => {
-                                                            const safeDisplayName = (u.displayName || '').trim() || u.email?.split('@')[0] || 'User';
-                                                            const safeInitial = safeDisplayName.charAt(0).toUpperCase();
-                                                            return u.photoURL ? (
-                                                                <img src={u.photoURL} alt={safeDisplayName} className="h-full w-full object-cover" />
-                                                            ) : (
-                                                                <div className="flex h-full w-full items-center justify-center bg-primary/10 text-primary text-xs font-bold">
-                                                                    {safeInitial}
-                                                                </div>
-                                                            );
-                                                        })()}
-                                                    </div>
+                                                    <UserAvatar user={u} />
                                                     <div className="flex flex-col leading-tight">
                                                         <span className="font-semibold text-foreground">{(u.displayName || '').trim() || u.email?.split('@')[0] || 'User'}</span>
                                                         <span className="text-xs text-muted-foreground">{u.email}</span>
@@ -281,10 +282,10 @@ export const UserManagementPage: React.FC = () => {
                                             <td className="px-4 py-3 text-center">
                                                 <span
                                                     className={cn(
-                                                        "inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider",
+                                                        'inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider',
                                                         u.isActive
-                                                            ? "text-emerald-600 bg-emerald-50"
-                                                            : "text-rose-600 bg-rose-50"
+                                                            ? 'text-emerald-600 bg-emerald-50'
+                                                            : 'text-rose-600 bg-rose-50'
                                                     )}
                                                 >
                                                     {u.isActive ? (
@@ -316,10 +317,10 @@ export const UserManagementPage: React.FC = () => {
                                                         variant="outline"
                                                         size="sm"
                                                         className={cn(
-                                                            "h-8 px-2 text-[11px]",
+                                                            'h-8 px-2 text-[11px]',
                                                             u.isActive
-                                                                ? "text-rose-700 border-rose-200 hover:bg-rose-50"
-                                                                : "text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                                                ? 'text-rose-700 border-rose-200 hover:bg-rose-50'
+                                                                : 'text-emerald-700 border-emerald-200 hover:bg-emerald-50'
                                                         )}
                                                         onClick={() => handleToggleStatus(u)}
                                                         disabled={u.id === currentUser?.id || updatingUserId === u.id}
@@ -346,7 +347,6 @@ export const UserManagementPage: React.FC = () => {
                 </CardContent>
             </Card>
 
-            {/* Add User Modal */}
             <Modal
                 isOpen={isAddModalOpen}
                 onClose={() => !isCreating && setIsAddModalOpen(false)}

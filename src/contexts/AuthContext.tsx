@@ -9,7 +9,6 @@ interface AuthContextType {
     error: string | null;
     isAdmin: boolean;
     login: (email: string, password: string) => Promise<void>;
-    loginAsGuest: () => Promise<void>;
     register: (email: string, password: string, displayName: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
@@ -42,7 +41,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                         displayName: fallbackDisplayName(data.display_name, data.email),
                         role: data.role,
                         phone: data.phone,
-                        photoURL: data.photo_url,
                         isActive: data.is_active,
                         createdAt: new Date(data.created_at || Date.now()),
                         updatedAt: new Date(data.updated_at || Date.now()),
@@ -70,7 +68,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 displayName: fallbackDisplayName(data.user.display_name, data.user.email),
                 role: data.user.role,
                 phone: data.user.phone,
-                photoURL: data.user.photo_url,
                 isActive: true,
                 createdAt: new Date(),
                 updatedAt: new Date(),
@@ -78,18 +75,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err: any) {
             setError(err.message || 'Login gagal.');
             throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const loginAsGuest = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            await login('demo@klhk.go.id', 'Demo@123');
-        } catch {
-            setError('Gagal masuk sebagai demo.');
         } finally {
             setLoading(false);
         }
@@ -130,7 +115,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 displayName: fallbackDisplayName(data.display_name, data.email),
                 role: data.role,
                 phone: data.phone,
-                photoURL: data.photo_url,
                 isActive: data.is_active,
                 createdAt: new Date(data.created_at || Date.now()),
                 updatedAt: new Date(data.updated_at || Date.now()),
@@ -151,7 +135,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 error,
                 isAdmin: user?.role === 'admin',
                 login,
-                loginAsGuest,
                 register,
                 logout,
                 refreshUser,

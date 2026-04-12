@@ -62,31 +62,4 @@ export const StorageService = {
       return false
     }
   },
-
-  async saveProfilePhoto(file: File, userId: string) {
-    if (!file || typeof file === 'string') throw new Error('File tidak valid')
-
-    const ext = (file.name.split('.').pop() || '').toLowerCase()
-    if (!['jpg', 'jpeg', 'png'].includes(ext) || !isAllowedUploadExtension(ext)) {
-      throw new Error('Tipe file tidak diizinkan. Gunakan: jpg, png')
-    }
-
-    const fileName = `profile_${randomUUID()}.${ext}`
-    const uploadDir = path.join(getUploadsRoot(), 'profiles', userId)
-
-    await mkdir(uploadDir, { recursive: true })
-    
-    const writePath = path.join(uploadDir, fileName)
-    const writeStream = createWriteStream(writePath)
-
-    try {
-      await pipeline(file.stream() as any, writeStream)
-    } catch (err) {
-      await unlink(writePath).catch(() => {})
-      throw new Error('Gagal menyimpan file photo')
-    }
-
-    const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`
-    return buildUploadPublicUrl(baseUrl, 'profiles', userId, fileName)
-  }
 }

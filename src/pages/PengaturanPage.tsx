@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
-import { Save as SaveIcon, User, Bell, Shield, Camera, Lock as LockIcon, UserCircle, Loader2 } from 'lucide-react';
+import { Save as SaveIcon, User, Bell, Shield, Lock as LockIcon, UserCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserService } from '../lib/user.service';
 
@@ -11,9 +11,7 @@ export const PengaturanPage: React.FC = () => {
     const [displayName, setDisplayName] = useState(user?.displayName || '');
     const [phone, setPhone] = useState(user?.phone || '');
     const [isSaving, setIsSaving] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -36,28 +34,6 @@ export const PengaturanPage: React.FC = () => {
             setFeedback({ type: 'error', message: 'Gagal memperbarui profil.' });
         } finally {
             setIsSaving(false);
-        }
-    };
-
-    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !user) return;
-
-        if (file.size > 2 * 1024 * 1024) {
-            setFeedback({ type: 'info', message: 'Ukuran file maksimal 2MB.' });
-            return;
-        }
-
-        setIsUploading(true);
-        try {
-            await UserService.uploadPhoto(file);
-            await refreshUser();
-            setFeedback({ type: 'success', message: 'Foto profil berhasil diperbarui.' });
-        } catch (err) {
-            console.error(err);
-            setFeedback({ type: 'error', message: 'Gagal mengunggah foto.' });
-        } finally {
-            setIsUploading(false);
         }
     };
 
@@ -114,33 +90,8 @@ export const PengaturanPage: React.FC = () => {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex flex-col items-center gap-8 py-4 sm:flex-row">
-                                        <div className="group relative">
-                                            <div className="flex h-28 w-28 items-center justify-center overflow-hidden rounded-full border-4 border-border bg-muted shadow-inner">
-                                                {user?.photoURL ? (
-                                                    <img src={user.photoURL} alt={user.displayName} className="h-full w-full object-cover" />
-                                                ) : (
-                                                    <UserCircle className="h-20 w-20 text-muted-foreground" />
-                                                )}
-                                                {isUploading && (
-                                                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                                                        <Loader2 className="h-8 w-8 animate-spin text-white" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <button
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-primary text-primary-foreground shadow-lg transition-all hover:scale-110 active:scale-95"
-                                                title="Ubah Foto"
-                                            >
-                                                <Camera size={16} />
-                                            </button>
-                                            <input
-                                                type="file"
-                                                ref={fileInputRef}
-                                                onChange={handlePhotoChange}
-                                                accept="image/*"
-                                                className="hidden"
-                                            />
+                                        <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-border bg-muted shadow-inner">
+                                            <UserCircle className="h-20 w-20 text-muted-foreground" />
                                         </div>
                                         <div className="flex flex-col gap-1 text-center sm:text-left">
                                             <h3 className="text-xl font-bold leading-tight text-foreground">{user?.displayName}</h3>

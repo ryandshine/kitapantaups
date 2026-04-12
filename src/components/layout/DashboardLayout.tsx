@@ -74,7 +74,6 @@ export const DashboardLayout: React.FC = () => {
                         email: user.email,
                         displayName: user.displayName,
                         role: user.role,
-                        photoURL: user.photoURL,
                     } : undefined}
                 />
 

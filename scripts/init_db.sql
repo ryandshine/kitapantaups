@@ -363,6 +363,5 @@ ON CONFLICT (nama_jenis_tl) DO NOTHING;
 -- password: Admin@123 (bcrypt hash)
 -- ============================================================
 INSERT INTO public.users (email, password_hash, display_name, role) VALUES
-  ('admin@kitapantaups.local', crypt('Admin@123', gen_salt('bf')), 'Administrator', 'admin'),
-  ('demo@klhk.go.id', crypt('Demo@123', gen_salt('bf')), 'Demo User (KLHK)', 'admin')
+  ('admin@kitapantaups.local', crypt('Admin@123', gen_salt('bf')), 'Administrator', 'admin')
 ON CONFLICT (email) DO NOTHING;

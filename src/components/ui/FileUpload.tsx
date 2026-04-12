@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Upload, CheckCircle2, AlertCircle, Trash2, FileText, Plus } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,6 +31,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const [files, setFiles] = useState<File[]>(initialFiles);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        setFiles(initialFiles);
+    }, [initialFiles]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const incomingFiles = Array.from(e.target.files || []);
