@@ -50,8 +50,11 @@ interface FormData {
     ringkasanMasalah: string;
 }
 
-const resolveKpsType = (kps: KpsData) => [kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
+const resolveKpsType = (kps: KpsData) => [kps.kps_type, kps.jenis_kps, kps.source_skema]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
+
+const getKpsReference = (kps: KpsData) =>
+    kps.source_reference || [kps.source_skema, kps.source_raw_id].filter(Boolean).join(' / ') || '-';
 
 const DEFAULT_SKEMA = 'HKm';
 const DEFAULT_KATEGORI_OPTIONS = [
@@ -196,9 +199,9 @@ export const NewAduanPage: React.FC = () => {
         setFormData((prev: FormData) => ({ ...prev, [field]: value }));
     };
 
-    const handleKpsSelect = async (kps: KpsData) => {
+    const handleKpsSelect = (kps: KpsData) => {
         // Prevent duplicates
-        if (selectedKpsList.some(item => item.id_kps_api === kps.id_kps_api)) return;
+        if (selectedKpsList.some(item => item.id === kps.id)) return;
 
         // 1. Initial State
         const newKps = { ...kps };
@@ -270,10 +273,7 @@ export const NewAduanPage: React.FC = () => {
                 lokasi_lat: selectedKpsList.map(k => String(k.lat || 0)),
                 lokasi_lng: selectedKpsList.map(k => String(k.lng || 0)),
                 status: 'baru',
-                id_kps_api: selectedKpsList.map(k => String(k.id_kps_api)),
-                nama_kps: selectedKpsList.map(k => k.nama_kps),
-                jenis_kps: selectedKpsList.map(k => resolveKpsType(k)),
-                nomor_sk: selectedKpsList.map(k => k.nomor_sk)
+                kps_ids: selectedKpsList.map(k => String(k.id))
             };
 
             // 2. Call Sequential Service
@@ -492,7 +492,7 @@ export const NewAduanPage: React.FC = () => {
                                     <div className="flex flex-wrap gap-2 px-1">
                                         {selectedKpsList.map((kps) => (
                                             <div
-                                                key={kps.id_kps_api}
+                                                key={kps.id}
                                                 className="flex items-center gap-2 bg-white border border-border pl-3 pr-1 py-1 rounded-full shadow-sm animate-in zoom-in-95 duration-200"
                                             >
                                                 <div className="flex flex-col">
@@ -502,9 +502,9 @@ export const NewAduanPage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        const newList = selectedKpsList.filter(item => item.id_kps_api !== kps.id_kps_api);
+                                                        const newList = selectedKpsList.filter(item => item.id !== kps.id);
                                                         setSelectedKpsList(newList);
-                                                        if (selectedKps?.id_kps_api === kps.id_kps_api) {
+                                                        if (selectedKps?.id === kps.id) {
                                                             setSelectedKps(newList[newList.length - 1] || null);
                                                         }
                                                         const kpsSummary = summarizeSelectedKps(newList);
@@ -579,7 +579,7 @@ export const NewAduanPage: React.FC = () => {
                                         <div className={cn("grid grid-cols-1 lg:grid-cols-2", isCompact ? "gap-4" : "gap-6")}>
                                             {selectedKpsList.map((kps) => (
                                                 <div
-                                                    key={kps.id_kps_api}
+                                                    key={kps.id}
                                                     className="flex flex-col bg-white border border-border/60 rounded-2xl shadow-sm overflow-hidden"
                                                 >
                                                     {/* Card Header */}
@@ -590,7 +590,12 @@ export const NewAduanPage: React.FC = () => {
                                                         <div className="min-w-0">
                                                             <h4 className="text-sm font-semibold text-foreground leading-tight truncate px-0">{kps.nama_kps}</h4>
                                                             <div className="flex flex-wrap items-center gap-2 mt-1">
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-secondary rounded text-muted-foreground uppercase tracking-wider">ID: {kps.id_kps_api}</span>
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-secondary rounded text-muted-foreground uppercase tracking-wider">ID: {kps.id}</span>
+                                                                {getKpsReference(kps) !== '-' && (
+                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 bg-primary/10 rounded text-primary uppercase tracking-wider max-w-[180px] truncate">
+                                                                        REF: {getKpsReference(kps)}
+                                                                    </span>
+                                                                )}
                                                                 <span className="text-[9px] font-bold px-1.5 py-0.5 bg-muted rounded text-foreground uppercase tracking-wider max-w-[150px] truncate">SK: {kps.nomor_sk}</span>
                                                             </div>
                                                         </div>
@@ -598,9 +603,9 @@ export const NewAduanPage: React.FC = () => {
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                const newList = selectedKpsList.filter(item => item.id_kps_api !== kps.id_kps_api);
+                                                                const newList = selectedKpsList.filter(item => item.id !== kps.id);
                                                                 setSelectedKpsList(newList);
-                                                                if (selectedKps?.id_kps_api === kps.id_kps_api) {
+                                                                if (selectedKps?.id === kps.id) {
                                                                     setSelectedKps(newList[newList.length - 1] || null);
                                                                 }
                                                                 const kpsSummary = summarizeSelectedKps(newList);
@@ -627,8 +632,12 @@ export const NewAduanPage: React.FC = () => {
                                                     {/* Card Body - Mini Grid */}
                                                     <div className="p-4 grid grid-cols-2 gap-4">
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">ID API KPS</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.id_kps_api || '-'}</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">ID KPS</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none break-all">{kps.id || '-'}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Referensi Sumber</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsReference(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Nama KPS</p>

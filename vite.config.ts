@@ -45,7 +45,7 @@ export default defineConfig({
           if (id.includes('jszip') || id.includes('xlsx')) {
             return 'office-vendor'
           }
-          if (id.includes('react-markdown') || id.includes('remark-gfm') || id.includes('mermaid')) {
+          if (id.includes('react-markdown') || id.includes('remark-gfm')) {
             return 'content-vendor'
           }
         },

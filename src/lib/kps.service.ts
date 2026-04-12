@@ -36,12 +36,10 @@ export const KpsService = {
         }
     },
 
-    getKpsById: async (id_kps_api: string): Promise<KpsData | null> => {
-        if (!id_kps_api) return null;
+    getKpsById: async (id: string): Promise<KpsData | null> => {
+        if (!id) return null;
         try {
-            const result = await api.get(`/master/kps?search=${encodeURIComponent(id_kps_api)}&limit=1`);
-            const rows = result.data || [];
-            return rows.find((k: any) => k.id_kps_api === id_kps_api) || null;
+            return await api.get(`/master/kps/${encodeURIComponent(id)}`);
         } catch (error) {
             console.error('Error getting KPS by ID:', error);
             return null;

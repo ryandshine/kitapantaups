@@ -23,6 +23,13 @@ master.get('/jenis-tl', async (c) => {
   return c.json(result)
 })
 
+// GET /master/kps/:id
+master.get('/kps/:id', async (c) => {
+  const result = await MasterService.getKpsById(c.req.param('id'))
+  if (!result) return c.json({ error: 'KPS tidak ditemukan' }, 404)
+  return c.json(result)
+})
+
 // GET /master/kps?search=&page=&limit=
 master.get('/kps', async (c) => {
   const result = await MasterService.getKps(c.req.query())
