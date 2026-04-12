@@ -15,6 +15,7 @@ export * from './confirm-dialog';
 export { Modal, ModalFooter } from './Modal';
 export { KpsSearch } from './KpsSearch';
 export { FileUpload } from './FileUpload';
+export type { FileUploadItemState, FileUploadStatus } from './FileUpload';
 
 // Re-export specific types if needed by consumers who import from '@components/ui'
 export type { ButtonProps } from './button';

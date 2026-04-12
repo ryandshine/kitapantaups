@@ -23,6 +23,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
     const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
+    const latestRequestRef = useRef(0);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -61,22 +62,47 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
     }, [isOpen]);
 
     useEffect(() => {
+        const currentQuery = query.trim();
+
+        if (currentQuery.length < 1) {
+            setResults([]);
+            setIsOpen(false);
+            setSelectedIndex(-1);
+            setIsLoading(false);
+            return;
+        }
+
+        let isCancelled = false;
+        const requestId = latestRequestRef.current + 1;
+        latestRequestRef.current = requestId;
+
         const delayDebounceFn = setTimeout(async () => {
-            if (query.length >= 1) {
+            try {
                 setIsLoading(true);
-                const data = await KpsService.searchKps(query);
+                const data = await KpsService.searchKps(currentQuery);
+
+                if (isCancelled || latestRequestRef.current !== requestId) return;
+
                 setResults(data);
-                setIsLoading(false);
                 setIsOpen(true);
-                setSelectedIndex(0); // Select first result by default
-            } else {
+                setSelectedIndex(data.length > 0 ? 0 : -1);
+            } catch (error) {
+                if (isCancelled || latestRequestRef.current !== requestId) return;
+                console.error('KPS search failed:', error);
                 setResults([]);
-                setIsOpen(false);
+                setIsOpen(true);
                 setSelectedIndex(-1);
+            } finally {
+                if (!isCancelled && latestRequestRef.current === requestId) {
+                    setIsLoading(false);
+                }
             }
         }, 300);
 
-        return () => clearTimeout(delayDebounceFn);
+        return () => {
+            isCancelled = true;
+            clearTimeout(delayDebounceFn);
+        };
     }, [query]);
 
     const handleSelect = (kps: KpsData) => {

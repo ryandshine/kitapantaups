@@ -43,6 +43,7 @@ import {
     Textarea,
     KpsSearch,
     FileUpload,
+    type FileUploadItemState,
     ConfirmDialog
 } from '../components/ui';
 import type { Aduan, KpsData, TindakLanjut } from '../types';
@@ -105,6 +106,39 @@ const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
     };
 };
 
+const buildSelectedUploadStates = (files: Array<Pick<File, 'name'>>): FileUploadItemState[] =>
+    files.map((file) => ({
+        fileName: file.name,
+        status: 'selected',
+    }));
+
+const buildStoredUploadState = (fileName: string, message = 'Tersimpan di server'): FileUploadItemState[] => [{
+    fileName,
+    status: 'success',
+    progress: 100,
+    message,
+}];
+
+const updateUploadStatusAt = (
+    previous: FileUploadItemState[],
+    files: Array<Pick<File, 'name'>>,
+    index: number,
+    patch: Partial<FileUploadItemState>
+): FileUploadItemState[] => {
+    const next = files.map((file, fileIndex) => previous[fileIndex] || {
+        fileName: file.name,
+        status: 'selected' as const,
+    });
+
+    if (!next[index]) return next;
+    next[index] = {
+        ...next[index],
+        ...patch,
+        fileName: files[index]?.name || next[index].fileName,
+    };
+    return next;
+};
+
 type EditAduanForm = {
     perihal: string;
     ringkasanMasalah: string;
@@ -140,6 +174,8 @@ type EditAduanModalProps = {
     isLoadingUsers: boolean;
     emailError?: string;
     isEditSubmitting: boolean;
+    suratUploadProgress: number;
+    suratFileStatuses: FileUploadItemState[];
     onSubmit: (e: React.FormEvent) => void;
     onClose: () => void;
     onEditInput: (field: keyof EditAduanForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -181,6 +217,8 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
     isLoadingUsers,
     emailError,
     isEditSubmitting,
+    suratUploadProgress,
+    suratFileStatuses,
     onSubmit,
     onClose,
     onEditInput,
@@ -413,6 +451,9 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                         onFileRemoved={onSuratFileRemoved}
                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                         maxSizeMB={10}
+                        uploadProgress={suratUploadProgress}
+                        fileStatuses={suratFileStatuses}
+                        isLoading={isEditSubmitting && suratUploadProgress > 0 && suratUploadProgress < 100}
                     />
                 </div>
 
@@ -733,12 +774,16 @@ export const AduanDetailPage: React.FC = () => {
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [isUploadingSurat, setIsUploadingSurat] = useState(false);
     const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+    const [uploadFilesStatus, setUploadFilesStatus] = useState<FileUploadItemState[]>([]);
+    const [uploadFilesProgress, setUploadFilesProgress] = useState(0);
     const [uploadPickerKey, setUploadPickerKey] = useState(0);
     const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
     const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<{ id: string; fileName: string } | null>(null);
     const [isDeleteAduanConfirmOpen, setIsDeleteAduanConfirmOpen] = useState(false);
     const [deleteTlConfirm, setDeleteTlConfirm] = useState<{ id: string; label: string } | null>(null);
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
+    const [suratUploadProgress, setSuratUploadProgress] = useState(0);
+    const [suratFileStatuses, setSuratFileStatuses] = useState<FileUploadItemState[]>([]);
     const picOptions = useMemo(
         () => [
             { value: '__none__', label: '-- Pilih PIC --' },
@@ -767,6 +812,8 @@ export const AduanDetailPage: React.FC = () => {
         setIsEditModalOpen(false);
         setEditSelectedKpsList([]);
         setSuratFile(null);
+        setSuratUploadProgress(0);
+        setSuratFileStatuses([]);
         setEditForm(buildEditForm(aduan));
     };
 
@@ -956,6 +1003,8 @@ export const AduanDetailPage: React.FC = () => {
     const resetUploadModal = () => {
         setIsUploadModalOpen(false);
         setUploadFiles([]);
+        setUploadFilesStatus([]);
+        setUploadFilesProgress(0);
         setUploadPickerKey((k) => k + 1);
     };
 
@@ -966,7 +1015,14 @@ export const AduanDetailPage: React.FC = () => {
         }
         setIsUploadingSurat(true);
         try {
-            const uploadResult = await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles);
+            const uploadResult = await AduanService.uploadAdditionalDocuments(aduan.id, uploadFiles, (progress) => {
+                setUploadFilesProgress(progress.batchProgress);
+                setUploadFilesStatus((prev) => updateUploadStatusAt(prev, uploadFiles, progress.fileIndex, {
+                    status: progress.status,
+                    progress: progress.status === 'error' ? undefined : progress.fileProgress,
+                    message: progress.errorMessage,
+                }));
+            });
             await refetchAduan();
             resetUploadModal();
             if (uploadResult.errors.length > 0) {
@@ -1066,6 +1122,10 @@ export const AduanDetailPage: React.FC = () => {
             picName: !isAdmin ? (user?.displayName || user?.email || '') : baseForm.picName,
             picId: !isAdmin ? (user?.id || '') : baseForm.picId,
         });
+        setSuratUploadProgress(0);
+        setSuratFile(null);
+        const storedSuratFileName = baseForm.fileUrl?.split('/').pop()?.split('?')[0] || 'Surat Terarsip';
+        setSuratFileStatuses(baseForm.fileUrl ? buildStoredUploadState(storedSuratFileName) : []);
 
         // Initialize selected KPS list from current aduan detail first (instant UI parity with detail view)
         const fallbackList: KpsData[] = Array.isArray(aduan.kps_items) && aduan.kps_items.length > 0
@@ -1182,9 +1242,33 @@ export const AduanDetailPage: React.FC = () => {
             let suratFileUrl = editForm.fileUrl;
             if (suratFile) {
                 try {
-                    suratFileUrl = await AduanService.uploadSuratMasuk(suratFile, aduan.id);
+                    setSuratFileStatuses((prev) => updateUploadStatusAt(prev, [suratFile], 0, {
+                        status: 'uploading',
+                        progress: 0,
+                        message: undefined,
+                    }));
+                    suratFileUrl = await AduanService.uploadSuratMasuk(suratFile, aduan.id, (progress) => {
+                        setSuratUploadProgress(progress);
+                        setSuratFileStatuses((prev) => updateUploadStatusAt(prev, [suratFile], 0, {
+                            status: 'uploading',
+                            progress,
+                            message: undefined,
+                        }));
+                    });
+                    setSuratUploadProgress(100);
+                    setSuratFileStatuses((prev) => updateUploadStatusAt(prev, [suratFile], 0, {
+                        status: 'success',
+                        progress: 100,
+                        message: 'Berhasil diunggah ke server',
+                    }));
                 } catch (uploadError: any) {
                     console.error('Failed to upload surat masuk during edit:', uploadError);
+                    setSuratUploadProgress(0);
+                    setSuratFileStatuses((prev) => updateUploadStatusAt(prev, [suratFile], 0, {
+                        status: 'error',
+                        progress: undefined,
+                        message: uploadError?.message || 'Lampiran surat masuk gagal diunggah.',
+                    }));
                     setFeedback({
                         type: 'error',
                         message: `Upload surat masuk gagal: ${uploadError?.message || 'Lampiran surat masuk gagal diunggah.'}`
@@ -1193,12 +1277,14 @@ export const AduanDetailPage: React.FC = () => {
                 }
             }
 
-            const updateData: Partial<Aduan> & { updatedBy?: string } = {
+            const updateData: Partial<Aduan> & { updatedBy?: string; updatedByName?: string; auditSource?: Partial<Aduan> | null } = {
                 kps_ids: editSelectedKpsList.map((kps) => getNormalizedKpsId(kps)).filter(Boolean),
                 nama_kps: editSelectedKpsList.map((kps) => kps.nama_kps || kps.NAMA_KPS || '').filter(Boolean),
                 jenis_kps: editSelectedKpsList.map((kps) => kps.kps_type || kps.jenis_kps || kps.KPS_TYPE || '').filter(Boolean),
                 nomor_sk: editSelectedKpsList.map((kps) => kps.nomor_sk || kps.NO_SK || '').filter(Boolean),
                 updatedBy: user.id,
+                updatedByName: user.displayName,
+                auditSource: aduan,
                 perihal: editForm.perihal,
                 ringkasanMasalah: editForm.ringkasanMasalah,
                 picId: editForm.picId,
@@ -1236,6 +1322,8 @@ export const AduanDetailPage: React.FC = () => {
                     setIsEditModalOpen(false);
                     setEditSelectedKpsList([]);
                     setSuratFile(null);
+                    setSuratUploadProgress(0);
+                    setSuratFileStatuses([]);
                     setFeedback({
                         type: 'success',
                         message: 'Perubahan aduan berhasil disimpan.'
@@ -1264,6 +1352,8 @@ export const AduanDetailPage: React.FC = () => {
                 id: aduan.id,
                 data: {
                     updatedBy: user.id,
+                    updatedByName: user.displayName,
+                    auditSource: aduan,
                     status: statusForm.status as any,
                     alasanPenolakan: statusForm.alasanPenolakan,
                 },
@@ -2548,6 +2638,8 @@ export const AduanDetailPage: React.FC = () => {
                 isLoadingUsers={isLoadingUsers}
                 emailError={emailError}
                 isEditSubmitting={isEditSubmitting}
+                suratUploadProgress={suratUploadProgress}
+                suratFileStatuses={suratFileStatuses}
                 onSubmit={handleEditSubmit}
                 onClose={closeEditModal}
                 onEditInput={handleEditInput}
@@ -2570,13 +2662,18 @@ export const AduanDetailPage: React.FC = () => {
                     }));
                 }}
                 onSuratFileSelected={(files) => {
-                    setSuratFile(files[0] || null);
-                    if (files[0]) {
+                    const nextFile = files[0] || null;
+                    setSuratFile(nextFile);
+                    setSuratUploadProgress(0);
+                    setSuratFileStatuses(nextFile ? buildSelectedUploadStates([nextFile]) : []);
+                    if (nextFile) {
                         setEditForm(prev => ({ ...prev, fileUrl: '' }));
                     }
                 }}
                 onSuratFileRemoved={() => {
                     setSuratFile(null);
+                    setSuratUploadProgress(0);
+                    setSuratFileStatuses([]);
                     setEditForm(prev => ({ ...prev, fileUrl: '' }));
                 }}
             />
@@ -2607,9 +2704,22 @@ export const AduanDetailPage: React.FC = () => {
                             initialFiles={[]}
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                             multiple={true}
-                            onFileSelected={(files) => setUploadFiles(files)}
-                            onFileRemoved={(idx) => setUploadFiles((prev) => prev.filter((_, i) => i !== idx))}
+                            onFileSelected={(files) => {
+                                setUploadFiles(files);
+                                setUploadFilesProgress(0);
+                                setUploadFilesStatus(buildSelectedUploadStates(files));
+                            }}
+                            onFileRemoved={(idx) => {
+                                const nextFiles = uploadFiles.filter((_, i) => i !== idx);
+                                setUploadFiles(nextFiles);
+                                setUploadFilesStatus((prev) => prev.filter((_, i) => i !== idx));
+                                if (nextFiles.length === 0) {
+                                    setUploadFilesProgress(0);
+                                }
+                            }}
                             isLoading={isUploadingSurat}
+                            uploadProgress={uploadFilesProgress}
+                            fileStatuses={uploadFilesStatus}
                         />
                     </div>
                 </div>

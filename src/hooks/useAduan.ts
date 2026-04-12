@@ -46,7 +46,7 @@ export const useDashboardStats = () => {
 export const useUpdateAduan = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ id, data }: { id: string, data: Partial<Aduan> & { updatedBy?: string } }) =>
+        mutationFn: ({ id, data }: { id: string, data: Partial<Aduan> & { updatedBy?: string; updatedByName?: string; auditSource?: Partial<Aduan> | null } }) =>
             AduanService.updateAduan(id, data),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });

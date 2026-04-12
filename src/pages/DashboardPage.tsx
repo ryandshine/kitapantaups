@@ -150,6 +150,25 @@ export const DashboardPage: React.FC = () => {
             );
         }
 
+        if (Array.isArray(metadata.changes) && metadata.changes.length > 0) {
+            const visibleChanges = metadata.changes
+                .slice(0, 2)
+                .map((item: any) => item?.label)
+                .filter(Boolean)
+                .join(', ');
+            if (visibleChanges) {
+                tags.push(
+                    metadata.changes.length > 2
+                        ? `Perubahan: ${visibleChanges} +${metadata.changes.length - 2}`
+                        : `Perubahan: ${visibleChanges}`
+                );
+            }
+        }
+
+        if (typeof metadata.from_status === 'string' && typeof metadata.to_status === 'string' && metadata.from_status && metadata.to_status) {
+            tags.push(`Status: ${metadata.from_status} -> ${metadata.to_status}`);
+        }
+
         return tags;
     };
 

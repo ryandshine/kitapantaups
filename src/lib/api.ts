@@ -24,7 +24,7 @@ export function clearTokens() {
   localStorage.removeItem('refresh_token')
 }
 
-async function refreshAccessToken(): Promise<string | null> {
+export async function refreshAccessToken(): Promise<string | null> {
   try {
     const res = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',

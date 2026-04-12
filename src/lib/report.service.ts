@@ -10,6 +10,13 @@ export interface ColumnDefinition {
     getValue: (row: Aduan) => any;
 }
 
+export interface ReportFilters {
+    provinsi?: string;
+    status?: string;
+    picId?: string;
+    picName?: string;
+}
+
 const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
     nomorTiket: { id: 'nomorTiket', label: 'Nomor Tiket', getValue: (row) => row.nomorTiket || row.nomor_tiket },
     createdAt: { id: 'createdAt', label: 'Tanggal Buat', getValue: (row) => row.createdAt ? format(new Date(row.createdAt), 'dd MMM yyyy', { locale: id }) : '-' },
@@ -67,42 +74,46 @@ const formatDateSafe = (value?: string) => {
     return format(date, 'dd/MM/yyyy');
 };
 
-const buildReportMeta = (startDate: string, endDate: string, provinsi?: string) => {
+const buildReportMeta = (startDate: string, endDate: string, filters?: ReportFilters) => {
     const periodText = startDate && endDate
         ? `Periode: ${formatDateSafe(startDate)} - ${formatDateSafe(endDate)}`
         : 'Periode: Semua Periode';
 
-    const filterText = provinsi && provinsi !== 'all'
-        ? `Provinsi: ${provinsi}`
-        : 'Provinsi: Semua Provinsi';
+    const filterParts = [
+        filters?.provinsi && filters.provinsi !== 'all' ? `Provinsi: ${filters.provinsi}` : 'Provinsi: Semua Provinsi',
+        filters?.status && filters.status !== 'all' ? `Status: ${filters.status}` : 'Status: Semua Status',
+        filters?.picId && filters.picId !== 'all'
+            ? `PIC: ${filters.picName || filters.picId}`
+            : 'PIC: Semua PIC'
+    ];
 
     const generatedText = `Dicetak pada: ${format(new Date(), 'dd MMMM yyyy HH:mm', { locale: id })}`;
 
-    return { periodText, filterText, generatedText };
+    return { periodText, filterText: filterParts.join(' | '), generatedText };
 };
 
 export const ReportService = {
-    generateReport: async (outputFormat: string, startDate: string, endDate: string, provinsi?: string) => {
+    generateReport: async (outputFormat: string, startDate: string, endDate: string, filters?: ReportFilters) => {
         try {
-            const data = await AduanService.getAduanByDateRange(startDate, endDate, provinsi);
+            const data = await AduanService.getAduanByDateRange(startDate, endDate, filters);
             const columns = FIXED_REPORT_COLUMN_IDS
                 .map((id) => REPORT_COLUMNS_MAP[id])
                 .filter(Boolean);
 
             if (outputFormat === 'excel') {
-                return ReportService.exportToExcel(data, columns, startDate, endDate, provinsi);
+                return ReportService.exportToExcel(data, columns, startDate, endDate, filters);
             } else if (outputFormat === 'csv') {
-                return ReportService.exportToCSV(data, columns, startDate, endDate, provinsi);
+                return ReportService.exportToCSV(data, columns, startDate, endDate, filters);
             }
-            return ReportService.exportToExcel(data, columns, startDate, endDate, provinsi);
+            return ReportService.exportToExcel(data, columns, startDate, endDate, filters);
         } catch (error) {
             console.error('Error generating report:', error);
             throw error;
         }
     },
 
-    exportToExcel: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, provinsi?: string) => {
-        const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, provinsi);
+    exportToExcel: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, filters?: ReportFilters) => {
+        const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, filters);
         const tableHeader = ['No', ...columns.map(c => c.label)];
         const tableRows = data.map((row, index) => [String(index + 1), ...columns.map(c => safeText(c.getValue(row)))]);
         const totalColumns = tableHeader.length;
@@ -217,9 +228,9 @@ export const ReportService = {
         XLSX.writeFile(workbook, `Laporan_Matriks_KitapantauPS_${format(new Date(), 'yyyyMMdd_HHmmss')}.xlsx`, { cellStyles: true });
     },
 
-    exportToCSV: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, provinsi?: string) => {
+    exportToCSV: (data: Aduan[], columns: ColumnDefinition[], startDate: string, endDate: string, filters?: ReportFilters) => {
         const docTitle = [['Laporan Pengaduan KitapantauPS']];
-        const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, provinsi);
+        const { periodText, filterText, generatedText } = buildReportMeta(startDate, endDate, filters);
 
         const metadata = [
             [periodText],

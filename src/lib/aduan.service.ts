@@ -1,4 +1,4 @@
-import { api, API_URL } from './api';
+import { api, API_URL, clearTokens, refreshAccessToken } from './api';
 import type { Aduan, KpsData, User, TindakLanjut } from '../types';
 import { ActivityService } from './activity.service';
 
@@ -27,6 +27,95 @@ const normalizeNumber = (value: unknown, fallback = 0): number => {
 const normalizeOptionalNumber = (value: unknown): number | undefined => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+export type UploadBatchProgress = {
+    fileIndex: number;
+    totalFiles: number;
+    fileName: string;
+    fileProgress: number;
+    batchProgress: number;
+    status: 'uploading' | 'success' | 'error';
+    errorMessage?: string;
+};
+
+type AduanReportFilters = {
+    provinsi?: string;
+    status?: string;
+    picId?: string;
+};
+
+type UpdateAduanPayload = Partial<Aduan> & {
+    updatedBy?: string;
+    updatedByName?: string;
+    auditSource?: Partial<Aduan> | null;
+};
+
+type AuditChangeEntry = {
+    key: string;
+    label: string;
+    from: string;
+    to: string;
+};
+
+const formatAuditValue = (value: unknown): string => {
+    if (value === null || value === undefined) return '-';
+    if (Array.isArray(value)) {
+        const normalized = value
+            .map((item) => formatAuditValue(item))
+            .filter((item) => item !== '-');
+        return normalized.length > 0 ? normalized.join(', ') : '-';
+    }
+    if (typeof value === 'number') {
+        return Number.isFinite(value) ? String(value) : '-';
+    }
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? '-' : value.toISOString();
+    }
+    const text = String(value).replace(/\s+/g, ' ').trim();
+    return text || '-';
+};
+
+const buildAduanAuditChanges = (source: Partial<Aduan> | null | undefined, data: Partial<Aduan>): AuditChangeEntry[] => {
+    if (!source) return [];
+
+    const changes: AuditChangeEntry[] = [];
+    const pushChange = (key: string, label: string, previousValue: unknown, nextValue: unknown) => {
+        const from = formatAuditValue(previousValue);
+        const to = formatAuditValue(nextValue);
+        if (from === to) return;
+        changes.push({ key, label, from, to });
+    };
+
+    if (data.status !== undefined) pushChange('status', 'Status', source.status, data.status);
+    if (data.picName !== undefined || data.picId !== undefined) pushChange('pic', 'PIC', source.picName || source.picId, data.picName || data.picId);
+    if (data.perihal !== undefined || data.suratMasuk?.perihal !== undefined) pushChange('perihal', 'Perihal', source.perihal || source.suratMasuk?.perihal, data.perihal ?? data.suratMasuk?.perihal);
+    if (data.ringkasanMasalah !== undefined) pushChange('ringkasan', 'Ringkasan Masalah', source.ringkasanMasalah, data.ringkasanMasalah);
+    if (data.kategoriMasalah !== undefined) pushChange('kategori', 'Kategori Masalah', source.kategoriMasalah, data.kategoriMasalah);
+    if (Array.isArray(data.kps_ids)) pushChange('kps', 'Objek KPS', source.nama_kps?.length ? source.nama_kps : source.kps_ids, data.nama_kps?.length ? data.nama_kps : data.kps_ids);
+    if (data.jumlahKK !== undefined) pushChange('jumlah_kk', 'Jumlah KK', source.jumlahKK ?? source.jumlah_kk, data.jumlahKK);
+
+    if (data.lokasi) {
+        if (data.lokasi.provinsi !== undefined) pushChange('lokasi_prov', 'Provinsi', source.lokasi?.provinsi ?? source.lokasi_prov, data.lokasi.provinsi);
+        if (data.lokasi.kabupaten !== undefined) pushChange('lokasi_kab', 'Kabupaten', source.lokasi?.kabupaten ?? source.lokasi_kab, data.lokasi.kabupaten);
+        if (data.lokasi.kecamatan !== undefined) pushChange('lokasi_kec', 'Kecamatan', source.lokasi?.kecamatan ?? source.lokasi_kec, data.lokasi.kecamatan);
+        if (data.lokasi.desa !== undefined) pushChange('lokasi_desa', 'Desa', source.lokasi?.desa ?? source.lokasi_desa, data.lokasi.desa);
+        if (data.lokasi.luasHa !== undefined) pushChange('lokasi_luas_ha', 'Luas Area', source.lokasi?.luasHa ?? source.lokasi_luas_ha, data.lokasi.luasHa);
+    }
+
+    if (data.pengadu) {
+        if (data.pengadu.nama !== undefined) pushChange('pengadu_nama', 'Nama Pengadu', source.pengadu?.nama ?? source.pengadu_nama, data.pengadu.nama);
+        if (data.pengadu.telepon !== undefined) pushChange('pengadu_telepon', 'Telepon Pengadu', source.pengadu?.telepon, data.pengadu.telepon);
+        if (data.pengadu.email !== undefined) pushChange('pengadu_email', 'Email Pengadu', source.pengadu?.email, data.pengadu.email);
+        if (data.pengadu.instansi !== undefined) pushChange('pengadu_instansi', 'Instansi Pengadu', source.pengadu?.instansi ?? source.pengadu_instansi, data.pengadu.instansi);
+    }
+
+    if (data.suratMasuk) {
+        if (data.suratMasuk.nomorSurat !== undefined) pushChange('surat_nomor', 'Nomor Surat', source.suratMasuk?.nomorSurat ?? source.surat_nomor, data.suratMasuk.nomorSurat);
+        if (data.suratMasuk.fileUrl !== undefined) pushChange('surat_file_url', 'Lampiran Surat Masuk', source.suratMasuk?.fileUrl, data.suratMasuk.fileUrl || null);
+    }
+
+    return changes;
 };
 
 const normalizeKpsItem = (item: any): KpsData => ({
@@ -115,49 +204,70 @@ const uploadToServer = async (
     file: File | Blob,
     category: string,
     aduanId: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
+    allowRetry = true,
+    tokenOverride?: string | null
 ): Promise<string> => {
     if (!aduanId) throw new Error('aduanId wajib diisi untuk upload file');
-    const token = localStorage.getItem('access_token');
+    const token = tokenOverride ?? localStorage.getItem('access_token');
     const formData = new FormData();
     const fileName = file instanceof File ? file.name : `${category}-${Date.now()}.bin`;
     formData.append('file', file, fileName);
     formData.append('category', category);
     formData.append('aduan_id', aduanId);
 
-    return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `${API_URL}/aduan/upload`);
-        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    try {
+        return await new Promise((resolve, reject) => {
+            const rejectWithError = (message: string, status?: number) => {
+                const error = new Error(message) as Error & { status?: number };
+                error.status = status;
+                reject(error);
+            };
 
-        xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable && onProgress) {
-                onProgress(Math.round((event.loaded / event.total) * 100));
-            }
-        };
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `${API_URL}/aduan/upload`);
+            if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
-        xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                    const data = JSON.parse(xhr.responseText);
-                    if (!data?.url) reject(new Error('URL file upload tidak ditemukan'));
-                    else resolve(data.url);
-                } catch {
-                    reject(new Error('Respons tidak valid dari server'));
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable && onProgress) {
+                    onProgress(Math.round((event.loaded / event.total) * 100));
                 }
-            } else {
-                try {
-                    const err = JSON.parse(xhr.responseText);
-                    reject(new Error(err.error || 'Gagal upload file'));
-                } catch {
-                    reject(new Error(`Gagal upload file: ${xhr.statusText}`));
-                }
-            }
-        };
+            };
 
-        xhr.onerror = () => reject(new Error('Gagal terhubung ke server'));
-        xhr.send(formData);
-    });
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (!data?.url) rejectWithError('URL file upload tidak ditemukan', xhr.status);
+                        else resolve(data.url);
+                    } catch {
+                        rejectWithError('Respons tidak valid dari server', xhr.status);
+                    }
+                } else {
+                    try {
+                        const err = JSON.parse(xhr.responseText);
+                        rejectWithError(err.error || 'Gagal upload file', xhr.status);
+                    } catch {
+                        rejectWithError(`Gagal upload file: ${xhr.statusText}`, xhr.status);
+                    }
+                }
+            };
+
+            xhr.onerror = () => rejectWithError('Gagal terhubung ke server');
+            xhr.send(formData);
+        });
+    } catch (error) {
+        const uploadError = error as Error & { status?: number };
+        if (uploadError.status === 401 && allowRetry) {
+            const nextAccessToken = await refreshAccessToken();
+            if (nextAccessToken) {
+                return uploadToServer(file, category, aduanId, onProgress, false, nextAccessToken);
+            }
+            clearTokens();
+            throw new Error('Sesi login habis. Silakan login ulang.');
+        }
+        throw uploadError;
+    }
 };
 
 export const AduanService = {
@@ -166,7 +276,8 @@ export const AduanService = {
         selectedKpsList: any[],
         files: { documents?: File[] },
         userId: string,
-        userName: string
+        userName: string,
+        options?: { onDocumentUploadProgress?: (progress: UploadBatchProgress) => void }
     ): Promise<{ id: string; nomorTiket?: string; uploadErrors: string[] }> => {
         const payload: any = {
             surat_nomor: formData.surat_nomor,
@@ -202,7 +313,11 @@ export const AduanService = {
         const documentFiles = files?.documents?.filter(f => f instanceof File) ?? [];
         if (documentFiles.length > 0) {
             try {
-                const uploadResult = await AduanService.uploadAdditionalDocuments(aduan.id, documentFiles);
+                const uploadResult = await AduanService.uploadAdditionalDocuments(
+                    aduan.id,
+                    documentFiles,
+                    options?.onDocumentUploadProgress
+                );
                 uploadErrors.push(...uploadResult.errors);
             } catch (uploadErr) {
                 console.error('File upload failed (aduan sudah tersimpan):', uploadErr);
@@ -236,18 +351,57 @@ export const AduanService = {
     uploadTindakLanjutFile: async (f: File | Blob, aduanId: string, onProgress?: (p: number) => void): Promise<string> => {
         return uploadToServer(f, 'tindak_lanjut', aduanId, onProgress);
     },
-    uploadAdditionalDocuments: async (id: string, files: File[]): Promise<{ errors: string[] }> => {
+    uploadAdditionalDocuments: async (
+        id: string,
+        files: File[],
+        onProgress?: (progress: UploadBatchProgress) => void
+    ): Promise<{ errors: string[] }> => {
         const errors: string[] = [];
-        for (const file of files) {
+        for (const [index, file] of files.entries()) {
             try {
-                const fileUrl = await uploadToServer(file, 'dokumen', id);
+                onProgress?.({
+                    fileIndex: index,
+                    totalFiles: files.length,
+                    fileName: file.name,
+                    fileProgress: 0,
+                    batchProgress: Math.round((index / files.length) * 100),
+                    status: 'uploading',
+                });
+                const fileUrl = await uploadToServer(file, 'dokumen', id, (percent) => {
+                    onProgress?.({
+                        fileIndex: index,
+                        totalFiles: files.length,
+                        fileName: file.name,
+                        fileProgress: percent,
+                        batchProgress: Math.round((index / files.length) * 100 + (percent / files.length)),
+                        status: 'uploading',
+                    });
+                });
                 await api.post(`/aduan/${id}/documents`, {
                     file_url: fileUrl,
                     file_name: file.name,
                     file_category: 'dokumen',
                 });
+                onProgress?.({
+                    fileIndex: index,
+                    totalFiles: files.length,
+                    fileName: file.name,
+                    fileProgress: 100,
+                    batchProgress: Math.round(((index + 1) / files.length) * 100),
+                    status: 'success',
+                });
             } catch (error) {
-                errors.push(`${file.name}: ${getErrorMessage(error)}`);
+                const message = getErrorMessage(error);
+                errors.push(`${file.name}: ${message}`);
+                onProgress?.({
+                    fileIndex: index,
+                    totalFiles: files.length,
+                    fileName: file.name,
+                    fileProgress: 0,
+                    batchProgress: Math.round(((index + 1) / files.length) * 100),
+                    status: 'error',
+                    errorMessage: message,
+                });
             }
         }
         return { errors };
@@ -282,7 +436,7 @@ export const AduanService = {
 
     getAduanByTicket: async (nomorTiket: string) => {
         try {
-            const result = await api.get(`/aduan?search=${encodeURIComponent(nomorTiket)}&limit=1`);
+            const result = await api.get(`/aduan?nomor_tiket=${encodeURIComponent(nomorTiket)}&limit=1`);
             const row = result.data?.[0];
             if (!row) return null;
             // Fetch full details using ID to get documents and other related data
@@ -290,7 +444,7 @@ export const AduanService = {
         } catch { return null; }
     },
 
-    getAduanByDateRange: async (startDate: string, endDate: string, provinsi?: string) => {
+    getAduanByDateRange: async (startDate: string, endDate: string, filters?: AduanReportFilters) => {
         let allData: any[] = [];
         let offset = 0;
         const limit = 2000; // Fetch in chunks to prevent server timeout
@@ -299,7 +453,9 @@ export const AduanService = {
             const params = new URLSearchParams({ limit: limit.toString(), offset: offset.toString() });
             if (startDate) params.set('start_date', startDate);
             if (endDate) params.set('end_date', endDate);
-            if (provinsi && provinsi !== 'all') params.set('provinsi', provinsi);
+            if (filters?.provinsi && filters.provinsi !== 'all') params.set('provinsi', filters.provinsi);
+            if (filters?.status && filters.status !== 'all') params.set('status', filters.status);
+            if (filters?.picId && filters.picId !== 'all') params.set('pic_id', filters.picId);
 
             try {
                 const result = await api.get(`/aduan?${params}`);
@@ -310,7 +466,7 @@ export const AduanService = {
                 offset += limit;
             } catch (error) {
                 console.error('Error fetching chunk:', error);
-                break;
+                throw new Error(`Gagal mengambil data laporan pada offset ${offset}: ${getErrorMessage(error)}`);
             }
         }
         
@@ -387,8 +543,9 @@ export const AduanService = {
         return true;
     },
 
-    updateAduan: async (id: string, data: Partial<Aduan> & { updatedBy?: string }) => {
+    updateAduan: async (id: string, data: UpdateAduanPayload) => {
         const updateData: any = {};
+        const auditChanges = buildAduanAuditChanges(data.auditSource, data);
         const resolvedPerihal = data.perihal !== undefined ? data.perihal : data.suratMasuk?.perihal;
         if (data.status) updateData.status = data.status;
         if (data.alasanPenolakan !== undefined) updateData.alasan_penolakan = data.alasanPenolakan;
@@ -431,13 +588,26 @@ export const AduanService = {
         }
         if (Object.keys(updateData).length === 0) return true;
         await api.patch(`/aduan/${id}`, updateData);
+        const auditFieldLabels = auditChanges.map((change) => change.label);
+        const shortAuditList = auditFieldLabels.slice(0, 3).join(', ');
+        const auditDescription = data.status
+            ? `Status diubah ke **${data.status.toUpperCase()}**`
+            : auditFieldLabels.length > 0
+                ? `Memperbarui detail aduan: **${shortAuditList}${auditFieldLabels.length > 3 ? ` +${auditFieldLabels.length - 3} lainnya` : ''}**`
+                : 'Memperbarui detail aduan';
         await ActivityService.logActivity({
             type: data.status ? 'update_status' : 'update_aduan',
-            description: data.status ? `Status diubah ke **${data.status.toUpperCase()}**` : 'Memperbarui detail aduan',
+            description: auditDescription,
             aduanId: id,
             userId: data.updatedBy || 'system',
-            userName: 'User',
-            metadata: { fields: Object.keys(updateData) },
+            userName: data.updatedByName || 'User',
+            metadata: {
+                fields: auditFieldLabels.length > 0 ? auditFieldLabels : Object.keys(updateData),
+                changes: auditChanges,
+                from_status: data.auditSource?.status,
+                to_status: data.status,
+                nomor_tiket: data.auditSource?.nomorTiket || data.auditSource?.nomor_tiket,
+            },
         });
         return true;
     },

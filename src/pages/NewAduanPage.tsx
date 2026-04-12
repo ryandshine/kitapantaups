@@ -11,7 +11,8 @@ import {
     Select,
     Textarea,
     FileUpload,
-    FeedbackBanner
+    FeedbackBanner,
+    type FileUploadItemState
 } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { AduanService } from '../lib/aduan.service';
@@ -87,6 +88,47 @@ const summarizeSelectedKps = (kpsList: KpsData[]) => {
     };
 };
 
+const extractValidKpsCoordinates = (kpsList: KpsData[]) => {
+    const coordinatePairs = kpsList
+        .map((kps) => {
+            const lat = typeof kps.lat === 'number' && Number.isFinite(kps.lat) ? kps.lat : null;
+            const lng = typeof kps.lng === 'number' && Number.isFinite(kps.lng) ? kps.lng : null;
+            return lat !== null && lng !== null ? { lat, lng } : null;
+        })
+        .filter((pair): pair is { lat: number; lng: number } => pair !== null);
+
+    return {
+        lokasi_lat: coordinatePairs.length > 0 ? coordinatePairs.map((pair) => String(pair.lat)) : undefined,
+        lokasi_lng: coordinatePairs.length > 0 ? coordinatePairs.map((pair) => String(pair.lng)) : undefined,
+    };
+};
+
+const buildSelectedFileStates = (files: Array<Pick<File, 'name'>>): FileUploadItemState[] =>
+    files.map((file) => ({
+        fileName: file.name,
+        status: 'selected',
+    }));
+
+const updateFileStatusAt = (
+    previous: FileUploadItemState[],
+    files: Array<Pick<File, 'name'>>,
+    index: number,
+    patch: Partial<FileUploadItemState>
+): FileUploadItemState[] => {
+    const next = files.map((file, fileIndex) => previous[fileIndex] || {
+        fileName: file.name,
+        status: 'selected' as const,
+    });
+
+    if (!next[index]) return next;
+    next[index] = {
+        ...next[index],
+        ...patch,
+        fileName: files[index]?.name || next[index].fileName,
+    };
+    return next;
+};
+
 export const NewAduanPage: React.FC = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -142,7 +184,8 @@ export const NewAduanPage: React.FC = () => {
         return () => window.clearTimeout(timeout);
     }, [feedback]);
     const [suratFiles, setSuratFiles] = useState<File[]>([]);
-    const [docUploadProgress] = useState(0);
+    const [docUploadProgress, setDocUploadProgress] = useState(0);
+    const [suratFileStatuses, setSuratFileStatuses] = useState<FileUploadItemState[]>([]);
 
 
     const [formData, setFormData] = useState<FormData>({
@@ -253,6 +296,7 @@ export const NewAduanPage: React.FC = () => {
 
             // Sequential Process:
             // 1. Prepare Payload Mapper
+            const { lokasi_lat, lokasi_lng } = extractValidKpsCoordinates(selectedKpsList);
             const dbPayload = {
                 surat_nomor: formData.suratMasuk.nomorSurat,
                 surat_tanggal: formData.suratMasuk.tanggalSurat,
@@ -269,9 +313,8 @@ export const NewAduanPage: React.FC = () => {
                 lokasi_desa: formData.lokasi.desa,
                 lokasi_luas_ha: formData.lokasi.luasHa,
                 jumlah_kk: formData.jumlahKK,
-                // Server Zod schema expects string[] for coordinates
-                lokasi_lat: selectedKpsList.map(k => String(k.lat || 0)),
-                lokasi_lng: selectedKpsList.map(k => String(k.lng || 0)),
+                lokasi_lat,
+                lokasi_lng,
                 status: 'baru',
                 kps_ids: selectedKpsList.map(k => String(k.id))
             };
@@ -284,7 +327,17 @@ export const NewAduanPage: React.FC = () => {
                     documents: suratFiles
                 },
                 user.id,
-                user.displayName
+                user.displayName,
+                {
+                    onDocumentUploadProgress: (progress) => {
+                        setDocUploadProgress(progress.batchProgress);
+                        setSuratFileStatuses((prev) => updateFileStatusAt(prev, suratFiles, progress.fileIndex, {
+                            status: progress.status,
+                            progress: progress.status === 'error' ? undefined : progress.fileProgress,
+                            message: progress.errorMessage,
+                        }));
+                    }
+                }
             );
 
             if (result.uploadErrors.length > 0) {
@@ -307,6 +360,10 @@ export const NewAduanPage: React.FC = () => {
             setFormError(`Gagal menyimpan aduan: ${err.message}`);
             setFeedback({ type: 'error', message: `Gagal menyimpan aduan: ${err.message}` });
         } finally {
+            if (suratFiles.length === 0) {
+                setDocUploadProgress(0);
+                setSuratFileStatuses([]);
+            }
             setIsSubmitting(false);
         }
     };
@@ -409,15 +466,25 @@ export const NewAduanPage: React.FC = () => {
                                     <FileUpload
                                         label="Upload Dokumen Pendukung"
                                         helperText="Klik atau seret berkas surat masuk di sini"
-                                        onFileSelected={(files) => setSuratFiles(files)}
+                                        onFileSelected={(files) => {
+                                            setSuratFiles(files);
+                                            setDocUploadProgress(0);
+                                            setSuratFileStatuses(buildSelectedFileStates(files));
+                                        }}
                                         onFileRemoved={(idx) => {
                                             const newFiles = [...suratFiles];
                                             newFiles.splice(idx, 1);
                                             setSuratFiles(newFiles);
+                                            setSuratFileStatuses((prev) => prev.filter((_, stateIdx) => stateIdx !== idx));
+                                            if (newFiles.length === 0) {
+                                                setDocUploadProgress(0);
+                                            }
                                         }}
                                         multiple
                                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                                         uploadProgress={docUploadProgress}
+                                        fileStatuses={suratFileStatuses}
+                                        isLoading={isSubmitting && suratFiles.length > 0 && docUploadProgress > 0 && docUploadProgress < 100}
                                     />
                                 </div>
                             </div>

@@ -1,7 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Upload, CheckCircle2, AlertCircle, Trash2, FileText, Plus } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, Trash2, FileText, Plus, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+
+export type FileUploadStatus = 'selected' | 'uploading' | 'success' | 'error';
+
+export interface FileUploadItemState {
+    fileName: string;
+    status: FileUploadStatus;
+    progress?: number;
+    message?: string;
+}
 
 interface FileUploadProps {
     onFileSelected: (files: File[]) => void;
@@ -14,6 +23,7 @@ interface FileUploadProps {
     isLoading?: boolean;
     multiple?: boolean;
     uploadProgress?: number;
+    fileStatuses?: FileUploadItemState[];
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
@@ -26,11 +36,71 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     initialFiles = [],
     isLoading = false,
     multiple = false,
-    uploadProgress
+    uploadProgress,
+    fileStatuses = []
 }) => {
     const [files, setFiles] = useState<File[]>(initialFiles);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const getDisplayStatus = (index: number): FileUploadItemState => {
+        const file = files[index];
+        const fallbackProgress = typeof uploadProgress === 'number' && uploadProgress > 0 && uploadProgress < 100
+            ? uploadProgress
+            : undefined;
+        const explicitState = fileStatuses[index];
+
+        if (explicitState) {
+            return {
+                fileName: explicitState.fileName || file?.name || `File ${index + 1}`,
+                status: explicitState.status,
+                progress: explicitState.progress,
+                message: explicitState.message,
+            };
+        }
+
+        if (fallbackProgress !== undefined) {
+            return {
+                fileName: file?.name || `File ${index + 1}`,
+                status: 'uploading',
+                progress: fallbackProgress,
+            };
+        }
+
+        return {
+            fileName: file?.name || `File ${index + 1}`,
+            status: 'selected',
+        };
+    };
+
+    const getStatusUi = (state: FileUploadItemState) => {
+        switch (state.status) {
+            case 'uploading':
+                return {
+                    label: state.progress && state.progress > 0 ? `Mengunggah ${state.progress}%` : 'Mengunggah',
+                    className: 'text-primary',
+                    icon: <Loader2 size={10} className="animate-spin" />,
+                };
+            case 'success':
+                return {
+                    label: 'Berhasil diunggah',
+                    className: 'text-emerald-600',
+                    icon: <CheckCircle2 size={10} />,
+                };
+            case 'error':
+                return {
+                    label: 'Gagal diunggah',
+                    className: 'text-red-500',
+                    icon: <AlertCircle size={10} />,
+                };
+            default:
+                return {
+                    label: 'Siap diunggah',
+                    className: 'text-muted-foreground',
+                    icon: <Upload size={10} />,
+                };
+        }
+    };
 
     useEffect(() => {
         setFiles(initialFiles);
@@ -125,32 +195,68 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                         className="mt-3 space-y-2"
                     >
                         {files.map((file, idx) => (
-                            <motion.div
-                                key={`${file.name}-${idx}`}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 10 }}
-                                className="relative flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-sm group"
-                            >
-                                <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-                                    <FileText size={16} />
-                                </div>
-                                <div className="flex-1 min-w-0 pr-8">
-                                    <p className="truncate text-xs font-semibold text-foreground">{file.name}</p>
-                                    <p className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider text-emerald-600">
-                                        <CheckCircle2 size={10} />
-                                        Terunggah
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={(e) => removeFile(idx, e)}
-                                    disabled={isLoading}
-                                    className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-red-50 hover:text-red-500"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
-                            </motion.div>
+                            (() => {
+                                const state = getDisplayStatus(idx);
+                                const statusUi = getStatusUi(state);
+
+                                return (
+                                    <motion.div
+                                        key={`${file.name}-${idx}`}
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 10 }}
+                                        className="relative rounded-xl border border-border bg-white p-3 shadow-sm group"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn(
+                                                "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+                                                state.status === 'error' ? "bg-red-100 text-red-500" :
+                                                    state.status === 'success' ? "bg-emerald-100 text-emerald-600" :
+                                                        state.status === 'uploading' ? "bg-primary/10 text-primary" :
+                                                            "bg-muted text-muted-foreground"
+                                            )}>
+                                                <FileText size={16} />
+                                            </div>
+                                            <div className="flex-1 min-w-0 pr-8">
+                                                <p className="truncate text-xs font-semibold text-foreground">{state.fileName}</p>
+                                                <p className={cn("flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider", statusUi.className)}>
+                                                    {statusUi.icon}
+                                                    {statusUi.label}
+                                                </p>
+                                                {state.message && (
+                                                    <p className={cn(
+                                                        "mt-1 text-[10px] leading-relaxed",
+                                                        state.status === 'error' ? "text-red-500" : "text-muted-foreground"
+                                                    )}>
+                                                        {state.message}
+                                                    </p>
+                                                )}
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => removeFile(idx, e)}
+                                                disabled={isLoading}
+                                                className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-red-50 hover:text-red-500"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                        {typeof state.progress === 'number' && state.progress > 0 && state.progress < 100 && (
+                                            <div className="mt-2 space-y-1">
+                                                <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                                                    <div
+                                                        className={cn(
+                                                            "h-full rounded-full transition-all duration-300",
+                                                            state.status === 'error' ? "bg-red-500" : "bg-primary"
+                                                        )}
+                                                        style={{ width: `${state.progress}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                );
+                            })()
                         ))}
                     </motion.div>
                 )}

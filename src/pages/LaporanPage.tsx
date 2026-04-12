@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import { Download, Settings2 } from 'lucide-react';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner } from '../components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
 import { AduanService } from '../lib/aduan.service';
 import { FIXED_REPORT_COLUMN_IDS, ReportService } from '../lib/report.service';
+import { useAuth } from '../contexts/AuthContext';
 
 export const LaporanPage: React.FC = () => {
+    const { user } = useAuth();
     const [format, setFormat] = useState('excel');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [selectedProvinsi, setSelectedProvinsi] = useState('all');
+    const [selectedStatus, setSelectedStatus] = useState('all');
+    const [selectedPicId, setSelectedPicId] = useState('all');
     const [provinces, setProvinces] = useState<string[]>([]);
+    const [statuses, setStatuses] = useState<string[]>([]);
+    const [picOptions, setPicOptions] = useState<Array<{ value: string; label: string }>>([{ value: 'all', label: 'Semua PIC' }]);
     const [isGenerating, setIsGenerating] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
@@ -19,25 +27,47 @@ export const LaporanPage: React.FC = () => {
 
     // Fetch unique provinces from aduan table
     React.useEffect(() => {
-        const fetchProvinces = async () => {
+        const fetchFilters = async () => {
             try {
-                const data = await AduanService.getUniqueProvinces();
-                setProvinces(data);
+                const [provinceData, statusData, users] = await Promise.all([
+                    AduanService.getUniqueProvinces(),
+                    AduanService.getMasterStatuses(),
+                    user?.role === 'admin' ? AduanService.getUsersByRole() : Promise.resolve([])
+                ]);
+                setProvinces(provinceData);
+                setStatuses((statusData || []).map((item) => item.nama_status).filter(Boolean));
+                setPicOptions([
+                    { value: 'all', label: 'Semua PIC' },
+                    ...users.map((item) => ({
+                        value: item.id,
+                        label: item.displayName || item.email
+                    }))
+                ]);
             } catch (error) {
-                console.error('Error fetching provinces:', error);
+                console.error('Error fetching report filters:', error);
             }
         };
-        fetchProvinces();
-    }, []);
+        fetchFilters();
+    }, [user?.role]);
 
     const handleGenerate = async () => {
+        if (startDate && endDate && startDate > endDate) {
+            setFeedback({ type: 'info', message: 'Tanggal akhir tidak boleh lebih kecil dari tanggal awal.' });
+            return;
+        }
         setIsGenerating(true);
         try {
-            await ReportService.generateReport(format, '', '', selectedProvinsi);
+            const selectedPic = picOptions.find((option) => option.value === selectedPicId);
+            await ReportService.generateReport(format, startDate, endDate, {
+                provinsi: selectedProvinsi,
+                status: selectedStatus,
+                picId: selectedPicId,
+                picName: selectedPicId !== 'all' ? selectedPic?.label : undefined,
+            });
             setFeedback({ type: 'success', message: 'Laporan berhasil diproses. File akan segera diunduh.' });
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            setFeedback({ type: 'error', message: 'Terjadi kesalahan saat membuat laporan.' });
+            setFeedback({ type: 'error', message: error?.message || 'Terjadi kesalahan saat membuat laporan.' });
         } finally {
             setIsGenerating(false);
         }
@@ -65,7 +95,23 @@ export const LaporanPage: React.FC = () => {
                         Konfigurasi
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <Input
+                        type="date"
+                        label="Tanggal Awal"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        fullWidth
+                    />
+
+                    <Input
+                        type="date"
+                        label="Tanggal Akhir"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        fullWidth
+                    />
+
                     <Select
                         label="Provinsi"
                         options={[
@@ -76,6 +122,27 @@ export const LaporanPage: React.FC = () => {
                         onChange={setSelectedProvinsi}
                         fullWidth
                     />
+
+                    <Select
+                        label="Status"
+                        options={[
+                            { value: 'all', label: 'Semua Status' },
+                            ...statuses.map((status) => ({ value: status, label: status }))
+                        ]}
+                        value={selectedStatus}
+                        onChange={setSelectedStatus}
+                        fullWidth
+                    />
+
+                    {user?.role === 'admin' && (
+                        <Select
+                            label="PIC"
+                            options={picOptions}
+                            value={selectedPicId}
+                            onChange={setSelectedPicId}
+                            fullWidth
+                        />
+                    )}
 
                     <Select
                         label="Format"
