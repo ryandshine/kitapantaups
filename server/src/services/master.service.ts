@@ -24,7 +24,14 @@ export const MasterService = {
 
     if (search) {
       params.push(`%${search}%`)
-      conditions.push(`(m.nama_kps ILIKE $${params.length} OR m.no_sk ILIKE $${params.length} OR m.id_kps_api ILIKE $${params.length})`)
+      conditions.push(`(
+        k.nama_lembaga ILIKE $${params.length}
+        OR COALESCE(k.surat_keputusan, '') ILIKE $${params.length}
+        OR k.id::text ILIKE $${params.length}
+        OR COALESCE(k.skema, '') ILIKE $${params.length}
+        OR COALESCE(k.provinsi, '') ILIKE $${params.length}
+        OR COALESCE(k.kabupaten, '') ILIKE $${params.length}
+      )`)
     }
 
     const { data, total } = await MasterRepository.findKpsAndCountAll(params, conditions, limit, offset)
@@ -35,5 +42,9 @@ export const MasterService = {
       page,
       limit,
     }
+  },
+
+  async getKpsById(id: string) {
+    return await MasterRepository.findKpsById(id)
   }
 }

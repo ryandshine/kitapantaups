@@ -6,6 +6,8 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsup src/index.ts --format esm --out-dir dist",
     "start": "node dist/index.js",
+    "migrate:sql": "tsx scripts/run_sql_file.ts",
+    "sync:kps:gokups": "tsx scripts/sync_gokups_kps.ts",
     "test": "node --import tsx --test src/lib/*.test.ts"
   },
   "dependencies": {

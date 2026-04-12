@@ -14,7 +14,7 @@ interface KpsSearchProps {
 export const KpsSearch: React.FC<KpsSearchProps> = ({
     onSelect,
     placeholder = 'Ketik Nama KPS atau Nomor SK...',
-    label = 'Cari Master KPS (Auto-fill)'
+    label = 'Cari KPS'
 }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<KpsData[]>([]);
@@ -43,7 +43,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
             const rect = containerRef.current.getBoundingClientRect();
             setOverlayStyle({
                 position: 'fixed',
-                top: rect.top - 8,
+                top: rect.bottom + 8,
                 left: rect.left,
                 width: rect.width,
                 zIndex: 2147483647,
@@ -87,6 +87,13 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
         setSelectedIndex(-1);
     };
 
+    const getDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || '-';
+    const getDisplayType = (kps: KpsData) => kps.skema || kps.kps_type || kps.jenis_kps || '-';
+    const getDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || '-';
+    const getDisplayReference = (kps: KpsData) => kps.source_reference || kps.id;
+    const getDisplayKabupaten = (kps: KpsData) => kps.kabupaten || kps.lokasi_kab || '';
+    const getDisplayProvinsi = (kps: KpsData) => kps.provinsi || kps.lokasi_prov || '';
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (!isOpen || results.length === 0) return;
 
@@ -128,7 +135,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
             />
 
             {isOpen && (results.length > 0 || isLoading) && createPortal(
-                <div style={overlayStyle} className="pointer-events-none -translate-y-full">
+                <div style={overlayStyle} className="pointer-events-none">
                     <div className="pointer-events-auto relative z-[2147483647] max-h-[min(22rem,calc(100vh-6rem))] overflow-y-auto overflow-x-hidden rounded-2xl border border-primary/15 bg-white/95 shadow-2xl ring-1 ring-border/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
                         {isLoading ? (
                             <div className="p-4 text-center text-sm text-muted-foreground italic">
@@ -138,31 +145,40 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                             <ul className="py-1">
                                 {results.map((kps, index) => (
                                     <li
-                                        key={kps.id_kps_api}
+                                        key={kps.id}
                                         className={`group cursor-pointer border-b border-border/70 px-4 py-3 transition-all last:border-0 ${selectedIndex === index ? 'bg-primary/5 ring-1 ring-inset ring-primary/20' : 'hover:bg-primary/5'
                                             }`}
                                         onClick={() => handleSelect(kps)}
                                         onMouseEnter={() => setSelectedIndex(index)}
                                     >
                                         <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
-                                            <div className="min-w-0 text-sm font-semibold text-foreground transition-colors group-hover:text-primary break-words">{kps.nama_kps}</div>
+                                            <div className="min-w-0 text-sm font-semibold text-foreground transition-colors group-hover:text-primary break-words">{getDisplayName(kps)}</div>
                                             <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-tight text-muted-foreground">
-                                                {kps.kps_type || kps.jenis_kps}
+                                                {getDisplayType(kps)}
                                             </span>
                                         </div>
                                         <div className="mt-1 flex flex-col gap-1 text-[11px] text-muted-foreground">
                                             <div className="flex flex-wrap items-center gap-1.5 break-all">
-                                                <span className="font-semibold text-foreground/80">ID:</span> {kps.id_kps_api}
+                                                <span className="font-semibold text-foreground/80">ID:</span> {kps.id}
                                                 <span className="mx-1">•</span>
-                                                <span className="font-semibold text-foreground/80">SK:</span> <span className="break-words">{kps.nomor_sk}</span>
+                                                <span className="font-semibold text-foreground/80">SK:</span> <span className="break-words">{getDisplaySk(kps)}</span>
                                             </div>
+                                            {getDisplayReference(kps) && (
+                                                <div className="flex flex-wrap items-center gap-1.5 break-all">
+                                                    <span className="font-semibold text-foreground/80">Referensi:</span> {getDisplayReference(kps)}
+                                                </div>
+                                            )}
                                             <div className="flex min-w-0 items-start gap-1.5">
                                                 <MapPin size={10} className="mt-0.5 shrink-0" />
-                                                <span className="break-words">{kps.lokasi_kab}, {kps.lokasi_prov}</span>
+                                                <span className="break-words">{getDisplayKabupaten(kps)}, {getDisplayProvinsi(kps)}</span>
                                             </div>
-                                            {kps.balai && (
+                                            {(kps.anggota_pria || kps.anggota_wanita) ? (
+                                                <div className="text-[10px] italic break-words">
+                                                    Anggota: {Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0)}
+                                                </div>
+                                            ) : kps.balai ? (
                                                 <div className="text-[10px] italic break-words">Balai: {kps.balai}</div>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </li>
                                 ))}

@@ -7,7 +7,6 @@ export const AduanService = {
     const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket } = query
     const offset = reqOffset ? Number(reqOffset) : (Number(page) - 1) * Number(limit)
 
-    // Dynamic SQL Parameters and Conditions 
     const conditions: string[] = []
     const params: any[] = []
 
@@ -17,7 +16,30 @@ export const AduanService = {
     }
     if (search) {
       params.push(`%${search}%`)
-      conditions.push(`(a.pengadu_nama ILIKE $${params.length} OR a.ringkasan_masalah ILIKE $${params.length} OR a.nomor_tiket ILIKE $${params.length} OR a.surat_asal_perihal ILIKE $${params.length} OR a.lokasi_prov ILIKE $${params.length} OR a.lokasi_kab ILIKE $${params.length} OR a.lokasi_kec ILIKE $${params.length} OR a.lokasi_desa ILIKE $${params.length} OR array_to_string(a.nomor_sk, ' ') ILIKE $${params.length} OR array_to_string(a.nama_kps, ' ') ILIKE $${params.length})`)
+      conditions.push(`(
+        a.pengadu_nama ILIKE $${params.length}
+        OR a.ringkasan_masalah ILIKE $${params.length}
+        OR a.nomor_tiket ILIKE $${params.length}
+        OR a.surat_asal_perihal ILIKE $${params.length}
+        OR a.lokasi_prov ILIKE $${params.length}
+        OR a.lokasi_kab ILIKE $${params.length}
+        OR a.lokasi_kec ILIKE $${params.length}
+        OR a.lokasi_desa ILIKE $${params.length}
+        OR EXISTS (
+          SELECT 1
+          FROM public.aduan_kps ak
+          JOIN public.kps k ON k.id = ak.kps_id
+          WHERE ak.aduan_id = a.id
+            AND (
+              k.nama_lembaga ILIKE $${params.length}
+              OR COALESCE(k.surat_keputusan, '') ILIKE $${params.length}
+              OR k.id::text ILIKE $${params.length}
+              OR COALESCE(k.skema, '') ILIKE $${params.length}
+              OR COALESCE(k.provinsi, '') ILIKE $${params.length}
+              OR COALESCE(k.kabupaten, '') ILIKE $${params.length}
+            )
+        )
+      )`)
     }
     if (nomor_tiket) {
       params.push(nomor_tiket)
@@ -66,13 +88,9 @@ export const AduanService = {
     const doc = await AduanRepository.findDocument(docId, aduanId)
     if (!doc) throw new Error('Dokumen tidak ditemukan')
 
-    // Hapus fisik (menggunakan storage abstraction)
     await StorageService.deleteFile(doc.file_url)
-
-    // Hapus data referensi dari DB
     await AduanRepository.deleteDocument(docId)
 
-    // Log Activity (termasuk bussiness logic yg kini berada di Service)
     const actorName = await AduanRepository.getActorName(user.userId, user.email)
     await AduanRepository.logActivity(
       'delete_document',

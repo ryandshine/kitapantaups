@@ -1,18 +1,114 @@
 import { api, API_URL } from './api';
-import type { Aduan, User, TindakLanjut } from '../types';
+import type { Aduan, KpsData, User, TindakLanjut } from '../types';
 import { ActivityService } from './activity.service';
 
 const resolveKpsType = (kps: {
+    skema?: string | null;
     kps_type?: string | null;
     jenis_kps?: string | null;
     KPS_TYPE?: string | null;
     SKEMA?: string | null;
-}) => [kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
+}) => [kps.skema, kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
 
 const getErrorMessage = (error: unknown) => {
     if (error instanceof Error && error.message) return error.message;
     return 'Terjadi kesalahan yang tidak diketahui';
+};
+
+const normalizeStringArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.map((item) => String(item)) : [];
+
+const normalizeNumber = (value: unknown, fallback = 0): number => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const normalizeOptionalNumber = (value: unknown): number | undefined => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const normalizeKpsItem = (item: any): KpsData => ({
+    id: String(item?.id || ''),
+    nama_lembaga: item?.nama_lembaga || item?.nama_kps || '',
+    surat_keputusan: item?.surat_keputusan || item?.nomor_sk || item?.no_sk || '',
+    tanggal: item?.tanggal || item?.tanggal_sk || '',
+    skema: item?.skema || item?.jenis_kps || item?.kps_type || '',
+    provinsi_id: item?.provinsi_id != null ? String(item.provinsi_id) : '',
+    kabupaten_id: item?.kabupaten_id != null ? String(item.kabupaten_id) : '',
+    kecamatan_id: item?.kecamatan_id != null ? String(item.kecamatan_id) : '',
+    desa_id: item?.desa_id != null ? String(item.desa_id) : '',
+    provinsi: item?.provinsi || item?.lokasi_prov || '',
+    kabupaten: item?.kabupaten || item?.lokasi_kab || '',
+    kecamatan: item?.kecamatan || item?.lokasi_kec || '',
+    desa: item?.desa || item?.lokasi_desa || '',
+    luas_hl: normalizeNumber(item?.luas_hl),
+    luas_hp: normalizeNumber(item?.luas_hp),
+    luas_hpt: normalizeNumber(item?.luas_hpt),
+    luas_hpk: normalizeNumber(item?.luas_hpk),
+    luas_hk: normalizeNumber(item?.luas_hk),
+    luas_apl: normalizeNumber(item?.luas_apl),
+    luas_total: normalizeNumber(item?.luas_total ?? item?.lokasi_luas_ha),
+    anggota_pria: normalizeNumber(item?.anggota_pria),
+    anggota_wanita: normalizeNumber(item?.anggota_wanita),
+    jumlah_anggota: normalizeNumber(item?.jumlah_anggota ?? ((Number(item?.anggota_pria) || 0) + (Number(item?.anggota_wanita) || 0))),
+    kps_type: resolveKpsType(item),
+    nama_kps: item?.nama_kps || item?.nama_lembaga || '',
+    jenis_kps: item?.jenis_kps || '',
+    nomor_sk: item?.nomor_sk || item?.surat_keputusan || item?.no_sk || '',
+    lokasi_prov: item?.lokasi_prov || item?.provinsi || '',
+    lokasi_kab: item?.lokasi_kab || item?.kabupaten || '',
+    lokasi_kec: item?.lokasi_kec || item?.kecamatan || '',
+    lokasi_desa: item?.lokasi_desa || item?.desa || '',
+    lokasi_luas_ha: normalizeNumber(item?.lokasi_luas_ha ?? item?.luas_total),
+    jumlah_kk: normalizeNumber(item?.jumlah_kk ?? item?.jumlah_anggota ?? ((Number(item?.anggota_pria) || 0) + (Number(item?.anggota_wanita) || 0))),
+    balai: item?.balai || '',
+    lat: normalizeOptionalNumber(item?.lat),
+    lng: normalizeOptionalNumber(item?.lng),
+    source_skema: item?.source_skema || '',
+    source_raw_id: item?.source_raw_id || '',
+    source_reference: item?.source_reference || '',
+    skema_pemanfaatan: item?.skema_pemanfaatan || '',
+    tanggal_sk: item?.tanggal_sk || '',
+    has_skps: Boolean(item?.has_skps),
+    has_petaps: Boolean(item?.has_petaps),
+    has_rkps: Boolean(item?.has_rkps),
+});
+
+const normalizeKpsItems = (row: any): KpsData[] => {
+    if (Array.isArray(row?.kps_items) && row.kps_items.length > 0) {
+        return row.kps_items.map((item: any) => normalizeKpsItem(item));
+    }
+
+    const kpsIds = normalizeStringArray(row?.kps_ids);
+    const namaKps = normalizeStringArray(row?.nama_kps);
+    const jenisKps = normalizeStringArray(row?.jenis_kps);
+    const typeKps = normalizeStringArray(row?.type_kps);
+    const nomorSk = normalizeStringArray(row?.nomor_sk);
+
+    return kpsIds.map((id, index) => normalizeKpsItem({
+        id,
+        nama_lembaga: namaKps[index] || '',
+        surat_keputusan: nomorSk[index] || '',
+        skema: typeKps[index] || jenisKps[index] || '',
+        provinsi: row?.lokasi_prov || '',
+        kabupaten: row?.lokasi_kab || '',
+        kecamatan: row?.lokasi_kec || '',
+        desa: row?.lokasi_desa || '',
+        luas_total: index === 0 ? row?.lokasi_luas_ha : 0,
+        jumlah_anggota: index === 0 ? row?.jumlah_kk : 0,
+        nama_kps: namaKps[index] || '',
+        jenis_kps: jenisKps[index] || '',
+        kps_type: typeKps[index] || jenisKps[index] || '',
+        nomor_sk: nomorSk[index] || '',
+        lokasi_prov: row?.lokasi_prov || '',
+        lokasi_kab: row?.lokasi_kab || '',
+        lokasi_kec: row?.lokasi_kec || '',
+        lokasi_desa: row?.lokasi_desa || '',
+        lokasi_luas_ha: index === 0 ? row?.lokasi_luas_ha : 0,
+        jumlah_kk: index === 0 ? row?.jumlah_kk : 0,
+    }));
 };
 
 const uploadToServer = async (
@@ -82,10 +178,7 @@ export const AduanService = {
             pengadu_instansi: formData.pengadu_instansi,
             kategori_masalah: formData.kategori_masalah,
             ringkasan_masalah: formData.ringkasan_masalah,
-            id_kps_api: selectedKpsList.map(k => k.id_kps_api),
-            nama_kps: selectedKpsList.map(k => k.nama_kps),
-            jenis_kps: selectedKpsList.map(k => resolveKpsType(k)),
-            nomor_sk: selectedKpsList.map(k => k.nomor_sk),
+            kps_ids: selectedKpsList.map((k) => k.id),
             lokasi_prov: formData.lokasi_prov,
             lokasi_kab: formData.lokasi_kab,
             lokasi_kec: formData.lokasi_kec,
@@ -308,10 +401,7 @@ export const AduanService = {
         if (resolvedPerihal !== undefined) updateData.surat_asal_perihal = resolvedPerihal;
         if (data.ringkasanMasalah !== undefined) updateData.ringkasan_masalah = data.ringkasanMasalah;
         if (data.kategoriMasalah !== undefined) updateData.kategori_masalah = data.kategoriMasalah;
-        if (Array.isArray(data.id_kps_api)) updateData.id_kps_api = data.id_kps_api;
-        if (Array.isArray(data.nama_kps)) updateData.nama_kps = data.nama_kps;
-        if (Array.isArray(data.jenis_kps)) updateData.jenis_kps = data.jenis_kps;
-        if (Array.isArray(data.nomor_sk)) updateData.nomor_sk = data.nomor_sk;
+        if (Array.isArray(data.kps_ids)) updateData.kps_ids = data.kps_ids;
         if (data.lokasi) {
             if (data.lokasi.provinsi !== undefined) updateData.lokasi_prov = data.lokasi.provinsi;
             if (data.lokasi.kabupaten !== undefined) updateData.lokasi_kab = data.lokasi.kabupaten;
@@ -379,68 +469,88 @@ export const AduanService = {
         return true;
     },
 
-    mapToAduan: (row: any): Aduan => ({
-        id: row.id,
-        nomor_tiket: row.nomor_tiket,
-        nomorTiket: row.nomor_tiket,
-        created_at: new Date(row.created_at),
-        createdAt: new Date(row.created_at),
-        surat_nomor: row.surat_nomor,
-        surat_tanggal: row.surat_tanggal ? new Date(row.surat_tanggal) : undefined,
-        surat_asal_perihal: row.surat_asal_perihal,
-        pengadu_nama: row.pengadu_nama,
-        pengadu_instansi: row.pengadu_instansi,
-        kategori_masalah: row.kategori_masalah,
-        kategoriMasalah: row.kategori_masalah,
-        ringkasan_masalah: row.ringkasan_masalah,
-        ringkasanMasalah: row.ringkasan_masalah,
-        status: row.status,
-        prioritas: 'biasa',
-        id_kps_api: row.id_kps_api || [],
-        nama_kps: row.nama_kps || [],
-        jenis_kps: row.jenis_kps || [],
-        type_kps: row.type_kps || [],
-        nomor_sk: row.nomor_sk || [],
-        lokasi_prov: row.lokasi_prov,
-        lokasi_kab: row.lokasi_kab,
-        lokasi_kec: row.lokasi_kec,
-        lokasi_desa: row.lokasi_desa,
-        lokasi_luas_ha: Number(row.lokasi_luas_ha) || 0,
-        jumlah_kk: Number(row.jumlah_kk) || 0,
-        lokasi_lat: Array.isArray(row.lokasi_lat) ? row.lokasi_lat.map(Number) : undefined,
-        lokasi_lng: Array.isArray(row.lokasi_lng) ? row.lokasi_lng.map(Number) : undefined,
-        alasan_penolakan: row.alasan_penolakan,
-        alasanPenolakan: row.alasan_penolakan,
-        createdBy: row.created_by,
-        createdByName: row.creator_name,
-        updatedAt: new Date(row.updated_at),
-        documents: row.documents || [],
-        pengadu: {
-            nama: row.pengadu_nama || '',
-            telepon: row.pengadu_telepon || '',
-            email: row.pengadu_email || '',
-            instansi: row.pengadu_instansi || ''
-        },
-        suratMasuk: {
-            nomorSurat: row.surat_nomor || '',
-            tanggalSurat: row.surat_tanggal ? new Date(row.surat_tanggal) : new Date(),
-            asalSurat: '',
+    mapToAduan: (row: any): Aduan => {
+        const kpsItems = normalizeKpsItems(row);
+        const kpsIds = normalizeStringArray(row.kps_ids).length > 0
+            ? normalizeStringArray(row.kps_ids)
+            : kpsItems.map((item) => item.id);
+        const namaKps = normalizeStringArray(row.nama_kps).length > 0
+            ? normalizeStringArray(row.nama_kps)
+            : kpsItems.map((item) => item.nama_kps || item.nama_lembaga || '');
+        const jenisKps = normalizeStringArray(row.jenis_kps).length > 0
+            ? normalizeStringArray(row.jenis_kps)
+            : kpsItems.map((item) => item.jenis_kps || item.skema || '');
+        const typeKps = normalizeStringArray(row.type_kps).length > 0
+            ? normalizeStringArray(row.type_kps)
+            : kpsItems.map((item) => item.kps_type || item.skema || item.jenis_kps);
+        const nomorSk = normalizeStringArray(row.nomor_sk).length > 0
+            ? normalizeStringArray(row.nomor_sk)
+            : kpsItems.map((item) => item.nomor_sk || item.surat_keputusan || '');
+
+        return {
+            id: row.id,
+            nomor_tiket: row.nomor_tiket,
+            nomorTiket: row.nomor_tiket,
+            created_at: new Date(row.created_at),
+            createdAt: new Date(row.created_at),
+            surat_nomor: row.surat_nomor,
+            surat_tanggal: row.surat_tanggal ? new Date(row.surat_tanggal) : undefined,
+            surat_asal_perihal: row.surat_asal_perihal,
+            pengadu_nama: row.pengadu_nama,
+            pengadu_instansi: row.pengadu_instansi,
+            kategori_masalah: row.kategori_masalah,
+            kategoriMasalah: row.kategori_masalah,
+            ringkasan_masalah: row.ringkasan_masalah,
+            ringkasanMasalah: row.ringkasan_masalah,
+            status: row.status,
+            prioritas: 'biasa',
+            kps_ids: kpsIds,
+            nama_kps: namaKps,
+            jenis_kps: jenisKps,
+            type_kps: typeKps,
+            nomor_sk: nomorSk,
+            kps_items: kpsItems,
+            lokasi_prov: row.lokasi_prov,
+            lokasi_kab: row.lokasi_kab,
+            lokasi_kec: row.lokasi_kec,
+            lokasi_desa: row.lokasi_desa,
+            lokasi_luas_ha: normalizeNumber(row.lokasi_luas_ha),
+            jumlah_kk: normalizeNumber(row.jumlah_kk),
+            lokasi_lat: Array.isArray(row.lokasi_lat) ? row.lokasi_lat.map(Number) : undefined,
+            lokasi_lng: Array.isArray(row.lokasi_lng) ? row.lokasi_lng.map(Number) : undefined,
+            alasan_penolakan: row.alasan_penolakan,
+            alasanPenolakan: row.alasan_penolakan,
+            createdBy: row.created_by,
+            createdByName: row.creator_name,
+            updatedAt: new Date(row.updated_at),
+            documents: row.documents || [],
+            pengadu: {
+                nama: row.pengadu_nama || '',
+                telepon: row.pengadu_telepon || '',
+                email: row.pengadu_email || '',
+                instansi: row.pengadu_instansi || ''
+            },
+            suratMasuk: {
+                nomorSurat: row.surat_nomor || '',
+                tanggalSurat: row.surat_tanggal ? new Date(row.surat_tanggal) : new Date(),
+                asalSurat: '',
+                perihal: row.surat_asal_perihal || '',
+                asalSuratKategori: 'Masyarakat',
+                fileUrl: row.surat_file_url || '',
+            },
+            lokasi: {
+                provinsi: row.lokasi_prov || '',
+                kabupaten: row.lokasi_kab || '',
+                kecamatan: row.lokasi_kec || '',
+                desa: row.lokasi_desa || '',
+                luasHa: normalizeNumber(row.lokasi_luas_ha),
+                balaiId: '',
+                balaiName: '',
+            },
             perihal: row.surat_asal_perihal || '',
-            asalSuratKategori: 'Masyarakat',
-            fileUrl: row.surat_file_url || '',
-        },
-        lokasi: {
-            provinsi: row.lokasi_prov || '',
-            kabupaten: row.lokasi_kab || '',
-            kecamatan: row.lokasi_kec || '',
-            desa: row.lokasi_desa || '',
-            luasHa: Number(row.lokasi_luas_ha) || 0,
-            balaiId: '',
-            balaiName: '',
-        },
-        perihal: row.surat_asal_perihal || '',
-        skema: '',
-        picId: row.pic_id || '',
-        picName: row.pic_name || '',
-    }),
+            skema: typeKps[0] || kpsItems[0]?.kps_type || '',
+            picId: row.pic_id || '',
+            picName: row.pic_name || '',
+        };
+    },
 };

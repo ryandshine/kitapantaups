@@ -1,7 +1,39 @@
 export type Skema = 'HKm' | 'HTR' | 'HD' | 'HA' | 'IPHPS' | 'KulinKK';
 
 export interface KpsData {
-    id_kps_api: string;
+    id: string;
+    id_kps_api?: string;
+    'KPS-ID'?: string;
+    NAMA_KPS?: string;
+    KPS_TYPE?: string;
+    NO_SK?: string;
+    SKEMA?: string;
+    PROVINSI?: string;
+    KAB_KOTA?: string;
+    LUAS_SK?: number;
+    JML_KK?: number;
+    nama_lembaga?: string;
+    surat_keputusan?: string;
+    tanggal?: string;
+    skema?: string;
+    provinsi_id?: string;
+    kabupaten_id?: string;
+    kecamatan_id?: string;
+    desa_id?: string;
+    provinsi?: string;
+    kabupaten?: string;
+    kecamatan?: string;
+    desa?: string;
+    luas_hl?: number;
+    luas_hp?: number;
+    luas_hpt?: number;
+    luas_hpk?: number;
+    luas_hk?: number;
+    luas_apl?: number;
+    luas_total?: number;
+    anggota_pria?: number;
+    anggota_wanita?: number;
+    jumlah_anggota?: number;
     kps_type?: string;
     nama_kps: string;
     jenis_kps: string;
@@ -18,30 +50,17 @@ export interface KpsData {
     luas_hutan_produksi_terbatas?: number;
     luas_hutan_produksi?: number;
     luas_hutan_produksi_konversi?: number;
+    source_skema?: string;
+    source_raw_id?: string;
+    source_reference?: string;
+    skema_pemanfaatan?: string;
+    tanggal_sk?: string;
+    has_skps?: boolean;
+    has_petaps?: boolean;
+    has_rkps?: boolean;
     // For UI tracking
     lat?: number;
     lng?: number;
-
-    // Legacy Uppercase Aliases (from PKPS API)
-    "KPS-ID"?: string;
-    KPS_TYPE?: string;
-    SKEMA?: string;
-    NAMA_KPS?: string;
-    NO_SK?: string;
-    TGL_SK?: string;
-    LUAS_SK?: number;
-    DESA?: string;
-    KECAMATAN?: string;
-    KAB_KOTA?: string;
-    PROVINSI?: string;
-    BALAI?: string;
-    JML_KK?: number;
-    HL?: number;
-    HPT?: number;
-    HP?: number;
-    HPK?: number;
-    SK_PENDAHULU?: string;
-    TGL_SK_AWAL?: string;
 }
 
 export type StatusAduan = string;
@@ -144,11 +163,13 @@ export interface Aduan {
     status: string;
 
     // LOCATION & KPS LOGIC (CRITICAL)
-    id_kps_api: string[];
+    kps_ids: string[];
+    id_kps_api?: string[];
     nama_kps: string[];
     jenis_kps: string[];
     type_kps?: string[];
     nomor_sk: string[];
+    kps_items?: KpsData[];
 
     // Legacy / Transitional Aliases
     nomorTiket?: string;
@@ -181,6 +202,7 @@ export interface Aduan {
     skema?: string;
     arahanDisposisi?: ArahanDisposisi;
     picId?: string;
+    kpsId?: string;
     picName?: string;
     isBlocked?: boolean;
     blocking?: Blocking;
@@ -189,7 +211,6 @@ export interface Aduan {
     alasanPenolakan?: string;
 
     perihal?: string;
-    kpsId?: string;
     skTerkait?: string;
     alasan_penolakan?: string;
     ditolakAt?: string | Date;

@@ -47,8 +47,8 @@ import {
 } from '../components/ui';
 import type { Aduan, KpsData, TindakLanjut } from '../types';
 import { AduanService } from '../lib/aduan.service';
-import { ActivityService } from '../lib/activity.service';
 import { KpsService } from '../lib/kps.service';
+import { ActivityService } from '../lib/activity.service';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAduan';
@@ -65,6 +65,13 @@ const formatDate = (date: Date): string => {
         year: 'numeric',
     }).format(new Date(date));
 };
+
+const resolveKpsType = (kps?: Partial<KpsData>) =>
+    [kps?.skema, kps?.kps_type, kps?.jenis_kps, kps?.source_skema]
+        .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '-';
+
+const getKpsReference = (kps?: Partial<KpsData>) =>
+    kps?.source_reference || [kps?.source_skema, kps?.source_raw_id].filter(Boolean).join(' / ') || '-';
 
 type EditAduanForm = {
     perihal: string;
@@ -174,7 +181,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                     <KpsSearch
                         onSelect={onSelectKps}
-                        placeholder="Ketik ID API KPS, Nama KPS, atau Nomor SK..."
+                        placeholder="Ketik ID KPS, nama KPS, nomor SK, atau referensi sumber..."
                     />
                     <p className="text-[10px] text-muted-foreground mt-2">
                         Cari & pilih data Master KPS. Bisa pilih lebih dari satu.
@@ -194,12 +201,12 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                 </Badge>
                             </div>
                             {editSelectedKpsList.map((kps) => (
-                                <div key={`card-${kps.id_kps_api}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
+                                <div key={`card-${kps.id}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
                                     <div className="mb-2 flex justify-end">
                                         <button
                                             type="button"
                                             className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => onRemoveKps(kps.id_kps_api)}
+                                            onClick={() => onRemoveKps(kps.id)}
                                         >
                                             <Trash2 size={11} />
                                             Hapus
@@ -207,36 +214,40 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
-                                            <span className="text-xs font-mono text-foreground">{kps["KPS-ID"] || kps.id_kps_api || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID KPS</span>
+                                            <span className="text-xs font-mono text-foreground break-all">{kps.id || '-'}</span>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Referensi Sumber</span>
+                                            <span className="text-xs text-foreground">{getKpsReference(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
-                                            <span className="text-xs font-semibold text-foreground">{kps.NAMA_KPS || kps.nama_kps || '-'}</span>
+                                            <span className="text-xs font-semibold text-foreground">{kps.nama_kps || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
-                                            <span className="text-xs font-mono text-foreground">{kps.NO_SK || kps.nomor_sk || '-'}</span>
+                                            <span className="text-xs font-mono text-foreground">{kps.nomor_sk || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
-                                            <span className="text-xs font-semibold text-foreground">{kps.KPS_TYPE || kps.kps_type || kps.SKEMA || kps.jenis_kps || '-'}</span>
+                                            <span className="text-xs font-semibold text-foreground">{resolveKpsType(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
-                                            <span className="text-xs text-foreground">{kps.PROVINSI || kps.lokasi_prov || '-'}</span>
+                                            <span className="text-xs text-foreground">{kps.lokasi_prov || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
-                                            <span className="text-xs text-foreground">{kps.KAB_KOTA || kps.lokasi_kab || '-'}</span>
+                                            <span className="text-xs text-foreground">{kps.lokasi_kab || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.LUAS_SK ?? kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
+                                            <Badge variant="outline" className="w-fit">{(Number(kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.JML_KK ?? kps.jumlah_kk ?? 0) || 0).toLocaleString('id-ID')} KK</Badge>
+                                            <Badge variant="outline" className="w-fit">{(Number(kps.jumlah_kk ?? 0) || 0).toLocaleString('id-ID')} KK</Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -387,7 +398,7 @@ export const AduanDetailPage: React.FC = () => {
 
     // Queries - fetch by ticket number
     const { data: aduan, isLoading: isLoadingAduan, isError: isAduanError, refetch: refetchAduan } = useAduanByTicket(nomorTiket);
-    const { data: selectedKpsInfo } = useKpsDetail(aduan?.id_kps_api?.[0] || aduan?.kpsId);
+    const { data: selectedKpsInfo } = useKpsDetail(aduan?.kps_ids?.[0] || aduan?.id_kps_api?.[0] || aduan?.kpsId);
 
 
     const { data: qTindakLanjutList = [] } = useTindakLanjutList(aduan?.id);
@@ -506,7 +517,7 @@ export const AduanDetailPage: React.FC = () => {
         jumlahKK: source?.jumlahKK || 0,
         skTerkait: source?.skTerkait || '',
         fileUrl: source?.suratMasuk?.fileUrl || '',
-        kpsId: source?.id_kps_api?.[0] || source?.kpsId || '',
+        kpsId: source?.kps_ids?.[0] || source?.id_kps_api?.[0] || source?.kpsId || '',
         asalSurat: source?.suratMasuk?.asalSurat || '',
         suratPerihal: source?.suratMasuk?.perihal || '',
         asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
@@ -532,7 +543,7 @@ export const AduanDetailPage: React.FC = () => {
     const [editSelectedKpsList, setEditSelectedKpsList] = useState<KpsData[]>([]);
     const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
     const lokasiObjekItems = useMemo(() => {
-        const ids = aduan?.id_kps_api || [];
+        const ids = (aduan?.kps_ids && aduan.kps_ids.length > 0) ? aduan.kps_ids : (aduan?.id_kps_api || []);
         const names = aduan?.nama_kps || [];
         const sks = aduan?.nomor_sk || [];
         const types = (aduan?.type_kps && aduan.type_kps.length > 0 ? aduan.type_kps : aduan?.jenis_kps) || [];
@@ -969,10 +980,13 @@ export const AduanDetailPage: React.FC = () => {
         });
 
         // Initialize selected KPS list from current aduan detail first (instant UI parity with detail view)
-        const selectedIds = (aduan.id_kps_api && aduan.id_kps_api.length > 0)
+        const selectedIds = (aduan.kps_ids && aduan.kps_ids.length > 0)
+            ? aduan.kps_ids
+            : (aduan.id_kps_api && aduan.id_kps_api.length > 0)
             ? aduan.id_kps_api
             : (aduan.kpsId ? [aduan.kpsId] : []);
-        const fallbackList: KpsData[] = selectedIds.map((id, idx) => ({
+        const fallbackList: KpsData[] = selectedIds.map((id: string, idx: number) => ({
+            id,
             id_kps_api: id,
             nama_kps: aduan.nama_kps?.[idx] || '-',
             jenis_kps: aduan.jenis_kps?.[idx] || '-',
@@ -989,9 +1003,9 @@ export const AduanDetailPage: React.FC = () => {
 
         if (selectedIds.length > 0) {
             try {
-                const list = await Promise.all(selectedIds.map((id) => KpsService.getKpsById(id)));
+                const list = await Promise.all(selectedIds.map((id: string) => KpsService.getKpsById(id)));
                 const enriched = list
-                    .map((item, idx) => item || fallbackList[idx])
+                    .map((item, idx: number) => item || fallbackList[idx])
                     .filter((item): item is KpsData => !!item);
                 setEditSelectedKpsList(enriched);
             } catch (err) {
@@ -1007,14 +1021,15 @@ export const AduanDetailPage: React.FC = () => {
 
     const handleKpsSelect = (kps: KpsData) => {
         setEditSelectedKpsList((prev) => {
-            if (prev.some((item) => item.id_kps_api === kps.id_kps_api)) return prev;
+            const nextId = kps.id || kps.id_kps_api || '';
+            if (prev.some((item) => (item.id || item.id_kps_api || '') === nextId)) return prev;
             const nextList = [...prev, kps];
             const totalLuas = nextList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0);
             const totalKK = nextList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0);
             const first = nextList[0];
             setEditForm((current) => ({
                 ...current,
-                kpsId: first?.id_kps_api || '',
+                kpsId: first?.id || first?.id_kps_api || '',
                 skema: ((first?.kps_type || first?.jenis_kps) as any) || current.skema,
                 skTerkait: nextList.map((item) => item.nomor_sk).filter(Boolean).join('; '),
                 jumlahKK: totalKK,
@@ -1032,13 +1047,13 @@ export const AduanDetailPage: React.FC = () => {
 
     const handleRemoveSelectedKps = (kpsId: string) => {
         setEditSelectedKpsList((prev) => {
-            const nextList = prev.filter((item) => item.id_kps_api !== kpsId);
+            const nextList = prev.filter((item) => (item.id || item.id_kps_api) !== kpsId);
             const totalLuas = nextList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0);
             const totalKK = nextList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0);
             const first = nextList[0];
             setEditForm((current) => ({
                 ...current,
-                kpsId: first?.id_kps_api || '',
+                kpsId: first?.id || first?.id_kps_api || '',
                 skema: ((first?.kps_type || first?.jenis_kps) as any) || current.skema,
                 skTerkait: nextList.map((item) => item.nomor_sk).filter(Boolean).join('; '),
                 jumlahKK: totalKK,
@@ -1084,7 +1099,7 @@ export const AduanDetailPage: React.FC = () => {
             }
 
             const updateData: Partial<Aduan> & { updatedBy?: string } = {
-                id_kps_api: editSelectedKpsList.map((kps) => kps.id_kps_api).filter(Boolean),
+                kps_ids: editSelectedKpsList.map((kps) => kps.id || kps.id_kps_api || '').filter(Boolean),
                 nama_kps: editSelectedKpsList.map((kps) => kps.nama_kps || kps.NAMA_KPS || '').filter(Boolean),
                 jenis_kps: editSelectedKpsList.map((kps) => kps.kps_type || kps.jenis_kps || kps.KPS_TYPE || '').filter(Boolean),
                 nomor_sk: editSelectedKpsList.map((kps) => kps.nomor_sk || kps.NO_SK || '').filter(Boolean),
@@ -1093,7 +1108,6 @@ export const AduanDetailPage: React.FC = () => {
                 ringkasanMasalah: editForm.ringkasanMasalah,
                 picId: editForm.picId,
                 picName: editForm.picName,
-                kpsId: editForm.kpsId,
                 skema: editForm.skema,
                 jumlahKK: editForm.jumlahKK,
                 skTerkait: editForm.skTerkait,
