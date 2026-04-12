@@ -49,6 +49,7 @@ import type { Aduan, KpsData, TindakLanjut } from '../types';
 import { AduanService } from '../lib/aduan.service';
 import { KpsService } from '../lib/kps.service';
 import { ActivityService } from '../lib/activity.service';
+import { authorizedFetch } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAduan';
@@ -592,15 +593,7 @@ export const AduanDetailPage: React.FC = () => {
 
     const [editSelectedKpsList, setEditSelectedKpsList] = useState<KpsData[]>([]);
     const fetchAuthorizedFile = async (url: string) => {
-        const token = localStorage.getItem('access_token');
-        const headers: Record<string, string> = {};
-
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
-        }
-
-        const response = await fetch(url, {
-            headers,
+        const response = await authorizedFetch(url, {
             credentials: 'include',
         });
 

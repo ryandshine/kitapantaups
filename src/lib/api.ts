@@ -45,6 +45,53 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+export async function authorizedFetch(input: string, options: RequestInit = {}, allowRetry = true): Promise<Response> {
+  const token = getToken()
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string>),
+  }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const fullUrl = /^https?:\/\//i.test(input)
+    ? input
+    : `${API_URL}${input.startsWith('/') ? input : `/${input}`}`
+
+  let res: Response
+  try {
+    res = await fetch(fullUrl, {
+      ...options,
+      headers,
+      credentials: options.credentials ?? 'include',
+    })
+  } catch (err: any) {
+    console.error('Authorized Fetch Error:', err)
+    if (err.name === 'TypeError' && (err.message === 'Failed to fetch' || err.message.includes('NetworkError'))) {
+      throw new Error(`Gagal terhubung ke API: ${fullUrl}.`)
+    }
+    throw err
+  }
+
+  if (res.status === 401 && allowRetry) {
+    const nextAccessToken = await refreshAccessToken()
+    if (nextAccessToken) {
+      const retryHeaders: Record<string, string> = {
+        ...headers,
+        Authorization: `Bearer ${nextAccessToken}`,
+      }
+      res = await fetch(fullUrl, {
+        ...options,
+        headers: retryHeaders,
+        credentials: options.credentials ?? 'include',
+      })
+    } else {
+      clearTokens()
+      throw new Error('Sesi login habis. Silakan login ulang.')
+    }
+  }
+
+  return res
+}
+
 export async function apiFetch(path: string, options: RequestInit = {}, allowRetry = true): Promise<any> {
   const token = getToken()
   const headers: Record<string, string> = {
