@@ -233,6 +233,16 @@ type FeedbackState = {
     message: string;
 } | null;
 
+const DEFAULT_JENIS_TL_SELECT_OPTIONS = [
+    { value: 'Telaah Administrasi', label: 'Telaah Administrasi' },
+    { value: 'Dokumen Lengkap / Puldasi', label: 'Dokumen Lengkap / Puldasi' },
+    { value: 'Sudah Puldasi / Agenda Rapat Pembahasan', label: 'Sudah Puldasi / Agenda Rapat Pembahasan' },
+    { value: 'ND Perubahan Persetujuan PS', label: 'ND Perubahan Persetujuan PS' },
+    { value: 'Respon pengadu/Pihak ketiga', label: 'Respon pengadu/Pihak ketiga' },
+    { value: 'Surat Penolakan Aduan', label: 'Surat Penolakan Aduan' },
+    { value: 'Lainnya', label: 'Lainnya' }
+] as const;
+
 const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
 
 const getFileAccessErrorMessage = async (response: Response) => {
@@ -912,6 +922,23 @@ export const AduanDetailPage: React.FC = () => {
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
     const [suratUploadProgress, setSuratUploadProgress] = useState(0);
     const [suratFileStatuses, setSuratFileStatuses] = useState<FileUploadItemState[]>([]);
+    const jenisTlSelectOptions = useMemo(() => {
+        const seen = new Set<string>();
+        const options: { value: string; label: string }[] = [];
+        const addOption = (value?: string) => {
+            const normalizedValue = value?.trim();
+            if (!normalizedValue) return;
+            const key = normalizedValue.toLowerCase();
+            if (seen.has(key)) return;
+            seen.add(key);
+            options.push({ value: normalizedValue, label: normalizedValue });
+        };
+
+        DEFAULT_JENIS_TL_SELECT_OPTIONS.forEach((option) => addOption(option.value));
+        jenisTlOptions.forEach((option) => addOption(option.nama_jenis_tl));
+
+        return options;
+    }, [jenisTlOptions]);
     const picOptions = useMemo(
         () => [
             { value: '__none__', label: '-- Pilih PIC --' },
@@ -989,9 +1016,12 @@ export const AduanDetailPage: React.FC = () => {
     // Fetch Jenis Tindak Lanjut when TL Modal opens
     useEffect(() => {
         if (isTLModalOpen || isEditTlModalOpen) {
-            AduanService.getJenisTindakLanjut().then(data => {
-                setJenisTlOptions(data);
-            });
+            AduanService.getJenisTindakLanjut()
+                .then((data) => setJenisTlOptions(data))
+                .catch((err) => {
+                    console.error('Failed to fetch jenis tindak lanjut:', err);
+                    setJenisTlOptions([]);
+                });
         }
     }, [isTLModalOpen, isEditTlModalOpen]);
 
@@ -1599,6 +1629,31 @@ export const AduanDetailPage: React.FC = () => {
         visible: { y: 0, opacity: 1 }
     };
 
+    const problemDescriptionCard = (
+        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
+            <CardHeader className="border-b border-border/70 bg-muted/30">
+                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <FileText size={16} />
+                    </div>
+                    Ringkasan Permasalahan
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+                <h3 className="mb-3 text-lg font-semibold text-foreground">
+                    {aduan.perihal}
+                </h3>
+                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-muted-foreground">
+                    {aduan.ringkasanMasalah ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{aduan.ringkasanMasalah}</ReactMarkdown>
+                    ) : (
+                        <span className="italic text-muted-foreground">Tidak ada ringkasan detail.</span>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <motion.div
             initial="hidden"
@@ -1852,6 +1907,10 @@ export const AduanDetailPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            <motion.div variants={itemVariants} className="no-print">
+                {problemDescriptionCard}
+            </motion.div>
 
             <motion.div variants={itemVariants} className="no-print grid grid-cols-1 gap-3 lg:grid-cols-[1.7fr_1fr]">
                 <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
@@ -2215,32 +2274,6 @@ export const AduanDetailPage: React.FC = () => {
 
 
 
-                    {/* Problem Description */}
-                    <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="border-b border-border/70 bg-muted/30">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
-                                    <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                                        <FileText size={16} />
-                                    </div>
-                                    Ringkasan Permasalahan
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <h3 className="font-semibold text-lg text-foreground mb-3">
-                                    {aduan.perihal}
-                                </h3>
-                                <div className="text-sm text-muted-foreground leading-relaxed prose prose-slate prose-sm max-w-none">
-                                    {aduan.ringkasanMasalah ? (
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{aduan.ringkasanMasalah}</ReactMarkdown>
-                                    ) : (
-                                        <span className="text-muted-foreground italic">Tidak ada ringkasan detail.</span>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
                     {/* Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
@@ -2562,17 +2595,7 @@ export const AduanDetailPage: React.FC = () => {
                     <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
                         <Select
                             label="Jenis Tindak Lanjut"
-                            options={jenisTlOptions.length > 0
-                                ? jenisTlOptions.map(t => ({ value: t.nama_jenis_tl, label: t.nama_jenis_tl }))
-                                : [
-                                    { value: 'Telaah Administrasi', label: 'Telaah Administrasi' },
-                                    { value: 'Dokumen Lengkap / Puldasi', label: 'Dokumen Lengkap / Puldasi' },
-                                    { value: 'Sudah Puldasi / Agenda Rapat Pembahasan', label: 'Sudah Puldasi / Agenda Rapat Pembahasan' },
-                                    { value: 'ND Perubahan Persetujuan PS', label: 'ND Perubahan Persetujuan PS' },
-                                    { value: 'Surat Penolakan Aduan', label: 'Surat Penolakan Aduan' },
-                                    { value: 'Lainnya', label: 'Lainnya' }
-                                ]
-                            }
+                            options={jenisTlSelectOptions}
                             value={tlForm.jenisTL}
                             onChange={(val) => setTlForm({ ...tlForm, jenisTL: val })}
                             fullWidth
@@ -2658,17 +2681,7 @@ export const AduanDetailPage: React.FC = () => {
                     <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
                         <Select
                             label="Jenis Tindak Lanjut"
-                            options={jenisTlOptions.length > 0
-                                ? jenisTlOptions.map(t => ({ value: t.nama_jenis_tl, label: t.nama_jenis_tl }))
-                                : [
-                                    { value: 'Telaah Administrasi', label: 'Telaah Administrasi' },
-                                    { value: 'Dokumen Lengkap / Puldasi', label: 'Dokumen Lengkap / Puldasi' },
-                                    { value: 'Sudah Puldasi / Agenda Rapat Pembahasan', label: 'Sudah Puldasi / Agenda Rapat Pembahasan' },
-                                    { value: 'ND Perubahan Persetujuan PS', label: 'ND Perubahan Persetujuan PS' },
-                                    { value: 'Surat Penolakan Aduan', label: 'Surat Penolakan Aduan' },
-                                    { value: 'Lainnya', label: 'Lainnya' }
-                                ]
-                            }
+                            options={jenisTlSelectOptions}
                             value={editTlForm.jenisTL}
                             onChange={(val) => setEditTlForm(prev => ({ ...prev, jenisTL: val }))}
                             fullWidth

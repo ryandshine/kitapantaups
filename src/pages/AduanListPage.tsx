@@ -57,6 +57,27 @@ export const AduanListPage: React.FC = () => {
         return '-';
     };
 
+    const getDesktopColumnClassName = (columnId: string) => {
+        switch (columnId) {
+            case 'nomor_tiket':
+                return 'w-[9.5rem]';
+            case 'status':
+                return 'w-[8.5rem]';
+            case 'nama_kps':
+                return 'w-[14rem]';
+            case 'lokasi_prov':
+                return 'w-[12rem]';
+            case 'pengadu_nama':
+                return 'w-[11rem]';
+            case 'surat_nomor':
+                return 'w-[11rem]';
+            case 'ringkasan_masalah':
+                return 'min-w-[22rem] w-[32%]';
+            default:
+                return '';
+        }
+    };
+
     const columns = useMemo(() => [
         columnHelper.accessor('nomor_tiket', {
             header: 'Tiket',
@@ -147,7 +168,7 @@ export const AduanListPage: React.FC = () => {
                 const val = info.getValue();
                 if (!val) return '-';
                 return (
-                    <p className="text-xs truncate" title={val}>
+                    <p className="max-w-none whitespace-normal break-words text-xs leading-relaxed" title={val}>
                         {val}
                     </p>
                 );
@@ -316,7 +337,7 @@ export const AduanListPage: React.FC = () => {
                             <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
                         </div>
                     ) : (
-                        <Table className="w-full min-w-[1120px] lg:min-w-0 lg:table-fixed border-none shadow-none">
+                        <Table className="w-full min-w-[1280px] lg:table-fixed border-none shadow-none">
                             <TableHeader className="z-20 bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur">
                                 {table.getHeaderGroups().map(headerGroup => (
                                     <TableRow key={headerGroup.id} className="hover:bg-transparent">
@@ -324,7 +345,7 @@ export const AduanListPage: React.FC = () => {
                                             <TableHead
                                                 key={header.id}
                                                 onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                                                className={`${isCompact ? 'p-2.5 text-[10px]' : 'p-4 text-[11px]'} align-top ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
+                                                className={`${isCompact ? 'p-2.5 text-[10px]' : 'p-4 text-[11px]'} ${getDesktopColumnClassName(header.column.id)} align-top ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
                                             >
                                                 <div className="flex items-center gap-1">
                                                     {header.isPlaceholder
@@ -355,7 +376,7 @@ export const AduanListPage: React.FC = () => {
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell
                                                     key={cell.id}
-                                                    className={`${isCompact ? 'p-2.5 text-[11px]' : 'p-4 text-xs'} align-top text-foreground`}
+                                                    className={`${isCompact ? 'p-2.5 text-[11px]' : 'p-4 text-xs'} ${getDesktopColumnClassName(cell.column.id)} align-top text-foreground`}
                                                 >
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </TableCell>
