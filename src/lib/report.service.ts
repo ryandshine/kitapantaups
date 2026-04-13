@@ -23,17 +23,17 @@ const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
     status: { id: 'status', label: 'Status', getValue: (row) => row.status },
     namaKps: {
         id: 'namaKps',
-        label: 'Nama KPS',
+        label: 'nama_lembaga',
         getValue: (row) => row.nama_kps && row.nama_kps.length > 0 ? row.nama_kps.join(', ') : '-',
     },
     nomorSk: {
         id: 'nomorSk',
-        label: 'No SK',
+        label: 'surat_keputusan',
         getValue: (row) => row.nomor_sk && row.nomor_sk.length > 0 ? row.nomor_sk.join(', ') : '-',
     },
     typeKps: {
         id: 'typeKps',
-        label: 'Type KPS',
+        label: 'skema',
         getValue: (row) => {
             const values = (row.type_kps && row.type_kps.length > 0) ? row.type_kps : row.jenis_kps;
             return values && values.length > 0 ? values.join(', ') : '-';

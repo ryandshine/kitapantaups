@@ -10,7 +10,8 @@ type LokasiObjekItem = {
     provinsi: string;
     kabupaten: string;
     luasHa: number;
-    jumlahKk: number;
+    anggotaPria?: number;
+    anggotaWanita?: number;
 };
 
 const APP_NAME = 'KitapantauPS';
@@ -92,9 +93,10 @@ const drawHeader = (doc: any, nomorTiket: string) => {
 };
 
 const drawKpiCards = (doc: any, startY: number, cards: Array<{ label: string; value: string }>) => {
-    const cardWidth = 42.8;
-    const cardHeight = 18;
     const gap = 3.2;
+    const availableWidth = 182 - gap * Math.max(cards.length - 1, 0);
+    const cardWidth = availableWidth / Math.max(cards.length, 1);
+    const cardHeight = 18;
 
     cards.forEach((card, idx) => {
         const x = 14 + idx * (cardWidth + gap);
@@ -133,14 +135,16 @@ export const AduanPdfService = {
         const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' }) as any;
         const nomorTiket = aduan.nomorTiket || aduan.nomor_tiket || aduan.id;
         const totalLuas = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.luasHa || 0), 0);
-        const totalKk = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.jumlahKk || 0), 0);
+        const totalAnggotaPria = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.anggotaPria || 0), 0);
+        const totalAnggotaWanita = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.anggotaWanita || 0), 0);
 
         drawHeader(doc, nomorTiket);
         drawKpiCards(doc, 49, [
             { label: 'Status', value: compact(aduan.status).toUpperCase() },
             { label: 'Lokasi Objek', value: `${(lokasiObjekItems || []).length}` },
-            { label: 'Total Luas', value: `${totalLuas.toLocaleString('id-ID')} Ha` },
-            { label: 'Total KK', value: `${totalKk.toLocaleString('id-ID')} KK` },
+            { label: 'Total luas_total', value: `${totalLuas.toLocaleString('id-ID')} Ha` },
+            { label: 'Total anggota_pria', value: `${totalAnggotaPria.toLocaleString('id-ID')}` },
+            { label: 'Total anggota_wanita', value: `${totalAnggotaWanita.toLocaleString('id-ID')}` },
         ]);
 
         drawSectionTitle(doc, 74, 'Informasi Utama Aduan');
@@ -176,14 +180,15 @@ export const AduanPdfService = {
             compact(item.provinsi),
             compact(item.kabupaten),
             `${Number(item.luasHa || 0).toLocaleString('id-ID')} Ha`,
-            `${Number(item.jumlahKk || 0).toLocaleString('id-ID')} KK`,
+            `${Number(item.anggotaPria || 0).toLocaleString('id-ID')}`,
+            `${Number(item.anggotaWanita || 0).toLocaleString('id-ID')}`,
         ]);
 
         drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Lokasi Objek KPS');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['ID API KPS', 'Nama KPS', 'No SK', 'KPS Type', 'Provinsi', 'Kabupaten', 'Luas', 'Jumlah KK']],
-            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-']],
+            head: [['id', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'anggota_pria', 'anggota_wanita']],
+            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-']],
             styles: { fontSize: 8, cellPadding: 2, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [250, 252, 255] },
@@ -197,7 +202,8 @@ export const AduanPdfService = {
                 4: { cellWidth: 24 },
                 5: { cellWidth: 24 },
                 6: { cellWidth: 18 },
-                7: { cellWidth: 21 },
+                7: { cellWidth: 16 },
+                8: { cellWidth: 16 },
             },
         });
 

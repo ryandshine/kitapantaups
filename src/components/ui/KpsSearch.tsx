@@ -13,7 +13,7 @@ interface KpsSearchProps {
 
 export const KpsSearch: React.FC<KpsSearchProps> = ({
     onSelect,
-    placeholder = 'Ketik Nama KPS atau Nomor SK...',
+    placeholder = 'Ketik id, nama_lembaga, atau surat_keputusan...',
     label = 'Cari KPS'
 }) => {
     const [query, setQuery] = useState('');
@@ -116,7 +116,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
     const getDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || '-';
     const getDisplayType = (kps: KpsData) => kps.skema || kps.kps_type || kps.jenis_kps || '-';
     const getDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || '-';
-    const getDisplayReference = (kps: KpsData) => kps.source_reference || kps.id;
+    const getDisplayId = (kps: KpsData) => kps.id;
     const getDisplayKabupaten = (kps: KpsData) => kps.kabupaten || kps.lokasi_kab || '';
     const getDisplayProvinsi = (kps: KpsData) => kps.provinsi || kps.lokasi_prov || '';
 
@@ -185,15 +185,10 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                         </div>
                                         <div className="mt-1 flex flex-col gap-1 text-[11px] text-muted-foreground">
                                             <div className="flex flex-wrap items-center gap-1.5 break-all">
-                                                <span className="font-semibold text-foreground/80">ID:</span> {kps.id}
+                                                <span className="font-semibold text-foreground/80">id:</span> {getDisplayId(kps)}
                                                 <span className="mx-1">•</span>
                                                 <span className="font-semibold text-foreground/80">SK:</span> <span className="break-words">{getDisplaySk(kps)}</span>
                                             </div>
-                                            {getDisplayReference(kps) && (
-                                                <div className="flex flex-wrap items-center gap-1.5 break-all">
-                                                    <span className="font-semibold text-foreground/80">Referensi:</span> {getDisplayReference(kps)}
-                                                </div>
-                                            )}
                                             <div className="flex min-w-0 items-start gap-1.5">
                                                 <MapPin size={10} className="mt-0.5 shrink-0" />
                                                 <span className="break-words">{getDisplayKabupaten(kps)}, {getDisplayProvinsi(kps)}</span>

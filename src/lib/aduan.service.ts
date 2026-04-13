@@ -6,9 +6,7 @@ const resolveKpsType = (kps: {
     skema?: string | null;
     kps_type?: string | null;
     jenis_kps?: string | null;
-    KPS_TYPE?: string | null;
-    SKEMA?: string | null;
-}) => [kps.skema, kps.kps_type, kps.jenis_kps, kps.KPS_TYPE, kps.SKEMA]
+}) => [kps.skema, kps.kps_type, kps.jenis_kps]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
 
 const getErrorMessage = (error: unknown) => {
@@ -155,9 +153,6 @@ const normalizeKpsItem = (item: any): KpsData => ({
     balai: item?.balai || '',
     lat: normalizeOptionalNumber(item?.lat),
     lng: normalizeOptionalNumber(item?.lng),
-    source_skema: item?.source_skema || '',
-    source_raw_id: item?.source_raw_id || '',
-    source_reference: item?.source_reference || '',
     skema_pemanfaatan: item?.skema_pemanfaatan || '',
     tanggal_sk: item?.tanggal_sk || '',
     has_skps: Boolean(item?.has_skps),

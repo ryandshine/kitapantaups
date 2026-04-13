@@ -2,8 +2,6 @@ export type Skema = 'HKm' | 'HTR' | 'HD' | 'HA' | 'IPHPS' | 'KulinKK';
 
 export interface KpsData {
     id: string;
-    id_kps_api?: string;
-    'KPS-ID'?: string;
     NAMA_KPS?: string;
     KPS_TYPE?: string;
     NO_SK?: string;
@@ -50,9 +48,6 @@ export interface KpsData {
     luas_hutan_produksi_terbatas?: number;
     luas_hutan_produksi?: number;
     luas_hutan_produksi_konversi?: number;
-    source_skema?: string;
-    source_raw_id?: string;
-    source_reference?: string;
     skema_pemanfaatan?: string;
     tanggal_sk?: string;
     has_skps?: boolean;
@@ -164,7 +159,6 @@ export interface Aduan {
 
     // LOCATION & KPS LOGIC (CRITICAL)
     kps_ids: string[];
-    id_kps_api?: string[];
     nama_kps: string[];
     jenis_kps: string[];
     type_kps?: string[];

@@ -51,25 +51,37 @@ interface FormData {
     ringkasanMasalah: string;
 }
 
-const resolveKpsType = (kps: KpsData) => [kps.kps_type, kps.jenis_kps, kps.source_skema]
+const resolveKpsType = (kps: KpsData) => [kps.skema, kps.kps_type, kps.jenis_kps]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
 
+const getKpsDisplayId = (kps: KpsData) => kps.id || '-';
 const getKpsDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || kps.NAMA_KPS || '-';
 const getKpsDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || kps.NO_SK || '-';
 const getKpsDisplayProvinsi = (kps: KpsData) => kps.provinsi || kps.lokasi_prov || kps.PROVINSI || '-';
 const getKpsDisplayKabupaten = (kps: KpsData) => kps.kabupaten || kps.lokasi_kab || kps.KAB_KOTA || '-';
-const getKpsDisplayLuas = (kps: KpsData) => Number(kps.lokasi_luas_ha || kps.luas_total || kps.LUAS_SK || 0);
+const getKpsDisplayLuas = (kps: KpsData) => Number(kps.luas_total || kps.lokasi_luas_ha || kps.LUAS_SK || 0);
+const getKpsDisplayAnggotaPria = (kps: KpsData) => Number(kps.anggota_pria || 0);
+const getKpsDisplayAnggotaWanita = (kps: KpsData) => Number(kps.anggota_wanita || 0);
 const getKpsDisplayKK = (kps: KpsData) =>
     Number(
-        kps.jumlah_kk
-        || kps.jumlah_anggota
+        kps.jumlah_anggota
+        || kps.jumlah_kk
         || kps.JML_KK
         || (Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0))
         || 0
     );
 
-const getKpsReference = (kps: KpsData) =>
-    kps.source_reference || [kps.source_skema, kps.source_raw_id].filter(Boolean).join(' / ') || '-';
+const getKpsDisplayTotalKK = (kpsList: KpsData[]) =>
+    kpsList.reduce((sum, item) => sum + getKpsDisplayKK(item), 0);
+
+const getKpsDisplayTotalLuas = (kpsList: KpsData[]) =>
+    kpsList.reduce((sum, item) => sum + getKpsDisplayLuas(item), 0);
+
+const getKpsDisplayTotalAnggotaPria = (kpsList: KpsData[]) =>
+    kpsList.reduce((sum, item) => sum + getKpsDisplayAnggotaPria(item), 0);
+
+const getKpsDisplayTotalAnggotaWanita = (kpsList: KpsData[]) =>
+    kpsList.reduce((sum, item) => sum + getKpsDisplayAnggotaWanita(item), 0);
 
 const DEFAULT_SKEMA = 'HKm';
 const DEFAULT_KATEGORI_OPTIONS = [
@@ -91,11 +103,11 @@ const summarizeSelectedKps = (kpsList: KpsData[]) => {
 
     return {
         skema: firstKps ? resolveKpsType(firstKps) || DEFAULT_SKEMA : DEFAULT_SKEMA,
-        totalArea: kpsList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0),
-        totalKK: kpsList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0),
+        totalArea: getKpsDisplayTotalLuas(kpsList),
+        totalKK: getKpsDisplayTotalKK(kpsList),
         lokasi: {
-            provinsi: firstKps?.lokasi_prov || '',
-            kabupaten: firstKps?.lokasi_kab || '',
+            provinsi: firstKps ? getKpsDisplayProvinsi(firstKps) : '',
+            kabupaten: firstKps ? getKpsDisplayKabupaten(firstKps) : '',
             kecamatan: firstKps?.lokasi_kec || '',
             desa: firstKps?.lokasi_desa || ''
         }
@@ -612,25 +624,29 @@ export const NewAduanPage: React.FC = () => {
                                             </div>
                                             <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
                                                 <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">
-                                                    ID: {selectedKps.id}
+                                                    id: {getKpsDisplayId(selectedKps)}
                                                 </span>
                                                 <span className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground">
-                                                    {resolveKpsType(selectedKps) || DEFAULT_SKEMA}
+                                                    skema: {resolveKpsType(selectedKps) || DEFAULT_SKEMA}
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-3">
+                                        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-2 xl:grid-cols-4">
                                             <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Nomor SK</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">surat_keputusan</p>
                                                 <p className="mt-1 break-words">{getKpsDisplaySk(selectedKps)}</p>
                                             </div>
                                             <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Luas</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">luas_total</p>
                                                 <p className="mt-1">{getKpsDisplayLuas(selectedKps).toLocaleString('id-ID')} Ha</p>
                                             </div>
                                             <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Jumlah KK</p>
-                                                <p className="mt-1">{getKpsDisplayKK(selectedKps).toLocaleString('id-ID')} KK</p>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_pria</p>
+                                                <p className="mt-1">{getKpsDisplayAnggotaPria(selectedKps).toLocaleString('id-ID')}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_wanita</p>
+                                                <p className="mt-1">{getKpsDisplayAnggotaWanita(selectedKps).toLocaleString('id-ID')}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -674,15 +690,21 @@ export const NewAduanPage: React.FC = () => {
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-white border border-border rounded-2xl shadow-sm">
                                             <div className="flex flex-wrap gap-6 text-sm">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total Luas SK</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total luas_total</span>
                                                     <span className="text-xl font-semibold text-foreground leading-none">
-                                                        {selectedKpsList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} <span className="text-xs font-bold text-muted-foreground">Ha</span>
+                                                        {getKpsDisplayTotalLuas(selectedKpsList).toLocaleString('id-ID')} <span className="text-xs font-bold text-muted-foreground">Ha</span>
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col gap-1 border-l pl-6 border-border">
-                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total Jumlah KK</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total anggota_pria</span>
                                                     <span className="text-xl font-semibold text-foreground leading-none">
-                                                        {selectedKpsList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0).toLocaleString('id-ID')} <span className="text-xs font-bold text-muted-foreground">Org</span>
+                                                        {getKpsDisplayTotalAnggotaPria(selectedKpsList).toLocaleString('id-ID')}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col gap-1 border-l pl-6 border-border">
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total anggota_wanita</span>
+                                                    <span className="text-xl font-semibold text-foreground leading-none">
+                                                        {getKpsDisplayTotalAnggotaWanita(selectedKpsList).toLocaleString('id-ID')}
                                                     </span>
                                                 </div>
                                             </div>
@@ -727,13 +749,8 @@ export const NewAduanPage: React.FC = () => {
                                                         <div className="min-w-0">
                                                             <h4 className="text-sm font-semibold text-foreground leading-tight truncate px-0">{getKpsDisplayName(kps)}</h4>
                                                             <div className="flex flex-wrap items-center gap-2 mt-1">
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-secondary rounded text-muted-foreground uppercase tracking-wider">ID: {kps.id}</span>
-                                                                {getKpsReference(kps) !== '-' && (
-                                                                    <span className="text-[9px] font-bold px-1.5 py-0.5 bg-primary/10 rounded text-primary uppercase tracking-wider max-w-[180px] truncate">
-                                                                        REF: {getKpsReference(kps)}
-                                                                    </span>
-                                                                )}
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-muted rounded text-foreground uppercase tracking-wider max-w-[150px] truncate">SK: {getKpsDisplaySk(kps)}</span>
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-secondary rounded text-muted-foreground tracking-wider">id: {getKpsDisplayId(kps)}</span>
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-muted rounded text-foreground tracking-wider max-w-[180px] truncate">skema: {resolveKpsType(kps) || '-'}</span>
                                                             </div>
                                                         </div>
                                                         <button
@@ -758,40 +775,40 @@ export const NewAduanPage: React.FC = () => {
                                                     {/* Card Body - Mini Grid */}
                                                     <div className="p-4 grid grid-cols-2 gap-4">
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">ID KPS</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none break-all">{kps.id || '-'}</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">id</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none break-all">{getKpsDisplayId(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Referensi Sumber</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsReference(kps)}</p>
-                                                        </div>
-                                                        <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Nama KPS</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">nama_lembaga</p>
                                                             <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsDisplayName(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">No SK</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">surat_keputusan</p>
                                                             <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsDisplaySk(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">KPS Type</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">skema</p>
                                                             <p className="text-xs font-medium text-foreground leading-none">{resolveKpsType(kps) || '-'}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Provinsi</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">provinsi</p>
                                                             <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayProvinsi(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Kabupaten</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">kabupaten</p>
                                                             <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayKabupaten(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Luas</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">luas_total</p>
                                                             <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayLuas(kps).toLocaleString('id-ID')} Ha</p>
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Jumlah KK</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayKK(kps).toLocaleString('id-ID')} KK</p>
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">anggota_pria</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayAnggotaPria(kps).toLocaleString('id-ID')}</p>
+                                                        </div>
+                                                        <div className="space-y-0.5">
+                                                            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">anggota_wanita</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayAnggotaWanita(kps).toLocaleString('id-ID')}</p>
                                                         </div>
                                                     </div>
                                                 </div>

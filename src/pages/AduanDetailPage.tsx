@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import {
     ArrowLeft,
     Phone,
@@ -68,14 +69,14 @@ const formatDate = (date: Date): string => {
 };
 
 const resolveKpsType = (kps?: Partial<KpsData>) =>
-    [kps?.skema, kps?.kps_type, kps?.jenis_kps, kps?.source_skema]
+    [kps?.skema, kps?.kps_type, kps?.jenis_kps]
         .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '-';
 
-const getKpsReference = (kps?: Partial<KpsData>) =>
-    kps?.source_reference || [kps?.source_skema, kps?.source_raw_id].filter(Boolean).join(' / ') || '-';
+const getDisplayedKpsId = (kps?: Partial<KpsData>) =>
+    kps?.id || '-';
 
 const getNormalizedKpsId = (kps?: Partial<KpsData>) =>
-    kps?.id || kps?.id_kps_api || kps?.['KPS-ID'] || '';
+    kps?.id || '';
 
 const getMimeTypeFromFileName = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase();
@@ -111,6 +112,17 @@ const isPreviewableMimeType = (mimeType: string) =>
     || mimeType.startsWith('video/')
     || mimeType === 'application/json';
 
+const hasMeaningfulKpsData = (kps?: Partial<KpsData>) =>
+    Boolean(
+        getNormalizedKpsId(kps)
+        || kps?.nama_kps
+        || kps?.nama_lembaga
+        || kps?.nomor_sk
+        || kps?.surat_keputusan
+        || kps?.lokasi_prov
+        || kps?.lokasi_kab
+    );
+
 const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
     const normalizedId = getNormalizedKpsId(kps);
     const normalizedType = resolveKpsType(kps);
@@ -118,23 +130,19 @@ const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
     return {
         ...(kps as KpsData),
         id: normalizedId,
-        id_kps_api: kps?.id_kps_api || normalizedId,
-        nama_kps: kps?.nama_kps || kps?.NAMA_KPS || kps?.nama_lembaga || '-',
-        jenis_kps: kps?.jenis_kps || kps?.KPS_TYPE || normalizedType || '',
-        nomor_sk: kps?.nomor_sk || kps?.NO_SK || kps?.surat_keputusan || '',
-        lokasi_prov: kps?.lokasi_prov || kps?.PROVINSI || kps?.provinsi || '',
-        lokasi_kab: kps?.lokasi_kab || kps?.KAB_KOTA || kps?.kabupaten || '',
+        nama_kps: kps?.nama_kps || kps?.nama_lembaga || '-',
+        jenis_kps: kps?.jenis_kps || normalizedType || '',
+        nomor_sk: kps?.nomor_sk || kps?.surat_keputusan || '',
+        lokasi_prov: kps?.lokasi_prov || kps?.provinsi || '',
+        lokasi_kab: kps?.lokasi_kab || kps?.kabupaten || '',
         lokasi_kec: kps?.lokasi_kec || kps?.kecamatan || '',
         lokasi_desa: kps?.lokasi_desa || kps?.desa || '',
-        lokasi_luas_ha: Number(kps?.lokasi_luas_ha ?? kps?.LUAS_SK ?? kps?.luas_total ?? 0) || 0,
-        jumlah_kk: Number(kps?.jumlah_kk ?? kps?.JML_KK ?? kps?.jumlah_anggota ?? 0) || 0,
+        lokasi_luas_ha: Number(kps?.lokasi_luas_ha ?? kps?.luas_total ?? 0) || 0,
+        jumlah_kk: Number(kps?.jumlah_kk ?? kps?.jumlah_anggota ?? 0) || 0,
         kps_type: normalizedType,
-        nama_lembaga: kps?.nama_lembaga || kps?.nama_kps || kps?.NAMA_KPS || '',
-        surat_keputusan: kps?.surat_keputusan || kps?.nomor_sk || kps?.NO_SK || '',
+        nama_lembaga: kps?.nama_lembaga || kps?.nama_kps || '',
+        surat_keputusan: kps?.surat_keputusan || kps?.nomor_sk || '',
         skema: kps?.skema || normalizedType || '',
-        source_reference: kps?.source_reference || normalizedId,
-        source_skema: kps?.source_skema || kps?.SKEMA || '',
-        source_raw_id: kps?.source_raw_id || '',
         balai: kps?.balai || '',
     };
 };
@@ -297,7 +305,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                     <KpsSearch
                         onSelect={onSelectKps}
-                        placeholder="Ketik ID KPS, nama KPS, nomor SK, atau referensi sumber..."
+                        placeholder="Ketik id, nama_lembaga, atau surat_keputusan..."
                     />
                     <p className="text-[10px] text-muted-foreground mt-2">
                         Cari & pilih data Master KPS. Bisa pilih lebih dari satu.
@@ -310,10 +318,13 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     Total KPS: {editSelectedKpsList.length}
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
-                                    Total Luas: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
+                                    Total luas_total: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.luas_total ?? item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
-                                    Total KK: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.jumlah_kk) || 0), 0).toLocaleString('id-ID')}
+                                    Total anggota_pria: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_pria) || 0), 0).toLocaleString('id-ID')}
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total anggota_wanita: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_wanita) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {editSelectedKpsList.map((kps) => {
@@ -332,40 +343,40 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">ID KPS</span>
-                                            <span className="text-xs font-mono text-foreground break-all">{kpsId || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
+                                            <span className="text-xs font-mono text-foreground break-all">{getDisplayedKpsId(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Referensi Sumber</span>
-                                            <span className="text-xs text-foreground">{getKpsReference(kps)}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
+                                            <span className="text-xs font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
-                                            <span className="text-xs font-semibold text-foreground">{kps.nama_kps || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
+                                            <span className="text-xs font-mono text-foreground">{kps.surat_keputusan || kps.nomor_sk || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
-                                            <span className="text-xs font-mono text-foreground">{kps.nomor_sk || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
+                                            <span className="text-xs font-semibold text-foreground">{kps.skema || resolveKpsType(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
-                                            <span className="text-xs font-semibold text-foreground">{resolveKpsType(kps)}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
+                                            <span className="text-xs text-foreground">{kps.provinsi || kps.lokasi_prov || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
-                                            <span className="text-xs text-foreground">{kps.lokasi_prov || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
+                                            <span className="text-xs text-foreground">{kps.kabupaten || kps.lokasi_kab || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
-                                            <span className="text-xs text-foreground">{kps.lokasi_kab || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
+                                            <Badge variant="outline" className="w-fit">{(Number(kps.luas_total ?? kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
+                                            <Badge variant="outline" className="w-fit">{(Number(kps.anggota_pria ?? 0) || 0).toLocaleString('id-ID')}</Badge>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.jumlah_kk ?? 0) || 0).toLocaleString('id-ID')} KK</Badge>
+                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
+                                            <Badge variant="outline" className="w-fit">{(Number(kps.anggota_wanita ?? 0) || 0).toLocaleString('id-ID')}</Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -520,6 +531,25 @@ export const AduanDetailPage: React.FC = () => {
 
     // Queries - fetch by ticket number
     const { data: aduan, isLoading: isLoadingAduan, isError: isAduanError, refetch: refetchAduan } = useAduanByTicket(nomorTiket);
+    const relatedKpsIds = useMemo(() => {
+        const rawIds = aduan?.kps_ids || [];
+        return [...new Set(rawIds.map((value) => String(value)).filter(Boolean))];
+    }, [aduan?.kps_ids]);
+    const relatedKpsQueries = useQueries({
+        queries: relatedKpsIds.map((kpsId) => ({
+            queryKey: ['kps', 'detail', kpsId],
+            queryFn: () => KpsService.getKpsById(kpsId),
+            enabled: !!kpsId,
+        })),
+    });
+    const relatedKpsById = useMemo(() => {
+        return new Map(
+            relatedKpsIds.map((kpsId, index) => {
+                const detail = relatedKpsQueries[index]?.data;
+                return [kpsId, detail ? normalizeSelectedKps(detail) : null];
+            })
+        );
+    }, [relatedKpsIds, relatedKpsQueries]);
     const { data: qTindakLanjutList = [] } = useTindakLanjutList(aduan?.id);
     const latestTindakLanjut = useMemo(() => {
         if (!qTindakLanjutList.length) return null;
@@ -639,7 +669,7 @@ export const AduanDetailPage: React.FC = () => {
             jumlahKK: source?.jumlahKK || Number(source?.jumlah_kk ?? firstKps?.jumlah_kk ?? 0) || 0,
             skTerkait: source?.skTerkait || source?.nomor_sk?.filter(Boolean).join('; ') || firstKps?.nomor_sk || '',
             fileUrl: source?.suratMasuk?.fileUrl || '',
-            kpsId: source?.kps_ids?.[0] || source?.id_kps_api?.[0] || source?.kpsId || getNormalizedKpsId(firstKps),
+            kpsId: source?.kps_ids?.[0] || source?.kpsId || getNormalizedKpsId(firstKps),
             asalSurat: source?.suratMasuk?.asalSurat || '',
             suratPerihal: source?.suratMasuk?.perihal || '',
             asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
@@ -748,38 +778,52 @@ export const AduanDetailPage: React.FC = () => {
     const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
     const lokasiObjekItems = useMemo(() => {
         const normalizedKpsItems = Array.isArray(aduan?.kps_items)
-            ? aduan.kps_items.map((item) => normalizeSelectedKps(item))
+            ? aduan.kps_items
+                .map((item) => normalizeSelectedKps(item))
+                .filter((item) => hasMeaningfulKpsData(item))
             : [];
-
-        if (normalizedKpsItems.length > 0) {
-            return normalizedKpsItems.map((item) => ({
-                idApiKps: getNormalizedKpsId(item) || '-',
-                namaKps: item.nama_kps || item.nama_lembaga || '-',
-                noSk: item.nomor_sk || item.surat_keputusan || '-',
-                kpsType: resolveKpsType(item) || '-',
-                provinsi: item.lokasi_prov || item.provinsi || aduan?.lokasi?.provinsi || '-',
-                kabupaten: item.lokasi_kab || item.kabupaten || aduan?.lokasi?.kabupaten || '-',
-                luasHa: Number(item.lokasi_luas_ha ?? item.luas_total ?? 0),
-                jumlahKk: Number(item.jumlah_kk ?? item.jumlah_anggota ?? 0),
-            }));
-        }
-
-        const ids = (aduan?.kps_ids && aduan.kps_ids.length > 0) ? aduan.kps_ids : (aduan?.id_kps_api || []);
+        const ids = aduan?.kps_ids || [];
         const names = aduan?.nama_kps || [];
         const sks = aduan?.nomor_sk || [];
         const types = (aduan?.type_kps && aduan.type_kps.length > 0 ? aduan.type_kps : aduan?.jenis_kps) || [];
-        const maxLen = Math.max(ids.length, names.length, sks.length, types.length);
+        const maxLen = Math.max(ids.length, names.length, sks.length, types.length, normalizedKpsItems.length);
 
         if (maxLen > 0) {
             return Array.from({ length: maxLen }).map((_, idx) => ({
-                idApiKps: ids[idx] || '-',
-                namaKps: names[idx] || '-',
-                noSk: sks[idx] || '-',
-                kpsType: types[idx] || '-',
-                provinsi: aduan?.lokasi?.provinsi || '-',
-                kabupaten: aduan?.lokasi?.kabupaten || '-',
-                luasHa: Number(idx === 0 ? (aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0) : 0),
-                jumlahKk: Number(idx === 0 ? (aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0) : 0),
+                ...(function () {
+                    const aggregateKps = normalizedKpsItems[idx];
+                    const explicitId = ids[idx] || getNormalizedKpsId(aggregateKps) || '';
+                    const masterKps = explicitId ? relatedKpsById.get(explicitId) || null : null;
+                    const mergedKps = normalizeSelectedKps({
+                        ...(masterKps || {}),
+                        ...(aggregateKps || {}),
+                        id: explicitId || getNormalizedKpsId(masterKps || aggregateKps) || '',
+                        nama_kps: aggregateKps?.nama_kps || names[idx] || masterKps?.nama_kps || masterKps?.nama_lembaga || '',
+                        nama_lembaga: aggregateKps?.nama_lembaga || masterKps?.nama_lembaga || '',
+                        nomor_sk: aggregateKps?.nomor_sk || sks[idx] || masterKps?.nomor_sk || masterKps?.surat_keputusan || '',
+                        surat_keputusan: aggregateKps?.surat_keputusan || masterKps?.surat_keputusan || '',
+                        jenis_kps: aggregateKps?.jenis_kps || types[idx] || masterKps?.jenis_kps || '',
+                        kps_type: aggregateKps?.kps_type || types[idx] || masterKps?.kps_type || '',
+                        skema: aggregateKps?.skema || masterKps?.skema || '',
+                        lokasi_prov: aggregateKps?.lokasi_prov || masterKps?.lokasi_prov || masterKps?.provinsi || aduan?.lokasi?.provinsi || '',
+                        lokasi_kab: aggregateKps?.lokasi_kab || masterKps?.lokasi_kab || masterKps?.kabupaten || aduan?.lokasi?.kabupaten || '',
+                        lokasi_luas_ha: aggregateKps?.lokasi_luas_ha ?? masterKps?.lokasi_luas_ha ?? masterKps?.luas_total ?? (idx === 0 ? (aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0) : 0),
+                        jumlah_kk: aggregateKps?.jumlah_kk ?? masterKps?.jumlah_kk ?? masterKps?.jumlah_anggota ?? (idx === 0 ? (aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0) : 0),
+                    });
+
+                    return {
+                        idApiKps: getDisplayedKpsId(mergedKps),
+                        namaKps: mergedKps.nama_kps || mergedKps.nama_lembaga || '-',
+                        noSk: mergedKps.nomor_sk || mergedKps.surat_keputusan || '-',
+                        kpsType: resolveKpsType(mergedKps) || '-',
+                        provinsi: mergedKps.lokasi_prov || mergedKps.provinsi || aduan?.lokasi?.provinsi || '-',
+                        kabupaten: mergedKps.lokasi_kab || mergedKps.kabupaten || aduan?.lokasi?.kabupaten || '-',
+                        luasHa: Number(mergedKps.lokasi_luas_ha ?? mergedKps.luas_total ?? 0),
+                        anggotaPria: Number(mergedKps.anggota_pria ?? 0),
+                        anggotaWanita: Number(mergedKps.anggota_wanita ?? 0),
+                        jumlahKk: Number(mergedKps.jumlah_kk ?? mergedKps.jumlah_anggota ?? 0),
+                    };
+                })(),
             }));
         }
 
@@ -791,12 +835,15 @@ export const AduanDetailPage: React.FC = () => {
             provinsi: aduan?.lokasi?.provinsi || '-',
             kabupaten: aduan?.lokasi?.kabupaten || '-',
             luasHa: Number(aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0),
+            anggotaPria: 0,
+            anggotaWanita: 0,
             jumlahKk: Number(aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0),
         }];
-    }, [aduan]);
+    }, [aduan, relatedKpsById]);
 
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
-    const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
+    const totalAnggotaPriaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaPria) || 0), 0);
+    const totalAnggotaWanitaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaWanita) || 0), 0);
     const normalizedStatus = (aduan?.status || 'baru').toLowerCase();
     const nextActionLabel = useMemo(() => {
         if (!aduan) return '-';
@@ -1224,15 +1271,12 @@ export const AduanDetailPage: React.FC = () => {
             ? aduan.kps_items.map((item) => normalizeSelectedKps(item))
             : (((aduan.kps_ids && aduan.kps_ids.length > 0)
                 ? aduan.kps_ids
-                : (aduan.id_kps_api && aduan.id_kps_api.length > 0)
-                ? aduan.id_kps_api
                 : (aduan.kpsId ? [aduan.kpsId] : [])
             ) as string[]).map((id: string, idx: number) => normalizeSelectedKps({
                 id,
-                id_kps_api: id,
-                nama_kps: aduan.nama_kps?.[idx] || '-',
-                jenis_kps: aduan.jenis_kps?.[idx] || aduan.type_kps?.[idx] || '-',
-                nomor_sk: aduan.nomor_sk?.[idx] || '-',
+                nama_lembaga: aduan.nama_kps?.[idx] || '-',
+                skema: aduan.jenis_kps?.[idx] || aduan.type_kps?.[idx] || '-',
+                surat_keputusan: aduan.nomor_sk?.[idx] || '-',
                 lokasi_prov: aduan.lokasi?.provinsi || '',
                 lokasi_kab: aduan.lokasi?.kabupaten || '',
                 lokasi_kec: aduan.lokasi?.kecamatan || '',
@@ -1273,9 +1317,9 @@ export const AduanDetailPage: React.FC = () => {
             const first = nextList[0];
             setEditForm((current) => ({
                 ...current,
-                kpsId: first?.id || first?.id_kps_api || '',
-                skema: ((first?.kps_type || first?.jenis_kps) as any) || current.skema,
-                skTerkait: nextList.map((item) => item.nomor_sk).filter(Boolean).join('; '),
+                kpsId: first?.id || '',
+                skema: (resolveKpsType(first) as any) || current.skema,
+                skTerkait: nextList.map((item) => item.surat_keputusan || item.nomor_sk).filter(Boolean).join('; '),
                 jumlahKK: totalKK,
                 lokasiLuasHa: totalLuas,
                 lokasiDesa: first?.lokasi_desa || current.lokasiDesa,
@@ -1297,9 +1341,9 @@ export const AduanDetailPage: React.FC = () => {
             const first = nextList[0];
             setEditForm((current) => ({
                 ...current,
-                kpsId: first?.id || first?.id_kps_api || '',
-                skema: ((first?.kps_type || first?.jenis_kps) as any) || current.skema,
-                skTerkait: nextList.map((item) => item.nomor_sk).filter(Boolean).join('; '),
+                kpsId: first?.id || '',
+                skema: (resolveKpsType(first) as any) || current.skema,
+                skTerkait: nextList.map((item) => item.surat_keputusan || item.nomor_sk).filter(Boolean).join('; '),
                 jumlahKK: totalKK,
                 lokasiLuasHa: totalLuas,
                 lokasiDesa: first?.lokasi_desa || '',
@@ -1371,9 +1415,9 @@ export const AduanDetailPage: React.FC = () => {
 
             const updateData: Partial<Aduan> & { updatedBy?: string; updatedByName?: string; auditSource?: Partial<Aduan> | null } = {
                 kps_ids: editSelectedKpsList.map((kps) => getNormalizedKpsId(kps)).filter(Boolean),
-                nama_kps: editSelectedKpsList.map((kps) => kps.nama_kps || kps.NAMA_KPS || '').filter(Boolean),
-                jenis_kps: editSelectedKpsList.map((kps) => kps.kps_type || kps.jenis_kps || kps.KPS_TYPE || '').filter(Boolean),
-                nomor_sk: editSelectedKpsList.map((kps) => kps.nomor_sk || kps.NO_SK || '').filter(Boolean),
+                nama_kps: editSelectedKpsList.map((kps) => kps.nama_lembaga || kps.nama_kps || '').filter(Boolean),
+                jenis_kps: editSelectedKpsList.map((kps) => resolveKpsType(kps)).filter(Boolean),
+                nomor_sk: editSelectedKpsList.map((kps) => kps.surat_keputusan || kps.nomor_sk || '').filter(Boolean),
                 updatedBy: user.id,
                 updatedByName: user.displayName,
                 auditSource: aduan,
@@ -1652,14 +1696,15 @@ export const AduanDetailPage: React.FC = () => {
                     <table className="w-full text-xs border-collapse border border-border">
                         <thead>
                             <tr className="bg-muted">
-                                <th className="p-1.5 border border-border text-left">ID API KPS</th>
-                                <th className="p-1.5 border border-border text-left">Nama KPS</th>
-                                <th className="p-1.5 border border-border text-left">No SK</th>
-                                <th className="p-1.5 border border-border text-left">KPS Type</th>
-                                <th className="p-1.5 border border-border text-left">Provinsi</th>
-                                <th className="p-1.5 border border-border text-left">Kabupaten</th>
-                                <th className="p-1.5 border border-border text-left">Luas</th>
-                                <th className="p-1.5 border border-border text-left">Jumlah KK</th>
+                                <th className="p-1.5 border border-border text-left">id</th>
+                                <th className="p-1.5 border border-border text-left">nama_lembaga</th>
+                                <th className="p-1.5 border border-border text-left">surat_keputusan</th>
+                                <th className="p-1.5 border border-border text-left">skema</th>
+                                <th className="p-1.5 border border-border text-left">provinsi</th>
+                                <th className="p-1.5 border border-border text-left">kabupaten</th>
+                                <th className="p-1.5 border border-border text-left">luas_total</th>
+                                <th className="p-1.5 border border-border text-left">anggota_pria</th>
+                                <th className="p-1.5 border border-border text-left">anggota_wanita</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1672,7 +1717,8 @@ export const AduanDetailPage: React.FC = () => {
                                     <td className="p-1.5 border border-border">{item.provinsi}</td>
                                     <td className="p-1.5 border border-border">{item.kabupaten}</td>
                                     <td className="p-1.5 border border-border">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
-                                    <td className="p-1.5 border border-border">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')} KK</td>
+                                    <td className="p-1.5 border border-border">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-border">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -2116,10 +2162,13 @@ export const AduanDetailPage: React.FC = () => {
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
-                                    Total Luas: {totalLuasObjek.toLocaleString('id-ID')} Ha
+                                    Total luas_total: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
                                 <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
-                                    Total KK: {totalKkObjek.toLocaleString('id-ID')}
+                                    Total anggota_pria: {totalAnggotaPriaObjek.toLocaleString('id-ID')}
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                    Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             <div className="grid grid-cols-1 gap-3">
@@ -2127,36 +2176,40 @@ export const AduanDetailPage: React.FC = () => {
                                     <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border/80 bg-white p-3">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">ID API KPS</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
                                                 <span className="text-sm font-mono text-foreground">{item.idApiKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Nama KPS</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
                                                 <span className="text-sm font-semibold text-foreground">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">No SK</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
                                                 <span className="text-sm font-mono text-foreground">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">KPS Type</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
                                                 <span className="text-sm font-semibold text-foreground">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Provinsi</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
                                                 <span className="text-sm text-foreground">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Kabupaten</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
                                                 <span className="text-sm text-foreground">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Luas</span>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Jumlah KK</span>
-                                                <Badge variant="outline" className="w-fit">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')} KK</Badge>
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
+                                                <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
+                                                <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
                                     </div>

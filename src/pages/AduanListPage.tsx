@@ -85,10 +85,10 @@ export const AduanListPage: React.FC = () => {
                             {nama && nama.length > 0 ? nama.join(', ') : '-'}
                         </p>
                         <p className="text-[10px] text-muted-foreground truncate">
-                            Type: {typeKps && typeKps.length > 0 ? typeKps.join(', ') : '-'}
+                            skema: {typeKps && typeKps.length > 0 ? typeKps.join(', ') : '-'}
                         </p>
                         <p className="text-[10px] text-muted-foreground truncate">
-                            SK: {noSk && noSk.length > 0 ? noSk.join(', ') : '-'}
+                            surat_keputusan: {noSk && noSk.length > 0 ? noSk.join(', ') : '-'}
                         </p>
                     </div>
                 );
