@@ -22,12 +22,17 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
     const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
     const latestRequestRef = useRef(0);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            const target = event.target as Node;
+            const clickedInsideInput = containerRef.current?.contains(target);
+            const clickedInsideOverlay = overlayRef.current?.contains(target);
+
+            if (!clickedInsideInput && !clickedInsideOverlay) {
                 setIsOpen(false);
             }
         };
@@ -162,7 +167,10 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
 
             {isOpen && (results.length > 0 || isLoading) && createPortal(
                 <div style={overlayStyle} className="pointer-events-none">
-                    <div className="pointer-events-auto relative z-[2147483647] max-h-[min(22rem,calc(100vh-6rem))] overflow-y-auto overflow-x-hidden rounded-2xl border border-primary/15 bg-white/95 shadow-2xl ring-1 ring-border/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+                    <div
+                        ref={overlayRef}
+                        className="pointer-events-auto relative z-[2147483647] max-h-[min(22rem,calc(100vh-6rem))] overflow-y-auto overflow-x-hidden rounded-2xl border border-primary/15 bg-white/95 shadow-2xl ring-1 ring-border/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
+                    >
                         {isLoading ? (
                             <div className="p-4 text-center text-sm text-muted-foreground italic">
                                 Mencari data...

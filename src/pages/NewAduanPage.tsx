@@ -114,6 +114,29 @@ const summarizeSelectedKps = (kpsList: KpsData[]) => {
     };
 };
 
+const normalizeSelectedKps = (kps: KpsData): KpsData => ({
+    ...kps,
+    id: String(kps.id || ''),
+    nama_lembaga: kps.nama_lembaga || kps.nama_kps || '',
+    surat_keputusan: kps.surat_keputusan || kps.nomor_sk || '',
+    skema: kps.skema || kps.kps_type || kps.jenis_kps || '',
+    provinsi: kps.provinsi || kps.lokasi_prov || '',
+    kabupaten: kps.kabupaten || kps.lokasi_kab || '',
+    kecamatan: kps.kecamatan || kps.lokasi_kec || '',
+    desa: kps.desa || kps.lokasi_desa || '',
+    luas_total: Number(kps.luas_total ?? kps.lokasi_luas_ha ?? 0) || 0,
+    jumlah_anggota: Number(kps.jumlah_anggota ?? kps.jumlah_kk ?? ((Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0)))) || 0,
+    nama_kps: kps.nama_kps || kps.nama_lembaga || '',
+    jenis_kps: kps.jenis_kps || kps.skema || '',
+    nomor_sk: kps.nomor_sk || kps.surat_keputusan || '',
+    lokasi_prov: kps.lokasi_prov || kps.provinsi || '',
+    lokasi_kab: kps.lokasi_kab || kps.kabupaten || '',
+    lokasi_kec: kps.lokasi_kec || kps.kecamatan || '',
+    lokasi_desa: kps.lokasi_desa || kps.desa || '',
+    lokasi_luas_ha: Number(kps.lokasi_luas_ha ?? kps.luas_total ?? 0) || 0,
+    jumlah_kk: Number(kps.jumlah_kk ?? kps.jumlah_anggota ?? ((Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0)))) || 0,
+});
+
 const extractValidKpsCoordinates = (kpsList: KpsData[]) => {
     const coordinatePairs = kpsList
         .map((kps) => {
@@ -300,11 +323,12 @@ export const NewAduanPage: React.FC = () => {
     };
 
     const handleKpsSelect = (kps: KpsData) => {
+        const normalizedKps = normalizeSelectedKps(kps);
         // Prevent duplicates
-        if (selectedKpsList.some(item => item.id === kps.id)) return;
+        if (selectedKpsList.some(item => item.id === normalizedKps.id)) return;
 
         // 1. Initial State
-        const newKps = { ...kps };
+        const newKps = { ...normalizedKps };
         const newList = [...selectedKpsList, newKps];
         const kpsSummary = summarizeSelectedKps(newList);
         setSelectedKpsList(newList);
@@ -343,6 +367,9 @@ export const NewAduanPage: React.FC = () => {
             }
             if (!formData.pengadu.nama.trim()) {
                 throw new Error('Nama pengadu wajib diisi.');
+            }
+            if (selectedKpsList.length === 0) {
+                throw new Error('Pilih minimal satu KPS sebelum menyimpan aduan.');
             }
             if (!formData.ringkasanMasalah.trim()) {
                 throw new Error('Ringkasan masalah wajib diisi.');

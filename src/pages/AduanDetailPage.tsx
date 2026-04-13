@@ -827,18 +827,7 @@ export const AduanDetailPage: React.FC = () => {
             }));
         }
 
-        return [{
-            idApiKps: '-',
-            namaKps: '-',
-            noSk: '-',
-            kpsType: '-',
-            provinsi: aduan?.lokasi?.provinsi || '-',
-            kabupaten: aduan?.lokasi?.kabupaten || '-',
-            luasHa: Number(aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0),
-            anggotaPria: 0,
-            anggotaWanita: 0,
-            jumlahKk: Number(aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0),
-        }];
+        return [];
     }, [aduan, relatedKpsById]);
 
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
@@ -2171,8 +2160,13 @@ export const AduanDetailPage: React.FC = () => {
                                     Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
-                            <div className="grid grid-cols-1 gap-3">
-                                {lokasiObjekItems.map((item, index) => (
+                            {lokasiObjekItems.length === 0 ? (
+                                <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
+                                    Belum ada KPS yang tertaut pada aduan ini.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 gap-3">
+                                    {lokasiObjekItems.map((item, index) => (
                                     <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border/80 bg-white p-3">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             <div className="flex flex-col gap-1">
@@ -2213,8 +2207,9 @@ export const AduanDetailPage: React.FC = () => {
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
