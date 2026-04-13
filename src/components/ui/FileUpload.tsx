@@ -26,6 +26,8 @@ interface FileUploadProps {
     fileStatuses?: FileUploadItemState[];
 }
 
+const EMPTY_FILES: File[] = [];
+
 export const FileUpload: React.FC<FileUploadProps> = ({
     onFileSelected,
     onFileRemoved,
@@ -33,13 +35,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     helperText = "Klik atau seret file ke sini",
     accept = ".pdf,.doc,.docx,.jpg,.jpeg,.png",
     maxSizeMB = 10,
-    initialFiles = [],
+    initialFiles,
     isLoading = false,
     multiple = false,
     uploadProgress,
     fileStatuses = []
 }) => {
-    const [files, setFiles] = useState<File[]>(initialFiles);
+    const [files, setFiles] = useState<File[]>(() => initialFiles ?? EMPTY_FILES);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -103,14 +105,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     };
 
     useEffect(() => {
-        setFiles(initialFiles);
+        if (initialFiles !== undefined) {
+            setFiles(initialFiles);
+        }
     }, [initialFiles]);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const incomingFiles = Array.from(e.target.files || []);
+    const applySelectedFiles = (incomingFiles: File[]) => {
         if (incomingFiles.length === 0) return;
 
-        // Size check for each file
         const invalidFile = incomingFiles.find(f => f.size > maxSizeMB * 1024 * 1024);
         if (invalidFile) {
             setError(`Ukuran file "${invalidFile.name}" melebihi ${maxSizeMB} MB.`);
@@ -122,8 +124,36 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         const newFiles = multiple ? [...files, ...incomingFiles] : [incomingFiles[0]];
         setFiles(newFiles);
         onFileSelected(newFiles);
+    };
 
-        // Reset input so same file can be selected again if removed
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const incomingFiles = Array.from(e.target.files || []);
+        applySelectedFiles(incomingFiles);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const openFilePicker = () => {
+        if (!isLoading) {
+            fileInputRef.current?.click();
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFilePicker();
+        }
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        if (isLoading) return;
+
+        applySelectedFiles(Array.from(e.dataTransfer.files || []));
+
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
@@ -165,7 +195,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     accept={accept}
                     disabled={isLoading}
                     multiple={multiple}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
+                    className="sr-only"
+                    tabIndex={-1}
                 />
 
                 {isLoading && (
@@ -174,7 +205,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     </div>
                 )}
 
-                <div className="p-6 flex flex-col items-center justify-center text-center space-y-2">
+                <div
+                    role="button"
+                    tabIndex={isLoading ? -1 : 0}
+                    onClick={openFilePicker}
+                    onKeyDown={handleKeyDown}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    className="p-6 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer"
+                >
                     <div className="h-10 w-10 rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary flex items-center justify-center">
                         {multiple && files.length > 0 ? <Plus size={20} /> : <Upload size={20} />}
                     </div>

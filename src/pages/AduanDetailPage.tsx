@@ -54,7 +54,6 @@ import { authorizedFetch } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
 import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAduan';
-import { useKpsDetail } from '../hooks/useKps';
 import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut, useUpdateTindakLanjut } from '../hooks/useTindakLanjut';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { AduanPdfService } from '../lib/aduan-pdf.service';
@@ -77,6 +76,40 @@ const getKpsReference = (kps?: Partial<KpsData>) =>
 
 const getNormalizedKpsId = (kps?: Partial<KpsData>) =>
     kps?.id || kps?.id_kps_api || kps?.['KPS-ID'] || '';
+
+const getMimeTypeFromFileName = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    if (!ext) return '';
+
+    const mimeMap: Record<string, string> = {
+        pdf: 'application/pdf',
+        png: 'image/png',
+        jpg: 'image/jpeg',
+        jpeg: 'image/jpeg',
+        gif: 'image/gif',
+        webp: 'image/webp',
+        svg: 'image/svg+xml',
+        txt: 'text/plain',
+        csv: 'text/csv',
+        json: 'application/json',
+        mp3: 'audio/mpeg',
+        m4a: 'audio/mp4',
+        wav: 'audio/wav',
+        ogg: 'audio/ogg',
+        mp4: 'video/mp4',
+        webm: 'video/webm',
+    };
+
+    return mimeMap[ext] || '';
+};
+
+const isPreviewableMimeType = (mimeType: string) =>
+    mimeType === 'application/pdf'
+    || mimeType.startsWith('image/')
+    || mimeType.startsWith('text/')
+    || mimeType.startsWith('audio/')
+    || mimeType.startsWith('video/')
+    || mimeType === 'application/json';
 
 const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
     const normalizedId = getNormalizedKpsId(kps);
@@ -487,9 +520,6 @@ export const AduanDetailPage: React.FC = () => {
 
     // Queries - fetch by ticket number
     const { data: aduan, isLoading: isLoadingAduan, isError: isAduanError, refetch: refetchAduan } = useAduanByTicket(nomorTiket);
-    const { data: selectedKpsInfo } = useKpsDetail(aduan?.kps_ids?.[0] || aduan?.id_kps_api?.[0] || aduan?.kpsId);
-
-
     const { data: qTindakLanjutList = [] } = useTindakLanjutList(aduan?.id);
     const latestTindakLanjut = useMemo(() => {
         if (!qTindakLanjutList.length) return null;
@@ -645,18 +675,63 @@ export const AduanDetailPage: React.FC = () => {
         return response;
     };
 
+    const downloadBlobFile = (blobUrl: string, fileName: string) => {
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        link.rel = 'noopener';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const openProtectedFile = async (url: string, fileName: string) => {
-        const previewWindow = window.open('', '_blank', 'noopener,noreferrer');
+        const previewWindow = window.open('', '_blank');
+
+        if (previewWindow) {
+            try {
+                previewWindow.opener = null;
+                previewWindow.document.title = `Membuka ${fileName}`;
+                previewWindow.document.body.innerHTML = `
+                    <div style="font-family: system-ui, sans-serif; padding: 24px; color: #334155;">
+                        <p style="margin: 0; font-size: 14px;">Membuka file...</p>
+                        <p style="margin: 8px 0 0; font-size: 12px; color: #64748b;">${fileName}</p>
+                    </div>
+                `;
+            } catch {
+                // Ignore cross-window DOM access issues and continue with navigation flow.
+            }
+        }
 
         try {
             const response = await fetchAuthorizedFile(url);
-            const blob = await response.blob();
+            const sourceBlob = await response.blob();
+            const mimeType = sourceBlob.type && sourceBlob.type !== 'application/octet-stream'
+                ? sourceBlob.type
+                : getMimeTypeFromFileName(fileName)
+                    || response.headers.get('content-type')
+                    || 'application/octet-stream';
+            const blob = sourceBlob.type === mimeType ? sourceBlob : new Blob([sourceBlob], { type: mimeType });
             const blobUrl = URL.createObjectURL(blob);
+            const canPreview = isPreviewableMimeType(mimeType);
 
-            if (previewWindow) {
-                previewWindow.location.href = blobUrl;
+            if (canPreview) {
+                if (previewWindow) {
+                    previewWindow.location.replace(blobUrl);
+                } else {
+                    downloadBlobFile(blobUrl, fileName);
+                    setFeedback({
+                        type: 'info',
+                        message: `Popup diblokir browser. File ${fileName} diunduh sebagai gantinya.`
+                    });
+                }
             } else {
-                window.open(blobUrl, '_blank', 'noopener,noreferrer');
+                previewWindow?.close();
+                downloadBlobFile(blobUrl, fileName);
+                setFeedback({
+                    type: 'info',
+                    message: `File ${fileName} tidak bisa dipreview di tab browser dan akan diunduh.`
+                });
             }
 
             window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
@@ -672,6 +747,23 @@ export const AduanDetailPage: React.FC = () => {
 
     const canInputRiwayatPenanganan = (aduan?.status || '').toLowerCase() === 'proses';
     const lokasiObjekItems = useMemo(() => {
+        const normalizedKpsItems = Array.isArray(aduan?.kps_items)
+            ? aduan.kps_items.map((item) => normalizeSelectedKps(item))
+            : [];
+
+        if (normalizedKpsItems.length > 0) {
+            return normalizedKpsItems.map((item) => ({
+                idApiKps: getNormalizedKpsId(item) || '-',
+                namaKps: item.nama_kps || item.nama_lembaga || '-',
+                noSk: item.nomor_sk || item.surat_keputusan || '-',
+                kpsType: resolveKpsType(item) || '-',
+                provinsi: item.lokasi_prov || item.provinsi || aduan?.lokasi?.provinsi || '-',
+                kabupaten: item.lokasi_kab || item.kabupaten || aduan?.lokasi?.kabupaten || '-',
+                luasHa: Number(item.lokasi_luas_ha ?? item.luas_total ?? 0),
+                jumlahKk: Number(item.jumlah_kk ?? item.jumlah_anggota ?? 0),
+            }));
+        }
+
         const ids = (aduan?.kps_ids && aduan.kps_ids.length > 0) ? aduan.kps_ids : (aduan?.id_kps_api || []);
         const names = aduan?.nama_kps || [];
         const sks = aduan?.nomor_sk || [];
@@ -680,14 +772,14 @@ export const AduanDetailPage: React.FC = () => {
 
         if (maxLen > 0) {
             return Array.from({ length: maxLen }).map((_, idx) => ({
-                idApiKps: ids[idx] || (idx === 0 ? (selectedKpsInfo?.["KPS-ID"] || selectedKpsInfo?.id_kps_api || '-') : '-'),
-                namaKps: names[idx] || (idx === 0 ? (selectedKpsInfo?.NAMA_KPS || selectedKpsInfo?.nama_kps || '-') : '-'),
-                noSk: sks[idx] || (idx === 0 ? (selectedKpsInfo?.NO_SK || selectedKpsInfo?.nomor_sk || '-') : '-'),
-                kpsType: types[idx] || (idx === 0 ? (selectedKpsInfo?.KPS_TYPE || selectedKpsInfo?.kps_type || selectedKpsInfo?.SKEMA || selectedKpsInfo?.jenis_kps || '-') : '-'),
-                provinsi: idx === 0 ? (selectedKpsInfo?.PROVINSI || selectedKpsInfo?.lokasi_prov || aduan?.lokasi?.provinsi || '-') : (aduan?.lokasi?.provinsi || '-'),
-                kabupaten: idx === 0 ? (selectedKpsInfo?.KAB_KOTA || selectedKpsInfo?.lokasi_kab || aduan?.lokasi?.kabupaten || '-') : (aduan?.lokasi?.kabupaten || '-'),
-                luasHa: Number(idx === 0 ? (selectedKpsInfo?.LUAS_SK ?? selectedKpsInfo?.lokasi_luas_ha ?? aduan?.lokasi?.luasHa ?? 0) : 0),
-                jumlahKk: Number(idx === 0 ? (selectedKpsInfo?.JML_KK ?? selectedKpsInfo?.jumlah_kk ?? aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0) : 0),
+                idApiKps: ids[idx] || '-',
+                namaKps: names[idx] || '-',
+                noSk: sks[idx] || '-',
+                kpsType: types[idx] || '-',
+                provinsi: aduan?.lokasi?.provinsi || '-',
+                kabupaten: aduan?.lokasi?.kabupaten || '-',
+                luasHa: Number(idx === 0 ? (aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0) : 0),
+                jumlahKk: Number(idx === 0 ? (aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0) : 0),
             }));
         }
 
@@ -701,7 +793,7 @@ export const AduanDetailPage: React.FC = () => {
             luasHa: Number(aduan?.lokasi?.luasHa ?? aduan?.lokasi_luas_ha ?? 0),
             jumlahKk: Number(aduan?.jumlahKK ?? aduan?.jumlah_kk ?? 0),
         }];
-    }, [aduan, selectedKpsInfo]);
+    }, [aduan]);
 
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
     const totalKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);

@@ -54,6 +54,20 @@ interface FormData {
 const resolveKpsType = (kps: KpsData) => [kps.kps_type, kps.jenis_kps, kps.source_skema]
     .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
 
+const getKpsDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || kps.NAMA_KPS || '-';
+const getKpsDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || kps.NO_SK || '-';
+const getKpsDisplayProvinsi = (kps: KpsData) => kps.provinsi || kps.lokasi_prov || kps.PROVINSI || '-';
+const getKpsDisplayKabupaten = (kps: KpsData) => kps.kabupaten || kps.lokasi_kab || kps.KAB_KOTA || '-';
+const getKpsDisplayLuas = (kps: KpsData) => Number(kps.lokasi_luas_ha || kps.luas_total || kps.LUAS_SK || 0);
+const getKpsDisplayKK = (kps: KpsData) =>
+    Number(
+        kps.jumlah_kk
+        || kps.jumlah_anggota
+        || kps.JML_KK
+        || (Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0))
+        || 0
+    );
+
 const getKpsReference = (kps: KpsData) =>
     kps.source_reference || [kps.source_skema, kps.source_raw_id].filter(Boolean).join(' / ') || '-';
 
@@ -127,6 +141,37 @@ const updateFileStatusAt = (
         fileName: files[index]?.name || next[index].fileName,
     };
     return next;
+};
+
+const removeKpsFromSelection = (
+    selectedList: KpsData[],
+    removedId: string,
+    selectedKps: KpsData | null,
+    setSelectedKpsList: React.Dispatch<React.SetStateAction<KpsData[]>>,
+    setSelectedKps: React.Dispatch<React.SetStateAction<KpsData | null>>,
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>
+) => {
+    const newList = selectedList.filter((item) => item.id !== removedId);
+    setSelectedKpsList(newList);
+
+    if (selectedKps?.id === removedId) {
+        setSelectedKps(newList[newList.length - 1] || null);
+    }
+
+    const kpsSummary = summarizeSelectedKps(newList);
+    setFormData((prev) => ({
+        ...prev,
+        skema: kpsSummary.skema,
+        jumlahKK: kpsSummary.totalKK,
+        lokasi: {
+            ...prev.lokasi,
+            provinsi: kpsSummary.lokasi.provinsi,
+            kabupaten: kpsSummary.lokasi.kabupaten,
+            kecamatan: kpsSummary.lokasi.kecamatan,
+            desa: kpsSummary.lokasi.desa,
+            luasHa: kpsSummary.totalArea
+        }
+    }));
 };
 
 export const NewAduanPage: React.FC = () => {
@@ -555,6 +600,42 @@ export const NewAduanPage: React.FC = () => {
                             <div className={cn("bg-primary/[0.03] border border-primary/10 rounded-2xl", isCompact ? "mb-5 p-4 space-y-4" : "mb-8 p-6 space-y-6")}>
                                 <KpsSearch onSelect={handleKpsSelect} />
 
+                                {selectedKps && (
+                                    <div className="rounded-2xl border border-primary/15 bg-white p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="min-w-0">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">KPS Terpilih</p>
+                                                <h4 className="mt-1 text-sm font-semibold text-foreground break-words">{getKpsDisplayName(selectedKps)}</h4>
+                                                <p className="mt-1 text-xs text-muted-foreground break-words">
+                                                    {getKpsDisplayKabupaten(selectedKps)}, {getKpsDisplayProvinsi(selectedKps)}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
+                                                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">
+                                                    ID: {selectedKps.id}
+                                                </span>
+                                                <span className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground">
+                                                    {resolveKpsType(selectedKps) || DEFAULT_SKEMA}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-3">
+                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Nomor SK</p>
+                                                <p className="mt-1 break-words">{getKpsDisplaySk(selectedKps)}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Luas</p>
+                                                <p className="mt-1">{getKpsDisplayLuas(selectedKps).toLocaleString('id-ID')} Ha</p>
+                                            </div>
+                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Jumlah KK</p>
+                                                <p className="mt-1">{getKpsDisplayKK(selectedKps).toLocaleString('id-ID')} KK</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {selectedKpsList.length > 0 && (
                                     <div className="flex flex-wrap gap-2 px-1">
                                         {selectedKpsList.map((kps) => (
@@ -563,31 +644,20 @@ export const NewAduanPage: React.FC = () => {
                                                 className="flex items-center gap-2 bg-white border border-border pl-3 pr-1 py-1 rounded-full shadow-sm animate-in zoom-in-95 duration-200"
                                             >
                                                 <div className="flex flex-col">
-                                                    <span className="text-[10px] font-semibold leading-none text-foreground">{kps.nama_kps}</span>
-                                                    <span className="text-[8px] text-muted-foreground">{kps.nomor_sk}</span>
+                                                    <span className="text-[10px] font-semibold leading-none text-foreground">{getKpsDisplayName(kps)}</span>
+                                                    <span className="text-[8px] text-muted-foreground">{getKpsDisplaySk(kps)}</span>
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        const newList = selectedKpsList.filter(item => item.id !== kps.id);
-                                                        setSelectedKpsList(newList);
-                                                        if (selectedKps?.id === kps.id) {
-                                                            setSelectedKps(newList[newList.length - 1] || null);
-                                                        }
-                                                        const kpsSummary = summarizeSelectedKps(newList);
-                                                        setFormData((prev: any) => ({
-                                                            ...prev,
-                                                            skema: kpsSummary.skema,
-                                                            jumlahKK: kpsSummary.totalKK,
-                                                            lokasi: {
-                                                                ...prev.lokasi,
-                                                                provinsi: kpsSummary.lokasi.provinsi,
-                                                                kabupaten: kpsSummary.lokasi.kabupaten,
-                                                                kecamatan: kpsSummary.lokasi.kecamatan,
-                                                                desa: kpsSummary.lokasi.desa,
-                                                                luasHa: kpsSummary.totalArea
-                                                            }
-                                                        }));
+                                                        removeKpsFromSelection(
+                                                            selectedKpsList,
+                                                            kps.id,
+                                                            selectedKps,
+                                                            setSelectedKpsList,
+                                                            setSelectedKps,
+                                                            setFormData
+                                                        );
                                                     }}
                                                     className="p-1 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full transition-colors"
                                                 >
@@ -655,7 +725,7 @@ export const NewAduanPage: React.FC = () => {
                                                             <Info size={18} />
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <h4 className="text-sm font-semibold text-foreground leading-tight truncate px-0">{kps.nama_kps}</h4>
+                                                            <h4 className="text-sm font-semibold text-foreground leading-tight truncate px-0">{getKpsDisplayName(kps)}</h4>
                                                             <div className="flex flex-wrap items-center gap-2 mt-1">
                                                                 <span className="text-[9px] font-bold px-1.5 py-0.5 bg-secondary rounded text-muted-foreground uppercase tracking-wider">ID: {kps.id}</span>
                                                                 {getKpsReference(kps) !== '-' && (
@@ -663,32 +733,21 @@ export const NewAduanPage: React.FC = () => {
                                                                         REF: {getKpsReference(kps)}
                                                                     </span>
                                                                 )}
-                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-muted rounded text-foreground uppercase tracking-wider max-w-[150px] truncate">SK: {kps.nomor_sk}</span>
+                                                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-muted rounded text-foreground uppercase tracking-wider max-w-[150px] truncate">SK: {getKpsDisplaySk(kps)}</span>
                                                             </div>
                                                         </div>
                                                         <button
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                const newList = selectedKpsList.filter(item => item.id !== kps.id);
-                                                                setSelectedKpsList(newList);
-                                                                if (selectedKps?.id === kps.id) {
-                                                                    setSelectedKps(newList[newList.length - 1] || null);
-                                                                }
-                                                                const kpsSummary = summarizeSelectedKps(newList);
-                                                                setFormData((prev: any) => ({
-                                                                    ...prev,
-                                                                    skema: kpsSummary.skema,
-                                                                    jumlahKK: kpsSummary.totalKK,
-                                                                    lokasi: {
-                                                                        ...prev.lokasi,
-                                                                        provinsi: kpsSummary.lokasi.provinsi,
-                                                                        kabupaten: kpsSummary.lokasi.kabupaten,
-                                                                        kecamatan: kpsSummary.lokasi.kecamatan,
-                                                                        desa: kpsSummary.lokasi.desa,
-                                                                        luasHa: kpsSummary.totalArea
-                                                                    }
-                                                                }));
+                                                                removeKpsFromSelection(
+                                                                    selectedKpsList,
+                                                                    kps.id,
+                                                                    selectedKps,
+                                                                    setSelectedKpsList,
+                                                                    setSelectedKps,
+                                                                    setFormData
+                                                                );
                                                             }}
                                                             className="ml-auto p-1.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full transition-colors shrink-0"
                                                         >
@@ -708,31 +767,31 @@ export const NewAduanPage: React.FC = () => {
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Nama KPS</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{kps.nama_kps || '-'}</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsDisplayName(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">No SK</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{kps.nomor_sk || '-'}</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none truncate">{getKpsDisplaySk(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">KPS Type</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.kps_type || kps.jenis_kps || '-'}</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{resolveKpsType(kps) || '-'}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Provinsi</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.lokasi_prov || '-'}</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayProvinsi(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Kabupaten</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{kps.lokasi_kab || '-'}</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayKabupaten(kps)}</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Luas</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{(Number(kps.lokasi_luas_ha) || 0).toLocaleString('id-ID')} Ha</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayLuas(kps).toLocaleString('id-ID')} Ha</p>
                                                         </div>
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Jumlah KK</p>
-                                                            <p className="text-xs font-medium text-foreground leading-none">{(Number(kps.jumlah_kk) || 0).toLocaleString('id-ID')} KK</p>
+                                                            <p className="text-xs font-medium text-foreground leading-none">{getKpsDisplayKK(kps).toLocaleString('id-ID')} KK</p>
                                                         </div>
                                                     </div>
                                                 </div>
