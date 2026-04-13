@@ -46,6 +46,17 @@ export const AduanListPage: React.FC = () => {
         return val ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(val)) : '-';
     };
 
+    const formatJoinedValue = (value: unknown) => {
+        if (Array.isArray(value)) {
+            const items = value.filter((item) => typeof item === 'string' && item.trim().length > 0);
+            return items.length > 0 ? items.join(', ') : '-';
+        }
+        if (typeof value === 'string' && value.trim().length > 0) {
+            return value;
+        }
+        return '-';
+    };
+
     const columns = useMemo(() => [
         columnHelper.accessor('nomor_tiket', {
             header: 'Tiket',
@@ -227,7 +238,78 @@ export const AduanListPage: React.FC = () => {
             </motion.div>
 
             <motion.div variants={itemVariants} className="overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card">
-                <div className="h-[600px] overflow-auto">
+                <div className="md:hidden">
+                    {loading ? (
+                        <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
+                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+                            <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
+                        </div>
+                    ) : displayList.length > 0 ? (
+                        <div className="space-y-3 p-3">
+                            {displayList.map((row) => (
+                                <button
+                                    key={row.nomor_tiket}
+                                    type="button"
+                                    onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
+                                    className="w-full rounded-2xl border border-border/70 bg-background p-4 text-left shadow-sm transition-colors hover:bg-muted/20"
+                                >
+                                    <div className="flex flex-wrap items-start justify-between gap-3">
+                                        <div className="min-w-0 space-y-1">
+                                            <span className="inline-flex max-w-full rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground">
+                                                {row.nomor_tiket}
+                                            </span>
+                                            <p className="line-clamp-2 text-sm font-semibold text-foreground">
+                                                {formatJoinedValue(row.nama_kps)}
+                                            </p>
+                                        </div>
+                                        <Badge variant="gray" className="max-w-[9rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide">
+                                            {row.status?.toUpperCase?.() || '-'}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="mt-4 grid grid-cols-1 gap-3">
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</p>
+                                            <p className="mt-1 text-sm text-foreground">{formatJoinedValue(row.type_kps)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">surat_keputusan</p>
+                                            <p className="mt-1 text-sm text-foreground line-clamp-2">{formatJoinedValue(row.nomor_sk)}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Lokasi</p>
+                                            <p className="mt-1 text-sm text-foreground line-clamp-2">
+                                                {[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(' | ') || '-'}
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3">
+                                            <div>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Luas</p>
+                                                <p className="mt-1 text-sm font-semibold text-foreground">{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Jumlah KK</p>
+                                                <p className="mt-1 text-sm font-semibold text-foreground">{row.jumlah_kk ?? '-'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground">
+                                            <p>Pengadu: {row.pengadu_nama || '-'}</p>
+                                            <p>Instansi: {row.pengadu_instansi || '-'}</p>
+                                            <p>Surat: {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
+                                            <p className="line-clamp-2">Ringkasan: {row.ringkasan_masalah || '-'}</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex h-48 items-center justify-center px-6 text-center italic text-muted-foreground">
+                            Tidak ada data pengaduan yang ditemukan.
+                        </div>
+                    )}
+                </div>
+
+                <div className="hidden h-[600px] overflow-auto md:block">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
                             <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />

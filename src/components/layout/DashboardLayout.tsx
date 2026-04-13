@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sidebar } from './Sidebar';
@@ -8,22 +8,52 @@ import { cn } from '../../lib/utils';
 
 
 export const DashboardLayout: React.FC = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Auto-close sidebar on mobile when navigating
-    React.useEffect(() => {
-        if (window.innerWidth < 768) {
-            setSidebarOpen(false);
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(min-width: 768px)');
+
+        const syncLayoutMode = (event?: MediaQueryListEvent) => {
+            const matches = event?.matches ?? mediaQuery.matches;
+            setIsDesktop(matches);
+            if (matches) {
+                setMobileSidebarOpen(false);
+            }
+        };
+
+        syncLayoutMode();
+        mediaQuery.addEventListener('change', syncLayoutMode);
+
+        return () => {
+            mediaQuery.removeEventListener('change', syncLayoutMode);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isDesktop) {
+            setMobileSidebarOpen(false);
         }
     }, [location.pathname]);
 
-    // On mobile, we only care about sidebarOpen
-    // On desktop, we care about sidebarOpen OR hover
-    const isExpanded = window.innerWidth >= 768 ? (sidebarOpen || isHovered) : sidebarOpen;
+    useEffect(() => {
+        if (isDesktop) {
+            document.body.style.removeProperty('overflow');
+            return;
+        }
+
+        document.body.style.overflow = mobileSidebarOpen ? 'hidden' : '';
+
+        return () => {
+            document.body.style.removeProperty('overflow');
+        };
+    }, [isDesktop, mobileSidebarOpen]);
+
+    const isExpanded = isDesktop ? isHovered : mobileSidebarOpen;
 
     const handleLogout = async () => {
         await logout();
@@ -32,7 +62,7 @@ export const DashboardLayout: React.FC = () => {
 
     return (
         <div className={cn(
-            "flex min-h-screen bg-background relative"
+            "relative flex min-h-dvh overflow-x-clip bg-background"
         )}>
             {/* Background decorative elements - Simplified for Apple look */}
             <div className="absolute inset-0 bg-background pointer-events-none" />
@@ -42,33 +72,34 @@ export const DashboardLayout: React.FC = () => {
             <div
                 className="fixed top-0 left-0 z-[60] h-4 w-4 hidden md:block" // Reduced trigger area
                 onMouseEnter={() => {
-                    if (window.innerWidth >= 768) setIsHovered(true);
+                    if (isDesktop) setIsHovered(true);
                 }}
             />
 
             <div
                 onMouseEnter={() => {
-                    if (window.innerWidth >= 768) setIsHovered(true);
+                    if (isDesktop) setIsHovered(true);
                 }}
                 onMouseLeave={() => {
-                    if (window.innerWidth >= 768) setIsHovered(false);
+                    if (isDesktop) setIsHovered(false);
                 }}
                 className="z-50"
             >
                 <Sidebar
                     isOpen={isExpanded}
-                    onClose={() => setSidebarOpen(false)}
+                    isDesktop={isDesktop}
+                    onClose={() => setMobileSidebarOpen(false)}
                     onLogout={handleLogout}
                 />
             </div>
 
             <div className={cn(
-                "flex-1 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] w-full relative z-10",
+                "relative z-10 flex w-full flex-1 flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                 "md:ml-20",
                 isExpanded && "md:ml-64"
             )}>
                 <Header
-                    onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                    onMenuClick={() => setMobileSidebarOpen((prev) => !prev)}
                     user={user ? {
                         id: user.id,
                         email: user.email,
@@ -77,7 +108,7 @@ export const DashboardLayout: React.FC = () => {
                     } : undefined}
                 />
 
-                <main className="flex-1 h-[calc(100vh-56px)] overflow-y-auto custom-scrollbar bg-muted/10">
+                <main className="custom-scrollbar flex-1 overflow-x-hidden overflow-y-auto bg-muted/10 min-h-[calc(100dvh-56px)]">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}

@@ -15,6 +15,7 @@ import { cn } from '../../lib/utils';
 
 interface SidebarProps {
     isOpen: boolean;
+    isDesktop: boolean;
     onClose: () => void;
     onLogout: () => void;
 }
@@ -42,7 +43,7 @@ const menuGroups = [
     }
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isDesktop, onClose, onLogout }) => {
     const { isAdmin } = useAuth();
 
     return (
@@ -61,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
             </AnimatePresence>
 
             <aside className={cn(
-                "fixed top-0 left-0 z-50 h-full border-r border-border/40 bg-white/80 dark:bg-black/80 backdrop-blur-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-                !isOpen ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-64",
+                "fixed top-0 left-0 z-50 h-full border-r border-border/40 bg-white/80 shadow-2xl dark:bg-black/80 backdrop-blur-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
+                !isOpen ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-[min(18rem,calc(100vw-1rem))] md:w-64",
             )}>
                 {/* Logo Section */}
                 <div className={cn(
@@ -112,6 +113,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                         <NavLink
                                             key={item.path}
                                             to={item.path}
+                                            onClick={() => {
+                                                if (!isDesktop) onClose();
+                                            }}
                                             className={({ isActive }) => cn(
                                                 "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                                                 !isOpen && "justify-center px-0",

@@ -800,7 +800,7 @@ export const NewAduanPage: React.FC = () => {
                                                     </div>
 
                                                     {/* Card Body - Mini Grid */}
-                                                    <div className="p-4 grid grid-cols-2 gap-4">
+                                                    <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">id</p>
                                                             <p className="text-xs font-medium text-foreground leading-none break-all">{getKpsDisplayId(kps)}</p>
