@@ -1,4 +1,4 @@
-import { api, API_URL, clearTokens, refreshAccessToken } from './api';
+import { api, API_URL, clearTokens, getAccessToken, refreshAccessToken } from './api';
 import type { Aduan, KpsData, User, TindakLanjut } from '../types';
 import { ActivityService } from './activity.service';
 
@@ -25,6 +25,26 @@ const normalizeNumber = (value: unknown, fallback = 0): number => {
 const normalizeOptionalNumber = (value: unknown): number | undefined => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {
+    'Telaah Administrasi': 'Surat/Dokumen Pengadu',
+    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak lain',
+    'Puldasi': 'TL Surat Jawaban',
+    'Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+    'Agenda Evaluasi': 'Berita Acara Evaluasi',
+    'Agenda Pembahasan Hasil Evaluasi': 'TL Notula Rapat',
+    'ND Perubahan Persetujuan PS': 'TL Nota Dinas',
+    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak lain',
+    'Surat Penolakan Aduan': 'TL Surat Jawaban',
+    'Dokumen Lengkap / Puldasi': 'TL Surat Jawaban',
+    'Sudah Puldasi / Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+};
+
+const normalizeJenisTlLabel = (value?: string) => {
+    const normalized = value?.trim() || '';
+    if (!normalized) return '';
+    return LEGACY_JENIS_TL_LABEL_MAP[normalized] || normalized;
 };
 
 export type UploadBatchProgress = {
@@ -204,7 +224,7 @@ const uploadToServer = async (
     tokenOverride?: string | null
 ): Promise<string> => {
     if (!aduanId) throw new Error('aduanId wajib diisi untuk upload file');
-    const token = tokenOverride ?? localStorage.getItem('access_token');
+    const token = tokenOverride ?? getAccessToken();
     const formData = new FormData();
     const fileName = file instanceof File ? file.name : `${category}-${Date.now()}.bin`;
     formData.append('file', file, fileName);
@@ -492,7 +512,7 @@ export const AduanService = {
                 id: item.id,
                 aduanId: item.aduan_id,
                 tanggal: new Date(item.tanggal),
-                jenisTL: item.jenis_tl,
+                jenisTL: normalizeJenisTlLabel(item.jenis_tl),
                 keterangan: item.keterangan,
                 nomorSuratOutput: item.nomor_surat_output,
                 fileUrls: item.file_urls || [],
@@ -506,18 +526,18 @@ export const AduanService = {
     createTindakLanjut: async (data: Omit<TindakLanjut, 'id' | 'createdAt'>) => {
         await api.post(`/aduan/${data.aduanId}/tindak-lanjut`, {
             tanggal: data.tanggal instanceof Date ? data.tanggal.toISOString() : data.tanggal,
-            jenis_tl: data.jenisTL,
+            jenis_tl: normalizeJenisTlLabel(data.jenisTL),
             keterangan: data.keterangan,
             nomor_surat_output: data.nomorSuratOutput,
             file_urls: data.fileUrls,
         });
         await ActivityService.logActivity({
             type: 'create_tl',
-            description: `Menambahkan tindak lanjut: **${data.jenisTL}**`,
+            description: `Menambahkan dokumen tindak lanjut: **${normalizeJenisTlLabel(data.jenisTL)}**`,
             aduanId: data.aduanId,
             userId: data.createdBy,
             userName: data.createdByName || '',
-            metadata: { jenisTL: data.jenisTL },
+            metadata: { jenisTL: normalizeJenisTlLabel(data.jenisTL) },
         });
         return true;
     },
@@ -530,7 +550,7 @@ export const AduanService = {
     updateTindakLanjut: async (data: Partial<TindakLanjut> & { id: string }) => {
         await api.put(`/tindak-lanjut/${data.id}`, {
             tanggal: data.tanggal instanceof Date ? data.tanggal.toISOString() : data.tanggal,
-            jenis_tl: data.jenisTL,
+            jenis_tl: normalizeJenisTlLabel(data.jenisTL),
             keterangan: data.keterangan,
             nomor_surat_output: data.nomorSuratOutput,
             file_urls: data.fileUrls,

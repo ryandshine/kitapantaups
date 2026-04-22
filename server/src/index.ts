@@ -23,16 +23,26 @@ import activitiesRoute from './routes/activities.js'
 import settingsRoute from './routes/settings.js'
 
 const app = new Hono()
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173'
+const allowedCorsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
 
 // Middleware global
 app.use('*', logger())
+app.use('*', async (c, next) => {
+  await next()
+  c.header('X-Content-Type-Options', 'nosniff')
+  c.header('X-Frame-Options', 'DENY')
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+})
 
 // CORS (Hono built-in middleware)
 app.use('*', cors({
-  origin: corsOrigin === '*'
-    ? (origin) => origin || 'http://localhost:5173'
-    : corsOrigin,
+  origin: (origin) => {
+    if (!origin) return allowedCorsOrigins[0] || 'http://localhost:5173'
+    return allowedCorsOrigins.includes(origin) ? origin : ''
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
@@ -105,7 +115,9 @@ app.get('/uploads/*', async (c) => {
       headers: {
         'Content-Type': mimeMap[ext] || 'application/octet-stream',
         'Content-Length': fileStat.size.toString(),
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Cache-Control': 'private, no-store, max-age=0',
+        'Pragma': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
       },
     })
   } catch {

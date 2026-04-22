@@ -23,23 +23,33 @@ const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
     status: { id: 'status', label: 'Status', getValue: (row) => row.status },
     namaKps: {
         id: 'namaKps',
-        label: 'nama_lembaga',
+        label: 'Nama KPS/Lembaga',
         getValue: (row) => row.nama_kps && row.nama_kps.length > 0 ? row.nama_kps.join(', ') : '-',
     },
     nomorSk: {
         id: 'nomorSk',
-        label: 'surat_keputusan',
+        label: 'Nomor SK',
         getValue: (row) => row.nomor_sk && row.nomor_sk.length > 0 ? row.nomor_sk.join(', ') : '-',
     },
     typeKps: {
         id: 'typeKps',
-        label: 'skema',
+        label: 'Skema',
         getValue: (row) => {
             const values = (row.type_kps && row.type_kps.length > 0) ? row.type_kps : row.jenis_kps;
             return values && values.length > 0 ? values.join(', ') : '-';
         }
     },
     perihal: { id: 'perihal', label: 'Perihal', getValue: (row) => row.perihal },
+    ringkasanKasus: {
+        id: 'ringkasanKasus',
+        label: 'Ringkasan Kasus',
+        getValue: (row) => row.ringkasanMasalah || row.ringkasan_masalah || '-',
+    },
+    pengadu: {
+        id: 'pengadu',
+        label: 'Pengadu',
+        getValue: (row) => row.pengadu?.nama || row.pengadu_nama || '-',
+    },
     provinsi: { id: 'provinsi', label: 'Provinsi', getValue: (row) => row.lokasi.provinsi },
     kabupaten: { id: 'kabupaten', label: 'Kabupaten', getValue: (row) => row.lokasi.kabupaten },
     picName: { id: 'picName', label: 'PIC', getValue: (row) => row.picName || '-' },
@@ -53,6 +63,8 @@ export const FIXED_REPORT_COLUMN_IDS: string[] = [
     'nomorSk',
     'typeKps',
     'perihal',
+    'ringkasanKasus',
+    'pengadu',
     'provinsi',
     'kabupaten',
     'picName',

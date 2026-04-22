@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { requireAuth } from '../middleware/auth.js'
+import { createRateLimit } from '../middleware/rate-limit.js'
 import {
   clearRefreshTokenCookie,
   readRefreshTokenFromRequest,
@@ -10,6 +11,17 @@ import {
 import { AuthServiceError, authService } from '../lib/auth-service.js'
 
 const auth = new Hono()
+const loginRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  keyPrefix: 'auth-login',
+})
+
+const refreshRateLimit = createRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  keyPrefix: 'auth-refresh',
+})
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -25,7 +37,7 @@ const respondAuthError = (c: any, error: unknown) => {
 }
 
 // POST /auth/login
-auth.post('/login', zValidator('json', loginSchema), async (c) => {
+auth.post('/login', loginRateLimit, zValidator('json', loginSchema), async (c) => {
   try {
     const { email, password } = c.req.valid('json')
     const session = await authService.login({ email, password })
@@ -58,7 +70,7 @@ auth.post('/logout', requireAuth, async (c) => {
 })
 
 // POST /auth/refresh
-auth.post('/refresh', async (c) => {
+auth.post('/refresh', refreshRateLimit, async (c) => {
   try {
     const body = await c.req.json().catch(() => ({}))
     const refreshToken = readRefreshTokenFromRequest(c, body.refresh_token)

@@ -356,7 +356,16 @@ INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
   ('Agenda Pembahasan Hasil Evaluasi'),
   ('ND Perubahan Persetujuan PS'),
   ('Respon pengadu/Pihak ketiga'),
-  ('Surat Penolakan Aduan')
+  ('Surat Penolakan Aduan'),
+  ('Surat/Dokumen Pengadu'),
+  ('Surat/Dokumen Pihak lain'),
+  ('TL Surat Jawaban'),
+  ('TL Nota Dinas'),
+  ('TL BA Rapat Pembahasan'),
+  ('TL Notula Rapat'),
+  ('Laporan Publikasi'),
+  ('Berita Acara Evaluasi'),
+  ('Lainnya')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
 
 -- ============================================================

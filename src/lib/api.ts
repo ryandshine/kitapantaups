@@ -10,18 +10,18 @@ if (!API_URL) {
   console.warn('VITE_API_URL is not defined. API calls will fail if not using relative paths.')
 }
 
-function getToken(): string | null {
-  return localStorage.getItem('access_token')
+let accessToken: string | null = null
+
+export function getAccessToken(): string | null {
+  return accessToken
 }
 
-export function setTokens(accessToken: string) {
-  localStorage.setItem('access_token', accessToken)
-  localStorage.removeItem('refresh_token')
+export function setTokens(nextAccessToken: string) {
+  accessToken = nextAccessToken
 }
 
 export function clearTokens() {
-  localStorage.removeItem('access_token')
-  localStorage.removeItem('refresh_token')
+  accessToken = null
 }
 
 export async function refreshAccessToken(): Promise<string | null> {
@@ -38,7 +38,7 @@ export async function refreshAccessToken(): Promise<string | null> {
     const nextAccessToken = data?.access_token
     if (!nextAccessToken) return null
 
-    localStorage.setItem('access_token', nextAccessToken)
+    accessToken = nextAccessToken
     return nextAccessToken
   } catch {
     return null
@@ -46,7 +46,7 @@ export async function refreshAccessToken(): Promise<string | null> {
 }
 
 export async function authorizedFetch(input: string, options: RequestInit = {}, allowRetry = true): Promise<Response> {
-  const token = getToken()
+  const token = getAccessToken()
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
   }
@@ -93,7 +93,7 @@ export async function authorizedFetch(input: string, options: RequestInit = {}, 
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}, allowRetry = true): Promise<any> {
-  const token = getToken()
+  const token = getAccessToken()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),

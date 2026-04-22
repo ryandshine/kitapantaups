@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import { UserRepository } from '../repositories/user.repository.js'
 
 export const UserService = {
@@ -7,32 +6,14 @@ export const UserService = {
     return await UserRepository.findAll()
   },
 
-  async createUser(data: any, authHeader?: string) {
-    // Logika Bisnis: Jika tidak diautentikasi sebagai admin, paksa role menjadi 'staf'
-    let role = data.role || 'staf'
-    
-    if (!authHeader) {
-      role = 'staf'
-    } else {
-      try {
-        const token = authHeader.replace('Bearer ', '')
-        const payload = jwt.verify(token, process.env.JWT_SECRET!) as any
-        if (payload.role !== 'admin') {
-          role = 'staf'
-        }
-      } catch {
-        role = 'staf'
-      }
-    }
-
-    // Logika Bisnis: Hash password sebelum disimpan
+  async createUser(data: any) {
     const hash = await bcrypt.hash(data.password, 12)
 
     return await UserRepository.create({
       email: data.email,
       password_hash: hash,
       display_name: data.display_name,
-      role: role,
+      role: data.role || 'staf',
       phone: data.phone,
     })
   },

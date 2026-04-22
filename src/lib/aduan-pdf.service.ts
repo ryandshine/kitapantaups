@@ -224,11 +224,11 @@ export const AduanPdfService = {
             compact(tl.createdByName),
         ]);
 
-        drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Riwayat Tindak Lanjut');
+        drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Riwayat Dokumen Tindak Lanjut');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['Tanggal', 'Jenis TL', 'Keterangan', 'Oleh']],
-            body: tlRows.length > 0 ? tlRows : [['-', '-', 'Belum ada tindak lanjut', '-']],
+            head: [['Tanggal', 'Jenis Dokumen', 'Keterangan', 'Oleh']],
+            body: tlRows.length > 0 ? tlRows : [['-', '-', 'Belum ada dokumen tindak lanjut', '-']],
             styles: { fontSize: 8, cellPadding: 2.2, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [250, 252, 255] },

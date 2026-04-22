@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DashboardLayout } from './components/layout';
 import {
   LoginPage,
-  RegisterPage,
   DashboardPage,
   AduanDetailPage,
   AduanListPage,
@@ -41,7 +40,6 @@ function AppRoutes() {
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
 
       {/* Protected routes */}
       <Route

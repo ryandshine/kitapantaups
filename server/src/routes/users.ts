@@ -20,13 +20,11 @@ const createUserSchema = z.object({
   phone: z.string().optional(),
 })
 
-// POST /users - Public registration or Admin creating user
-users.post('/', zValidator('json', createUserSchema), async (c) => {
+// POST /users - Admin only
+users.post('/', requireAuth, requireAdmin, zValidator('json', createUserSchema), async (c) => {
   const data = c.req.valid('json')
-  const authHeader = c.req.header('Authorization')
-  
-  // Panggil layer Service murni
-  const newUser = await UserService.createUser(data, authHeader)
+
+  const newUser = await UserService.createUser(data)
   return c.json(newUser, 201)
 })
 

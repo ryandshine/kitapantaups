@@ -91,6 +91,23 @@ export const DashboardPage: React.FC = () => {
         { label: 'Ditolak', value: ditolakCount, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-500/10', border: 'border-rose-500/20' },
     ];
 
+    const getRecentAduanHeadline = (aduan: Aduan) => {
+        const names = Array.isArray(aduan.nama_kps) ? aduan.nama_kps.filter(Boolean) : [];
+        if (names.length === 0) return aduan.surat_nomor || `#${aduan.id.slice(0, 8)}`;
+        if (names.length === 1) return names[0];
+        return `${names[0]} +${names.length - 1} lainnya`;
+    };
+
+    const getRecentAduanLocation = (aduan: Aduan) =>
+        [aduan.lokasi_kab, aduan.lokasi_prov].filter(Boolean).join(', ') || '-';
+
+    const getRecentAduanSkema = (aduan: Aduan) => {
+        const values = Array.isArray(aduan.type_kps) && aduan.type_kps.length > 0
+            ? aduan.type_kps
+            : Array.isArray(aduan.jenis_kps) ? aduan.jenis_kps : [];
+        return values.filter(Boolean)[0] || '-';
+    };
+
     const getActivityUI = (type: string) => {
         // Document
         if (['upload_document', 'upload_tl_document'].includes(type)) return { icon: Upload, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-500/20' };
@@ -134,7 +151,7 @@ export const DashboardPage: React.FC = () => {
         }
 
         if (typeof metadata.jenisTL === 'string' && metadata.jenisTL.trim()) {
-            tags.push(`Jenis TL: ${metadata.jenisTL}`);
+            tags.push(`Jenis Dokumen: ${metadata.jenisTL}`);
         }
 
         if (typeof metadata.file_name === 'string' && metadata.file_name.trim()) {
@@ -302,7 +319,7 @@ export const DashboardPage: React.FC = () => {
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
                                                 <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                                                    {aduan.surat_nomor || `#${aduan.id.slice(0, 8)}`}
+                                                    {getRecentAduanHeadline(aduan)}
                                                 </span>
                                                 <span className={cn(
                                                     "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
@@ -318,15 +335,15 @@ export const DashboardPage: React.FC = () => {
                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 opacity-60">
                                                 <div className="flex items-center gap-1.5 text-[11px] font-medium">
                                                     <MapPin size={12} />
-                                                    {aduan.lokasi_kab}
+                                                    {getRecentAduanLocation(aduan)}
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-[11px] font-medium">
                                                     <Tag size={12} />
-                                                    {Array.isArray(aduan.jenis_kps) ? aduan.jenis_kps[0] : aduan.jenis_kps}
+                                                    {getRecentAduanSkema(aduan)}
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-[11px] font-medium">
                                                     <Calendar size={12} />
-                                                    {formatDistanceToNow(new Date(aduan.created_at ?? aduan.createdAt ?? Date.now()), { addSuffix: true, locale: localeID })}
+                                                    {formatDistanceToNow(new Date(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt ?? Date.now()), { addSuffix: true, locale: localeID })}
                                                 </div>
                                             </div>
                                         </div>

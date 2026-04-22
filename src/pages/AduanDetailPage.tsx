@@ -233,15 +233,37 @@ type FeedbackState = {
     message: string;
 } | null;
 
-const DEFAULT_JENIS_TL_SELECT_OPTIONS = [
-    { value: 'Telaah Administrasi', label: 'Telaah Administrasi' },
-    { value: 'Dokumen Lengkap / Puldasi', label: 'Dokumen Lengkap / Puldasi' },
-    { value: 'Sudah Puldasi / Agenda Rapat Pembahasan', label: 'Sudah Puldasi / Agenda Rapat Pembahasan' },
-    { value: 'ND Perubahan Persetujuan PS', label: 'ND Perubahan Persetujuan PS' },
-    { value: 'Respon pengadu/Pihak ketiga', label: 'Respon pengadu/Pihak ketiga' },
-    { value: 'Surat Penolakan Aduan', label: 'Surat Penolakan Aduan' },
+const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: string }> = [
+    { value: 'Surat/Dokumen Pengadu', label: 'Surat/Dokumen Pengadu' },
+    { value: 'Surat/Dokumen Pihak lain', label: 'Surat/Dokumen Pihak lain' },
+    { value: 'TL Surat Jawaban', label: 'TL Surat Jawaban' },
+    { value: 'TL Nota Dinas', label: 'TL Nota Dinas' },
+    { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
+    { value: 'TL Notula Rapat', label: 'TL Notula Rapat' },
+    { value: 'Laporan Publikasi', label: 'Laporan Publikasi' },
+    { value: 'Berita Acara Evaluasi', label: 'Berita Acara Evaluasi' },
     { value: 'Lainnya', label: 'Lainnya' }
-] as const;
+];
+
+const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {
+    'Telaah Administrasi': 'Surat/Dokumen Pengadu',
+    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak lain',
+    'Puldasi': 'TL Surat Jawaban',
+    'Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+    'Agenda Evaluasi': 'Berita Acara Evaluasi',
+    'Agenda Pembahasan Hasil Evaluasi': 'TL Notula Rapat',
+    'ND Perubahan Persetujuan PS': 'TL Nota Dinas',
+    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak lain',
+    'Surat Penolakan Aduan': 'TL Surat Jawaban',
+    'Dokumen Lengkap / Puldasi': 'TL Surat Jawaban',
+    'Sudah Puldasi / Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+};
+
+const normalizeJenisTlLabel = (value?: string) => {
+    const normalized = value?.trim() || '';
+    if (!normalized) return '';
+    return LEGACY_JENIS_TL_LABEL_MAP[normalized] || normalized;
+};
 
 const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
 
@@ -573,7 +595,7 @@ export const AduanDetailPage: React.FC = () => {
     const latestTindakLanjutLabel = useMemo(() => {
         if (!latestTindakLanjut) return 'Tahap Saat Ini';
         const dateLabel = formatDate(latestTindakLanjut.tanggal);
-        const jenisTlLabel = latestTindakLanjut.jenisTL?.trim() || 'Tindak lanjut terbaru';
+        const jenisTlLabel = normalizeJenisTlLabel(latestTindakLanjut.jenisTL) || 'Dokumen terbaru';
         return `${jenisTlLabel} • ${dateLabel}`;
     }, [latestTindakLanjut]);
     const suratMasukAttachment = useMemo(() => {
@@ -603,10 +625,10 @@ export const AduanDetailPage: React.FC = () => {
                 .map((url, index) => ({
                     id: `${tl.id}-${index}`,
                     url,
-                    jenisTL: tl.jenisTL,
+                    jenisTL: normalizeJenisTlLabel(tl.jenisTL),
                     tanggal: tl.tanggal,
-                    fileName: url.split('/').pop()?.split('?')[0] || `Lampiran TL ${index + 1}`,
-                    source: 'Tindak Lanjut',
+                    fileName: url.split('/').pop()?.split('?')[0] || `Lampiran Dokumen ${index + 1}`,
+                    source: 'Dokumen Tindak Lanjut',
                 }))
         );
     }, [qTindakLanjutList]);
@@ -639,7 +661,7 @@ export const AduanDetailPage: React.FC = () => {
     // Modal State
     const [isTLModalOpen, setIsTLModalOpen] = useState(false);
     const [tlForm, setTlForm] = useState({
-        jenisTL: 'Telaah Administrasi',
+        jenisTL: DEFAULT_JENIS_TL_SELECT_OPTIONS[0].value,
         tanggal: new Date().toISOString().split('T')[0],
         keterangan: '',
         nomorSuratOutput: '',
@@ -732,12 +754,20 @@ export const AduanDetailPage: React.FC = () => {
             try {
                 previewWindow.opener = null;
                 previewWindow.document.title = `Membuka ${fileName}`;
-                previewWindow.document.body.innerHTML = `
-                    <div style="font-family: system-ui, sans-serif; padding: 24px; color: #334155;">
-                        <p style="margin: 0; font-size: 14px;">Membuka file...</p>
-                        <p style="margin: 8px 0 0; font-size: 12px; color: #64748b;">${fileName}</p>
-                    </div>
-                `;
+                previewWindow.document.body.textContent = '';
+                const container = previewWindow.document.createElement('div');
+                container.setAttribute('style', 'font-family: system-ui, sans-serif; padding: 24px; color: #334155;');
+
+                const title = previewWindow.document.createElement('p');
+                title.setAttribute('style', 'margin: 0; font-size: 14px;');
+                title.textContent = 'Membuka file...';
+
+                const fileLabel = previewWindow.document.createElement('p');
+                fileLabel.setAttribute('style', 'margin: 8px 0 0; font-size: 12px; color: #64748b;');
+                fileLabel.textContent = fileName;
+
+                container.append(title, fileLabel);
+                previewWindow.document.body.appendChild(container);
             } catch {
                 // Ignore cross-window DOM access issues and continue with navigation flow.
             }
@@ -853,8 +883,8 @@ export const AduanDetailPage: React.FC = () => {
         }
         if (normalizedStatus === 'proses') {
             return qTindakLanjutList.length > 0
-                ? `Lanjutkan penanganan dari catatan terakhir: ${latestTindakLanjut?.jenisTL || 'tindak lanjut terbaru'}.`
-                : 'Tambahkan catatan tindak lanjut pertama untuk memulai jejak penanganan.';
+                ? `Lanjutkan penanganan dari catatan terakhir: ${normalizeJenisTlLabel(latestTindakLanjut?.jenisTL) || 'dokumen terbaru'}.`
+                : 'Tambahkan dokumen tindak lanjut pertama untuk memulai jejak penanganan.';
         }
         if (normalizedStatus === 'selesai') {
             return 'Aduan sudah ditutup. Tinjau kembali lampiran dan riwayat bila diperlukan.';
@@ -926,7 +956,7 @@ export const AduanDetailPage: React.FC = () => {
         const seen = new Set<string>();
         const options: { value: string; label: string }[] = [];
         const addOption = (value?: string) => {
-            const normalizedValue = value?.trim();
+            const normalizedValue = normalizeJenisTlLabel(value);
             if (!normalizedValue) return;
             const key = normalizedValue.toLowerCase();
             if (seen.has(key)) return;
@@ -1013,7 +1043,7 @@ export const AduanDetailPage: React.FC = () => {
         }
     }, [isEditModalOpen, isAdmin, masterStatuses.length, users.length, isLoadingUsers]);
 
-    // Fetch Jenis Tindak Lanjut when TL Modal opens
+    // Fetch jenis dokumen when the dokumen modal opens
     useEffect(() => {
         if (isTLModalOpen || isEditTlModalOpen) {
             AduanService.getJenisTindakLanjut()
@@ -1121,7 +1151,7 @@ export const AduanDetailPage: React.FC = () => {
                 onSuccess: () => {
                     setIsTLModalOpen(false);
                     setTlForm({
-                        jenisTL: 'Telaah Administrasi',
+                        jenisTL: DEFAULT_JENIS_TL_SELECT_OPTIONS[0].value,
                         tanggal: new Date().toISOString().split('T')[0],
                         keterangan: '',
                         nomorSuratOutput: '',
@@ -1203,7 +1233,7 @@ export const AduanDetailPage: React.FC = () => {
         setEditingTl(tl);
         setEditTlForm({
             id: tl.id,
-            jenisTL: tl.jenisTL,
+            jenisTL: normalizeJenisTlLabel(tl.jenisTL),
             tanggal: new Date(tl.tanggal).toISOString().split('T')[0],
             keterangan: tl.keterangan || '',
             nomorSuratOutput: tl.nomorSuratOutput || '',
@@ -1777,16 +1807,16 @@ export const AduanDetailPage: React.FC = () => {
                 <p className="text-sm whitespace-pre-wrap">{aduan.ringkasanMasalah}</p>
             </div>
 
-            {/* Print - Riwayat Tindak Lanjut */}
+            {/* Print - Riwayat Dokumen Tindak Lanjut */}
             {qTindakLanjutList.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4">
-                    <h3 className="font-semibold text-sm mb-3 border-b pb-2 uppercase tracking-wide">RIWAYAT TINDAK LANJUT ({qTindakLanjutList.length} catatan)</h3>
+                    <h3 className="font-semibold text-sm mb-3 border-b pb-2 uppercase tracking-wide">RIWAYAT DOKUMEN TINDAK LANJUT ({qTindakLanjutList.length} catatan)</h3>
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b bg-muted">
                                 <th className="py-2 px-2 text-left font-semibold w-8">No</th>
                                 <th className="py-2 px-2 text-left font-semibold w-24">Tanggal</th>
-                                <th className="py-2 px-2 text-left font-semibold w-32">Jenis TL</th>
+                                <th className="py-2 px-2 text-left font-semibold w-32">Jenis Dokumen</th>
                                 <th className="py-2 px-2 text-left font-semibold">Keterangan</th>
                                 <th className="py-2 px-2 text-left font-semibold w-28">Oleh</th>
                             </tr>
@@ -1796,7 +1826,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <tr key={tl.id} className="border-b">
                                     <td className="py-2 px-2 align-top">{index + 1}</td>
                                     <td className="py-2 px-2 align-top text-xs">{formatDate(tl.tanggal)}</td>
-                                    <td className="py-2 px-2 align-top font-medium">{tl.jenisTL}</td>
+                                    <td className="py-2 px-2 align-top font-medium">{normalizeJenisTlLabel(tl.jenisTL)}</td>
                                     <td className="py-2 px-2 align-top">{tl.keterangan}</td>
                                     <td className="py-2 px-2 align-top text-xs">{tl.createdByName}</td>
                                 </tr>
@@ -2274,7 +2304,7 @@ export const AduanDetailPage: React.FC = () => {
 
 
 
-                    {/* Tindak Lanjut Timeline */}
+                    {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
                             <CardHeader
@@ -2287,7 +2317,7 @@ export const AduanDetailPage: React.FC = () => {
                                         onClick={() => setIsTLModalOpen(true)}
                                         disabled={!canInputRiwayatPenanganan}
                                     >
-                                        Tambah TL
+                                        Tambah Dokumen
                                     </Button>
                                 }
                             >
@@ -2327,7 +2357,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] font-bold text-foreground uppercase tracking-tight">{tl.jenisTL}</span>
+                                                            <span className="text-[11px] font-bold text-foreground uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
                                                                 <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-white border-border text-muted-foreground font-mono">
                                                                     {tl.nomorSuratOutput}
@@ -2370,14 +2400,14 @@ export const AduanDetailPage: React.FC = () => {
                                                                 <button
                                                                     onClick={() => openEditTlModal(tl)}
                                                                     className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                                                                    title="Edit Tindak Lanjut"
+                                                                    title="Edit Dokumen"
                                                                 >
                                                                     <Edit size={12} />
                                                                 </button>
                                                             )}
                                                                 {isAdmin && (
                                                                     <button
-                                                                        onClick={() => setDeleteTlConfirm({ id: tl.id, label: tl.jenisTL })}
+                                                                        onClick={() => setDeleteTlConfirm({ id: tl.id, label: normalizeJenisTlLabel(tl.jenisTL) })}
                                                                         className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                                                                         title="Hapus Riwayat"
                                                                     >
@@ -2445,7 +2475,7 @@ export const AduanDetailPage: React.FC = () => {
                                         disabled={!canInputRiwayatPenanganan}
                                         className="justify-start"
                                     >
-                                        Tambah TL
+                                        Tambah Dokumen
                                     </Button>
                                     <Button
                                         size="sm"
@@ -2536,7 +2566,7 @@ export const AduanDetailPage: React.FC = () => {
                                     {allAttachments.map((file) => (
                                         <div key={file.id} className="flex items-center gap-3 p-3 rounded-xl border bg-white hover:border-border hover:bg-muted/60 transition-all group">
                                             <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted text-primary">
-                                                {file.source === 'Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
+                                                {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
                                             <div className="flex flex-col flex-1 min-w-0">
                                                 <span className="text-xs font-semibold text-foreground truncate pr-2">
@@ -2582,19 +2612,19 @@ export const AduanDetailPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Tindak Lanjut Modal */}
+            {/* Dokumen Tindak Lanjut Modal */}
             <Modal
                 isOpen={isTLModalOpen}
                 onClose={() => setIsTLModalOpen(false)}
-                title="Tambah Tindak Lanjut"
-                description="Catat langkah penanganan terbaru agar jejak proses aduan tetap lengkap."
+                title="Tambah Dokumen"
+                description="Catat dokumen atau hasil penanganan terbaru agar jejak proses aduan tetap lengkap."
                 className="max-w-3xl rounded-2xl border-border/80 bg-white p-6"
                 size="xl"
             >
                 <form onSubmit={handleTLSubmit} className="flex flex-col gap-5">
                     <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
                         <Select
-                            label="Jenis Tindak Lanjut"
+                            label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
                             value={tlForm.jenisTL}
                             onChange={(val) => setTlForm({ ...tlForm, jenisTL: val })}
@@ -2602,7 +2632,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Input
-                                label="Tanggal Tindak Lanjut"
+                                label="Tanggal Dokumen / Tindak Lanjut"
                                 type="date"
                                 value={tlForm.tanggal}
                                 onChange={(e) => setTlForm({ ...tlForm, tanggal: e.target.value })}
@@ -2610,7 +2640,7 @@ export const AduanDetailPage: React.FC = () => {
                                 fullWidth
                             />
                             <Input
-                                label="Nomor Surat Output (Jika Ada)"
+                                label="Nomor Dokumen"
                                 placeholder="Contoh: S.123/PKPS/..."
                                 value={tlForm.nomorSuratOutput}
                                 onChange={(e) => setTlForm({ ...tlForm, nomorSuratOutput: e.target.value })}
@@ -2619,8 +2649,8 @@ export const AduanDetailPage: React.FC = () => {
                             />
                         </div>
                         <Textarea
-                            label="Keterangan / Hasil TL"
-                            placeholder="Uraikan secara ringkas hasil dari tindak lanjut ini..."
+                            label="Keterangan / Hasil"
+                            placeholder="Uraikan secara ringkas hasil dokumen atau tindak lanjut yang dicatat di sini..."
                             value={tlForm.keterangan}
                             onChange={(e) => setTlForm({ ...tlForm, keterangan: e.target.value })}
                             rows={5}
@@ -2643,7 +2673,7 @@ export const AduanDetailPage: React.FC = () => {
                             multiple
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                             maxSizeMB={10}
-                            helperText="Klik atau seret file dokumen/foto hasil TL"
+                            helperText="Klik atau seret file dokumen/foto hasil tindak lanjut di sini"
                             uploadProgress={tlUploadProgress}
                         />
                     </div>
@@ -2662,25 +2692,25 @@ export const AduanDetailPage: React.FC = () => {
                             isLoading={isTLSubmitting}
                             leftIcon={<Plus size={18} />}
                         >
-                            Simpan TL
+                            Simpan Dokumen
                         </Button>
                     </ModalFooter>
                 </form>
             </Modal>
 
-            {/* Edit Tindak Lanjut Modal */}
+            {/* Edit Dokumen Tindak Lanjut Modal */}
             <Modal
                 isOpen={isEditTlModalOpen}
                 onClose={resetEditTlForm}
-                title="Edit Tindak Lanjut"
-                description="Perbarui catatan tindak lanjut tanpa membuat catatan baru."
+                title="Edit Dokumen"
+                description="Perbarui catatan dokumen atau tindak lanjut tanpa membuat catatan baru."
                 className="max-w-3xl rounded-2xl border-border/80 bg-white p-6"
                 size="xl"
             >
                 <form onSubmit={handleEditTlSubmit} className="flex flex-col gap-5">
                     <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
                         <Select
-                            label="Jenis Tindak Lanjut"
+                            label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
                             value={editTlForm.jenisTL}
                             onChange={(val) => setEditTlForm(prev => ({ ...prev, jenisTL: val }))}
@@ -2688,7 +2718,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Input
-                                label="Tanggal Tindak Lanjut"
+                                label="Tanggal Dokumen / Tindak Lanjut"
                                 type="date"
                                 value={editTlForm.tanggal}
                                 onChange={(e) => setEditTlForm(prev => ({ ...prev, tanggal: e.target.value }))}
@@ -2696,7 +2726,7 @@ export const AduanDetailPage: React.FC = () => {
                                 fullWidth
                             />
                             <Input
-                                label="Nomor Surat Output (Jika Ada)"
+                                label="Nomor Dokumen"
                                 placeholder="Contoh: S.123/PKPS/..."
                                 value={editTlForm.nomorSuratOutput}
                                 onChange={(e) => setEditTlForm(prev => ({ ...prev, nomorSuratOutput: e.target.value }))}
@@ -2705,8 +2735,8 @@ export const AduanDetailPage: React.FC = () => {
                             />
                         </div>
                         <Textarea
-                            label="Keterangan / Hasil TL"
-                            placeholder="Uraikan secara ringkas hasil dari tindak lanjut ini..."
+                            label="Keterangan / Hasil"
+                            placeholder="Uraikan secara ringkas hasil dokumen atau tindak lanjut yang dicatat di sini..."
                             value={editTlForm.keterangan}
                             onChange={(e) => setEditTlForm(prev => ({ ...prev, keterangan: e.target.value }))}
                             rows={5}
@@ -2755,7 +2785,7 @@ export const AduanDetailPage: React.FC = () => {
                             multiple
                             accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                             maxSizeMB={10}
-                            helperText="Klik atau seret file dokumen/foto untuk menambah lampiran baru"
+                            helperText="Klik atau seret file dokumen/foto hasil tindak lanjut untuk menambah lampiran baru"
                             uploadProgress={editTlUploadProgress}
                         />
                     </div>

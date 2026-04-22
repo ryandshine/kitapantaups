@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api, setTokens, clearTokens } from '../lib/api';
+import { api, setTokens, clearTokens, refreshAccessToken, getAccessToken } from '../lib/api';
 import type { User } from '../types';
 
 interface AuthContextType {
@@ -9,7 +9,6 @@ interface AuthContextType {
     error: string | null;
     isAdmin: boolean;
     login: (email: string, password: string) => Promise<void>;
-    register: (email: string, password: string, displayName: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     clearError: () => void;
@@ -31,29 +30,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            api.get('/auth/me')
-                .then((data: any) => {
-                    setUser({
-                        id: data.id,
-                        email: data.email,
-                        displayName: fallbackDisplayName(data.display_name, data.email),
-                        role: data.role,
-                        phone: data.phone,
-                        isActive: data.is_active,
-                        createdAt: new Date(data.created_at || Date.now()),
-                        updatedAt: new Date(data.updated_at || Date.now()),
-                    });
-                })
-                .catch(() => {
-                    clearTokens();
-                    setUser(null);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
+        const bootstrapSession = async () => {
+            try {
+                if (!getAccessToken()) {
+                    const nextToken = await refreshAccessToken();
+                    if (!nextToken) {
+                        setUser(null);
+                        return;
+                    }
+                }
+
+                const data = await api.get('/auth/me');
+                setUser({
+                    id: data.id,
+                    email: data.email,
+                    displayName: fallbackDisplayName(data.display_name, data.email),
+                    role: data.role,
+                    phone: data.phone,
+                    isActive: data.is_active,
+                    createdAt: new Date(data.created_at || Date.now()),
+                    updatedAt: new Date(data.updated_at || Date.now()),
+                });
+            } catch {
+                clearTokens();
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        void bootstrapSession();
     }, []);
 
     const login = async (email: string, password: string) => {
@@ -80,19 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const register = async (email: string, password: string, displayName: string) => {
-        setLoading(true);
-        setError(null);
-        try {
-            await api.post('/users', { email, password, display_name: displayName, role: 'staf' });
-        } catch (err: any) {
-            setError(err.message || 'Registrasi gagal.');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const logout = async () => {
         try {
             await api.post('/auth/logout', {});
@@ -105,9 +98,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const refreshUser = async () => {
-        if (!localStorage.getItem('access_token')) return;
         setLoading(true);
         try {
+            if (!getAccessToken()) {
+                const nextToken = await refreshAccessToken();
+                if (!nextToken) {
+                    setUser(null);
+                    return;
+                }
+            }
+
             const data = await api.get('/auth/me');
             setUser({
                 id: data.id,
@@ -119,6 +119,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 createdAt: new Date(data.created_at || Date.now()),
                 updatedAt: new Date(data.updated_at || Date.now()),
             });
+        } catch {
+            clearTokens();
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -135,7 +138,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 error,
                 isAdmin: user?.role === 'admin',
                 login,
-                register,
                 logout,
                 refreshUser,
                 clearError,
