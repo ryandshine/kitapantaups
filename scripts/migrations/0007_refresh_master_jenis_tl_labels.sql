@@ -5,7 +5,7 @@ INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
   ('TL Nota Dinas'),
   ('TL BA Rapat Pembahasan'),
   ('TL Notula Rapat'),
-  ('Laporan Publikasi'),
+  ('Laporan Puldasi'),
   ('Berita Acara Evaluasi'),
   ('Lainnya')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;

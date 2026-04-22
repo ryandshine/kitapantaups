@@ -240,7 +240,7 @@ const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: string }> =
     { value: 'TL Nota Dinas', label: 'TL Nota Dinas' },
     { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
     { value: 'TL Notula Rapat', label: 'TL Notula Rapat' },
-    { value: 'Laporan Publikasi', label: 'Laporan Publikasi' },
+    { value: 'Laporan Puldasi', label: 'Laporan Puldasi' },
     { value: 'Berita Acara Evaluasi', label: 'Berita Acara Evaluasi' },
     { value: 'Lainnya', label: 'Lainnya' }
 ];

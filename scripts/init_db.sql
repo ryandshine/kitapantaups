@@ -363,7 +363,27 @@ INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
   ('TL Nota Dinas'),
   ('TL BA Rapat Pembahasan'),
   ('TL Notula Rapat'),
-  ('Laporan Publikasi'),
+  ('Laporan Puldasi'),
+*** Add File: /home/ryandshinevps/kitapantaups/scripts/migrations/0010_rename_laporan_publikasi_to_puldasi.sql
+UPDATE public.master_jenis_tl
+SET nama_jenis_tl = 'Laporan Puldasi'
+WHERE nama_jenis_tl = 'Laporan Publikasi';
+
+UPDATE public.tindak_lanjut
+SET jenis_tl = 'Laporan Puldasi'
+WHERE jenis_tl = 'Laporan Publikasi';
+
+UPDATE public.app_activities
+SET
+  metadata = CASE
+    WHEN metadata ? 'jenisTL' AND metadata->>'jenisTL' = 'Laporan Publikasi'
+      THEN jsonb_set(metadata, '{jenisTL}', to_jsonb('Laporan Puldasi'::text), true)
+    ELSE metadata
+  END,
+  description = REPLACE(description, 'Laporan Publikasi', 'Laporan Puldasi')
+WHERE
+  (metadata ? 'jenisTL' AND metadata->>'jenisTL' = 'Laporan Publikasi')
+  OR description LIKE '%Laporan Publikasi%';
   ('Berita Acara Evaluasi'),
   ('Lainnya')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
