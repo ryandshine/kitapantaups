@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils';
 
 
 export const DashboardLayout: React.FC = () => {
-    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(true);
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -56,11 +56,8 @@ export const DashboardLayout: React.FC = () => {
     };
 
     return (
-        <div className={cn(
-            "relative flex min-h-dvh overflow-x-clip bg-background"
-        )}>
-            {/* Background decorative elements - Simplified for Apple look */}
-            <div className="absolute inset-0 bg-background pointer-events-none" />
+        <div className={cn("relative flex min-h-dvh overflow-x-clip bg-background")}>
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(66,133,244,0.08),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(52,168,83,0.08),transparent_28%)]" />
 
             <div className="z-50">
                 <Sidebar
@@ -84,7 +81,7 @@ export const DashboardLayout: React.FC = () => {
                     } : undefined}
                 />
 
-                <main className="custom-scrollbar min-h-[calc(100dvh-48px)] flex-1 overflow-x-hidden overflow-y-auto bg-background">
+                <main className="custom-scrollbar min-h-[calc(100dvh-56px)] flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
@@ -92,7 +89,7 @@ export const DashboardLayout: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
-                            className="mx-auto w-full max-w-7xl p-4 md:p-5 lg:p-6"
+                            className="mx-auto w-full max-w-7xl p-4 md:p-6 lg:p-7"
                         >
                             <Outlet />
                         </motion.div>

@@ -7,7 +7,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(({ className, ...props 
   <div
     ref={ref}
     className={cn(
-      "rounded-2xl border border-border/90 bg-card text-card-foreground shadow-sm",
+      "rounded-2xl bg-card text-card-foreground shadow-[var(--shadow-card)] ring-1 ring-border/70",
       className
     )}
     {...props}
@@ -23,11 +23,11 @@ const CardHeader = React.forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, action, children, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("flex flex-col space-y-1 p-5", className)}
+      className={cn("flex flex-col space-y-1.5 p-5", className)}
       {...props}
     >
       {action ? (
-        <div className="flex items-center justify-between w-full">
+        <div className="flex w-full items-center justify-between">
           <div className="flex flex-col space-y-1.5">
             {children}
           </div>
