@@ -169,7 +169,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                 <div style={overlayStyle} className="pointer-events-none">
                     <div
                         ref={overlayRef}
-                        className="pointer-events-auto relative z-[2147483647] max-h-[min(22rem,calc(100vh-6rem))] overflow-y-auto overflow-x-hidden rounded-2xl border border-primary/15 bg-white/95 shadow-2xl ring-1 ring-border/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
+                        className="pointer-events-auto relative z-[2147483647] max-h-[min(20rem,calc(100vh-6rem))] overflow-y-auto overflow-x-hidden rounded-2xl border border-primary/15 bg-white/95 shadow-2xl ring-1 ring-border/60 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
                     >
                         {isLoading ? (
                             <div className="p-4 text-center text-sm text-muted-foreground italic">
@@ -180,18 +180,18 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                 {results.map((kps, index) => (
                                     <li
                                         key={kps.id}
-                                        className={`group cursor-pointer border-b border-border/70 px-4 py-3 transition-all last:border-0 ${selectedIndex === index ? 'bg-primary/5 ring-1 ring-inset ring-primary/20' : 'hover:bg-primary/5'
+                                        className={`group cursor-pointer border-b border-border/70 px-4 py-2.5 transition-all last:border-0 ${selectedIndex === index ? 'bg-primary/5 ring-1 ring-inset ring-primary/20' : 'hover:bg-primary/5'
                                             }`}
                                         onClick={() => handleSelect(kps)}
                                         onMouseEnter={() => setSelectedIndex(index)}
                                     >
                                         <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
-                                            <div className="min-w-0 text-sm font-semibold text-foreground transition-colors group-hover:text-primary break-words">{getDisplayName(kps)}</div>
-                                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-tight text-muted-foreground">
+                                            <div className="min-w-0 break-words text-[0.92rem] font-semibold text-foreground transition-colors group-hover:text-primary">{getDisplayName(kps)}</div>
+                                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-tight text-muted-foreground">
                                                 {getDisplayType(kps)}
                                             </span>
                                         </div>
-                                        <div className="mt-1 flex flex-col gap-1 text-[11px] text-muted-foreground">
+                                        <div className="mt-1 flex flex-col gap-1 text-[10px] text-muted-foreground">
                                             <div className="flex flex-wrap items-center gap-1.5 break-all">
                                                 <span className="font-semibold text-foreground/80">id:</span> {getDisplayId(kps)}
                                                 <span className="mx-1">•</span>

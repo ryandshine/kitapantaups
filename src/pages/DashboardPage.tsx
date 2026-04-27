@@ -236,28 +236,28 @@ export const DashboardPage: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="space-y-6"
+            className="space-y-5"
         >
             {/* Hero Section */}
-            <div className="relative overflow-hidden sm:rounded-2xl bg-white dark:bg-card border-y sm:border border-border/60 p-6 md:p-8">
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="relative overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border md:p-6">
+                <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
-                        <motion.h1 variants={itemVariants} className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-2">
+                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                             Dashboard Ringkasan
                         </motion.h1>
-                        <motion.p variants={itemVariants} className="text-muted-foreground text-sm md:text-base max-w-lg leading-relaxed">
+                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-muted-foreground">
                             Monitor perkembangan pengaduan dan manajemen KPS secara real-time dan terintegrasi.
                         </motion.p>
                     </div>
-                    <motion.div variants={itemVariants} className="flex items-center gap-6">
+                    <motion.div variants={itemVariants} className="flex items-center gap-5">
                         <div className="text-right">
-                            <p className="text-5xl font-semibold tracking-tighter text-primary">{totalCount}</p>
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mt-1">Total Aduan</p>
+                            <p className="text-4xl font-semibold tracking-tight text-primary md:text-[2.75rem]">{totalCount}</p>
+                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Aduan</p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
                             variant="primary"
-                            className="h-11 px-6 rounded-full shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all active:scale-95 text-sm font-medium"
+                            className="rounded-full px-5 shadow-lg shadow-primary/20 transition-all text-[0.9rem] font-medium hover:shadow-primary/30 active:scale-95"
                         >
                             <Plus className="mr-2 h-4 w-4" />
                             Buat Aduan
@@ -269,101 +269,101 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {statCards.map((stat, i) => (
                     <motion.div
                         key={i}
                         variants={itemVariants}
                         className={cn(
-                            "group relative overflow-hidden sm:rounded-2xl p-5 bg-white dark:bg-card border-y sm:border border-border/60 transition-all duration-300",
+                            "group relative overflow-hidden border-y border-border/60 bg-white p-4 transition-all duration-300 dark:bg-card sm:rounded-2xl sm:border",
                         )}
                     >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className={cn("rounded-full p-2.5 transition-colors bg-background/50", stat.color)}>
+                        <div className="mb-3 flex items-center justify-between">
+                            <div className={cn("rounded-full bg-background/50 p-2 transition-colors", stat.color)}>
                                 <stat.icon className="h-4 w-4" />
                             </div>
                         </div>
                         <div>
-                            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 opacity-70">{stat.label}</p>
-                            <h3 className="text-2xl font-semibold tracking-tight text-foreground">{stat.value}</h3>
+                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">{stat.label}</p>
+                            <h3 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
             </div>
 
             {/* Content Section */}
-            <div className="grid gap-8 lg:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3">
                 {/* Recent Aduan List */}
-                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
+                <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
                     <div className="flex items-center justify-between px-1">
                         <div>
-                            <h2 className="text-xl font-semibold flex items-center gap-2">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold">
                                 Aduan Terbaru
                             </h2>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="mt-1 text-[11px] text-muted-foreground">
                                 Menampilkan 5 aduan dengan aktivitas terbaru.
                             </p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan')}
                             variant="ghost"
-                            className="text-primary hover:text-primary/80 font-medium text-xs hover:bg-transparent px-0"
+                            className="px-0 text-[11px] font-medium text-primary hover:bg-transparent hover:text-primary/80"
                         >
                             Lihat Semua
                             <ChevronRight size={14} className="ml-1" />
                         </Button>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan) => (
                                 <motion.div
                                     key={aduan.id}
                                     whileHover={{ scale: 1.005 }}
                                     onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                    className="group relative bg-white dark:bg-card border border-border/60 sm:rounded-2xl p-5 hover:shadow-soft transition-all duration-300 cursor-pointer"
+                                    className="group relative cursor-pointer border border-border/60 bg-white p-4 transition-all duration-300 hover:shadow-soft dark:bg-card sm:rounded-2xl"
                                 >
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                        <div className="space-y-2 flex-1">
-                                            <div className="flex items-center gap-2 mb-1">
+                                    <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                                        <div className="flex-1 space-y-1.5">
+                                            <div className="mb-1 flex items-center gap-2">
                                                 <span className={cn(
                                                     "h-2 w-2 rounded-full ring-2 ring-white dark:ring-black",
                                                     aduan.status === 'selesai' ? "bg-emerald-500" :
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
-                                                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                                                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                                                     No Aduan
                                                 </span>
-                                                <span className="text-[11px] font-semibold text-foreground tracking-wide">
+                                                <span className="text-[10px] font-semibold tracking-[0.14em] text-foreground">
                                                     {aduan.nomor_tiket}
                                                 </span>
                                                 <span className={cn(
-                                                    "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
+                                                    "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
                                                     aduan.prioritas === 'tinggi' ? "bg-rose-50/50 text-rose-600 dark:bg-rose-500/10" :
                                                         aduan.prioritas === 'sedang' ? "bg-amber-50/50 text-amber-600 dark:bg-amber-500/10" : "bg-blue-50/50 text-blue-600 dark:bg-blue-500/10"
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
-                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-foreground/[0.04] text-muted-foreground">
+                                                <span className="rounded-full bg-foreground/[0.04] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                                                     {getRecentAduanBadge(aduan)}
                                                 </span>
                                             </div>
-                                            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
                                                 Perihal
                                             </p>
-                                            <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
+                                            <h3 className="text-[0.92rem] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
                                                 {aduan.perihal}
                                             </h3>
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 opacity-60">
-                                                <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-muted-foreground/80">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <MapPin size={12} />
                                                     {getRecentAduanLocation(aduan)}
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <Tag size={12} />
                                                     {getRecentAduanSkema(aduan)}
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <Calendar size={12} />
                                                     {formatDistanceToNow(
                                                         resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
@@ -373,7 +373,7 @@ export const DashboardPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 self-start md:self-center">
-                                            <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-black/5 transition-all duration-300 group-hover:bg-primary group-hover:text-white dark:bg-white/5">
                                                 <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-white transition-colors" />
                                             </div>
                                         </div>
@@ -381,7 +381,7 @@ export const DashboardPage: React.FC = () => {
                                 </motion.div>
                             ))
                         ) : (
-                            <div className="text-center py-16 rounded-3xl border border-dashed border-border/60 bg-white/50">
+                            <div className="rounded-3xl border border-dashed border-border/60 bg-white/50 py-14 text-center">
                                 <FileText className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
                                 <p className="text-sm text-muted-foreground font-medium">Belum ada aduan yang ditemukan</p>
                             </div>
@@ -390,10 +390,10 @@ export const DashboardPage: React.FC = () => {
                 </motion.div>
 
                 {/* Activity & Stats Sidebar */}
-                <motion.div variants={itemVariants} className="space-y-6">
-                    <div className="bg-white dark:bg-card border-y sm:border border-border/60 sm:rounded-2xl p-6 relative overflow-hidden flex flex-col h-full max-h-[800px]">
-                        <div className="flex items-center justify-between mb-6 relative z-10">
-                            <h3 className="text-lg font-semibold flex items-center gap-2">
+                <motion.div variants={itemVariants} className="space-y-4">
+                    <div className="relative flex h-full max-h-[760px] flex-col overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border">
+                        <div className="relative z-10 mb-5 flex items-center justify-between">
+                            <h3 className="flex items-center gap-2 text-base font-semibold">
                                 Aktivitas Sistem
                             </h3>
                             <Select
@@ -404,11 +404,11 @@ export const DashboardPage: React.FC = () => {
                                 ]}
                                 value={activityFilter}
                                 onChange={(val: string) => setActivityFilter(val as any)}
-                                className="h-8 text-xs w-[140px]"
+                                className="h-8 w-[136px] text-[11px]"
                             />
                         </div>
 
-                        <div className="space-y-6 relative z-10 overflow-y-auto custom-scrollbar pr-2 flex-1">
+                        <div className="relative z-10 flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar">
                             {filteredActivities.length > 0 ? (
                                 filteredActivities.map((activity, i) => {
                                     const ui = getActivityUI(activity.type);
@@ -416,10 +416,10 @@ export const DashboardPage: React.FC = () => {
                                     const contextTags = getActivityContextTags(activity);
                                     
                                     return (
-                                        <div key={activity.id} className="flex gap-4 group">
+                                        <div key={activity.id} className="group flex gap-3.5">
                                             <div className="flex flex-col items-center">
                                                 <div className={cn(
-                                                    "h-8 w-8 rounded-full border bg-background flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 z-10",
+                                                    "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
                                                     ui.border, ui.color, ui.bg
                                                 )}>
                                                     <Icon size={14} />
@@ -429,7 +429,7 @@ export const DashboardPage: React.FC = () => {
                                                 )}
                                             </div>
                                             <div className="pb-2">
-                                                <div className="text-xs font-medium text-foreground leading-snug group-hover:text-primary transition-colors prose prose-slate prose-xs max-w-none">
+                                                <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
                                                 </div>
                                                 {contextTags.length > 0 && (
@@ -437,14 +437,14 @@ export const DashboardPage: React.FC = () => {
                                                         {contextTags.map((tag, idx) => (
                                                             <span
                                                                 key={`${activity.id}-context-${idx}`}
-                                                                className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-foreground/80"
+                                                                className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[9px] font-medium text-foreground/80"
                                                             >
                                                                 {tag}
                                                             </span>
                                                         ))}
                                                     </div>
                                                 )}
-                                                <p className="text-[10px] text-muted-foreground mt-1.5 font-medium flex items-center gap-2">
+                                                <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-muted-foreground">
                                                     {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
                                                     <span className="w-1 h-1 rounded-full bg-border" />
                                                     <span className="text-foreground/80">{activity.userName.split(' ')[0]}</span>

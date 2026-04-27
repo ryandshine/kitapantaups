@@ -455,9 +455,9 @@ export const NewAduanPage: React.FC = () => {
 
 
     return (
-        <div className={cn("flex flex-col pb-20 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700", isCompact ? "gap-7" : "gap-10")}>
+        <div className={cn("mx-auto flex max-w-5xl flex-col animate-in fade-in slide-in-from-bottom-4 pb-16 duration-700", isCompact ? "gap-5" : "gap-8")}>
             {/* Page Header */}
-            <div className="flex flex-col gap-6 pt-4">
+            <div className="flex flex-col gap-4 pt-2">
                 <Button
                     variant="ghost"
                     size="sm"
@@ -467,11 +467,11 @@ export const NewAduanPage: React.FC = () => {
                 >
                     Kembali
                 </Button>
-                <div className="flex flex-col gap-2">
-                    <h1 className="text-2xl md:text-4xl font-semibold tracking-tight text-foreground flex items-center gap-3">
+                <div className="flex flex-col gap-1.5">
+                    <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                         Input Aduan Baru
                     </h1>
-                    <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
+                    <p className="max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
                         Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                     </p>
                 </div>
@@ -492,8 +492,8 @@ export const NewAduanPage: React.FC = () => {
                 />
             )}
 
-            <form onSubmit={handleSubmit} className={cn("flex flex-col", isCompact ? "gap-7" : "gap-10")}>
-                <div className={cn("grid grid-cols-1", isCompact ? "gap-7" : "gap-10")}>
+            <form onSubmit={handleSubmit} className={cn("flex flex-col", isCompact ? "gap-5" : "gap-8")}>
+                <div className={cn("grid grid-cols-1", isCompact ? "gap-5" : "gap-8")}>
                     {/* 1. Data Surat Masuk */}
                     <Card className="apple-card overflow-hidden">
                         <CardHeader className="bg-secondary/30 border-b border-border/50 pb-6">

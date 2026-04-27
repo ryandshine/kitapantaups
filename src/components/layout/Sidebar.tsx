@@ -61,17 +61,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
             </AnimatePresence>
 
             <aside className={cn(
-                "fixed top-0 left-0 z-50 h-full border-r border-border/40 bg-sidebar/95 text-sidebar-foreground shadow-2xl backdrop-blur-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
-                !isOpen ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-[min(18rem,calc(100vw-1rem))] md:w-64",
+                "fixed top-0 left-0 z-50 h-full border-r border-sidebar-border/70 bg-sidebar text-sidebar-foreground shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
+                !isOpen ? "-translate-x-full md:translate-x-0 md:w-[4.75rem]" : "translate-x-0 w-[min(17rem,calc(100vw-1rem))] md:w-60",
             )}>
                 {/* Logo Section */}
                 <div className={cn(
-                    "flex h-16 items-center border-b border-border/40 px-6",
+                    "flex h-14 items-center border-b border-sidebar-border/70 px-4",
                     !isOpen && "px-0 justify-center"
                 )}>
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg shadow-secondary/20">
-                            <span className="font-bold text-lg">K</span>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground shadow-lg shadow-black/10">
+                            <span className="text-base font-bold">K</span>
                         </div>
                         {isOpen && (
                             <motion.div
@@ -79,23 +79,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                 animate={{ opacity: 1, x: 0 }}
                                 className="flex flex-col"
                             >
-                                <span className="text-sm font-semibold tracking-tight text-foreground whitespace-nowrap">KitapantauPS</span>
-                                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide opacity-80">Direktorat PPS • V1.0</span>
+                                <span className="whitespace-nowrap text-[0.95rem] font-semibold tracking-tight text-sidebar-foreground">KitapantauPS</span>
+                                <span className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-sidebar-foreground/60">Direktorat PPS • V1.0</span>
                             </motion.div>
                         )}
                     </div>
                     {isOpen && (
                         <button
-                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-full hover:bg-accent/20 md:hidden transition-colors"
+                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-white/10 md:hidden"
                             onClick={onClose}
                         >
-                            <X className="h-4 w-4 text-muted-foreground" />
+                            <X className="h-4 w-4 text-sidebar-foreground/70" />
                         </button>
                     )}
                 </div>
 
                 {/* Navigation Section */}
-                <div className="flex-1 flex flex-col gap-6 p-4 overflow-y-auto custom-scrollbar">
+                <div className="custom-scrollbar flex flex-1 flex-col gap-5 overflow-y-auto p-3">
                     {menuGroups.map((group, idx) => {
                         const visibleItems = group.items.filter(item => !item.adminOnly || isAdmin);
                         if (visibleItems.length === 0) return null;
@@ -103,7 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                         return (
                             <div key={idx} className="flex flex-col gap-1">
                                 {isOpen && (
-                                    <p className="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-widest px-3 mb-2">
+                                    <p className="mb-1 px-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/45">
                                         {group.title}
                                     </p>
                                 )}
@@ -113,17 +113,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                             key={item.path}
                                             to={item.path}
                                             className={({ isActive }) => cn(
-                                                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                                                "group relative flex items-center gap-3 rounded-xl px-3 py-2 text-[0.92rem] font-medium transition-all duration-200",
                                                 !isOpen && "justify-center px-0",
                                                 isActive
-                                                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                                                    : "text-muted-foreground hover:bg-accent/20 hover:text-foreground"
+                                                    ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-md shadow-black/15"
+                                                    : "text-sidebar-foreground/78 hover:bg-white/10 hover:text-sidebar-foreground"
                                             )}
                                         >
                                             {({ isActive }) => (
                                                 <>
                                                     <item.icon className={cn(
-                                                        "h-5 w-5 shrink-0 transition-transform duration-300",
+                                                        "h-[1.1rem] w-[1.1rem] shrink-0 transition-transform duration-300",
                                                         !isOpen && "mx-auto",
                                                         isActive ? "scale-105" : "group-hover:scale-110"
                                                     )} />
@@ -148,15 +148,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                 </div>
 
                 {/* Bottom Section */}
-                <div className="p-4 mt-auto border-t border-border/40 bg-accent/10 backdrop-blur-sm">
+                <div className="mt-auto border-t border-sidebar-border/70 bg-black/5 p-3">
                     <button
                         onClick={onLogout}
                         className={cn(
-                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive transition-all hover:bg-destructive/10 hover:text-destructive active:scale-95",
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[0.92rem] font-medium text-[#EA4335] transition-all hover:bg-white/10 hover:text-[#F28B82] active:scale-95",
                             !isOpen && "justify-center px-0"
                         )}
                     >
-                        <LogOut className="h-5 w-5 shrink-0" />
+                        <LogOut className="h-[1.1rem] w-[1.1rem] shrink-0" />
                         {isOpen && <span className="truncate">Keluar Sistem</span>}
                     </button>
 

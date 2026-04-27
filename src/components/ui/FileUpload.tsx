@@ -176,7 +176,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     return (
         <div className="w-full">
             {label && (
-                <label className="mb-2 block px-1 text-xs font-semibold uppercase tracking-wider text-foreground/80">
+                <label className="mb-2 block px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/80">
                     {label}
                 </label>
             )}
@@ -212,14 +212,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     onKeyDown={handleKeyDown}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
-                    className="p-6 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer"
+                    className="flex cursor-pointer flex-col items-center justify-center space-y-2 p-5 text-center"
                 >
-                    <div className="h-10 w-10 rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary flex items-center justify-center">
-                        {multiple && files.length > 0 ? <Plus size={20} /> : <Upload size={20} />}
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary">
+                        {multiple && files.length > 0 ? <Plus size={18} /> : <Upload size={18} />}
                     </div>
                     <div>
-                        <p className="text-sm font-semibold text-foreground/80">{files.length > 0 && multiple ? "Tambah Berkas Lainnya" : helperText}</p>
-                        <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">
+                        <p className="text-[0.92rem] font-semibold text-foreground/80">{files.length > 0 && multiple ? "Tambah Berkas Lainnya" : helperText}</p>
+                        <p className="mt-0.5 text-[9px] font-medium text-muted-foreground">
                             Format: {accept.replace(/\./g, '').toUpperCase()} (Maks. {maxSizeMB}MB)
                         </p>
                     </div>
@@ -244,7 +244,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: 10 }}
-                                        className="relative rounded-xl border border-border bg-white p-3 shadow-sm group"
+                                        className="group relative rounded-xl border border-border bg-white p-3 shadow-sm"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
@@ -257,7 +257,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                                 <FileText size={16} />
                                             </div>
                                             <div className="flex-1 min-w-0 pr-8">
-                                                <p className="truncate text-xs font-semibold text-foreground">{state.fileName}</p>
+                                                <p className="truncate text-[11px] font-semibold text-foreground">{state.fileName}</p>
                                                 <p className={cn("flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider", statusUi.className)}>
                                                     {statusUi.icon}
                                                     {statusUi.label}

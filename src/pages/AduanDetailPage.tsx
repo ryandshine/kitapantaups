@@ -1811,10 +1811,10 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white/90 px-5 py-5 shadow-sm backdrop-blur-xl">
+                <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white/90 px-5 py-4 shadow-sm backdrop-blur-xl">
                     <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-primary/5 via-transparent to-transparent pointer-events-none" />
-                    <div className="relative flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="flex flex-col gap-4">
+                    <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
+                        <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
                                 <Button
                                     variant="ghost"
@@ -1832,17 +1832,17 @@ export const AduanDetailPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-3">
-                                <div className="flex flex-wrap items-center gap-3">
+                            <div className="flex flex-col gap-2.5">
+                                <div className="flex flex-wrap items-center gap-2.5">
                                     <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
                                     <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
                                 </div>
-                                <p className="max-w-3xl text-sm text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 xl:items-end">
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:w-[420px]">
+                        <div className="flex flex-col gap-3 xl:items-stretch">
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
                                     <div key={card.label} className="rounded-2xl border border-border/70 bg-white/80 p-3 shadow-sm">
                                         <div className="flex items-center justify-between gap-2">
@@ -1855,7 +1855,7 @@ export const AduanDetailPage: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2 xl:justify-end">
                                 <Button
                                     variant="outline"
                                     size="sm"
@@ -1908,7 +1908,7 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Rejection Alert Banner */}
             {aduan.status === 'ditolak' && (
-                <div className="mx-1 bg-destructive/5 border border-destructive/20 p-4 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-500 no-print flex items-start gap-4 shadow-sm">
+                <div className="mx-1 flex items-start gap-4 rounded-2xl border border-destructive/20 bg-destructive/5 p-3.5 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 no-print">
                     <div className="p-2 bg-destructive/10 rounded-full h-fit text-destructive shrink-0">
                         <AlertCircle size={20} />
                     </div>
@@ -1932,9 +1932,9 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card p-6"
+                    className="no-print relative overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border"
                 >
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="mb-3 flex items-center gap-2">
                         <Settings size={15} className="text-muted-foreground" />
                         <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
                             Ubah Status Aduan
@@ -1985,51 +1985,51 @@ export const AduanDetailPage: React.FC = () => {
                 </motion.div>
             )}
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
                 {/* Main Info Column */}
-                <div className="flex flex-col gap-6 xl:col-span-8">
+                <div className="flex flex-col gap-5 xl:col-span-8">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
-                    <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <Card className="h-full overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="bg-muted/30 py-4 border-b border-border/70">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <User className="h-4 w-4" />
                                     Data Pengadu
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="py-6 flex flex-col gap-5">
+                            <CardContent className="flex flex-col gap-4 py-5">
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nama Lengkap</span>
-                                    <span className="font-semibold text-foreground">{aduan.pengadu.nama}</span>
+                                    <span className="text-[0.95rem] font-semibold text-foreground">{aduan.pengadu.nama}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Informasi Kontak</span>
-                                    <div className="flex flex-col gap-3">
+                                    <div className="flex flex-col gap-2.5">
                                         <div className="flex items-center gap-2">
-                                            <div className="h-8 w-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-primary">
                                                 <Phone size={14} />
                                             </div>
                                             <span className="font-mono text-xs font-semibold text-foreground">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
                                             {aduan.pengadu.telepon && (
-                                                <a href={`tel:${aduan.pengadu.telepon}`} className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors">
+                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20">
                                                     <ExternalLink size={12} />
                                                 </a>
                                             )}
                                         </div>
                                         {aduan.pengadu.email && (
                                             <div className="flex items-center gap-2">
-                                                <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-primary">
+                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-primary">
                                                     <Globe size={14} />
                                                 </div>
-                                                <span className="text-xs font-semibold text-foreground break-all">{aduan.pengadu.email}</span>
+                                                <span className="break-all text-[11px] font-semibold text-foreground">{aduan.pengadu.email}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Instansi / Kelompok</span>
-                                    <div className="flex items-center gap-2 text-sm text-foreground font-medium">
-                                        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
+                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-foreground">
+                                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                                             <Briefcase size={14} />
                                         </div>
                                         <span>{aduan.pengadu.instansi || <span className="text-muted-foreground italic">Personal / Umum</span>}</span>
@@ -2039,28 +2039,28 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
 
                         <Card className="h-full overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="bg-muted/30 py-4 border-b border-border/70">
+                            <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <FileText className="h-4 w-4" />
                                     Administrasi Surat
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="py-6 space-y-5">
-                                <div className="grid grid-cols-2 gap-4">
+                            <CardContent className="space-y-4 py-5">
+                                <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nomor Surat</span>
                                         <span className="font-semibold text-foreground text-[11px] font-mono bg-muted px-2 py-1 rounded border border-border">{aduan.suratMasuk.nomorSurat}</span>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Tgl Masuk</span>
-                                        <span className="text-sm font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
+                                        <span className="text-[0.92rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Asal & Perihal</span>
-                                    <div className="space-y-2">
+                                    <div className="space-y-1.5">
                                         <Badge variant="outline" className="bg-muted/60 text-primary border-border font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
-                                        <p className="text-sm font-semibold text-foreground leading-tight">
+                                        <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
                                             {aduan.suratMasuk.perihal || <span className="text-muted-foreground/60 italic font-medium">Tidak dicantumkan</span>}
                                         </p>
                                     </div>
@@ -2070,14 +2070,14 @@ export const AduanDetailPage: React.FC = () => {
                     </motion.div>
 
                     <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                        <CardHeader className="bg-muted/30 py-4 border-b border-border/70">
+                        <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
                             <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                 <MapPin className="h-4 w-4" />
                                 Lokasi Objek
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="py-4">
-                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                            <div className="mb-3 flex flex-wrap items-center gap-1.5">
                                 <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
@@ -2096,44 +2096,44 @@ export const AduanDetailPage: React.FC = () => {
                                     Belum ada KPS yang tertaut pada aduan ini.
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 gap-3">
+                                <div className="grid grid-cols-1 gap-2.5">
                                     {lokasiObjekItems.map((item, index) => (
                                     <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border/80 bg-white p-3">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
-                                                <span className="text-sm font-mono text-foreground">{item.idApiKps}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
+                                                <span className="text-[0.92rem] font-mono text-foreground">{item.idApiKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
-                                                <span className="text-sm font-semibold text-foreground">{item.namaKps}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
+                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
-                                                <span className="text-sm font-mono text-foreground">{item.noSk}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
+                                                <span className="text-[0.92rem] font-mono text-foreground">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
-                                                <span className="text-sm font-semibold text-foreground">{item.kpsType}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
+                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
-                                                <span className="text-sm text-foreground">{item.provinsi}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
+                                                <span className="text-[0.92rem] text-foreground">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
-                                                <span className="text-sm text-foreground">{item.kabupaten}</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
+                                                <span className="text-[0.92rem] text-foreground">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
+                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
@@ -2150,7 +2150,7 @@ export const AduanDetailPage: React.FC = () => {
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
                             <CardHeader
-                                className="border-b border-border/70 bg-muted/30 py-4 flex flex-row items-center justify-between"
+                                className="flex flex-row items-center justify-between border-b border-border/70 bg-muted/30 py-3.5"
                                 action={
                                     <Button
                                         size="sm"
@@ -2170,20 +2170,20 @@ export const AduanDetailPage: React.FC = () => {
                                     Riwayat Penanganan
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
+                            <CardContent className="p-5">
                                 {!canInputRiwayatPenanganan && (
                                     <p className="mb-4 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[11px] font-medium text-muted-foreground">
                                         Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
-                                <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-3">
                                     {qTindakLanjutList.length === 0 ? (
                                         <p className="text-sm text-muted-foreground text-center py-6 italic">
                                             Belum ada langkah penanganan
                                         </p>
                                     ) : (
                                         qTindakLanjutList.map((tl, index) => (
-                                            <div key={tl.id} className="flex items-start gap-3 p-4 bg-white rounded-xl border border-border/80 relative overflow-hidden group shadow-sm">
+                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border/80 bg-white p-3.5 shadow-sm">
                                                 {/* Decorative element */}
                                                 <div className={cn(
                                                     "absolute left-0 top-0 bottom-0 w-1",
@@ -2191,13 +2191,13 @@ export const AduanDetailPage: React.FC = () => {
                                                 )} />
 
                                                 <div className={cn(
-                                                    "h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm",
+                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm",
                                                     index === 0 ? "bg-foreground/80" : "bg-muted-foreground/60"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                                                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-[11px] font-bold text-foreground uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
@@ -2211,10 +2211,10 @@ export const AduanDetailPage: React.FC = () => {
                                                             {formatDate(tl.tanggal)}
                                                         </div>
                                                     </div>
-                                                    <div className="text-xs text-muted-foreground mb-3 prose prose-slate prose-sm max-w-none leading-relaxed">
+                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-muted-foreground">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
-                                                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border">
+                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
                                                             <div className="flex items-center gap-2">
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
@@ -2272,31 +2272,31 @@ export const AduanDetailPage: React.FC = () => {
                     </motion.div>
                 </div>
 
-                <div className="flex flex-col gap-6 self-start xl:col-span-4 xl:sticky xl:top-28">
+                <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardContent className="p-6 space-y-5">
+                            <CardContent className="space-y-4 p-5">
                                 <div>
-                                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Penanggung Jawab (PIC)</p>
+                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-muted text-foreground flex items-center justify-center font-semibold text-lg">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-base font-semibold text-foreground">
                                             {(aduan?.picName || 'U').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-xs text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
+                                            <p className="text-[0.92rem] font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
+                                            <p className="text-[11px] text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3">
                                     <div>
                                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
-                                        <p className="mt-1 text-sm font-semibold text-foreground">{lokasiObjekItems.length}</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{lokasiObjekItems.length}</p>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Lampiran</p>
-                                        <p className="mt-1 text-sm font-semibold text-foreground">{allAttachments.length}</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{allAttachments.length}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -2306,7 +2306,7 @@ export const AduanDetailPage: React.FC = () => {
                     {/* Resources */}
                     <div>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/70 bg-muted/20">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-border/70 bg-muted/20 pb-3">
                                 <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-foreground">Lampiran & Berkas</CardTitle>
                                 <div className="flex items-center gap-2">
                                     {allAttachments.length > 0 && (
@@ -2331,9 +2331,9 @@ export const AduanDetailPage: React.FC = () => {
                                     </Button>
                                 </div>
                             </CardHeader>
-                            <CardContent className="p-4 flex flex-col gap-4">
+                            <CardContent className="flex flex-col gap-3 p-4">
                                 {/* Unified Attachment List */}
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-2.5">
                                     {allAttachments.length === 0 && (
                                         <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-center text-xs text-muted-foreground">
                                             Belum ada lampiran
@@ -2341,12 +2341,12 @@ export const AduanDetailPage: React.FC = () => {
                                     )}
 
                                     {allAttachments.map((file) => (
-                                        <div key={file.id} className="flex items-center gap-3 p-3 rounded-xl border bg-white hover:border-border hover:bg-muted/60 transition-all group">
-                                            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-muted text-primary">
+                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-white p-3 transition-all hover:border-border hover:bg-muted/60">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-primary">
                                                 {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
-                                            <div className="flex flex-col flex-1 min-w-0">
-                                                <span className="text-xs font-semibold text-foreground truncate pr-2">
+                                            <div className="flex min-w-0 flex-1 flex-col">
+                                                <span className="truncate pr-2 text-[11px] font-semibold text-foreground">
                                                     {file.fileName}
                                                 </span>
                                                 <div className="flex items-center gap-2">

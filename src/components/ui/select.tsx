@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-11 w-full items-center justify-between whitespace-nowrap rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/60 hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 transition-all duration-200",
+      "flex h-10 w-full items-center justify-between whitespace-nowrap rounded-xl border border-border bg-card px-3 py-2 text-[0.92rem] text-foreground shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground/80 focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/60 hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 transition-all duration-200",
       className
     )}
     {...props}
@@ -103,7 +103,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-sm font-semibold", className)}
+    className={cn("px-2 py-1.5 text-[0.86rem] font-semibold", className)}
     {...props}
   />
 ))
@@ -116,7 +116,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-2.5 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-default select-none items-center rounded-lg py-2 pl-2.5 pr-8 text-[0.9rem] outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
@@ -185,7 +185,7 @@ const Select = ({
   return (
     <div className={cn("flex flex-col gap-1.5", fullWidth ? "w-full" : "w-auto")}>
       {label && (
-        <label className="text-sm font-semibold text-foreground/70 ml-0.5">
+        <label className="ml-0.5 text-[0.86rem] font-semibold text-foreground/70">
           {label}
         </label>
       )}
@@ -201,7 +201,7 @@ const Select = ({
           ))}
         </SelectContent>
       </SelectRoot>
-      {error && <span className="text-[11px] font-medium text-destructive ml-0.5">{error}</span>}
+      {error && <span className="ml-0.5 text-[10px] font-medium text-destructive">{error}</span>}
     </div>
   );
 };

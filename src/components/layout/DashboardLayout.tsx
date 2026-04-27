@@ -72,7 +72,7 @@ export const DashboardLayout: React.FC = () => {
 
             <div className={cn(
                 "relative z-10 flex w-full flex-1 flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-                "md:ml-64"
+                "md:ml-60"
             )}>
                 <Header
                     onMenuClick={() => setMobileSidebarOpen((prev) => !prev)}
@@ -84,7 +84,7 @@ export const DashboardLayout: React.FC = () => {
                     } : undefined}
                 />
 
-                <main className="custom-scrollbar flex-1 overflow-x-hidden overflow-y-auto bg-background min-h-[calc(100dvh-56px)]">
+                <main className="custom-scrollbar min-h-[calc(100dvh-48px)] flex-1 overflow-x-hidden overflow-y-auto bg-background">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
@@ -92,7 +92,7 @@ export const DashboardLayout: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
-                            className="w-full max-w-7xl mx-auto p-4 md:p-6 lg:p-8"
+                            className="mx-auto w-full max-w-7xl p-4 md:p-5 lg:p-6"
                         >
                             <Outlet />
                         </motion.div>

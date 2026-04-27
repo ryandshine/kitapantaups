@@ -225,26 +225,26 @@ export const AduanListPage: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="flex flex-col gap-8"
+            className="flex flex-col gap-5"
         >
-            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
                 <div>
-                    <motion.h1 variants={itemVariants} className="text-3xl font-semibold tracking-tight text-foreground">Daftar Pengaduan</motion.h1>
+                    <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Daftar Pengaduan</motion.h1>
                 </div>
                 <motion.div variants={itemVariants} className="flex items-center gap-3">
                     <Button
                         variant="primary"
                         leftIcon={<Plus size={18} />}
                         onClick={() => navigate('/pengaduan/baru')}
-                        className="h-11 rounded-xl px-6"
+                        className="rounded-xl px-5"
                     >
                         Buat Aduan
                     </Button>
                 </motion.div>
             </div>
 
-            <motion.div variants={itemVariants} className="bg-white dark:bg-card border-y sm:border sm:rounded-2xl border-border/60 p-4">
-                <div className="flex flex-col items-center gap-4 lg:flex-row">
+            <motion.div variants={itemVariants} className="border-y border-border/60 bg-white p-4 dark:bg-card sm:rounded-2xl sm:border">
+                <div className="flex flex-col items-center gap-3 lg:flex-row">
                     <div className="relative w-full lg:flex-1">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <input
@@ -252,7 +252,7 @@ export const AduanListPage: React.FC = () => {
                             placeholder="Cari perihal, lokasi, SK, KPS... (Global Search)"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className={`w-full rounded-xl border border-border bg-card pl-10 pr-4 transition-all focus:border-primary/40 focus:ring-2 focus:ring-ring/20 ${isCompact ? 'h-9 text-xs' : 'h-11 text-sm'}`}
+                            className={`w-full rounded-xl border border-border bg-card pl-10 pr-4 transition-all focus:border-primary/40 focus:ring-2 focus:ring-ring/20 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
                         />
                     </div>
                     <div className="flex w-full items-center gap-3 lg:w-auto">
@@ -266,21 +266,21 @@ export const AduanListPage: React.FC = () => {
                             ]}
                             value={statusFilter}
                             onChange={setStatusFilter}
-                            className={`flex-1 md:w-48 ${isCompact ? 'text-xs' : ''}`}
+                            className={`flex-1 md:w-44 ${isCompact ? 'text-[0.86rem]' : ''}`}
                         />
                     </div>
                 </div>
-                <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="gray" className="rounded-full px-2.5 py-1 text-[10px]">Baris: {displayList.length}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Baru: {statusSummary.baru || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Proses: {statusSummary.proses || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[10px]">Selesai: {statusSummary.selesai || 0}</Badge>
+                        <Badge variant="gray" className="rounded-full px-2.5 py-1 text-[9px]">Baris: {displayList.length}</Badge>
+                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Baru: {statusSummary.baru || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Proses: {statusSummary.proses || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Selesai: {statusSummary.selesai || 0}</Badge>
                     </div>
                 </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card">
+            <motion.div variants={itemVariants} className="overflow-hidden border-y border-border/60 bg-white dark:bg-card sm:rounded-2xl sm:border">
                 <div className="md:hidden">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
@@ -294,14 +294,14 @@ export const AduanListPage: React.FC = () => {
                                     key={row.nomor_tiket}
                                     type="button"
                                     onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className="w-full rounded-2xl border border-border/70 bg-background p-4 text-left shadow-sm transition-colors hover:bg-muted/20"
+                                    className="w-full rounded-2xl border border-border/70 bg-background p-3.5 text-left shadow-sm transition-colors hover:bg-muted/20"
                                 >
                                     <div className="flex flex-wrap items-start justify-between gap-3">
                                         <div className="min-w-0 space-y-1">
                                             <span className="inline-flex max-w-full rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground">
                                                 {row.nomor_tiket}
                                             </span>
-                                            <p className="line-clamp-2 text-sm font-semibold text-foreground">
+                                            <p className="line-clamp-2 text-[0.92rem] font-semibold text-foreground">
                                                 {getPerihalValue(row)}
                                             </p>
                                             <p className="text-[10px] text-muted-foreground line-clamp-1">
@@ -313,32 +313,32 @@ export const AduanListPage: React.FC = () => {
                                         </Badge>
                                     </div>
 
-                                    <div className="mt-4 grid grid-cols-1 gap-3">
+                                    <div className="mt-3 grid grid-cols-1 gap-2.5">
                                         <div>
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</p>
-                                            <p className="mt-1 text-sm text-foreground">{formatJoinedValue(row.type_kps)}</p>
+                                            <p className="mt-1 text-[0.9rem] text-foreground">{formatJoinedValue(row.type_kps)}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">surat_keputusan</p>
-                                            <p className="mt-1 text-sm text-foreground line-clamp-2">{formatJoinedValue(row.nomor_sk)}</p>
+                                            <p className="mt-1 text-[0.9rem] text-foreground line-clamp-2">{formatJoinedValue(row.nomor_sk)}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Lokasi</p>
-                                            <p className="mt-1 text-sm text-foreground line-clamp-2">
+                                            <p className="mt-1 text-[0.9rem] text-foreground line-clamp-2">
                                                 {[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(' | ') || '-'}
                                             </p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3">
+                                        <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-2.5">
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Luas</p>
-                                                <p className="mt-1 text-sm font-semibold text-foreground">{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
+                                                <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Jumlah KK</p>
-                                                <p className="mt-1 text-sm font-semibold text-foreground">{row.jumlah_kk ?? '-'}</p>
+                                                <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{row.jumlah_kk ?? '-'}</p>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground">
+                                        <div className="grid grid-cols-1 gap-1.5 text-[11px] text-muted-foreground">
                                             <p>Pengadu: {row.pengadu_nama || '-'}</p>
                                             <p>Instansi: {row.pengadu_instansi || '-'}</p>
                                             <p>Surat: {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
@@ -355,23 +355,23 @@ export const AduanListPage: React.FC = () => {
                     )}
                 </div>
 
-                <div className="hidden h-[600px] overflow-auto md:block">
+                <div className="hidden h-[560px] overflow-auto md:block">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
                             <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
                             <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
                         </div>
                     ) : (
-                        <Table className="w-full min-w-[1280px] lg:table-fixed border-none shadow-none">
+                        <Table className="w-full min-w-[1240px] border-none shadow-none lg:table-fixed">
                             <TableHeader className="z-20 bg-gradient-to-b from-muted/60 to-muted/30 backdrop-blur">
                                 {table.getHeaderGroups().map(headerGroup => (
                                     <TableRow key={headerGroup.id} className="hover:bg-transparent">
                                         {headerGroup.headers.map((header) => (
-                                            <TableHead
-                                                key={header.id}
-                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
-                                                className={`${isCompact ? 'p-2.5 text-[10px]' : 'p-4 text-[11px]'} ${getDesktopColumnClassName(header.column.id)} align-top ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
-                                            >
+                                                <TableHead
+                                                    key={header.id}
+                                                    onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                                    className={`${isCompact ? 'p-2 text-[10px]' : 'p-3 text-[11px]'} ${getDesktopColumnClassName(header.column.id)} align-top ${header.column.getCanSort() ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
+                                                >
                                                 <div className="flex items-center gap-1">
                                                     {header.isPlaceholder
                                                         ? null
@@ -401,7 +401,7 @@ export const AduanListPage: React.FC = () => {
                                             {row.getVisibleCells().map((cell) => (
                                                 <TableCell
                                                     key={cell.id}
-                                                    className={`${isCompact ? 'p-2.5 text-[11px]' : 'p-4 text-xs'} ${getDesktopColumnClassName(cell.column.id)} align-top text-foreground`}
+                                                    className={`${isCompact ? 'p-2 text-[11px]' : 'p-3 text-xs'} ${getDesktopColumnClassName(cell.column.id)} align-top text-foreground`}
                                                 >
                                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                                 </TableCell>
@@ -421,8 +421,8 @@ export const AduanListPage: React.FC = () => {
                 </div>
 
                 {!loading && totalCount > 0 && (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border bg-muted/25 p-4">
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <div className="flex flex-col justify-between gap-3 border-t border-border bg-muted/25 p-3.5 sm:flex-row sm:items-center">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                             <span className="hidden sm:inline">Menampilkan {(currentPage - 1) * itemsPerPage + 1} s/d {Math.min(currentPage * itemsPerPage, totalCount)} dari {totalCount} Data</span>
                             <span className="sm:hidden">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalCount)} / {totalCount}</span>
                         </p>
@@ -435,7 +435,7 @@ export const AduanListPage: React.FC = () => {
                             >
                                 Sebelumnya
                             </Button>
-                            <div className="rounded-md border border-border bg-card px-3 py-1 text-xs font-bold">
+                            <div className="rounded-md border border-border bg-card px-3 py-1 text-[11px] font-bold">
                                 {currentPage} / {totalPages}
                             </div>
                             <Button
