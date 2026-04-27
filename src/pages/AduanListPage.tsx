@@ -133,65 +133,80 @@ export const AduanListPage: React.FC = () => {
                             <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
                         </div>
                     ) : displayList.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                            {displayList.map((row) => (
+                        <div className="flex flex-col gap-4">
+                            {displayList.map((row, index) => {
+                                const colors = [
+                                    "bg-blue-50/50 border-blue-200/60 hover:border-blue-400 dark:bg-blue-950/20 dark:border-blue-900/50 dark:hover:border-blue-700",
+                                    "bg-green-50/50 border-green-200/60 hover:border-green-400 dark:bg-green-950/20 dark:border-green-900/50 dark:hover:border-green-700",
+                                    "bg-yellow-50/50 border-yellow-200/60 hover:border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-900/50 dark:hover:border-yellow-700",
+                                    "bg-red-50/50 border-red-200/60 hover:border-red-400 dark:bg-red-950/20 dark:border-red-900/50 dark:hover:border-red-700",
+                                ];
+                                const colorClass = colors[index % colors.length];
+
+                                return (
                                 <button
                                     key={row.nomor_tiket}
                                     type="button"
                                     onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className="flex w-full flex-col text-left rounded-2xl border border-border/70 bg-background p-4 shadow-sm transition-all hover:bg-muted/20 hover:shadow-md hover:border-primary/40"
+                                    className={`flex w-full flex-col text-left rounded-2xl border p-4.5 shadow-sm transition-all hover:shadow-md ${colorClass}`}
                                 >
                                     <div className="flex w-full items-start justify-between gap-3">
-                                        <div className="min-w-0 flex-1 space-y-1">
-                                            <span className="inline-flex rounded-md bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground">
+                                        <div className="min-w-0 flex-1 space-y-1.5">
+                                            <span className="inline-flex rounded-md bg-background/60 px-2 py-0.5 font-mono text-[11px] font-bold text-foreground backdrop-blur-sm">
                                                 {row.nomor_tiket}
                                             </span>
-                                            <p className="line-clamp-2 text-[0.92rem] font-semibold text-foreground">
+                                            <p className="text-[1rem] font-semibold text-foreground">
                                                 {getPerihalValue(row)}
                                             </p>
-                                            <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                            <p className="text-[11px] font-medium text-muted-foreground">
                                                 KPS: {formatJoinedValue(row.nama_kps)}
                                             </p>
                                         </div>
-                                        <Badge variant="gray" className="shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide">
+                                        <Badge variant="gray" className="shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide bg-background/50 backdrop-blur-sm">
                                             {row.status?.toUpperCase?.() || '-'}
                                         </Badge>
                                     </div>
 
-                                    <div className="mt-4 grid w-full grid-cols-1 gap-3">
+                                    <div className="mt-5 grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</p>
-                                            <p className="mt-1 text-[0.9rem] text-foreground">{formatJoinedValue(row.type_kps)}</p>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Skema</p>
+                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">{formatJoinedValue(row.type_kps)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">surat_keputusan</p>
-                                            <p className="mt-1 text-[0.9rem] text-foreground line-clamp-2">{formatJoinedValue(row.nomor_sk)}</p>
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Surat Keputusan</p>
+                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">{formatJoinedValue(row.nomor_sk)}</p>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Lokasi</p>
-                                            <p className="mt-1 text-[0.9rem] text-foreground line-clamp-2">
+                                        <div className="md:col-span-2">
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Lokasi</p>
+                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">
                                                 {[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(' | ') || '-'}
                                             </p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-2.5">
+                                    </div>
+
+                                    <div className="mt-4 flex flex-col md:flex-row gap-4 w-full">
+                                        <div className="grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl border border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5 p-3">
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Luas</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Luas</p>
                                                 <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Jumlah KK</p>
+                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Jumlah KK</p>
                                                 <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{row.jumlah_kk ?? '-'}</p>
                                             </div>
                                         </div>
-                                        <div className="mt-1 grid grid-cols-1 gap-1.5 text-[11px] text-muted-foreground">
-                                            <p><span className="font-medium">Pengadu:</span> {row.pengadu_nama || '-'}</p>
-                                            <p><span className="font-medium">Instansi:</span> {row.pengadu_instansi || '-'}</p>
-                                            <p><span className="font-medium">Surat:</span> {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
-                                            <p className="line-clamp-2"><span className="font-medium">Ringkasan:</span> {row.ringkasan_masalah || '-'}</p>
+                                        <div className="flex-1 grid grid-cols-1 gap-2 text-[0.85rem] text-muted-foreground">
+                                            <div className="flex flex-col sm:flex-row sm:gap-6">
+                                                <p><span className="font-semibold text-foreground">Pengadu:</span> {row.pengadu_nama || '-'}</p>
+                                                <p><span className="font-semibold text-foreground">Instansi:</span> {row.pengadu_instansi || '-'}</p>
+                                                <p><span className="font-semibold text-foreground">Surat:</span> {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
+                                            </div>
+                                            <p className="whitespace-pre-wrap leading-relaxed mt-1"><span className="font-semibold text-foreground">Ringkasan:</span> {row.ringkasan_masalah || '-'}</p>
                                         </div>
                                     </div>
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : (
                         <div className="flex h-48 items-center justify-center px-6 text-center italic text-muted-foreground">

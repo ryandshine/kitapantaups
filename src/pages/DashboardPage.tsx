@@ -239,25 +239,24 @@ export const DashboardPage: React.FC = () => {
             className="space-y-5"
         >
             {/* Hero Section */}
-            <div className="relative overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border md:p-6">
+            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6">
                 <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
-                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-white md:text-3xl">
                             Dashboard Ringkasan
                         </motion.h1>
-                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-muted-foreground">
+                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-white/90">
                             Monitor perkembangan pengaduan dan manajemen KPS secara real-time dan terintegrasi.
                         </motion.p>
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-5">
                         <div className="text-right">
-                            <p className="text-4xl font-semibold tracking-tight text-primary md:text-[2.75rem]">{totalCount}</p>
-                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Aduan</p>
+                            <p className="text-4xl font-semibold tracking-tight text-white md:text-[2.75rem]">{totalCount}</p>
+                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">Total Aduan</p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
-                            variant="primary"
-                            className="rounded-full px-5 shadow-lg shadow-primary/20 transition-all text-[0.9rem] font-medium hover:shadow-primary/30 active:scale-95"
+                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all text-[0.9rem] font-medium active:scale-95"
                         >
                             <Plus className="mr-2 h-4 w-4" />
                             Buat Aduan
@@ -265,7 +264,7 @@ export const DashboardPage: React.FC = () => {
                     </motion.div>
                 </div>
                 {/* Decorative background - softer */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-3xl opacity-60" />
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
             </div>
 
             {/* Stats Grid */}
@@ -275,17 +274,17 @@ export const DashboardPage: React.FC = () => {
                         key={i}
                         variants={itemVariants}
                         className={cn(
-                            "group relative overflow-hidden border-y border-border/60 bg-white p-4 transition-all duration-300 dark:bg-card sm:rounded-2xl sm:border",
+                            "group relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-4 shadow-sm transition-all duration-300 sm:rounded-2xl sm:border",
                         )}
                     >
                         <div className="mb-3 flex items-center justify-between">
-                            <div className={cn("rounded-full bg-background/50 p-2 transition-colors", stat.color)}>
+                            <div className={cn("rounded-full bg-white/20 p-2 text-white transition-colors")}>
                                 <stat.icon className="h-4 w-4" />
                             </div>
                         </div>
                         <div>
-                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/80">{stat.label}</p>
-                            <h3 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{stat.value}</h3>
+                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">{stat.label}</p>
+                            <h3 className="text-xl font-semibold tracking-tight text-white md:text-2xl">{stat.value}</h3>
                         </div>
                     </motion.div>
                 ))}
@@ -297,7 +296,7 @@ export const DashboardPage: React.FC = () => {
                 <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
                     <div className="flex items-center justify-between px-1">
                         <div>
-                            <h2 className="flex items-center gap-2 text-lg font-semibold">
+                            <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                                 Aduan Terbaru
                             </h2>
                             <p className="mt-1 text-[11px] text-muted-foreground">
@@ -321,7 +320,7 @@ export const DashboardPage: React.FC = () => {
                                     key={aduan.id}
                                     whileHover={{ scale: 1.005 }}
                                     onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                    className="group relative cursor-pointer border border-border/60 bg-white p-4 transition-all duration-300 hover:shadow-soft dark:bg-card sm:rounded-2xl"
+                                    className="group relative cursor-pointer border border-green-700/50 bg-[#34A853] p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl"
                                 >
                                     <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                                         <div className="flex-1 space-y-1.5">
@@ -331,10 +330,10 @@ export const DashboardPage: React.FC = () => {
                                                     aduan.status === 'selesai' ? "bg-emerald-500" :
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
-                                                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                                                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/80">
                                                     No Aduan
                                                 </span>
-                                                <span className="text-[10px] font-semibold tracking-[0.14em] text-foreground">
+                                                <span className="text-[10px] font-semibold tracking-[0.14em] text-white">
                                                     {aduan.nomor_tiket}
                                                 </span>
                                                 <span className={cn(
@@ -344,17 +343,17 @@ export const DashboardPage: React.FC = () => {
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
-                                                <span className="rounded-full bg-foreground/[0.04] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                                                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white">
                                                     {getRecentAduanBadge(aduan)}
                                                 </span>
                                             </div>
-                                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/80">
                                                 Perihal
                                             </p>
-                                            <h3 className="text-[0.92rem] font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+                                            <h3 className="text-[0.92rem] font-semibold leading-snug text-white transition-colors group-hover:text-white/90">
                                                 {aduan.perihal}
                                             </h3>
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-muted-foreground/80">
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-white/80">
                                                 <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <MapPin size={12} />
                                                     {getRecentAduanLocation(aduan)}
@@ -373,8 +372,8 @@ export const DashboardPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 self-start md:self-center">
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-black/5 transition-all duration-300 group-hover:bg-primary group-hover:text-white dark:bg-white/5">
-                                                <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-white transition-colors" />
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-white/20 transition-all duration-300 group-hover:bg-white group-hover:text-[#34A853]">
+                                                <ArrowUpRight size={14} className="text-white/70 group-hover:text-[#34A853] transition-colors" />
                                             </div>
                                         </div>
                                     </div>
@@ -391,9 +390,9 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="relative flex h-full max-h-[760px] flex-col overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border">
+                    <div className="relative flex h-full max-h-[760px] flex-col overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border text-white">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
-                            <h3 className="flex items-center gap-2 text-base font-semibold">
+                            <h3 className="flex items-center gap-2 text-base font-semibold text-white">
                                 Aktivitas Sistem
                             </h3>
                             <Select
@@ -420,16 +419,16 @@ export const DashboardPage: React.FC = () => {
                                             <div className="flex flex-col items-center">
                                                 <div className={cn(
                                                     "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
-                                                    ui.border, ui.color, ui.bg
+                                                    "text-[#34A853] bg-white border border-white/30"
                                                 )}>
                                                     <Icon size={14} />
                                                 </div>
                                                 {i < filteredActivities.length - 1 && (
-                                                    <div className="w-[1px] flex-1 bg-border my-2" />
+                                                    <div className="w-[1px] flex-1 bg-white/20 my-2" />
                                                 )}
                                             </div>
                                             <div className="pb-2">
-                                                <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-foreground transition-colors group-hover:text-primary">
+                                                <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-white transition-colors group-hover:text-white/90 prose-p:text-white prose-strong:text-white prose-a:text-white">
                                                     <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
                                                 </div>
                                                 {contextTags.length > 0 && (
@@ -437,17 +436,17 @@ export const DashboardPage: React.FC = () => {
                                                         {contextTags.map((tag, idx) => (
                                                             <span
                                                                 key={`${activity.id}-context-${idx}`}
-                                                                className="rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[9px] font-medium text-foreground/80"
+                                                                className="rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-medium text-white/90"
                                                             >
                                                                 {tag}
                                                             </span>
                                                         ))}
                                                     </div>
                                                 )}
-                                                <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-muted-foreground">
+                                                <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-white/70">
                                                     {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
-                                                    <span className="w-1 h-1 rounded-full bg-border" />
-                                                    <span className="text-foreground/80">{activity.userName.split(' ')[0]}</span>
+                                                    <span className="w-1 h-1 rounded-full bg-white/30" />
+                                                    <span className="text-white/90">{activity.userName.split(' ')[0]}</span>
                                                 </p>
                                             </div>
                                         </div>
