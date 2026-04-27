@@ -329,7 +329,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                 </div>
 
                 <div className="bg-muted/25 p-4 rounded-xl border border-border/70">
-                    <label className="block text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-[#34A853] mb-2 flex items-center gap-2">
                         <Sparkles size={16} />
                         Identitas Kelompok / KPS
                     </label>
@@ -432,7 +432,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                 <div className="bg-muted/25 p-4 rounded-xl border border-border/70 space-y-4">
                     <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <User size={16} className="text-primary" />
+                        <User size={16} className="text-[#34A853]" />
                         Identitas Pengadu
                     </label>
                     <Input
@@ -479,7 +479,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                 <div className={`${editSectionClass} grid grid-cols-1 sm:grid-cols-2 gap-4`}>
                     <div className="sm:col-span-2">
-                        <label className="text-[10px] font-semibold text-primary uppercase tracking-widest block mb-2">Administrasi Surat</label>
+                        <label className="text-[10px] font-semibold text-[#34A853] uppercase tracking-widest block mb-2">Administrasi Surat</label>
                     </div>
                     <Select
                         label="Kategori Asal"
@@ -1631,10 +1631,10 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const problemDescriptionCard = (
-        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-            <CardHeader className="border-b border-border/70 bg-muted/30">
+        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02]">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#34A853]/10 text-[#34A853]">
                         <FileText size={16} />
                     </div>
                     Ringkasan Permasalahan
@@ -1669,7 +1669,7 @@ export const AduanDetailPage: React.FC = () => {
                             "mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
                             feedback.type === 'success' && "border-secondary/20 bg-secondary/10 text-secondary",
                             feedback.type === 'error' && "border-destructive/20 bg-destructive/10 text-destructive",
-                            feedback.type === 'info' && "border-primary/20 bg-primary/10 text-primary"
+                            feedback.type === 'info' && "border-primary/20 bg-[#34A853]/10 text-[#34A853]"
                         )}
                     >
                         {feedback.type === 'error' ? <AlertTriangle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
@@ -1737,7 +1737,7 @@ export const AduanDetailPage: React.FC = () => {
             {/* Print Master KPS Info */}
             {lokasiObjekItems.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4 avoid-break">
-                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-primary">LOKASI OBJEK</h3>
+                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-[#34A853]">LOKASI OBJEK</h3>
                     <table className="w-full text-xs border-collapse border border-border">
                         <thead>
                             <tr className="bg-muted">
@@ -1930,7 +1930,7 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden border-y border-border/60 bg-white p-5 dark:bg-card sm:rounded-2xl sm:border"
+                    className="no-print relative overflow-hidden border border-[#34A853]/30 bg-white p-5 dark:bg-card sm:rounded-2xl shadow-sm"
                 >
                     <div className="mb-3 flex items-center gap-2">
                         <Settings size={15} className="text-muted-foreground" />
@@ -1988,8 +1988,8 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 xl:col-span-8">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
                     <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        <Card className="h-full overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <User className="h-4 w-4" />
                                     Data Pengadu
@@ -2004,19 +2004,19 @@ export const AduanDetailPage: React.FC = () => {
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Informasi Kontak</span>
                                     <div className="flex flex-col gap-2.5">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-primary">
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-[#34A853]">
                                                 <Phone size={14} />
                                             </div>
                                             <span className="font-mono text-xs font-semibold text-foreground">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
                                             {aduan.pengadu.telepon && (
-                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors hover:bg-primary/20">
+                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-[#34A853]/10 text-[#34A853] transition-colors hover:bg-primary/20">
                                                     <ExternalLink size={12} />
                                                 </a>
                                             )}
                                         </div>
                                         {aduan.pengadu.email && (
                                             <div className="flex items-center gap-2">
-                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-primary">
+                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-[#34A853]">
                                                     <Globe size={14} />
                                                 </div>
                                                 <span className="break-all text-[11px] font-semibold text-foreground">{aduan.pengadu.email}</span>
@@ -2036,8 +2036,8 @@ export const AduanDetailPage: React.FC = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="h-full overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <FileText className="h-4 w-4" />
                                     Administrasi Surat
@@ -2057,7 +2057,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Asal & Perihal</span>
                                     <div className="space-y-1.5">
-                                        <Badge variant="outline" className="bg-muted/60 text-primary border-border font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
+                                        <Badge variant="outline" className="bg-muted/60 text-[#34A853] border-border font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
                                         <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
                                             {aduan.suratMasuk.perihal || <span className="text-muted-foreground/60 italic font-medium">Tidak dicantumkan</span>}
                                         </p>
@@ -2067,8 +2067,8 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
-                    <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                        <CardHeader className="border-b border-border/70 bg-muted/30 py-3.5">
+                    <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                             <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                 <MapPin className="h-4 w-4" />
                                 Lokasi Objek
@@ -2146,9 +2146,9 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
                             <CardHeader
-                                className="flex flex-row items-center justify-between border-b border-border/70 bg-muted/30 py-3.5"
+                                className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5"
                                 action={
                                     <Button
                                         size="sm"
@@ -2273,7 +2273,7 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
                             <CardContent className="space-y-4 p-5">
                                 <div>
                                     <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
@@ -2303,8 +2303,8 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Resources */}
                     <div>
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between border-b border-border/70 bg-muted/20 pb-3">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] pb-3">
                                 <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-foreground">Lampiran & Berkas</CardTitle>
                                 <div className="flex items-center gap-2">
                                     {allAttachments.length > 0 && (
@@ -2340,7 +2340,7 @@ export const AduanDetailPage: React.FC = () => {
 
                                     {allAttachments.map((file) => (
                                         <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-white p-3 transition-all hover:border-border hover:bg-muted/60">
-                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-primary">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-[#34A853]">
                                                 {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
                                             <div className="flex min-w-0 flex-1 flex-col">
@@ -2372,7 +2372,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => void openProtectedFile(file.url, file.fileName)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-primary transition-colors"
+                                                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-[#34A853] transition-colors"
                                                     title="Buka File"
                                                 >
                                                     <ExternalLink size={14} />
@@ -2646,11 +2646,11 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5">
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="p-4 bg-muted border border-border rounded-lg mb-4">
-                            <h4 className="text-sm font-semibold text-primary mb-1 flex items-center gap-2">
+                            <h4 className="text-sm font-semibold text-[#34A853] mb-1 flex items-center gap-2">
                                 <FileText size={16} />
                                 Upload Dokumen Pendukung
                             </h4>
-                            <p className="text-xs text-primary">
+                            <p className="text-xs text-[#34A853]">
                                 Unggah berkas dokumen (PDF, Word, Excel), data spasial (ZIP, SHP), atau audio (MP3, WAV).
                             </p>
                         </div>
