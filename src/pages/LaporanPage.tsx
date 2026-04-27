@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Download, Settings2 } from 'lucide-react';
 import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
 import { AduanService } from '../lib/aduan.service';
-import { FIXED_REPORT_COLUMN_IDS, ReportService } from '../lib/report.service';
+import { ReportService } from '../lib/report.service';
 import { useAuth } from '../contexts/AuthContext';
 
 export const LaporanPage: React.FC = () => {

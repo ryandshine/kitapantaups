@@ -44,7 +44,6 @@ import { useAduanList, useDashboardStats } from '../hooks/useAduan';
 
 export const DashboardPage: React.FC = () => {
     const dashboardTheme = { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/90", badge: "bg-white/20 text-white border-white/20", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#34A853]", iconText: "text-white group-hover:text-[#34A853]", border: "border-green-700/30" };
-    const blueTheme = { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/90", badge: "bg-white/20 text-white border-white/20", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#4285F4]", iconText: "text-white group-hover:text-[#4285F4]", border: "border-blue-700/30" };
     const navigate = useNavigate();
     const [activities, setActivities] = useState<AppActivity[]>([]);
     const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -325,69 +324,71 @@ export const DashboardPage: React.FC = () => {
 
                     <div className="space-y-3">
                         {recentAduan.length > 0 ? (
-                            recentAduan.map((aduan: Aduan) => (
-                                
-                                <motion.div
-                                    key={aduan.id}
-                                    whileHover={{ scale: 1.005 }}
-                                    onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                    className={cn("group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl", blueTheme.bg, blueTheme.border)}
-                                >
-                                    <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
-                                        <div className="flex-1 space-y-1.5">
-                                            <div className="mb-1 flex items-center gap-2">
-                                                <span className={cn(
-                                                    "h-2 w-2 rounded-full ring-2 ring-white/50",
-                                                    getGoogleStatusDotClass(aduan.status)
-                                                )} />
-                                                <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${blueTheme.muted}`}>
-                                                    No Aduan
-                                                </span>
-                                                <span className={`text-[10px] font-semibold tracking-[0.14em] ${blueTheme.text}`}>
-                                                    {aduan.nomor_tiket}
-                                                </span>
-                                                <span className={cn(
-                                                    "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
-                                                    getGooglePriorityBadgeClass(aduan.prioritas)
-                                                )}>
-                                                    {aduan.prioritas}
-                                                </span>
-                                                <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${blueTheme.badge}`}>
-                                                    {getRecentAduanBadge(aduan)}
-                                                </span>
+                            recentAduan.map((aduan: Aduan, index: number) => {
+                                const theme = getGoogleCardTheme(index);
+
+                                return (
+                                    <motion.div
+                                        key={aduan.id}
+                                        whileHover={{ scale: 1.005 }}
+                                        onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
+                                        className={cn("group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl", theme.bg, theme.border)}
+                                    >
+                                        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                                            <div className="flex-1 space-y-1.5">
+                                                <div className="mb-1 flex items-center gap-2">
+                                                    <span className={cn(
+                                                        "h-2 w-2 rounded-full ring-2 ring-white/50",
+                                                        getGoogleStatusDotClass(aduan.status)
+                                                    )} />
+                                                    <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                                        No Aduan
+                                                    </span>
+                                                    <span className={`text-[10px] font-semibold tracking-[0.14em] ${theme.text}`}>
+                                                        {aduan.nomor_tiket}
+                                                    </span>
+                                                    <span className={cn(
+                                                        "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
+                                                        getGooglePriorityBadgeClass(aduan.prioritas)
+                                                    )}>
+                                                        {aduan.prioritas}
+                                                    </span>
+                                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${theme.badge}`}>
+                                                        {getRecentAduanBadge(aduan)}
+                                                    </span>
+                                                </div>
+                                                <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                                    Perihal
+                                                </p>
+                                                <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${theme.text}`}>
+                                                    {aduan.perihal}
+                                                </h3>
+                                                <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${theme.muted}`}>
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                                                        <MapPin size={12} />
+                                                        {getRecentAduanLocation(aduan)}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                                                        <Tag size={12} />
+                                                        {getRecentAduanSkema(aduan)}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
+                                                        <Calendar size={12} />
+                                                        {formatDistanceToNow(
+                                                            resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
+                                                            { addSuffix: true, locale: localeID }
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${blueTheme.muted}`}>
-                                                Perihal
-                                            </p>
-                                            <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${blueTheme.text}`}>
-                                                {aduan.perihal}
-                                            </h3>
-                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${blueTheme.muted}`}>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                    <MapPin size={12} />
-                                                    {getRecentAduanLocation(aduan)}
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                    <Tag size={12} />
-                                                    {getRecentAduanSkema(aduan)}
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                    <Calendar size={12} />
-                                                    {formatDistanceToNow(
-                                                        resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
-                                                        { addSuffix: true, locale: localeID }
-                                                    )}
+                                            <div className="flex items-center gap-3 self-start md:self-center">
+                                                <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${theme.iconBg}`}>
+                                                    <ArrowUpRight size={14} className={`transition-colors ${theme.iconText}`} />
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 self-start md:self-center">
-                                            <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${blueTheme.iconBg}`}>
-                                                <ArrowUpRight size={14} className={`transition-colors ${blueTheme.iconText}`} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            );
+                                    </motion.div>
+                                );
                             })
                         ) : (
                             <div className="rounded-3xl border border-dashed border-border/60 bg-white/50 py-14 text-center">
