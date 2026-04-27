@@ -86,13 +86,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             case 'success':
                 return {
                     label: 'Berhasil diunggah',
-                    className: 'text-emerald-600',
+                    className: 'text-secondary',
                     icon: <CheckCircle2 size={10} />,
                 };
             case 'error':
                 return {
                     label: 'Gagal diunggah',
-                    className: 'text-red-500',
+                    className: 'text-destructive',
                     icon: <AlertCircle size={10} />,
                 };
             default:
@@ -183,8 +183,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
             <div className={cn(
                 "relative group transition-all duration-300 rounded-xl border-2 border-dashed overflow-hidden",
-                error ? "border-red-200 bg-red-50/30" :
-                    files.length > 0 ? "border-emerald-200 bg-emerald-50/20" :
+                error ? "border-destructive/20 bg-destructive/10" :
+                    files.length > 0 ? "border-secondary/20 bg-secondary/10" :
                         "border-border hover:border-primary/40 bg-muted/30",
                 isLoading && "opacity-75 cursor-not-allowed"
             )}>
@@ -249,8 +249,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
                                                 "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
-                                                state.status === 'error' ? "bg-red-100 text-red-500" :
-                                                    state.status === 'success' ? "bg-emerald-100 text-emerald-600" :
+                                                state.status === 'error' ? "bg-destructive/10 text-destructive" :
+                                                    state.status === 'success' ? "bg-secondary/10 text-secondary" :
                                                         state.status === 'uploading' ? "bg-primary/10 text-primary" :
                                                             "bg-muted text-muted-foreground"
                                             )}>
@@ -265,7 +265,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                                 {state.message && (
                                                     <p className={cn(
                                                         "mt-1 text-[10px] leading-relaxed",
-                                                        state.status === 'error' ? "text-red-500" : "text-muted-foreground"
+                                                        state.status === 'error' ? "text-destructive" : "text-muted-foreground"
                                                     )}>
                                                         {state.message}
                                                     </p>
@@ -275,7 +275,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                                 type="button"
                                                 onClick={(e) => removeFile(idx, e)}
                                                 disabled={isLoading}
-                                                className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-red-50 hover:text-red-500"
+                                                className="rounded-lg p-1.5 text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -286,7 +286,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                                     <div
                                                         className={cn(
                                                             "h-full rounded-full transition-all duration-300",
-                                                            state.status === 'error' ? "bg-red-500" : "bg-primary"
+                                                            state.status === 'error' ? "bg-destructive" : "bg-primary"
                                                         )}
                                                         style={{ width: `${state.progress}%` }}
                                                     />
@@ -330,7 +330,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="mt-2 flex items-center gap-2 rounded-lg bg-red-50 p-2 text-[10px] font-semibold text-red-500"
+                        className="mt-2 flex items-center gap-2 rounded-lg bg-destructive/10 p-2 text-[10px] font-semibold text-destructive"
                     >
                         <AlertCircle size={14} />
                         {error}

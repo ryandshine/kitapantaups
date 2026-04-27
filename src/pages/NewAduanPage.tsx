@@ -467,7 +467,7 @@ export const NewAduanPage: React.FC = () => {
                 >
                     Kembali
                 </Button>
-                <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6 mb-2">
+                <div className="google-hero mb-2">
                     <div className="relative z-10 flex flex-col gap-1.5">
                         <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-white md:text-3xl">
                             Input Aduan Baru
@@ -476,7 +476,7 @@ export const NewAduanPage: React.FC = () => {
                             Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                         </p>
                     </div>
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
+                    <div className="google-hero-orb" />
                 </div>
             </div>
 

@@ -1667,7 +1667,7 @@ export const AduanDetailPage: React.FC = () => {
                     <div
                         className={cn(
                             "mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
-                            feedback.type === 'success' && "border-emerald-500/20 bg-emerald-50 text-emerald-800",
+                            feedback.type === 'success' && "border-secondary/20 bg-secondary/10 text-secondary",
                             feedback.type === 'error' && "border-destructive/20 bg-destructive/10 text-destructive",
                             feedback.type === 'info' && "border-primary/20 bg-primary/10 text-primary"
                         )}
@@ -1811,8 +1811,8 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="relative overflow-hidden rounded-2xl border border-green-700/50 bg-[#34A853] px-5 py-4 shadow-sm backdrop-blur-xl">
-                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
+                <div className="google-panel-green relative overflow-hidden rounded-2xl px-5 py-4 backdrop-blur-xl">
+                    <div className="google-hero-orb pointer-events-none" />
                     <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
@@ -1876,7 +1876,7 @@ export const AduanDetailPage: React.FC = () => {
                                     Upload
                                 </Button>
                                 <Button
-                                    className="h-9 rounded-xl px-4 bg-white text-[#34A853] hover:bg-white/90 border-none"
+                                    className="google-hero-button h-9 rounded-xl px-4 border-none"
                                     leftIcon={<Edit size={15} />}
                                     onClick={openEditModal}
                                 >
@@ -1889,7 +1889,7 @@ export const AduanDetailPage: React.FC = () => {
                                         leftIcon={<Trash2 size={15} />}
                                         onClick={() => setIsDeleteAduanConfirmOpen(true)}
                                         isLoading={isDeleting}
-                                        className="h-9 rounded-xl px-4 text-red-100 hover:text-white hover:bg-red-500/30"
+                                        className="h-9 rounded-xl px-4 text-white/80 hover:bg-destructive/25 hover:text-white"
                                     >
                                         Hapus
                                     </Button>
@@ -2359,7 +2359,7 @@ export const AduanDetailPage: React.FC = () => {
                                                     <button
                                                         onClick={() => setDeleteConfirmDoc({ id: file.rawId!, fileName: file.fileName })}
                                                         disabled={deletingDocId === file.rawId}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500 transition-colors disabled:opacity-50"
+                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                                                         title="Hapus file"
                                                     >
                                                         {deletingDocId === file.rawId ? (

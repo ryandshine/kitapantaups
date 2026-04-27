@@ -29,8 +29,8 @@ export const LoginPage: React.FC = () => {
     };
     return (
         <div className="grid min-h-screen grid-cols-1 bg-gradient-to-br from-background via-muted/20 to-background lg:grid-cols-[1.1fr_1fr]">
-            <section className="relative hidden overflow-hidden border-r border-green-700/50 bg-[#34A853] p-10 lg:flex lg:flex-col lg:justify-between shadow-lg">
-                <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[40rem] h-[40rem] rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
+            <section className="google-hero hidden border-r p-10 shadow-lg lg:flex lg:flex-col lg:justify-between">
+                <div className="absolute top-0 right-0 h-[40rem] w-[40rem] -translate-y-1/4 translate-x-1/4 rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
                 <div className="relative z-10 inline-flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/20 shadow-sm backdrop-blur-sm">
                         <ShieldCheck className="h-5 w-5 text-white" />

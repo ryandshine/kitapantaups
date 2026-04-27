@@ -15,7 +15,7 @@ export function FeedbackBanner({ type, message, onClose, className }: FeedbackBa
     <div
       className={cn(
         "flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm",
-        type === "success" && "border-emerald-500/20 bg-emerald-50 text-emerald-800",
+        type === "success" && "border-secondary/20 bg-secondary/10 text-secondary",
         type === "error" && "border-destructive/20 bg-destructive/10 text-destructive",
         type === "info" && "border-primary/20 bg-primary/10 text-primary",
         className

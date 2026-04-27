@@ -33,6 +33,7 @@ import {
 import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
 import { ActivityService } from '../lib/activity.service';
+import { getGoogleCardTheme, getGooglePriorityBadgeClass, getGoogleStatusDotClass } from '../lib/google-theme';
 import type { AppActivity, Aduan } from '../types';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -85,10 +86,10 @@ export const DashboardPage: React.FC = () => {
     const isLoading = isLoadingAduan || isLoadingActivities || isLoadingStats;
 
     const statCards = [
-        { label: 'Disposisi', value: totalDisposisi, icon: Send, color: 'text-amber-600', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
-        { label: 'Proses', value: totalProses, icon: Search, color: 'text-purple-600', bg: 'bg-purple-500/10', border: 'border-purple-500/20' },
-        { label: 'Selesai', value: selesaiCount, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
-        { label: 'Ditolak', value: ditolakCount, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-500/10', border: 'border-rose-500/20' },
+        { label: 'Disposisi', value: totalDisposisi, icon: Send },
+        { label: 'Proses', value: totalProses, icon: Search },
+        { label: 'Selesai', value: selesaiCount, icon: CheckCircle2 },
+        { label: 'Ditolak', value: ditolakCount, icon: XCircle },
     ];
 
     const getRecentAduanLocation = (aduan: Aduan) =>
@@ -118,31 +119,31 @@ export const DashboardPage: React.FC = () => {
 
     const getActivityUI = (type: string) => {
         // Document
-        if (['upload_document', 'upload_tl_document'].includes(type)) return { icon: Upload, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-500/20' };
-        if (['delete_document', 'delete_tl'].includes(type)) return { icon: Trash2, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-500/20' };
-        if (['sync_drive'].includes(type)) return { icon: RefreshCw, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-500/20' };
-        if (['export_data'].includes(type)) return { icon: Download, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-500/20' };
+        if (['upload_document', 'upload_tl_document'].includes(type)) return { icon: Upload };
+        if (['delete_document', 'delete_tl'].includes(type)) return { icon: Trash2 };
+        if (['sync_drive'].includes(type)) return { icon: RefreshCw };
+        if (['export_data'].includes(type)) return { icon: Download };
         
         // Aduan & Disposisi
-        if (['create_aduan', 'create_tl'].includes(type)) return { icon: Plus, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-500/20' };
-        if (['update_priority'].includes(type)) return { icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-500/20' };
-        if (['update_status'].includes(type)) return { icon: ChevronRight, color: 'text-blue-600', bg: 'bg-blue-50/50', border: 'border-blue-500/20' };
-        if (['update_kps_lokasi'].includes(type)) return { icon: Map, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-500/20' };
-        if (['send_notification'].includes(type)) return { icon: Bell, color: 'text-amber-600', bg: 'bg-amber-50/50', border: 'border-amber-500/20' };
-        if (['update_aduan', 'update_tl'].includes(type)) return { icon: FileSignature, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-500/20' };
+        if (['create_aduan', 'create_tl'].includes(type)) return { icon: Plus };
+        if (['update_priority'].includes(type)) return { icon: AlertTriangle };
+        if (['update_status'].includes(type)) return { icon: ChevronRight };
+        if (['update_kps_lokasi'].includes(type)) return { icon: Map };
+        if (['send_notification'].includes(type)) return { icon: Bell };
+        if (['update_aduan', 'update_tl'].includes(type)) return { icon: FileSignature };
         
         // User & Security
-        if (['user_login'].includes(type)) return { icon: LogIn, color: 'text-emerald-600', bg: 'bg-emerald-50/50', border: 'border-emerald-500/20' };
-        if (['user_logout'].includes(type)) return { icon: LogOut, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-500/20' };
-        if (['create_user', 'update_user'].includes(type)) return { icon: UserPlus, color: 'text-indigo-600', bg: 'bg-indigo-50/50', border: 'border-indigo-500/20' };
-        if (['change_role'].includes(type)) return { icon: ShieldAlert, color: 'text-rose-600', bg: 'bg-rose-50/50', border: 'border-rose-500/20' };
+        if (['user_login'].includes(type)) return { icon: LogIn };
+        if (['user_logout'].includes(type)) return { icon: LogOut };
+        if (['create_user', 'update_user'].includes(type)) return { icon: UserPlus };
+        if (['change_role'].includes(type)) return { icon: ShieldAlert };
         
         // Settings & Integration
-        if (['update_settings'].includes(type)) return { icon: Settings, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-500/20' };
-        if (['ai_generate_summary'].includes(type)) return { icon: Bot, color: 'text-purple-600', bg: 'bg-purple-50/50', border: 'border-purple-500/20' };
-        if (['sync_master_data'].includes(type)) return { icon: Database, color: 'text-slate-600', bg: 'bg-slate-50/50', border: 'border-slate-500/20' };
+        if (['update_settings'].includes(type)) return { icon: Settings };
+        if (['ai_generate_summary'].includes(type)) return { icon: Bot };
+        if (['sync_master_data'].includes(type)) return { icon: Database };
         
-        return { icon: Zap, color: 'text-primary', bg: 'bg-primary/5', border: 'border-primary/20' };
+        return { icon: Zap };
     };
 
     const getActivityContextTags = (activity: AppActivity): string[] => {
@@ -239,7 +240,7 @@ export const DashboardPage: React.FC = () => {
             className="space-y-5"
         >
             {/* Hero Section */}
-            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6">
+            <div className="google-hero">
                 <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
                         <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-white md:text-3xl">
@@ -256,7 +257,7 @@ export const DashboardPage: React.FC = () => {
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
-                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all text-[0.9rem] font-medium active:scale-95"
+                            className="google-hero-button text-[0.9rem]"
                         >
                             <Plus className="mr-2 h-4 w-4" />
                             Buat Aduan
@@ -264,29 +265,36 @@ export const DashboardPage: React.FC = () => {
                     </motion.div>
                 </div>
                 {/* Decorative background - softer */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
+                <div className="google-hero-orb" />
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {statCards.map((stat, i) => (
+                    (() => {
+                        const theme = getGoogleCardTheme(i);
+                        return (
                     <motion.div
                         key={i}
                         variants={itemVariants}
                         className={cn(
-                            "group relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-4 shadow-sm transition-all duration-300 sm:rounded-2xl sm:border",
+                            "group relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-all duration-300",
+                            theme.bg,
+                            theme.border
                         )}
                     >
                         <div className="mb-3 flex items-center justify-between">
-                            <div className={cn("rounded-full bg-white/20 p-2 text-white transition-colors")}>
+                            <div className={cn("rounded-full p-2 transition-colors", theme.badge, theme.text)}>
                                 <stat.icon className="h-4 w-4" />
                             </div>
                         </div>
                         <div>
-                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">{stat.label}</p>
-                            <h3 className="text-xl font-semibold tracking-tight text-white md:text-2xl">{stat.value}</h3>
+                            <p className={cn("mb-1 text-[10px] font-semibold uppercase tracking-[0.16em]", theme.muted)}>{stat.label}</p>
+                            <h3 className={cn("text-xl font-semibold tracking-tight md:text-2xl", theme.text)}>{stat.value}</h3>
                         </div>
                     </motion.div>
+                        );
+                    })()
                 ))}
             </div>
 
@@ -316,13 +324,7 @@ export const DashboardPage: React.FC = () => {
                     <div className="space-y-3">
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan, index: number) => {
-                                const colors = [
-                                    { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#4285F4]", iconText: "text-white/70 group-hover:text-[#4285F4]", border: "border-[#4285F4]" },
-                                    { bg: "bg-[#EA4335]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#EA4335]", iconText: "text-white/70 group-hover:text-[#EA4335]", border: "border-[#EA4335]" },
-                                    { bg: "bg-[#FBBC05]", text: "text-[#202124]", muted: "text-[#202124]/80", badge: "bg-[#202124]/10 text-[#202124]", iconBg: "bg-[#202124]/10 group-hover:bg-[#202124] group-hover:text-[#FBBC05]", iconText: "text-[#202124]/70 group-hover:text-[#FBBC05]", border: "border-[#FBBC05]" },
-                                    { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#34A853]", iconText: "text-white/70 group-hover:text-[#34A853]", border: "border-[#34A853]" },
-                                ];
-                                const theme = colors[index % colors.length];
+                                const theme = getGoogleCardTheme(index);
                                 return (
                                 <motion.div
                                     key={aduan.id}
@@ -335,8 +337,7 @@ export const DashboardPage: React.FC = () => {
                                             <div className="mb-1 flex items-center gap-2">
                                                 <span className={cn(
                                                     "h-2 w-2 rounded-full ring-2 ring-white dark:ring-black",
-                                                    aduan.status === 'selesai' ? "bg-emerald-500" :
-                                                        aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
+                                                    getGoogleStatusDotClass(aduan.status)
                                                 )} />
                                                 <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
                                                     No Aduan
@@ -346,8 +347,7 @@ export const DashboardPage: React.FC = () => {
                                                 </span>
                                                 <span className={cn(
                                                     "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
-                                                    aduan.prioritas === 'tinggi' ? "bg-rose-50/50 text-rose-600 dark:bg-rose-500/10" :
-                                                        aduan.prioritas === 'sedang' ? "bg-amber-50/50 text-amber-600 dark:bg-amber-500/10" : "bg-blue-50/50 text-blue-600 dark:bg-blue-500/10"
+                                                    getGooglePriorityBadgeClass(aduan.prioritas)
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
@@ -399,7 +399,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="relative flex h-full max-h-[760px] flex-col overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border text-white">
+                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
                             <h3 className="flex items-center gap-2 text-base font-semibold text-white">
                                 Aktivitas Sistem
@@ -428,7 +428,7 @@ export const DashboardPage: React.FC = () => {
                                             <div className="flex flex-col items-center">
                                                 <div className={cn(
                                                     "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
-                                                    "text-[#34A853] bg-white border border-white/30"
+                                                    "border border-white/30 bg-white text-[#34A853]"
                                                 )}>
                                                     <Icon size={14} />
                                                 </div>

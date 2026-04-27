@@ -184,7 +184,7 @@ export const UserManagementPage: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6 mb-6">
+            <div className="google-hero mb-6">
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl font-bold tracking-tight text-white">Manajemen Pengguna</h1>
@@ -192,7 +192,7 @@ export const UserManagementPage: React.FC = () => {
                     </div>
                     <div className="flex gap-2">
                         <Button
-                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all font-medium active:scale-95"
+                            className="google-hero-button"
                             leftIcon={<UserPlus className="h-4 w-4" />}
                             onClick={() => setIsAddModalOpen(true)}
                         >
@@ -200,7 +200,7 @@ export const UserManagementPage: React.FC = () => {
                         </Button>
                     </div>
                 </div>
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
+                <div className="google-hero-orb" />
             </div>
 
             {feedback && (
@@ -287,8 +287,8 @@ export const UserManagementPage: React.FC = () => {
                                                     className={cn(
                                                         'inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider',
                                                         u.isActive
-                                                            ? 'text-emerald-600 bg-emerald-50'
-                                                            : 'text-rose-600 bg-rose-50'
+                                                            ? 'google-soft-green'
+                                                            : 'google-soft-red'
                                                     )}
                                                 >
                                                     {u.isActive ? (
@@ -322,8 +322,8 @@ export const UserManagementPage: React.FC = () => {
                                                         className={cn(
                                                             'h-8 px-2 text-[11px]',
                                                             u.isActive
-                                                                ? 'text-rose-700 border-rose-200 hover:bg-rose-50'
-                                                                : 'text-emerald-700 border-emerald-200 hover:bg-emerald-50'
+                                                                ? 'border-destructive/20 text-destructive hover:bg-destructive/10'
+                                                                : 'border-secondary/20 text-secondary hover:bg-secondary/10'
                                                         )}
                                                         onClick={() => handleToggleStatus(u)}
                                                         disabled={u.id === currentUser?.id || updatingUserId === u.id}

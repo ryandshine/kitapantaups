@@ -152,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     <button
                         onClick={onLogout}
                         className={cn(
-                            "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[0.92rem] font-medium text-[#EA4335] transition-all hover:bg-white/10 hover:text-[#F28B82] active:scale-95",
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[0.92rem] font-medium text-destructive transition-all hover:bg-white/10 hover:text-white active:scale-95",
                             !isOpen && "justify-center px-0"
                         )}
                     >

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button, Select, Badge } from '../components/ui';
 import { useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
+import { getGoogleCardTheme } from '../lib/google-theme';
 
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -72,7 +73,7 @@ export const AduanListPage: React.FC = () => {
             variants={containerVariants}
             className="flex flex-col gap-5"
         >
-            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6">
+            <div className="google-hero">
                 <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
                         <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-white md:text-3xl">Daftar Pengaduan</motion.h1>
@@ -80,7 +81,7 @@ export const AduanListPage: React.FC = () => {
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-3">
                         <Button
-                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all font-medium active:scale-95"
+                            className="google-hero-button"
                             onClick={() => navigate('/pengaduan/baru')}
                         >
                             <Plus size={18} className="mr-2" />
@@ -88,7 +89,7 @@ export const AduanListPage: React.FC = () => {
                         </Button>
                     </motion.div>
                 </div>
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
+                <div className="google-hero-orb" />
             </div>
 
             <motion.div variants={itemVariants} className="border-y border-border/60 bg-white p-4 dark:bg-card sm:rounded-2xl sm:border">
@@ -138,13 +139,7 @@ export const AduanListPage: React.FC = () => {
                     ) : displayList.length > 0 ? (
                         <div className="flex flex-col gap-4">
                             {displayList.map((row, index) => {
-                                const colors = [
-                                    { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#4285F4]" },
-                                    { bg: "bg-[#EA4335]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#EA4335]" },
-                                    { bg: "bg-[#FBBC05]", text: "text-[#202124]", muted: "text-[#202124]/80", badge: "bg-[#202124]/10 text-[#202124] border-[#202124]/20", border: "border-[#FBBC05]" },
-                                    { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#34A853]" },
-                                ];
-                                const theme = colors[index % colors.length];
+                                const theme = getGoogleCardTheme(index);
 
                                 return (
                                 <button
