@@ -57,10 +57,18 @@ export const AduanListPage: React.FC = () => {
         return '-';
     };
 
+    const getPerihalValue = (row: any) =>
+        row?.perihal?.trim?.()
+        || row?.surat_asal_perihal?.trim?.()
+        || row?.suratMasuk?.perihal?.trim?.()
+        || '-';
+
     const getDesktopColumnClassName = (columnId: string) => {
         switch (columnId) {
             case 'nomor_tiket':
                 return 'w-[9.5rem]';
+            case 'perihal':
+                return 'min-w-[24rem] w-[34%]';
             case 'status':
                 return 'w-[8.5rem]';
             case 'nama_kps':
@@ -72,7 +80,7 @@ export const AduanListPage: React.FC = () => {
             case 'surat_nomor':
                 return 'w-[11rem]';
             case 'ringkasan_masalah':
-                return 'min-w-[22rem] w-[32%]';
+                return 'min-w-[20rem] w-[28%]';
             default:
                 return '';
         }
@@ -88,6 +96,20 @@ export const AduanListPage: React.FC = () => {
                     </span>
                     <p className="text-[10px] text-muted-foreground truncate">
                         Dibuat: {formatDate(info.row.original.created_at || info.row.original.createdAt || info.row.original.tanggal_buat)}
+                    </p>
+                </div>
+            ),
+        }),
+        columnHelper.display({
+            id: 'perihal',
+            header: 'Perihal',
+            cell: info => (
+                <div className="space-y-1 min-w-0">
+                    <p className="text-xs font-semibold leading-relaxed text-foreground whitespace-normal break-words">
+                        {getPerihalValue(info.row.original)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                        KPS: {formatJoinedValue(info.row.original.nama_kps)}
                     </p>
                 </div>
             ),
@@ -280,7 +302,10 @@ export const AduanListPage: React.FC = () => {
                                                 {row.nomor_tiket}
                                             </span>
                                             <p className="line-clamp-2 text-sm font-semibold text-foreground">
-                                                {formatJoinedValue(row.nama_kps)}
+                                                {getPerihalValue(row)}
+                                            </p>
+                                            <p className="text-[10px] text-muted-foreground line-clamp-1">
+                                                KPS: {formatJoinedValue(row.nama_kps)}
                                             </p>
                                         </div>
                                         <Badge variant="gray" className="max-w-[9rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide">
