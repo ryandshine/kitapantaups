@@ -44,10 +44,10 @@ export const Header: React.FC<HeaderProps> = ({
     }, [location.pathname]);
 
     return (
-        <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border/40 bg-white/70 dark:bg-black/70 backdrop-blur-xl px-4 md:px-6 transition-all duration-300 transform">
+        <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border/40 bg-card/90 backdrop-blur-xl px-4 md:px-6 transition-all duration-300 transform">
             <div className="flex items-center gap-4 flex-1">
                 <button
-                    className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 md:hidden transition-all active:scale-95"
+                    className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent/20 md:hidden transition-all active:scale-95"
                     onClick={onMenuClick}
                 >
                     <Menu className="h-5 w-5 text-foreground/80" />
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-3">
                 {/* User Profile */}
                 {user && (
-                    <div className="group flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 transition-all cursor-pointer active:scale-95">
+                    <div className="group flex items-center gap-2 pl-1 pr-2 py-1 rounded-full bg-accent/15 hover:bg-accent/25 transition-all cursor-pointer active:scale-95">
                         <div className="h-7 w-7 overflow-hidden rounded-full shadow-sm">
                             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-[10px] font-bold text-primary-foreground">
                                 {safeInitial}

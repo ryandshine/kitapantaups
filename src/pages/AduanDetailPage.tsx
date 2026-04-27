@@ -20,7 +20,6 @@ import {
     AlertTriangle,
     Trash2,
     Briefcase,
-    Zap,
     Sparkles,
     Upload,
     Settings,
@@ -873,34 +872,6 @@ export const AduanDetailPage: React.FC = () => {
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
     const totalAnggotaPriaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaPria) || 0), 0);
     const totalAnggotaWanitaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaWanita) || 0), 0);
-    const normalizedStatus = (aduan?.status || 'baru').toLowerCase();
-    const nextActionLabel = useMemo(() => {
-        if (!aduan) return '-';
-        if (normalizedStatus === 'baru') {
-            return isAdmin
-                ? 'Tinjau aduan lalu ubah status ke PROSES agar penanganan bisa dimulai.'
-                : 'Menunggu admin meninjau dan memulai proses aduan.';
-        }
-        if (normalizedStatus === 'proses') {
-            return qTindakLanjutList.length > 0
-                ? `Lanjutkan penanganan dari catatan terakhir: ${normalizeJenisTlLabel(latestTindakLanjut?.jenisTL) || 'dokumen terbaru'}.`
-                : 'Tambahkan dokumen tindak lanjut pertama untuk memulai jejak penanganan.';
-        }
-        if (normalizedStatus === 'selesai') {
-            return 'Aduan sudah ditutup. Tinjau kembali lampiran dan riwayat bila diperlukan.';
-        }
-        if (normalizedStatus === 'ditolak') {
-            return 'Aduan ditutup dengan status ditolak. Pastikan alasan penolakan dan dokumen pendukung lengkap.';
-        }
-        return 'Tinjau detail aduan dan lanjutkan proses sesuai kebutuhan.';
-    }, [aduan, isAdmin, latestTindakLanjut?.jenisTL, normalizedStatus, qTindakLanjutList.length]);
-    const statusAccentClass = normalizedStatus === 'selesai'
-        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700'
-        : normalizedStatus === 'ditolak'
-            ? 'border-destructive/20 bg-destructive/10 text-destructive'
-            : normalizedStatus === 'proses'
-                ? 'border-primary/20 bg-primary/10 text-primary'
-                : 'border-amber-500/20 bg-amber-500/10 text-amber-700';
     const overviewCards = [
         {
             label: 'Tanggal Masuk',
@@ -1867,13 +1838,6 @@ export const AduanDetailPage: React.FC = () => {
                                     <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
                                 </div>
                                 <p className="max-w-3xl text-sm text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
-                                <div className={cn(
-                                    "inline-flex w-fit items-start gap-2 rounded-2xl border px-3 py-2 text-xs font-medium",
-                                    statusAccentClass
-                                )}>
-                                    <Sparkles size={14} className="mt-0.5 shrink-0" />
-                                    <span>{nextActionLabel}</span>
-                                </div>
                             </div>
                         </div>
 
@@ -1942,36 +1906,6 @@ export const AduanDetailPage: React.FC = () => {
                 {problemDescriptionCard}
             </motion.div>
 
-            <motion.div variants={itemVariants} className="no-print grid grid-cols-1 gap-3 lg:grid-cols-[1.7fr_1fr]">
-                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                        <div className="rounded-2xl bg-primary/10 p-2.5 text-primary">
-                            <Sparkles size={18} />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Fokus Penanganan</p>
-                            <p className="text-sm font-semibold text-foreground">{nextActionLabel}</p>
-                            <p className="text-xs text-muted-foreground">
-                                {canInputRiwayatPenanganan
-                                    ? 'Riwayat penanganan sudah terbuka. Tambah catatan baru jika ada perkembangan.'
-                                    : 'Riwayat penanganan baru bisa ditambah saat status aduan berada di PROSES.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-border bg-white p-4 shadow-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Kondisi Saat Ini</p>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
-                        {aduan.picName && <Badge variant="outline">{aduan.picName}</Badge>}
-                        <Badge variant="outline">{lokasiObjekItems.length} KPS</Badge>
-                    </div>
-                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                        {latestTindakLanjut ? `Update terakhir: ${latestTindakLanjutLabel}.` : 'Belum ada update tindak lanjut yang tercatat.'}
-                    </p>
-                </div>
-            </motion.div>
-
             {/* Rejection Alert Banner */}
             {aduan.status === 'ditolak' && (
                 <div className="mx-1 bg-destructive/5 border border-destructive/20 p-4 rounded-2xl animate-in fade-in slide-in-from-top-4 duration-500 no-print flex items-start gap-4 shadow-sm">
@@ -1993,98 +1927,6 @@ export const AduanDetailPage: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Professional Status Timeline */}
-            <motion.div
-                variants={itemVariants}
-                className="relative overflow-hidden sm:rounded-2xl border-y sm:border border-border/60 bg-white dark:bg-card p-6 no-print"
-            >
-                {/* Background decorative gradient */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-muted/70 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10 px-4 py-2">
-                    {[
-                        { id: 'proses', label: 'PROSES', icon: Sparkles, activeStatuses: ['proses'] },
-                        { id: 'selesai', label: 'SELESAI', icon: aduan.status === 'ditolak' ? AlertCircle : CheckCircle, activeStatuses: ['selesai', 'ditolak'] }
-                    ].map((step, index, array) => {
-                        const currentStatus = aduan.status;
-
-                        // Logic to check if any of the following steps are active (meaning this step is done)
-                        const isCompleted = array.slice(index + 1).some(s => s.activeStatuses.includes(currentStatus));
-                        const isActive = step.activeStatuses.includes(currentStatus);
-                        const isError = step.id === 'selesai' && currentStatus === 'ditolak';
-                        const isLastStep = index === array.length - 1;
-
-                        return (
-                            <div key={step.id} className="flex-1 w-full relative group">
-                                {/* Connector Line */}
-                                {index < array.length - 1 && (
-                                    <div className="hidden md:block absolute top-5 left-1/2 w-full h-[2px] bg-muted -z-0 rounded-full">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: isCompleted ? '100%' : '0%' }}
-                                            transition={{ duration: 0.8, delay: index * 0.2 }}
-                                            className="h-full bg-foreground/70 rounded-full"
-                                        />
-                                    </div>
-                                )}
-
-                                <div className="flex flex-row md:flex-col items-center gap-4 md:gap-4 relative z-10">
-                                    <motion.div
-                                        initial={false}
-                                        animate={{
-                                            scale: isActive ? 1.15 : 1,
-                                            backgroundColor: isActive ? (isError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(var(--primary-rgb), 0.1)') : (isCompleted ? 'rgba(var(--primary-rgb), 1)' : 'rgba(255, 255, 255, 1)'),
-                                            borderColor: isActive ? (isError ? 'rgba(239, 68, 68, 1)' : 'rgba(var(--primary-rgb), 1)') : (isCompleted ? 'rgba(var(--primary-rgb), 0)' : 'rgba(226, 232, 240, 1)'),
-                                            color: isActive ? (isError ? '#EF4444' : 'rgb(var(--primary-rgb))') : (isCompleted ? '#fff' : '#94a3b8')
-                                        }}
-                                        className={cn(
-                                            "h-12 w-12 rounded-2xl border-2 flex items-center justify-center transition-all duration-500 shadow-sm",
-                                            isActive && "shadow-[0_0_20px_rgba(var(--primary-rgb),0.2)]",
-                                            !isActive && !isCompleted && "bg-secondary"
-                                        )}
-                                    >
-                                        <step.icon
-                                            size={22}
-                                            strokeWidth={isActive ? 2.5 : 2}
-                                        />
-                                    </motion.div>
-
-                                    <div className="flex flex-col items-start md:items-center gap-1">
-                                        <span className={cn(
-                                            "text-[11px] font-bold uppercase tracking-[0.15em] transition-colors duration-500",
-                                            isActive ? (isError ? 'text-destructive' : 'text-foreground') : (isCompleted ? 'text-foreground' : 'text-muted-foreground')
-                                        )}>
-                                            {step.label}
-                                        </span>
-                                        {isActive && !isLastStep && (
-                                            <motion.span
-                                                initial={{ opacity: 0, y: 5 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="text-[10px] font-medium text-foreground/80 bg-muted px-2 py-0.5 rounded-full max-w-[260px] line-clamp-1"
-                                            >
-                                                {latestTindakLanjutLabel}
-                                            </motion.span>
-                                        )}
-                                        {isActive && isLastStep && (
-                                            <motion.span
-                                                initial={{ opacity: 0, y: 5 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className={cn(
-                                                    "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                                                    isError ? "text-destructive/80 bg-destructive/5" : "text-muted-foreground bg-muted"
-                                                )}
-                                            >
-                                                {isError ? 'Ditolak' : 'Selesai'}
-                                            </motion.span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </motion.div>
 
             {/* Status Card — Admin Only */}
             {isAdmin && (
@@ -2431,71 +2273,6 @@ export const AduanDetailPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-6 self-start xl:col-span-4 xl:sticky xl:top-28">
-                    <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">
-                            <CardHeader className="border-b border-border/70 bg-muted/20 py-4">
-                                <CardTitle className="flex items-center gap-2 text-xs font-semibold tracking-[0.15em] uppercase text-foreground">
-                                    <Zap className="h-4 w-4" />
-                                    Panel Tindakan
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4 p-5">
-                                <div className={cn(
-                                    "rounded-2xl border px-3 py-3 text-sm",
-                                    statusAccentClass
-                                )}>
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em]">Aksi berikutnya</p>
-                                    <p className="mt-1 font-semibold">{nextActionLabel}</p>
-                                </div>
-                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        leftIcon={<FileText size={14} />}
-                                        onClick={handlePrint}
-                                        isLoading={isExportingPdf}
-                                        className="justify-start"
-                                    >
-                                        Export PDF
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        leftIcon={<Upload size={14} />}
-                                        onClick={() => setIsUploadModalOpen(true)}
-                                        className="justify-start"
-                                    >
-                                        Upload Berkas
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        leftIcon={<Plus size={14} />}
-                                        onClick={() => setIsTLModalOpen(true)}
-                                        disabled={!canInputRiwayatPenanganan}
-                                        className="justify-start"
-                                    >
-                                        Tambah Dokumen
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="primary"
-                                        leftIcon={<Edit size={14} />}
-                                        onClick={openEditModal}
-                                        className="justify-start"
-                                    >
-                                        Edit Aduan
-                                    </Button>
-                                </div>
-                                <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-3 text-xs leading-relaxed text-muted-foreground">
-                                    {isAdmin
-                                        ? 'Sebagai admin, Anda juga dapat mengubah status dan menghapus aduan dari panel di halaman ini.'
-                                        : 'Perubahan status dan penghapusan aduan hanya dapat dilakukan oleh admin.'}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
                         <Card className="overflow-hidden rounded-2xl border border-border/80 shadow-sm">

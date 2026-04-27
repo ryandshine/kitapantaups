@@ -103,7 +103,7 @@ export const DashboardLayout: React.FC = () => {
                     } : undefined}
                 />
 
-                <main className="custom-scrollbar flex-1 overflow-x-hidden overflow-y-auto bg-muted/10 min-h-[calc(100dvh-56px)]">
+                <main className="custom-scrollbar flex-1 overflow-x-hidden overflow-y-auto bg-background min-h-[calc(100dvh-56px)]">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}

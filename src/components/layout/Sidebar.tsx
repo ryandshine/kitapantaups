@@ -54,14 +54,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[45] bg-background/60 backdrop-blur-sm md:hidden"
+                        className="fixed inset-0 z-[45] bg-background/80 backdrop-blur-sm md:hidden"
                         onClick={onClose}
                     />
                 )}
             </AnimatePresence>
 
             <aside className={cn(
-                "fixed top-0 left-0 z-50 h-full border-r border-border/40 bg-white/80 shadow-2xl dark:bg-black/80 backdrop-blur-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
+                "fixed top-0 left-0 z-50 h-full border-r border-border/40 bg-sidebar/95 text-sidebar-foreground shadow-2xl backdrop-blur-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
                 !isOpen ? "-translate-x-full md:translate-x-0 md:w-20" : "translate-x-0 w-[min(18rem,calc(100vw-1rem))] md:w-64",
             )}>
                 {/* Logo Section */}
@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     !isOpen && "px-0 justify-center"
                 )}>
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-secondary to-secondary/80 text-secondary-foreground shadow-lg shadow-secondary/20">
                             <span className="font-bold text-lg">K</span>
                         </div>
                         {isOpen && (
@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     </div>
                     {isOpen && (
                         <button
-                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 md:hidden transition-colors"
+                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-full hover:bg-accent/20 md:hidden transition-colors"
                             onClick={onClose}
                         >
                             <X className="h-4 w-4 text-muted-foreground" />
@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                                 !isOpen && "justify-center px-0",
                                                 isActive
                                                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                                                    : "text-muted-foreground hover:bg-black/5 dark:hover:bg-white/10 hover:text-foreground"
+                                                    : "text-muted-foreground hover:bg-accent/20 hover:text-foreground"
                                             )}
                                         >
                                             {({ isActive }) => (
@@ -148,7 +148,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                 </div>
 
                 {/* Bottom Section */}
-                <div className="p-4 mt-auto border-t border-border/40 bg-black/5 dark:bg-white/5 backdrop-blur-sm">
+                <div className="p-4 mt-auto border-t border-border/40 bg-accent/10 backdrop-blur-sm">
                     <button
                         onClick={onLogout}
                         className={cn(
