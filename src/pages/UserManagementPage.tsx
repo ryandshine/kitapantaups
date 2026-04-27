@@ -190,17 +190,18 @@ export const UserManagementPage: React.FC = () => {
                         <h1 className="text-3xl font-bold tracking-tight text-white">Manajemen Pengguna</h1>
                         <p className="text-[0.92rem] text-white/90">Kelola hak akses dan peran pengguna dalam sistem.</p>
                     </div>
+                    <div className="flex gap-2">
+                        <Button
+                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all font-medium active:scale-95"
+                            leftIcon={<UserPlus className="h-4 w-4" />}
+                            onClick={() => setIsAddModalOpen(true)}
+                        >
+                            Tambah Pengguna
+                        </Button>
+                    </div>
                 </div>
                 <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
             </div>
-                    <Button
-                        variant="primary"
-                        leftIcon={<UserPlus className="h-4 w-4" />}
-                        onClick={() => setIsAddModalOpen(true)}
-                    >
-                        Tambah Pengguna
-                    </Button>
-                </div>
             </div>
 
             {feedback && (
