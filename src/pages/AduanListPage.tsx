@@ -92,16 +92,16 @@ export const AduanListPage: React.FC = () => {
                 <div className="google-hero-orb" />
             </div>
 
-            <motion.div variants={itemVariants} className="border-y border-border/60 bg-white p-4 dark:bg-card sm:rounded-2xl sm:border">
+            <motion.div variants={itemVariants} className="border-y border-[#34A853] bg-[#34A853] p-4 sm:rounded-2xl sm:border">
                 <div className="flex flex-col items-center gap-3 lg:flex-row">
                     <div className="relative w-full lg:flex-1">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                         <input
                             type="text"
                             placeholder="Cari perihal, lokasi, SK, KPS... (Global Search)"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className={`w-full rounded-xl border border-border bg-card pl-10 pr-4 transition-all focus:border-primary/40 focus:ring-2 focus:ring-ring/20 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
+                            className={`w-full rounded-xl border border-white/30 bg-white/20 pl-10 pr-4 text-white placeholder-white/70 transition-all focus:border-white/60 focus:ring-2 focus:ring-white/30 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
                         />
                     </div>
                     <div className="flex w-full items-center gap-3 lg:w-auto">
@@ -115,16 +115,16 @@ export const AduanListPage: React.FC = () => {
                             ]}
                             value={statusFilter}
                             onChange={setStatusFilter}
-                            className={`flex-1 md:w-44 ${isCompact ? 'text-[0.86rem]' : ''}`}
+                            className={`flex-1 md:w-44 border-white/30 bg-white/20 text-white ${isCompact ? 'text-[0.86rem]' : ''}`}
                         />
                     </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="gray" className="rounded-full px-2.5 py-1 text-[9px]">Baris: {displayList.length}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Baru: {statusSummary.baru || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Proses: {statusSummary.proses || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full px-2.5 py-1 text-[9px]">Selesai: {statusSummary.selesai || 0}</Badge>
+                        <Badge variant="gray" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Baris: {displayList.length}</Badge>
+                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Baru: {statusSummary.baru || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Proses: {statusSummary.proses || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Selesai: {statusSummary.selesai || 0}</Badge>
                     </div>
                 </div>
             </motion.div>

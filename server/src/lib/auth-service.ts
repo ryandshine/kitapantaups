@@ -196,6 +196,10 @@ export const createAuthService = (dbPool: AuthDbPool = pool) => {
           ...serializeError(error),
         })
 
+        if (!isTransientDatabaseError(error)) {
+          throw error
+        }
+
         if (!shouldRetry) {
           throw toDatabaseUnavailableError(operation, error)
         }

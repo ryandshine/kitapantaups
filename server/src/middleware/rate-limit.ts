@@ -14,6 +14,11 @@ type RateLimitEntry = {
 const store = new Map<string, RateLimitEntry>()
 
 const getClientIp = (c: Context) => {
+  const cfIp = c.req.header('cf-connecting-ip')
+  if (cfIp) {
+    return cfIp.trim()
+  }
+
   const forwardedFor = c.req.header('x-forwarded-for')
   if (forwardedFor) {
     return forwardedFor.split(',')[0]?.trim() || 'unknown'

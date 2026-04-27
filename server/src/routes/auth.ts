@@ -13,7 +13,7 @@ import { AuthServiceError, authService } from '../lib/auth-service.js'
 const auth = new Hono()
 const loginRateLimit = createRateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 20,
   keyPrefix: 'auth-login',
 })
 

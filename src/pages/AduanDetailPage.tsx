@@ -264,7 +264,7 @@ const normalizeJenisTlLabel = (value?: string) => {
     return LEGACY_JENIS_TL_LABEL_MAP[normalized] || normalized;
 };
 
-const editSectionClass = "rounded-xl border border-[#34A853]/20/70 bg-transparent p-4";
+const editSectionClass = "rounded-xl border border-white/20 bg-white/5 p-4";
 
 const getFileAccessErrorMessage = async (response: Response) => {
     const contentType = response.headers.get('content-type') || '';
@@ -307,7 +307,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
             onClose={onClose}
             title="Edit Data Aduan"
             description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            className="max-w-4xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
+            className="max-w-4xl rounded-2xl border-white/20 bg-transparent p-6"
             size="xl"
         >
             <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -328,8 +328,8 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     />
                 </div>
 
-                <div className="bg-muted/25 p-4 rounded-xl border border-[#34A853]/20/70">
-                    <label className="block text-sm font-semibold text-[#34A853] mb-2 flex items-center gap-2">
+                <div className="bg-white/20/25 p-4 rounded-xl border border-white/20/70">
+                    <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
                         <Sparkles size={16} />
                         Identitas Kelompok / KPS
                     </label>
@@ -338,34 +338,34 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                         onSelect={onSelectKps}
                         placeholder="Ketik id, nama_lembaga, atau surat_keputusan..."
                     />
-                    <p className="text-[10px] text-muted-foreground mt-2">
+                    <p className="text-[10px] text-white/80 mt-2">
                         Cari & pilih data Master KPS. Bisa pilih lebih dari satu.
                     </p>
 
                     {editSelectedKpsList.length > 0 && (
                         <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="mb-1 flex flex-wrap items-center gap-2">
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total KPS: {editSelectedKpsList.length}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total luas_total: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.luas_total ?? item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total anggota_pria: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_pria) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total anggota_wanita: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_wanita) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {editSelectedKpsList.map((kps) => {
                                 const kpsId = getNormalizedKpsId(kps);
                                 return (
-                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-transparent rounded-md border border-[#34A853]/20 shadow-sm">
+                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-transparent rounded-md border border-white/20 shadow-sm">
                                     <div className="mb-2 flex justify-end">
                                         <button
                                             type="button"
-                                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-white/80 hover:bg-destructive/10 hover:text-destructive"
                                             onClick={() => onRemoveKps(kpsId)}
                                         >
                                             <Trash2 size={11} />
@@ -374,39 +374,39 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     </div>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
-                                            <span className="text-xs font-mono text-foreground break-all">{getDisplayedKpsId(kps)}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">id</span>
+                                            <span className="text-xs font-mono text-white break-all">{getDisplayedKpsId(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
-                                            <span className="text-xs font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">nama_lembaga</span>
+                                            <span className="text-xs font-semibold text-white">{kps.nama_lembaga || kps.nama_kps || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
-                                            <span className="text-xs font-mono text-foreground">{kps.surat_keputusan || kps.nomor_sk || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">surat_keputusan</span>
+                                            <span className="text-xs font-mono text-white">{kps.surat_keputusan || kps.nomor_sk || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
-                                            <span className="text-xs font-semibold text-foreground">{kps.skema || resolveKpsType(kps)}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">skema</span>
+                                            <span className="text-xs font-semibold text-white">{kps.skema || resolveKpsType(kps)}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
-                                            <span className="text-xs text-foreground">{kps.provinsi || kps.lokasi_prov || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">provinsi</span>
+                                            <span className="text-xs text-white">{kps.provinsi || kps.lokasi_prov || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
-                                            <span className="text-xs text-foreground">{kps.kabupaten || kps.lokasi_kab || '-'}</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">kabupaten</span>
+                                            <span className="text-xs text-white">{kps.kabupaten || kps.lokasi_kab || '-'}</span>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">luas_total</span>
                                             <Badge variant="outline" className="w-fit">{(Number(kps.luas_total ?? kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_pria</span>
                                             <Badge variant="outline" className="w-fit">{(Number(kps.anggota_pria ?? 0) || 0).toLocaleString('id-ID')}</Badge>
                                         </div>
                                         <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
+                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_wanita</span>
                                             <Badge variant="outline" className="w-fit">{(Number(kps.anggota_wanita ?? 0) || 0).toLocaleString('id-ID')}</Badge>
                                         </div>
                                     </div>
@@ -426,13 +426,13 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                             fullWidth
                             disabled={isLoadingUsers}
                         />
-                        {isLoadingUsers && <p className="text-[10px] text-muted-foreground mt-1">Memuat daftar user...</p>}
+                        {isLoadingUsers && <p className="text-[10px] text-white/80 mt-1">Memuat daftar user...</p>}
                     </div>
                 )}
 
-                <div className="bg-muted/25 p-4 rounded-xl border border-[#34A853]/20/70 space-y-4">
-                    <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <User size={16} className="text-[#34A853]" />
+                <div className="bg-white/20/25 p-4 rounded-xl border border-white/20/70 space-y-4">
+                    <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                        <User size={16} className="text-white" />
                         Identitas Pengadu
                     </label>
                     <Input
@@ -479,7 +479,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
 
                 <div className={`${editSectionClass} grid grid-cols-1 sm:grid-cols-2 gap-4`}>
                     <div className="sm:col-span-2">
-                        <label className="text-[10px] font-semibold text-[#34A853] uppercase tracking-widest block mb-2">Administrasi Surat</label>
+                        <label className="text-[10px] font-semibold text-white uppercase tracking-widest block mb-2">Administrasi Surat</label>
                     </div>
                     <Select
                         label="Kategori Asal"
@@ -532,7 +532,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     />
                 </div>
 
-                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
+                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                     <Button
                         type="button"
                         variant="ghost"
@@ -1566,7 +1566,7 @@ export const AduanDetailPage: React.FC = () => {
         return (
             <div className="flex h-96 flex-col items-center justify-center gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground animate-pulse">Menghubungkan ke database...</p>
+                <p className="text-white/80 animate-pulse">Menghubungkan ke database...</p>
             </div>
         );
     }
@@ -1575,7 +1575,7 @@ export const AduanDetailPage: React.FC = () => {
         return (
             <div className="flex h-96 flex-col items-center justify-center gap-4">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground animate-pulse font-semibold">Menghapus data...</p>
+                <p className="text-white/80 animate-pulse font-semibold">Menghapus data...</p>
             </div>
         );
     }
@@ -1588,7 +1588,7 @@ export const AduanDetailPage: React.FC = () => {
                     <h2 className="text-xl font-bold mb-3">
                         {isAduanError ? 'Terjadi Kesalahan' : 'Aduan Tidak Ditemukan'}
                     </h2>
-                    <p className="text-muted-foreground mb-8 text-balance px-4">
+                    <p className="text-white/80 mb-8 text-balance px-4">
                         {isAduanError
                             ? (detailError || 'Gagal menyambung ke server. Silakan periksa koneksi internet Anda.')
                             : 'Maaf, aduan yang Anda cari tidak dapat ditemukan atau sudah dihapus.'}
@@ -1603,7 +1603,7 @@ export const AduanDetailPage: React.FC = () => {
                         </Button>
                         <Button
                             variant="ghost"
-                            className="w-full text-muted-foreground"
+                            className="w-full text-white/80"
                             onClick={() => window.location.reload()}
                         >
                             Coba Lagi
@@ -1631,24 +1631,24 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const problemDescriptionCard = (
-        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
-            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02]">
+        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+            <CardHeader className="border-b border-white/20 bg-white/5">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#34A853]/10 text-[#34A853]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white">
                         <FileText size={16} />
                     </div>
                     Ringkasan Permasalahan
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-                <h3 className="mb-3 text-lg font-semibold text-foreground">
+                <h3 className="mb-3 text-lg font-semibold text-white">
                     {aduan.perihal}
                 </h3>
-                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-muted-foreground">
+                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-white/90 prose-p:text-white/90 prose-strong:text-white">
                     {aduan.ringkasanMasalah ? (
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aduan.ringkasanMasalah}</ReactMarkdown>
                     ) : (
-                        <span className="italic text-muted-foreground">Tidak ada ringkasan detail.</span>
+                        <span className="italic text-white/80">Tidak ada ringkasan detail.</span>
                     )}
                 </div>
             </CardContent>
@@ -1669,7 +1669,7 @@ export const AduanDetailPage: React.FC = () => {
                             "mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
                             feedback.type === 'success' && "border-secondary/20 bg-secondary/10 text-secondary",
                             feedback.type === 'error' && "border-destructive/20 bg-destructive/10 text-destructive",
-                            feedback.type === 'info' && "border-primary/20 bg-[#34A853]/10 text-[#34A853]"
+                            feedback.type === 'info' && "border-primary/20 bg-white/20 text-white"
                         )}
                     >
                         {feedback.type === 'error' ? <AlertTriangle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
@@ -1689,12 +1689,12 @@ export const AduanDetailPage: React.FC = () => {
             <div className="hidden print:block print-header">
                 <div>
                     <h1 className="text-xl font-semibold">KitapantauSH - Sistem Pemantauan Aduan</h1>
-                    <p className="text-sm text-muted-foreground">Direktorat Pengendalian Perhutanan Sosial</p>
+                    <p className="text-sm text-white/80">Direktorat Pengendalian Perhutanan Sosial</p>
                 </div>
                 <div className="text-right">
                     <p className="text-sm font-semibold">Laporan Detail Aduan</p>
-                    <p className="text-xs text-muted-foreground">Tiket: {aduan.nomorTiket}</p>
-                    <p className="text-xs text-muted-foreground">Dicetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p className="text-xs text-white/80">Tiket: {aduan.nomorTiket}</p>
+                    <p className="text-xs text-white/80">Dicetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
             </div>
 
@@ -1703,31 +1703,31 @@ export const AduanDetailPage: React.FC = () => {
                 <table className="w-full text-sm border-collapse">
                     <tbody>
                         <tr className="border-b">
-                            <td className="py-2 font-semibold w-1/4 bg-muted px-2 text-[10px] uppercase">No. Tiket</td>
+                            <td className="py-2 font-semibold w-1/4 bg-white/20 px-2 text-[10px] uppercase">No. Tiket</td>
                             <td className="py-2 px-2 font-mono">{aduan.nomorTiket}</td>
-                            <td className="py-2 font-semibold w-1/4 bg-muted px-2 text-[10px] uppercase">Status Aduan</td>
+                            <td className="py-2 font-semibold w-1/4 bg-white/20 px-2 text-[10px] uppercase">Status Aduan</td>
                             <td className="py-2 px-2 font-semibold uppercase">{aduan.status}</td>
                         </tr>
                         <tr className="border-b">
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Kategori</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Kategori</td>
                             <td className="py-2 px-2 capitalize">{aduan.kategoriMasalah?.replace(/_/g, ' ') || '-'}</td>
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Prioritas</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Prioritas</td>
                             <td className="py-2 px-2 uppercase">{aduan.prioritas}</td>
                         </tr>
                         <tr className="border-b">
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Nama Pengadu</td>
-                            <td className="py-2 px-2 font-semibold text-foreground">{aduan.pengadu.nama}</td>
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Kontak/HP</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Nama Pengadu</td>
+                            <td className="py-2 px-2 font-semibold text-white">{aduan.pengadu.nama}</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Kontak/HP</td>
                             <td className="py-2 px-2">{aduan.pengadu.telepon || '-'}</td>
                         </tr>
                         <tr className="border-b">
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Instansi/Kelompok</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Instansi/Kelompok</td>
                             <td className="py-2 px-2" colSpan={3}>{aduan.pengadu.instansi || '-'}</td>
                         </tr>
                         <tr>
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">PIC Petugas</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">PIC Petugas</td>
                             <td className="py-2 px-2">{aduan.picName || 'Belum ditentukan'}</td>
-                            <td className="py-2 font-semibold bg-muted px-2 text-[10px] uppercase">Tgl Masuk</td>
+                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Tgl Masuk</td>
                             <td className="py-2 px-2">{formatDate(aduan.createdAt || new Date())}</td>
                         </tr>
                     </tbody>
@@ -1737,33 +1737,33 @@ export const AduanDetailPage: React.FC = () => {
             {/* Print Master KPS Info */}
             {lokasiObjekItems.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4 avoid-break">
-                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-[#34A853]">LOKASI OBJEK</h3>
-                    <table className="w-full text-xs border-collapse border border-[#34A853]/20">
+                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-white">LOKASI OBJEK</h3>
+                    <table className="w-full text-xs border-collapse border border-white/20">
                         <thead>
-                            <tr className="bg-muted">
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">id</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">nama_lembaga</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">surat_keputusan</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">skema</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">provinsi</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">kabupaten</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">luas_total</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">anggota_pria</th>
-                                <th className="p-1.5 border border-[#34A853]/20 text-left">anggota_wanita</th>
+                            <tr className="bg-white/20">
+                                <th className="p-1.5 border border-white/20 text-left">id</th>
+                                <th className="p-1.5 border border-white/20 text-left">nama_lembaga</th>
+                                <th className="p-1.5 border border-white/20 text-left">surat_keputusan</th>
+                                <th className="p-1.5 border border-white/20 text-left">skema</th>
+                                <th className="p-1.5 border border-white/20 text-left">provinsi</th>
+                                <th className="p-1.5 border border-white/20 text-left">kabupaten</th>
+                                <th className="p-1.5 border border-white/20 text-left">luas_total</th>
+                                <th className="p-1.5 border border-white/20 text-left">anggota_pria</th>
+                                <th className="p-1.5 border border-white/20 text-left">anggota_wanita</th>
                             </tr>
                         </thead>
                         <tbody>
                             {lokasiObjekItems.map((item, index) => (
                                 <tr key={`print-kps-${index}`}>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.idApiKps}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.namaKps}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.noSk}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.kpsType}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.provinsi}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{item.kabupaten}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
-                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-white/20">{item.idApiKps}</td>
+                                    <td className="p-1.5 border border-white/20">{item.namaKps}</td>
+                                    <td className="p-1.5 border border-white/20">{item.noSk}</td>
+                                    <td className="p-1.5 border border-white/20">{item.kpsType}</td>
+                                    <td className="p-1.5 border border-white/20">{item.provinsi}</td>
+                                    <td className="p-1.5 border border-white/20">{item.kabupaten}</td>
+                                    <td className="p-1.5 border border-white/20">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
+                                    <td className="p-1.5 border border-white/20">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-white/20">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1784,7 +1784,7 @@ export const AduanDetailPage: React.FC = () => {
                     <h3 className="font-semibold text-sm mb-3 border-b pb-2 uppercase tracking-wide">RIWAYAT DOKUMEN TINDAK LANJUT ({qTindakLanjutList.length} catatan)</h3>
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="border-b bg-muted">
+                            <tr className="border-b bg-white/20">
                                 <th className="py-2 px-2 text-left font-semibold w-8">No</th>
                                 <th className="py-2 px-2 text-left font-semibold w-24">Tanggal</th>
                                 <th className="py-2 px-2 text-left font-semibold w-32">Jenis Dokumen</th>
@@ -1919,7 +1919,7 @@ export const AduanDetailPage: React.FC = () => {
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm text-foreground/80 leading-relaxed font-medium">
+                        <p className="text-sm text-white/80 leading-relaxed font-medium">
                             {aduan.alasanPenolakan || 'Tidak ada alasan penolakan yang dicatat.'}
                         </p>
                     </div>
@@ -1930,14 +1930,14 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden border border-[#34A853]/30 bg-[#34A853]/[0.04] p-5 sm:rounded-2xl shadow-sm"
+                    className="no-print relative overflow-hidden border border-[#34A853] bg-[#34A853] text-white p-5 sm:rounded-2xl shadow-sm"
                 >
                     <div className="mb-3 flex items-center gap-2">
-                        <Settings size={15} className="text-muted-foreground" />
-                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
+                        <Settings size={15} className="text-white/80" />
+                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/80">
                             Ubah Status Aduan
                         </span>
-                        <StatusBadge status={aduan.status} className="ml-auto" />
+                        <StatusBadge status={aduan.status} className="ml-auto border-white/20 bg-white/20 text-white" />
                     </div>
                     <div className="space-y-3">
                         <Select
@@ -1988,57 +1988,57 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 xl:col-span-8">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
                     <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
-                            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                            <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
                                     <User className="h-4 w-4" />
                                     Data Pengadu
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-4 py-5">
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nama Lengkap</span>
-                                    <span className="text-[0.95rem] font-semibold text-foreground">{aduan.pengadu.nama}</span>
+                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Nama Lengkap</span>
+                                    <span className="text-[0.95rem] font-semibold text-white">{aduan.pengadu.nama}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Informasi Kontak</span>
+                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Informasi Kontak</span>
                                     <div className="flex flex-col gap-2.5">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-[#34A853]">
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-white">
                                                 <Phone size={14} />
                                             </div>
-                                            <span className="font-mono text-xs font-semibold text-foreground">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
+                                            <span className="font-mono text-xs font-semibold text-white">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
                                             {aduan.pengadu.telepon && (
-                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-[#34A853]/10 text-[#34A853] transition-colors hover:bg-primary/20">
+                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-primary/20">
                                                     <ExternalLink size={12} />
                                                 </a>
                                             )}
                                         </div>
                                         {aduan.pengadu.email && (
                                             <div className="flex items-center gap-2">
-                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-[#34A853]">
+                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-white/20 text-white">
                                                     <Globe size={14} />
                                                 </div>
-                                                <span className="break-all text-[11px] font-semibold text-foreground">{aduan.pengadu.email}</span>
+                                                <span className="break-all text-[11px] font-semibold text-white">{aduan.pengadu.email}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Instansi / Kelompok</span>
-                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-foreground">
-                                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Instansi / Kelompok</span>
+                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-white">
+                                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-white/20 text-white/80">
                                             <Briefcase size={14} />
                                         </div>
-                                        <span>{aduan.pengadu.instansi || <span className="text-muted-foreground italic">Personal / Umum</span>}</span>
+                                        <span>{aduan.pengadu.instansi || <span className="text-white/80 italic">Personal / Umum</span>}</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
-                            <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                            <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
                                     <FileText className="h-4 w-4" />
                                     Administrasi Surat
                                 </CardTitle>
@@ -2046,20 +2046,20 @@ export const AduanDetailPage: React.FC = () => {
                             <CardContent className="space-y-4 py-5">
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nomor Surat</span>
-                                        <span className="font-semibold text-foreground text-[11px] font-mono bg-muted px-2 py-1 rounded border border-[#34A853]/20">{aduan.suratMasuk.nomorSurat}</span>
+                                        <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Nomor Surat</span>
+                                        <span className="font-semibold text-white text-[11px] font-mono bg-white/20 px-2 py-1 rounded border border-white/20">{aduan.suratMasuk.nomorSurat}</span>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Tgl Masuk</span>
-                                        <span className="text-[0.92rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
+                                        <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Tgl Masuk</span>
+                                        <span className="text-[0.92rem] font-semibold text-white">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Asal & Perihal</span>
+                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Asal & Perihal</span>
                                     <div className="space-y-1.5">
-                                        <Badge variant="outline" className="bg-[#34A853]/10 text-[#34A853] border-[#34A853]/20 font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
-                                        <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
-                                            {aduan.suratMasuk.perihal || <span className="text-muted-foreground/60 italic font-medium">Tidak dicantumkan</span>}
+                                        <Badge variant="outline" className="bg-white/20 text-white border-white/20 font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
+                                        <p className="text-[0.92rem] font-semibold leading-tight text-white">
+                                            {aduan.suratMasuk.perihal || <span className="text-white/80/60 italic font-medium">Tidak dicantumkan</span>}
                                         </p>
                                     </div>
                                 </div>
@@ -2067,71 +2067,71 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
-                    <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
-                        <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
-                            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                    <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                        <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
                                 <MapPin className="h-4 w-4" />
                                 Lokasi Objek
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total luas_total: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total anggota_pria: {totalAnggotaPriaObjek.toLocaleString('id-ID')}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
+                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
                                     Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {lokasiObjekItems.length === 0 ? (
-                                <div className="rounded-xl border border-dashed border-[#34A853]/20 bg-transparent p-4 text-sm text-muted-foreground">
+                                <div className="rounded-xl border border-dashed border-white/20 bg-transparent p-4 text-sm text-white/80">
                                     Belum ada KPS yang tertaut pada aduan ini.
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-2.5">
                                     {lokasiObjekItems.map((item, index) => (
-                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-[#34A853]/20/80 bg-transparent p-3">
+                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-white/20 bg-white/5 p-3">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
-                                                <span className="text-[0.92rem] font-mono text-foreground">{item.idApiKps}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">id</span>
+                                                <span className="text-[0.92rem] font-mono text-white">{item.idApiKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">nama_lembaga</span>
-                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">nama_lembaga</span>
+                                                <span className="text-[0.92rem] font-semibold text-white">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">surat_keputusan</span>
-                                                <span className="text-[0.92rem] font-mono text-foreground">{item.noSk}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">surat_keputusan</span>
+                                                <span className="text-[0.92rem] font-mono text-white">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">skema</span>
-                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.kpsType}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">skema</span>
+                                                <span className="text-[0.92rem] font-semibold text-white">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">provinsi</span>
-                                                <span className="text-[0.92rem] text-foreground">{item.provinsi}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">provinsi</span>
+                                                <span className="text-[0.92rem] text-white">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">kabupaten</span>
-                                                <span className="text-[0.92rem] text-foreground">{item.kabupaten}</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">kabupaten</span>
+                                                <span className="text-[0.92rem] text-white">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">luas_total</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">luas_total</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_pria</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_pria</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">anggota_wanita</span>
+                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_wanita</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
@@ -2146,9 +2146,9 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
                             <CardHeader
-                                className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5"
+                                className="flex flex-row items-center justify-between border-b border-white/20 bg-white/5 py-3.5"
                                 action={
                                     <Button
                                         size="sm"
@@ -2161,8 +2161,8 @@ export const AduanDetailPage: React.FC = () => {
                                     </Button>
                                 }
                             >
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
-                                    <div className="h-8 w-8 rounded-lg bg-muted text-foreground flex items-center justify-center">
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
+                                    <div className="h-8 w-8 rounded-lg bg-white/20 text-white flex items-center justify-center">
                                         <Clock size={16} />
                                     </div>
                                     Riwayat Penanganan
@@ -2170,49 +2170,49 @@ export const AduanDetailPage: React.FC = () => {
                             </CardHeader>
                             <CardContent className="p-5">
                                 {!canInputRiwayatPenanganan && (
-                                    <p className="mb-4 rounded-lg border border-[#34A853]/20 bg-[#34A853]/10 px-3 py-2 text-[11px] font-medium text-[#34A853]">
-                                        Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
+                                    <p className="mb-4 rounded-lg border border-white/20 bg-white/20 px-3 py-2 text-[11px] font-medium text-white">
+                                        Ubah status aduan ke <span className="font-semibold text-white">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
                                 <div className="flex flex-col gap-3">
                                     {qTindakLanjutList.length === 0 ? (
-                                        <p className="text-sm text-muted-foreground text-center py-6 italic">
+                                        <p className="text-sm text-white/80 text-center py-6 italic">
                                             Belum ada langkah penanganan
                                         </p>
                                     ) : (
                                         qTindakLanjutList.map((tl, index) => (
-                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-[#34A853]/20/80 bg-transparent p-3.5 shadow-sm">
+                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-white/20 bg-white/5 p-3.5 shadow-sm">
                                                 {/* Decorative element */}
                                                 <div className={cn(
                                                     "absolute left-0 top-0 bottom-0 w-1",
-                                                    index === 0 ? "bg-foreground/70" : "bg-muted-foreground/40"
+                                                    index === 0 ? "bg-foreground/70" : "bg-white/20-foreground/40"
                                                 )} />
 
                                                 <div className={cn(
                                                     "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm",
-                                                    index === 0 ? "bg-foreground/80" : "bg-muted-foreground/60"
+                                                    index === 0 ? "bg-foreground/80" : "bg-white/20-foreground/60"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] font-bold text-foreground uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
+                                                            <span className="text-[11px] font-bold text-white uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
-                                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-[#34A853]/10 border-transparent text-[#34A853] font-mono">
+                                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-white/20 border-transparent text-white font-mono">
                                                                     {tl.nomorSuratOutput}
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium bg-transparent px-2 py-0.5 rounded-full border border-[#34A853]/20">
+                                                        <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-medium bg-transparent px-2 py-0.5 rounded-full border border-white/20">
                                                             <Calendar size={10} />
                                                             {formatDate(tl.tanggal)}
                                                         </div>
                                                     </div>
-                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-muted-foreground">
+                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-white/90 prose-p:text-white/90 prose-strong:text-white">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
-                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#34A853]/20 pt-2">
+                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/20 pt-2">
                                                             <div className="flex items-center gap-2">
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
@@ -2224,7 +2224,7 @@ export const AduanDetailPage: React.FC = () => {
                                                                                 key={i}
                                                                                 type="button"
                                                                                 onClick={() => void openProtectedFile(url, displayName)}
-                                                                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-muted text-foreground hover:bg-muted transition-colors text-[10px] font-medium border border-[#34A853]/20"
+                                                                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-white/20 text-white hover:bg-white/20 transition-colors text-[10px] font-medium border border-white/20"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
@@ -2239,7 +2239,7 @@ export const AduanDetailPage: React.FC = () => {
                                                             {isAdmin && (
                                                                 <button
                                                                     onClick={() => openEditTlModal(tl)}
-                                                                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                                    className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"
                                                                     title="Edit Dokumen"
                                                                 >
                                                                     <Edit size={12} />
@@ -2248,14 +2248,14 @@ export const AduanDetailPage: React.FC = () => {
                                                                 {isAdmin && (
                                                                     <button
                                                                         onClick={() => setDeleteTlConfirm({ id: tl.id, label: normalizeJenisTlLabel(tl.jenisTL) })}
-                                                                        className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                                        className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"
                                                                         title="Hapus Riwayat"
                                                                     >
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             )}
-                                                            <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-semibold uppercase tracking-wider">
-                                                                <User size={10} className="text-muted-foreground" />
+                                                            <div className="flex items-center gap-1.5 text-[9px] text-white/80 font-semibold uppercase tracking-wider">
+                                                                <User size={10} className="text-white/80" />
                                                                 Oleh: {tl.createdByName}
                                                             </div>
                                                         </div>
@@ -2273,28 +2273,28 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
                             <CardContent className="space-y-4 p-5">
                                 <div>
-                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
+                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/80">Penanggung Jawab (PIC)</p>
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-base font-semibold text-foreground">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 text-base font-semibold text-white">
                                             {(aduan?.picName || 'U').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-[0.92rem] font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-[11px] text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
+                                            <p className="text-[0.92rem] font-semibold text-white">{aduan?.picName || 'Belum Ditetapkan'}</p>
+                                            <p className="text-[11px] text-white/80">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-[#34A853]/20/70 bg-transparent p-3">
+                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-white/20 bg-white/5 p-3">
                                     <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{lokasiObjekItems.length}</p>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/80">KPS Terkait</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-white">{lokasiObjekItems.length}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Lampiran</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{allAttachments.length}</p>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/80">Lampiran</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-white">{allAttachments.length}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -2303,15 +2303,15 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Resources */}
                     <div>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] pb-3">
-                                <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-foreground">Lampiran & Berkas</CardTitle>
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-white/20 bg-white/5 pb-3">
+                                <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-white">Lampiran & Berkas</CardTitle>
                                 <div className="flex items-center gap-2">
                                     {allAttachments.length > 0 && (
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-[#34A853]/20 hover:bg-muted"
+                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-white/20 hover:bg-white/20"
                                             onClick={handleDownloadZip}
                                             disabled={isDownloadingZip}
                                         >
@@ -2322,7 +2322,7 @@ export const AduanDetailPage: React.FC = () => {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-[#34A853]/20 hover:bg-muted"
+                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-white/20 hover:bg-white/20"
                                         onClick={() => setIsUploadModalOpen(true)}
                                     >
                                         <Upload size={12} className="mr-1.5" /> Upload
@@ -2333,25 +2333,25 @@ export const AduanDetailPage: React.FC = () => {
                                 {/* Unified Attachment List */}
                                 <div className="flex flex-col gap-2.5">
                                     {allAttachments.length === 0 && (
-                                        <div className="rounded-xl border border-dashed border-[#34A853]/20 bg-transparent p-4 text-center text-xs text-muted-foreground">
+                                        <div className="rounded-xl border border-dashed border-white/20 bg-transparent p-4 text-center text-xs text-white/80">
                                             Belum ada lampiran
                                         </div>
                                     )}
 
                                     {allAttachments.map((file) => (
-                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-transparent p-3 transition-all hover:border-[#34A853]/20 hover:bg-[#34A853]/10">
-                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-[#34A853]">
+                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-transparent p-3 transition-all hover:border-white/20 hover:bg-white/20">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 text-white">
                                                 {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
                                             <div className="flex min-w-0 flex-1 flex-col">
-                                                <span className="truncate pr-2 text-[11px] font-semibold text-foreground">
+                                                <span className="truncate pr-2 text-[11px] font-semibold text-white">
                                                     {file.fileName}
                                                 </span>
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="outline" className="h-5 px-1.5 text-[9px] font-semibold">
                                                         {file.source}
                                                     </Badge>
-                                                    <span className="text-[10px] text-muted-foreground truncate">{file.meta}</span>
+                                                    <span className="text-[10px] text-white/80 truncate">{file.meta}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1">
@@ -2359,7 +2359,7 @@ export const AduanDetailPage: React.FC = () => {
                                                     <button
                                                         onClick={() => setDeleteConfirmDoc({ id: file.rawId!, fileName: file.fileName })}
                                                         disabled={deletingDocId === file.rawId}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                                                         title="Hapus file"
                                                     >
                                                         {deletingDocId === file.rawId ? (
@@ -2372,7 +2372,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => void openProtectedFile(file.url, file.fileName)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted text-[#34A853] transition-colors"
+                                                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white/20 text-white transition-colors"
                                                     title="Buka File"
                                                 >
                                                     <ExternalLink size={14} />
@@ -2393,11 +2393,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={() => setIsTLModalOpen(false)}
                 title="Tambah Dokumen"
                 description="Catat dokumen atau hasil penanganan terbaru agar jejak proses aduan tetap lengkap."
-                className="max-w-3xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
+                className="max-w-3xl rounded-2xl border-white/20 bg-transparent p-6"
                 size="xl"
             >
                 <form onSubmit={handleTLSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-[#34A853]/20/70 bg-muted/25 p-4 space-y-4">
+                    <div className="rounded-xl border border-white/20/70 bg-white/20/25 p-4 space-y-4">
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2434,8 +2434,8 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                    <div className="space-y-2 rounded-xl border border-white/20 bg-white/5 p-4">
+                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
                             Upload Dokumen / Foto (Opsional)
                         </label>
                         <FileUpload
@@ -2453,7 +2453,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2479,11 +2479,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={resetEditTlForm}
                 title="Edit Dokumen"
                 description="Perbarui catatan dokumen atau tindak lanjut tanpa membuat catatan baru."
-                className="max-w-3xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
+                className="max-w-3xl rounded-2xl border-white/20 bg-transparent p-6"
                 size="xl"
             >
                 <form onSubmit={handleEditTlSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-[#34A853]/20/70 bg-muted/25 p-4 space-y-4">
+                    <div className="rounded-xl border border-white/20/70 bg-white/20/25 p-4 space-y-4">
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2520,23 +2520,23 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-3 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                    <div className="space-y-3 rounded-xl border border-white/20 bg-white/5 p-4">
+                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
                             Lampiran Saat Ini
                         </label>
                         {editTlForm.fileUrls.length === 0 ? (
-                            <p className="text-[11px] text-muted-foreground italic">Tidak ada lampiran.</p>
+                            <p className="text-[11px] text-white/80 italic">Tidak ada lampiran.</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {editTlForm.fileUrls.map((url, idx) => {
                                     const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${idx + 1}`;
                                     return (
-                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-transparent border border-[#34A853]/20 text-[10px] font-medium">
+                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-transparent border border-white/20 text-[10px] font-medium">
                                             <FileText size={10} />
                                             <span className="max-w-[180px] truncate">{fileName}</span>
                                             <button
                                                 type="button"
-                                                className="p-1 hover:bg-muted rounded text-muted-foreground hover:text-destructive transition-colors"
+                                                className="p-1 hover:bg-white/20 rounded text-white/80 hover:text-destructive transition-colors"
                                                 onClick={() => removeExistingTlFile(idx)}
                                                 title="Hapus lampiran ini"
                                             >
@@ -2549,8 +2549,8 @@ export const AduanDetailPage: React.FC = () => {
                         )}
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+                    <div className="space-y-2 rounded-xl border border-white/20 bg-white/5 p-4">
+                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
                             Tambah Lampiran Baru (Opsional)
                         </label>
                         <FileUpload
@@ -2565,7 +2565,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2645,12 +2645,12 @@ export const AduanDetailPage: React.FC = () => {
             >
                 <div className="flex flex-col gap-5">
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="p-4 bg-muted border border-[#34A853]/20 rounded-lg mb-4">
-                            <h4 className="text-sm font-semibold text-[#34A853] mb-1 flex items-center gap-2">
+                        <div className="p-4 bg-white/20 border border-white/20 rounded-lg mb-4">
+                            <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
                                 <FileText size={16} />
                                 Upload Dokumen Pendukung
                             </h4>
-                            <p className="text-xs text-[#34A853]">
+                            <p className="text-xs text-white">
                                 Unggah berkas dokumen (PDF, Word, Excel), data spasial (ZIP, SHP), atau audio (MP3, WAV).
                             </p>
                         </div>
@@ -2692,7 +2692,7 @@ export const AduanDetailPage: React.FC = () => {
             </Modal>
 
             {/* Print Only Footer */}
-            <div className="hidden print:block fixed bottom-0 left-0 right-0 border-t pt-2 text-[10px] text-muted-foreground text-center">
+            <div className="hidden print:block fixed bottom-0 left-0 right-0 border-t pt-2 text-[10px] text-white/80 text-center">
                 Direktorat Pengendalian Perhutanan Sosial - KitapantauSH • Dicetak pada: {new Date().toLocaleString('id-ID')}
             </div>
 
@@ -2702,8 +2702,8 @@ export const AduanDetailPage: React.FC = () => {
                     <DialogHeader>
                         <DialogTitle>Hapus Dokumen</DialogTitle>
                     </DialogHeader>
-                    <p className="text-sm text-muted-foreground">
-                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">"{deleteConfirmDoc?.fileName}"</span>?
+                    <p className="text-sm text-white/80">
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-white">"{deleteConfirmDoc?.fileName}"</span>?
                         File akan dihapus permanen dan tidak dapat dikembalikan.
                     </p>
                     <DialogFooter className="gap-2 mt-4">
@@ -2729,7 +2729,7 @@ export const AduanDetailPage: React.FC = () => {
                 title="Hapus Aduan"
                 description={
                     <>
-                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">{aduan.nomorTiket}</span>?
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-white">{aduan.nomorTiket}</span>?
                         Tindakan ini permanen dan tidak dapat dibatalkan.
                     </>
                 }
@@ -2745,7 +2745,7 @@ export const AduanDetailPage: React.FC = () => {
                 title="Hapus Riwayat Penanganan"
                 description={
                     <>
-                        Catatan tindak lanjut <span className="font-semibold text-foreground">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
+                        Catatan tindak lanjut <span className="font-semibold text-white">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
                     </>
                 }
                 confirmLabel="Hapus Riwayat"
