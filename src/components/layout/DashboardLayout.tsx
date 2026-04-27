@@ -9,7 +9,6 @@ import { cn } from '../../lib/utils';
 
 export const DashboardLayout: React.FC = () => {
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(true);
-    const [isHovered, setIsHovered] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -49,7 +48,7 @@ export const DashboardLayout: React.FC = () => {
         };
     }, [isDesktop, mobileSidebarOpen]);
 
-    const isExpanded = isDesktop ? isHovered : mobileSidebarOpen;
+    const isExpanded = isDesktop || mobileSidebarOpen;
 
     const handleLogout = async () => {
         await logout();
@@ -63,24 +62,7 @@ export const DashboardLayout: React.FC = () => {
             {/* Background decorative elements - Simplified for Apple look */}
             <div className="absolute inset-0 bg-background pointer-events-none" />
 
-            {/* Hover Trigger Zone (Desktop only) */
-            /* ... keep usage of isHovered ... */}
-            <div
-                className="fixed top-0 left-0 z-[60] h-4 w-4 hidden md:block" // Reduced trigger area
-                onMouseEnter={() => {
-                    if (isDesktop) setIsHovered(true);
-                }}
-            />
-
-            <div
-                onMouseEnter={() => {
-                    if (isDesktop) setIsHovered(true);
-                }}
-                onMouseLeave={() => {
-                    if (isDesktop) setIsHovered(false);
-                }}
-                className="z-50"
-            >
+            <div className="z-50">
                 <Sidebar
                     isOpen={isExpanded}
                     onClose={() => setMobileSidebarOpen(false)}
@@ -90,8 +72,7 @@ export const DashboardLayout: React.FC = () => {
 
             <div className={cn(
                 "relative z-10 flex w-full flex-1 flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
-                "md:ml-20",
-                isExpanded && "md:ml-64"
+                "md:ml-64"
             )}>
                 <Header
                     onMenuClick={() => setMobileSidebarOpen((prev) => !prev)}
