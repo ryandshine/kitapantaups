@@ -21,6 +21,7 @@ import usersRoute from './routes/users.js'
 import dashboardRoute from './routes/dashboard.js'
 import activitiesRoute from './routes/activities.js'
 import settingsRoute from './routes/settings.js'
+import docsRoute from './routes/docs.js'
 
 const app = new Hono()
 const allowedCorsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
@@ -127,6 +128,7 @@ app.get('/uploads/*', async (c) => {
 
 // Health check
 app.get('/', (c) => c.json({ status: 'ok', service: 'KITAPANTAUPS API' }))
+app.route('/docs', docsRoute)
 
 // Routes
 app.route('/auth', authRoute)

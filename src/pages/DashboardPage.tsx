@@ -101,9 +101,18 @@ export const DashboardPage: React.FC = () => {
         return values.filter(Boolean)[0] || '-';
     };
 
+    const resolveAduanDate = (value: unknown, fallback?: Date) => {
+        if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
+        if (typeof value === 'string' || typeof value === 'number') {
+            const parsed = new Date(value);
+            if (!Number.isNaN(parsed.getTime())) return parsed;
+        }
+        return fallback ?? new Date();
+    };
+
     const getRecentAduanBadge = (aduan: Aduan) => {
-        const createdAt = aduan.createdAt ?? aduan.created_at;
-        const updatedAt = aduan.updatedAt ?? createdAt;
+        const createdAt = resolveAduanDate(aduan.createdAt ?? aduan.created_at);
+        const updatedAt = resolveAduanDate(aduan.updatedAt ?? createdAt, createdAt);
         return Math.abs(updatedAt.getTime() - createdAt.getTime()) < 60_000 ? 'Baru' : 'Diperbarui';
     };
 
@@ -356,7 +365,10 @@ export const DashboardPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex items-center gap-1.5 text-[11px] font-medium">
                                                     <Calendar size={12} />
-                                                    {formatDistanceToNow(new Date(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt ?? Date.now()), { addSuffix: true, locale: localeID })}
+                                                    {formatDistanceToNow(
+                                                        resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
+                                                        { addSuffix: true, locale: localeID }
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
