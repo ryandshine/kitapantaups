@@ -212,10 +212,10 @@ export const UserManagementPage: React.FC = () => {
             )}
 
             <Card>
-                <CardHeader className="bg-muted/30 pb-4">
+                <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-4 text-white">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <CardTitle className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-primary" />
+                        <CardTitle className="flex items-center gap-2 text-white">
+                            <Users className="h-4 w-4 text-white" />
                             Daftar Pengguna ({filteredUsers.length})
                         </CardTitle>
                         <div className="relative">

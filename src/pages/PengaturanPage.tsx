@@ -88,8 +88,8 @@ export const PengaturanPage: React.FC = () => {
                     {activeTab === 'profil' && (
                         <div className="animate-in slide-in-from-right-4 duration-300 flex flex-col gap-6">
                             <Card>
-                                <CardHeader>
-                                    <CardTitle>Informasi Profil</CardTitle>
+                                <CardHeader className="bg-[#34A853] border-b border-green-700/30 text-white">
+                                    <CardTitle className="text-white">Informasi Profil</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex flex-col items-center gap-8 py-4 sm:flex-row">
@@ -153,9 +153,9 @@ export const PengaturanPage: React.FC = () => {
                     {activeTab === 'keamanan' && (
                         <div className="animate-in slide-in-from-right-4 duration-300 flex flex-col gap-6">
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <LockIcon className="text-primary" size={18} />
+                                <CardHeader className="bg-[#34A853] border-b border-green-700/30 text-white">
+                                    <CardTitle className="flex items-center gap-2 text-white">
+                                        <LockIcon className="text-white" size={18} />
                                         Keamanan Akun
                                     </CardTitle>
                                 </CardHeader>

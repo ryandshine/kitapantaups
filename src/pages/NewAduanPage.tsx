@@ -499,9 +499,9 @@ export const NewAduanPage: React.FC = () => {
                 <div className={cn("grid grid-cols-1", isCompact ? "gap-5" : "gap-8")}>
                     {/* 1. Data Surat Masuk */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-secondary/30 border-b border-border/50 pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
+                            <CardTitle className="flex items-center gap-3 text-xl text-white">
+                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
                                     <FileText size={20} />
                                 </div>
                                 Administrasi Surat Masuk
@@ -580,9 +580,9 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 2. Data Pengadu */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-secondary/30 border-b border-border/50 pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
+                            <CardTitle className="flex items-center gap-3 text-xl text-white">
+                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
                                     <User size={20} />
                                 </div>
                                 Identitas Pengadu
@@ -630,9 +630,9 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 3. Lokasi Objek */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-secondary/30 border-b border-border/50 pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
+                            <CardTitle className="flex items-center gap-3 text-xl text-white">
+                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
                                     <MapPin size={20} />
                                 </div>
                                 Lokasi Objek Konflik / Pengaduan
@@ -643,17 +643,17 @@ export const NewAduanPage: React.FC = () => {
                                 <KpsSearch onSelect={handleKpsSelect} />
 
                                 {selectedKps && (
-                                    <div className="rounded-2xl border border-primary/15 bg-white p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="rounded-2xl border border-green-700/30 bg-[#34A853] p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 text-white">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-primary/80">KPS Terpilih</p>
-                                                <h4 className="mt-1 text-sm font-semibold text-foreground break-words">{getKpsDisplayName(selectedKps)}</h4>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">KPS Terpilih</p>
+                                                <h4 className="mt-1 text-sm font-semibold text-white break-words">{getKpsDisplayName(selectedKps)}</h4>
                                                 <p className="mt-1 text-xs text-muted-foreground break-words">
                                                     {getKpsDisplayKabupaten(selectedKps)}, {getKpsDisplayProvinsi(selectedKps)}
                                                 </p>
                                             </div>
                                             <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
-                                                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-primary">
+                                                <span className="rounded-full bg-white/20 px-2.5 py-1 text-white">
                                                     id: {getKpsDisplayId(selectedKps)}
                                                 </span>
                                                 <span className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground">
@@ -854,9 +854,9 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 4. Substansi Aduan */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-secondary/30 border-b border-border/50 pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
+                            <CardTitle className="flex items-center gap-3 text-xl text-white">
+                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
                                     <AlertCircle size={20} />
                                 </div>
                                 Substansi Perkara

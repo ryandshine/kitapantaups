@@ -139,7 +139,7 @@ export const AduanListPage: React.FC = () => {
                     ) : displayList.length > 0 ? (
                         <div className="flex flex-col gap-4">
                             {displayList.map((row, index) => {
-                                const theme = getGoogleCardTheme(index);
+                                const theme = { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/90", badge: "bg-white/20 text-white border-white/20", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#4285F4]", iconText: "text-white group-hover:text-[#4285F4]", border: "border-blue-700/30" };
 
                                 return (
                                 <button

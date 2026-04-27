@@ -91,10 +91,10 @@ export const LaporanPage: React.FC = () => {
                 />
             )}
 
-            <Card className="border border-border shadow-none">
-                <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                        <Settings2 size={16} className="text-muted-foreground" />
+            <Card className="border border-green-700/30 shadow-none overflow-hidden bg-[#34A853] text-white">
+                <CardHeader className="pb-3 border-b border-white/10">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold text-white">
+                        <Settings2 size={16} className="text-white" />
                         Konfigurasi
                     </CardTitle>
                 </CardHeader>
@@ -160,7 +160,7 @@ export const LaporanPage: React.FC = () => {
 
                     <div className="flex items-end">
                         <Button
-                            variant="primary"
+                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-xl font-semibold shadow-sm"
                             fullWidth
                             onClick={handleGenerate}
                             isLoading={isGenerating}
@@ -171,16 +171,7 @@ export const LaporanPage: React.FC = () => {
                     </div>
                 </CardContent>
             </Card>
-            <Card className="border border-border shadow-none">
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-base font-semibold">Kolom Laporan Tetap</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-xs text-muted-foreground">
-                        Laporan menggunakan format kolom baku ({FIXED_REPORT_COLUMN_IDS.length} kolom). Output tersedia dalam Excel (utama) dan CSV.
-                    </p>
-                </CardContent>
-            </Card>
+            
         </div>
     );
 };
