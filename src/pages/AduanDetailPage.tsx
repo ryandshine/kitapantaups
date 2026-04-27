@@ -1811,8 +1811,8 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-white/90 px-5 py-4 shadow-sm backdrop-blur-xl">
-                    <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-l from-primary/5 via-transparent to-transparent pointer-events-none" />
+                <div className="relative overflow-hidden rounded-2xl border border-green-700/50 bg-[#34A853] px-5 py-4 shadow-sm backdrop-blur-xl">
+                    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
                     <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
@@ -1820,13 +1820,13 @@ export const AduanDetailPage: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => navigate('/pengaduan')}
-                                    className="h-8 rounded-lg px-2.5 text-muted-foreground hover:bg-muted"
+                                    className="h-8 rounded-lg px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
                                     leftIcon={<ArrowLeft size={14} />}
                                 >
                                     Kembali
                                 </Button>
-                                <span className="text-muted-foreground/40">|</span>
-                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                <span className="text-white/40">|</span>
+                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/80">
                                     <Tag size={12} />
                                     <span>{aduan.kategoriMasalah || '-'}</span>
                                 </div>
@@ -1834,23 +1834,23 @@ export const AduanDetailPage: React.FC = () => {
 
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
-                                    <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none" />
+                                    <h1 className="text-xl font-semibold tracking-tight text-white md:text-2xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none bg-white/20 text-white border-white/10" />
                                 </div>
-                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-white/90">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-3 xl:items-stretch">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
-                                    <div key={card.label} className="rounded-2xl border border-border/70 bg-white/80 p-3 shadow-sm">
+                                    <div key={card.label} className="rounded-2xl border border-white/20 bg-white/10 p-3 shadow-sm">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{card.label}</p>
-                                            <card.icon size={13} className="text-muted-foreground" />
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">{card.label}</p>
+                                            <card.icon size={13} className="text-white/80" />
                                         </div>
-                                        <p className="mt-2 text-sm font-semibold text-foreground">{card.value}</p>
-                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{card.hint}</p>
+                                        <p className="mt-2 text-sm font-semibold text-white">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-white/70">{card.hint}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1861,7 +1861,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<FileText size={15} />}
                                     onClick={handlePrint}
-                                    className="h-9 rounded-xl px-4"
+                                    className="h-9 rounded-xl px-4 bg-white/20 text-white border-white/20 hover:bg-white/30 hover:text-white"
                                     isLoading={isExportingPdf}
                                 >
                                     PDF
@@ -1871,16 +1871,14 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<Upload size={15} />}
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-9 rounded-xl px-4"
+                                    className="h-9 rounded-xl px-4 bg-white/20 text-white border-white/20 hover:bg-white/30 hover:text-white"
                                 >
                                     Upload
                                 </Button>
                                 <Button
-                                    variant="primary"
-                                    size="sm"
+                                    className="h-9 rounded-xl px-4 bg-white text-[#34A853] hover:bg-white/90 border-none"
                                     leftIcon={<Edit size={15} />}
                                     onClick={openEditModal}
-                                    className="h-9 rounded-xl px-4"
                                 >
                                     Edit Data
                                 </Button>
@@ -1891,7 +1889,7 @@ export const AduanDetailPage: React.FC = () => {
                                         leftIcon={<Trash2 size={15} />}
                                         onClick={() => setIsDeleteAduanConfirmOpen(true)}
                                         isLoading={isDeleting}
-                                        className="h-9 rounded-xl px-4 text-destructive hover:bg-destructive/10"
+                                        className="h-9 rounded-xl px-4 text-red-100 hover:text-white hover:bg-red-500/30"
                                     >
                                         Hapus
                                     </Button>

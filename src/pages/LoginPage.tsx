@@ -29,26 +29,26 @@ export const LoginPage: React.FC = () => {
     };
     return (
         <div className="grid min-h-screen grid-cols-1 bg-gradient-to-br from-background via-muted/20 to-background lg:grid-cols-[1.1fr_1fr]">
-            <section className="relative hidden overflow-hidden border-r border-border/60 bg-secondary/20 p-10 lg:flex lg:flex-col lg:justify-between">
-                <div className="pointer-events-none absolute inset-0 opacity-60 [background:radial-gradient(circle_at_20%_20%,hsl(var(--foreground)/0.06),transparent_32%),radial-gradient(circle_at_80%_70%,hsl(var(--foreground)/0.05),transparent_30%)]" />
+            <section className="relative hidden overflow-hidden border-r border-green-700/50 bg-[#34A853] p-10 lg:flex lg:flex-col lg:justify-between shadow-lg">
+                <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-[40rem] h-[40rem] rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
                 <div className="relative z-10 inline-flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background shadow-sm">
-                        <ShieldCheck className="h-5 w-5 text-foreground" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/20 shadow-sm backdrop-blur-sm">
+                        <ShieldCheck className="h-5 w-5 text-white" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-semibold tracking-tight text-foreground">KitapantauPS</span>
-                        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Direktorat PPS</span>
+                        <span className="text-sm font-semibold tracking-tight text-white">KitapantauPS</span>
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-white/80">Direktorat PPS</span>
                     </div>
                 </div>
                 <div className="relative z-10 max-w-xl space-y-5">
-                    <h1 className="text-4xl font-semibold leading-tight tracking-tight text-foreground">
+                    <h1 className="text-4xl font-bold leading-tight tracking-tight text-white">
                         Sistem Informasi Pengaduan Perhutanan Sosial
                     </h1>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
+                    <p className="text-[0.95rem] leading-relaxed text-white/90">
                         Platform terpadu untuk pencatatan aduan, tindak lanjut, dan pelaporan operasional perhutanan sosial.
                     </p>
                 </div>
-                <p className="relative z-10 text-xs font-medium text-muted-foreground">
+                <p className="relative z-10 text-xs font-medium text-white/70">
                     &copy; 2026 Direktorat Pengendalian Perhutanan Sosial
                 </p>
             </section>
