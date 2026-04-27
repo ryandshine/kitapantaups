@@ -4,8 +4,9 @@ import { generateAduanTicketNumber } from '../lib/aduan-ticket.js'
 
 export const AduanService = {
   async getList(query: any) {
-    const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket, pic_id } = query
+    const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket, pic_id, sort_by } = query
     const offset = reqOffset ? Number(reqOffset) : (Number(page) - 1) * Number(limit)
+    const sortBy = sort_by === 'updated_at' ? 'updated_at' : 'created_at'
 
     const conditions: string[] = []
     const params: any[] = []
@@ -62,7 +63,7 @@ export const AduanService = {
       conditions.push(`a.pic_id = $${params.length}`)
     }
 
-    const { data, total } = await AduanRepository.findAndCountAll(params, conditions, Number(limit), offset)
+    const { data, total } = await AduanRepository.findAndCountAll(params, conditions, Number(limit), offset, sortBy)
     return { data, total, page: Number(page), limit: Number(limit) }
   },
 

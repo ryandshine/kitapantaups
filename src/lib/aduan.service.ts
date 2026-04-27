@@ -63,6 +63,10 @@ type AduanReportFilters = {
     picId?: string;
 };
 
+type AduanListOptions = {
+    sortBy?: 'created_at' | 'updated_at';
+};
+
 type UpdateAduanPayload = Partial<Aduan> & {
     updatedBy?: string;
     updatedByName?: string;
@@ -424,10 +428,17 @@ export const AduanService = {
     extractStoragePath: (_url: string): string | null => null,
     generateTicketNumber: () => `ADU${new Date().getFullYear().toString().slice(2)}${Math.floor(100000 + Math.random() * 900000)}`,
 
-    getAduanList: async (page = 1, pageSize = 20, searchTerm?: string, statusFilter?: string) => {
+    getAduanList: async (
+        page = 1,
+        pageSize = 20,
+        searchTerm?: string,
+        statusFilter?: string,
+        options?: AduanListOptions,
+    ) => {
         const params = new URLSearchParams({ page: String(page), limit: String(pageSize) });
         if (searchTerm?.trim()) params.set('search', searchTerm.trim());
         if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);
+        if (options?.sortBy) params.set('sort_by', options.sortBy);
         const result = await api.get(`/aduan?${params}`);
         return { data: result.data || [], total: result.total || 0 };
     },

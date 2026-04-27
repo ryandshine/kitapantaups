@@ -55,7 +55,7 @@ export const DashboardPage: React.FC = () => {
 
     // Consolidated Dashboard Stats Query
     const { data: stats, isLoading: isLoadingStats } = useDashboardStats();
-    const { data: recentAduanResult, isLoading: isLoadingAduan } = useAduanList(1, 5);
+    const { data: recentAduanResult, isLoading: isLoadingAduan } = useAduanList(1, 5, undefined, undefined, { sortBy: 'updated_at' });
     const recentAduan = recentAduanResult?.data || [];
 
     const totalCount = stats?.total || 0;
@@ -91,13 +91,6 @@ export const DashboardPage: React.FC = () => {
         { label: 'Ditolak', value: ditolakCount, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-500/10', border: 'border-rose-500/20' },
     ];
 
-    const getRecentAduanHeadline = (aduan: Aduan) => {
-        const names = Array.isArray(aduan.nama_kps) ? aduan.nama_kps.filter(Boolean) : [];
-        if (names.length === 0) return aduan.surat_nomor || `#${aduan.id.slice(0, 8)}`;
-        if (names.length === 1) return names[0];
-        return `${names[0]} +${names.length - 1} lainnya`;
-    };
-
     const getRecentAduanLocation = (aduan: Aduan) =>
         [aduan.lokasi_kab, aduan.lokasi_prov].filter(Boolean).join(', ') || '-';
 
@@ -106,6 +99,12 @@ export const DashboardPage: React.FC = () => {
             ? aduan.type_kps
             : Array.isArray(aduan.jenis_kps) ? aduan.jenis_kps : [];
         return values.filter(Boolean)[0] || '-';
+    };
+
+    const getRecentAduanBadge = (aduan: Aduan) => {
+        const createdAt = aduan.createdAt ?? aduan.created_at;
+        const updatedAt = aduan.updatedAt ?? createdAt;
+        return Math.abs(updatedAt.getTime() - createdAt.getTime()) < 60_000 ? 'Baru' : 'Diperbarui';
     };
 
     const getActivityUI = (type: string) => {
@@ -288,9 +287,14 @@ export const DashboardPage: React.FC = () => {
                 {/* Recent Aduan List */}
                 <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
                     <div className="flex items-center justify-between px-1">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
-                            Aduan Terbaru
-                        </h2>
+                        <div>
+                            <h2 className="text-xl font-semibold flex items-center gap-2">
+                                Aduan Terbaru
+                            </h2>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Menampilkan 5 aduan dengan aktivitas terbaru.
+                            </p>
+                        </div>
                         <Button
                             onClick={() => navigate('/pengaduan')}
                             variant="ghost"
@@ -319,7 +323,10 @@ export const DashboardPage: React.FC = () => {
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
                                                 <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                                                    {getRecentAduanHeadline(aduan)}
+                                                    No Aduan
+                                                </span>
+                                                <span className="text-[11px] font-semibold text-foreground tracking-wide">
+                                                    {aduan.nomor_tiket}
                                                 </span>
                                                 <span className={cn(
                                                     "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
@@ -328,7 +335,13 @@ export const DashboardPage: React.FC = () => {
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
+                                                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide bg-foreground/[0.04] text-muted-foreground">
+                                                    {getRecentAduanBadge(aduan)}
+                                                </span>
                                             </div>
+                                            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                                                Perihal
+                                            </p>
                                             <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
                                                 {aduan.perihal}
                                             </h3>

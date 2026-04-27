@@ -2,10 +2,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AduanService } from '../lib/aduan.service';
 import type { Aduan } from '../types';
 
-export const useAduanList = (page: number = 1, pageSize: number = 20, searchTerm?: string, statusFilter?: string) => {
+type AduanListOptions = {
+    sortBy?: 'created_at' | 'updated_at';
+};
+
+export const useAduanList = (
+    page: number = 1,
+    pageSize: number = 20,
+    searchTerm?: string,
+    statusFilter?: string,
+    options?: AduanListOptions,
+) => {
     return useQuery({
-        queryKey: ['aduan', 'list', page, pageSize, searchTerm, statusFilter],
-        queryFn: () => AduanService.getAduanList(page, pageSize, searchTerm, statusFilter),
+        queryKey: ['aduan', 'list', page, pageSize, searchTerm, statusFilter, options?.sortBy],
+        queryFn: () => AduanService.getAduanList(page, pageSize, searchTerm, statusFilter, options),
     });
 };
 

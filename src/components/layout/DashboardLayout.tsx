@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils';
 
 
 export const DashboardLayout: React.FC = () => {
-    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
     const { user, logout } = useAuth();
@@ -23,6 +23,8 @@ export const DashboardLayout: React.FC = () => {
             setIsDesktop(matches);
             if (matches) {
                 setMobileSidebarOpen(false);
+            } else {
+                setMobileSidebarOpen(true);
             }
         };
 
@@ -33,12 +35,6 @@ export const DashboardLayout: React.FC = () => {
             mediaQuery.removeEventListener('change', syncLayoutMode);
         };
     }, []);
-
-    useEffect(() => {
-        if (!isDesktop) {
-            setMobileSidebarOpen(false);
-        }
-    }, [location.pathname]);
 
     useEffect(() => {
         if (isDesktop) {
@@ -87,7 +83,6 @@ export const DashboardLayout: React.FC = () => {
             >
                 <Sidebar
                     isOpen={isExpanded}
-                    isDesktop={isDesktop}
                     onClose={() => setMobileSidebarOpen(false)}
                     onLogout={handleLogout}
                 />

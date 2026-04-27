@@ -127,8 +127,15 @@ const replaceAduanKps = async (client: any, aduanId: string, kpsIds: string[]) =
 }
 
 export const AduanRepository = {
-  async findAndCountAll(params: any[], conditions: string[], limit: number, offset: number) {
+  async findAndCountAll(
+    params: any[],
+    conditions: string[],
+    limit: number,
+    offset: number,
+    sortBy: 'created_at' | 'updated_at' = 'created_at'
+  ) {
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+    const orderBy = sortBy === 'updated_at' ? 'a.updated_at DESC' : 'a.created_at DESC'
 
     const [rows, countResult] = await Promise.all([
       pool.query(
@@ -156,7 +163,7 @@ export const AduanRepository = {
            WHERE ak.aduan_id = a.id
          ) kps_agg ON true
          ${where}
-         ORDER BY a.created_at DESC
+         ORDER BY ${orderBy}
          LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
         [...params, limit, offset]
       ),
