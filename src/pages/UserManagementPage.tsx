@@ -211,18 +211,18 @@ export const UserManagementPage: React.FC = () => {
                 />
             )}
 
-            <Card>
-                <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-4 text-white">
+            <Card className="overflow-hidden">
+                <CardHeader className="google-panel-green pb-4 text-white">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <CardTitle className="flex items-center gap-2 text-white">
                             <Users className="h-4 w-4 text-white" />
                             Daftar Pengguna ({filteredUsers.length})
                         </CardTitle>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/65" />
                             <Input
                                 placeholder="Cari nama atau email..."
-                                className="pl-9 w-full md:w-64"
+                                className="w-full pl-9 md:w-64 border-white/25 bg-white/15 text-white placeholder:text-white/70"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -233,7 +233,7 @@ export const UserManagementPage: React.FC = () => {
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b bg-muted/30">
+                                <tr className="border-b bg-muted/20">
                                     <th className="px-4 py-3 text-left font-semibold">Pengguna</th>
                                     <th className="px-4 py-3 text-left font-semibold">Role / Peran</th>
                                     <th className="px-4 py-3 text-left font-semibold text-center">Status</th>

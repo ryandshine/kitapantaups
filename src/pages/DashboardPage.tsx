@@ -279,7 +279,7 @@ export const DashboardPage: React.FC = () => {
                         key={i}
                         variants={itemVariants}
                         className={cn(
-                            "group relative overflow-hidden rounded-2xl border p-4 shadow-sm transition-all duration-300",
+                            "group relative overflow-hidden rounded-2xl p-4 shadow-sm ring-1 ring-white/12 transition-all duration-300",
                             theme.bg,
                             theme.border
                         )}
@@ -326,13 +326,14 @@ export const DashboardPage: React.FC = () => {
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan, index: number) => {
                                 const theme = getGoogleCardTheme(index);
+                                const detailPanelClass = index % 4 === 2 ? "bg-[#202124]/8" : "bg-white/10";
 
                                 return (
                                     <motion.div
                                         key={aduan.id}
                                         whileHover={{ scale: 1.005 }}
                                         onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                        className={cn("group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl", theme.bg, theme.border)}
+                                        className={cn("group relative cursor-pointer p-4 shadow-sm ring-1 transition-all duration-300 hover:shadow-md sm:rounded-2xl", theme.bg, theme.border)}
                                     >
                                         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                                             <div className="flex-1 space-y-1.5">
@@ -363,27 +364,29 @@ export const DashboardPage: React.FC = () => {
                                                 <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${theme.text}`}>
                                                     {aduan.perihal}
                                                 </h3>
-                                                <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${theme.muted}`}>
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                        <MapPin size={12} />
-                                                        {getRecentAduanLocation(aduan)}
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                        <Tag size={12} />
-                                                        {getRecentAduanSkema(aduan)}
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 text-[10px] font-medium">
-                                                        <Calendar size={12} />
-                                                        {formatDistanceToNow(
-                                                            resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
-                                                            { addSuffix: true, locale: localeID }
-                                                        )}
-                                                    </div>
-                                                </div>
                                             </div>
                                             <div className="flex items-center gap-3 self-start md:self-center">
                                                 <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${theme.iconBg}`}>
                                                     <ArrowUpRight size={14} className={`transition-colors ${theme.iconText}`} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={`mt-4 rounded-xl px-3.5 py-3 ${detailPanelClass}`}>
+                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-medium ${theme.muted}`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <MapPin size={12} />
+                                                    {getRecentAduanLocation(aduan)}
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Tag size={12} />
+                                                    {getRecentAduanSkema(aduan)}
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Calendar size={12} />
+                                                    {formatDistanceToNow(
+                                                        resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
+                                                        { addSuffix: true, locale: localeID }
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -401,7 +404,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white">
+                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white shadow-sm ring-1 ring-white/10">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
                             <h3 className="flex items-center gap-2 text-base font-semibold text-white">
                                 Aktivitas Sistem
@@ -426,39 +429,41 @@ export const DashboardPage: React.FC = () => {
                                     const contextTags = getActivityContextTags(activity);
                                     
                                     return (
-                                        <div key={activity.id} className="group flex gap-3.5">
-                                            <div className="flex flex-col items-center">
-                                                <div className={cn(
-                                                    "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
-                                                    "border border-white/30 bg-white text-[#34A853]"
-                                                )}>
-                                                    <Icon size={14} />
-                                                </div>
-                                                {i < filteredActivities.length - 1 && (
-                                                    <div className="w-[1px] flex-1 bg-white/20 my-2" />
-                                                )}
-                                            </div>
-                                            <div className="pb-2">
-                                                <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-white transition-colors group-hover:text-white/90 prose-p:text-white prose-strong:text-white prose-a:text-white">
-                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
-                                                </div>
-                                                {contextTags.length > 0 && (
-                                                    <div className="mt-2 flex flex-wrap gap-1.5">
-                                                        {contextTags.map((tag, idx) => (
-                                                            <span
-                                                                key={`${activity.id}-context-${idx}`}
-                                                                className="rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-medium text-white/90"
-                                                            >
-                                                                {tag}
-                                                            </span>
-                                                        ))}
+                                        <div key={activity.id} className="group rounded-xl bg-white/[0.06] px-3 py-3">
+                                            <div className="flex gap-3.5">
+                                                <div className="flex flex-col items-center">
+                                                    <div className={cn(
+                                                        "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
+                                                        "border border-white/30 bg-white text-[#34A853]"
+                                                    )}>
+                                                        <Icon size={14} />
                                                     </div>
-                                                )}
-                                                <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-white/70">
-                                                    {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
-                                                    <span className="w-1 h-1 rounded-full bg-white/30" />
-                                                    <span className="text-white/90">{activity.userName.split(' ')[0]}</span>
-                                                </p>
+                                                    {i < filteredActivities.length - 1 && (
+                                                        <div className="my-2 w-[1px] flex-1 bg-white/20" />
+                                                    )}
+                                                </div>
+                                                <div className="pb-2">
+                                                    <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-white transition-colors group-hover:text-white/90 prose-p:text-white prose-strong:text-white prose-a:text-white">
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
+                                                    </div>
+                                                    {contextTags.length > 0 && (
+                                                        <div className="mt-2 flex flex-wrap gap-1.5">
+                                                            {contextTags.map((tag, idx) => (
+                                                                <span
+                                                                    key={`${activity.id}-context-${idx}`}
+                                                                    className="rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-medium text-white/90"
+                                                                >
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-white/70">
+                                                        {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
+                                                        <span className="h-1 w-1 rounded-full bg-white/30" />
+                                                        <span className="text-white/90">{activity.userName.split(' ')[0]}</span>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     );

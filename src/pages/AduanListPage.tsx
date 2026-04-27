@@ -129,7 +129,7 @@ export const AduanListPage: React.FC = () => {
                 </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="border-y border-border/60 bg-white dark:bg-card sm:rounded-2xl sm:border">
+            <motion.div variants={itemVariants} className="sm:rounded-2xl">
                 <div className="p-4">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
@@ -140,6 +140,7 @@ export const AduanListPage: React.FC = () => {
                         <div className="flex flex-col gap-4">
                             {displayList.map((row, index) => {
                                 const theme = getGoogleCardTheme(index);
+                                const statPanelClass = index % 4 === 2 ? "bg-[#202124]/8" : "bg-white/10";
 
                                 return (
                                 <button
@@ -183,7 +184,7 @@ export const AduanListPage: React.FC = () => {
                                     </div>
 
                                     <div className="mt-4 flex flex-col md:flex-row gap-4 w-full">
-                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl border p-3 ${theme.badge}`}>
+                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl p-3 ${statPanelClass}`}>
                                             <div>
                                                 <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Luas</p>
                                                 <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
@@ -214,7 +215,7 @@ export const AduanListPage: React.FC = () => {
                 </div>
 
                 {!loading && totalCount > 0 && (
-                    <div className="flex flex-col justify-between gap-3 border-t border-border bg-muted/25 p-3.5 sm:flex-row sm:items-center">
+                    <div className="mt-2 flex flex-col justify-between gap-3 rounded-2xl bg-card/90 p-3.5 ring-1 ring-border/70 sm:flex-row sm:items-center">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                             <span className="hidden sm:inline">Menampilkan {(currentPage - 1) * itemsPerPage + 1} s/d {Math.min(currentPage * itemsPerPage, totalCount)} dari {totalCount} Data</span>
                             <span className="sm:hidden">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalCount)} / {totalCount}</span>
