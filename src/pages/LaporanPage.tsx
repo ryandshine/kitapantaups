@@ -75,9 +75,12 @@ export const LaporanPage: React.FC = () => {
 
     return (
         <div className="max-w-6xl animate-in fade-in duration-500 flex flex-col gap-6">
-            <div className="border-b border-border pb-4">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none">Laporan</h1>
-                <p className="mt-2 text-sm text-muted-foreground">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
+            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6 mb-2">
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-bold tracking-tight text-white leading-none">Laporan</h1>
+                    <p className="mt-2 text-[0.92rem] text-white/90">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
+                </div>
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
             </div>
 
             {feedback && (

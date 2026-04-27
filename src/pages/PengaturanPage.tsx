@@ -45,9 +45,12 @@ export const PengaturanPage: React.FC = () => {
 
     return (
         <div className="max-w-5xl animate-in fade-in duration-500 flex flex-col gap-8">
-            <div className="flex flex-col gap-1 border-b pb-6">
-                <h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">Pengaturan Akun</h1>
-                <p className="mt-2 text-muted-foreground">Kelola informasi pribadi, preferensi keamanan, dan notifikasi akun Anda.</p>
+            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6 mb-2">
+                <div className="relative z-10 flex flex-col gap-1">
+                    <h1 className="text-3xl font-bold leading-none tracking-tight text-white">Pengaturan Akun</h1>
+                    <p className="mt-2 text-[0.92rem] text-white/90">Kelola informasi pribadi, preferensi keamanan, dan notifikasi akun Anda.</p>
+                </div>
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
             </div>
 
             {feedback && (

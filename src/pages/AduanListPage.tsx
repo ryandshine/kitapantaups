@@ -72,20 +72,23 @@ export const AduanListPage: React.FC = () => {
             variants={containerVariants}
             className="flex flex-col gap-5"
         >
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-                <div>
-                    <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Daftar Pengaduan</motion.h1>
+            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6">
+                <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                    <div>
+                        <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-white md:text-3xl">Daftar Pengaduan</motion.h1>
+                        <motion.p variants={itemVariants} className="mt-1.5 text-[0.92rem] leading-relaxed text-white/90">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
+                    </div>
+                    <motion.div variants={itemVariants} className="flex items-center gap-3">
+                        <Button
+                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-full px-5 shadow-lg shadow-black/10 transition-all font-medium active:scale-95"
+                            onClick={() => navigate('/pengaduan/baru')}
+                        >
+                            <Plus size={18} className="mr-2" />
+                            Buat Aduan
+                        </Button>
+                    </motion.div>
                 </div>
-                <motion.div variants={itemVariants} className="flex items-center gap-3">
-                    <Button
-                        variant="primary"
-                        leftIcon={<Plus size={18} />}
-                        onClick={() => navigate('/pengaduan/baru')}
-                        className="rounded-xl px-5"
-                    >
-                        Buat Aduan
-                    </Button>
-                </motion.div>
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
             </div>
 
             <motion.div variants={itemVariants} className="border-y border-border/60 bg-white p-4 dark:bg-card sm:rounded-2xl sm:border">
@@ -136,72 +139,72 @@ export const AduanListPage: React.FC = () => {
                         <div className="flex flex-col gap-4">
                             {displayList.map((row, index) => {
                                 const colors = [
-                                    "bg-blue-50/50 border-blue-200/60 hover:border-blue-400 dark:bg-blue-950/20 dark:border-blue-900/50 dark:hover:border-blue-700",
-                                    "bg-green-50/50 border-green-200/60 hover:border-green-400 dark:bg-green-950/20 dark:border-green-900/50 dark:hover:border-green-700",
-                                    "bg-yellow-50/50 border-yellow-200/60 hover:border-yellow-400 dark:bg-yellow-950/20 dark:border-yellow-900/50 dark:hover:border-yellow-700",
-                                    "bg-red-50/50 border-red-200/60 hover:border-red-400 dark:bg-red-950/20 dark:border-red-900/50 dark:hover:border-red-700",
+                                    { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#4285F4]" },
+                                    { bg: "bg-[#EA4335]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#EA4335]" },
+                                    { bg: "bg-[#FBBC05]", text: "text-[#202124]", muted: "text-[#202124]/80", badge: "bg-[#202124]/10 text-[#202124] border-[#202124]/20", border: "border-[#FBBC05]" },
+                                    { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white border-white/30", border: "border-[#34A853]" },
                                 ];
-                                const colorClass = colors[index % colors.length];
+                                const theme = colors[index % colors.length];
 
                                 return (
                                 <button
                                     key={row.nomor_tiket}
                                     type="button"
                                     onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className={`flex w-full flex-col text-left rounded-2xl border p-4.5 shadow-sm transition-all hover:shadow-md ${colorClass}`}
+                                    className={`flex w-full flex-col text-left rounded-2xl border p-4.5 shadow-sm transition-all hover:shadow-md ${theme.bg} ${theme.border}`}
                                 >
                                     <div className="flex w-full items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1 space-y-1.5">
-                                            <span className="inline-flex rounded-md bg-background/60 px-2 py-0.5 font-mono text-[11px] font-bold text-foreground backdrop-blur-sm">
+                                            <span className={`inline-flex rounded-md px-2 py-0.5 font-mono text-[11px] font-bold backdrop-blur-sm ${theme.badge}`}>
                                                 {row.nomor_tiket}
                                             </span>
-                                            <p className="text-[1rem] font-semibold text-foreground">
+                                            <p className={`text-[1rem] font-semibold ${theme.text}`}>
                                                 {getPerihalValue(row)}
                                             </p>
-                                            <p className="text-[11px] font-medium text-muted-foreground">
+                                            <p className={`text-[11px] font-medium ${theme.muted}`}>
                                                 KPS: {formatJoinedValue(row.nama_kps)}
                                             </p>
                                         </div>
-                                        <Badge variant="gray" className="shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide bg-background/50 backdrop-blur-sm">
+                                        <Badge variant="gray" className={`shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide backdrop-blur-sm ${theme.badge}`}>
                                             {row.status?.toUpperCase?.() || '-'}
                                         </Badge>
                                     </div>
 
                                     <div className="mt-5 grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Skema</p>
-                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">{formatJoinedValue(row.type_kps)}</p>
+                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Skema</p>
+                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>{formatJoinedValue(row.type_kps)}</p>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Surat Keputusan</p>
-                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">{formatJoinedValue(row.nomor_sk)}</p>
+                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Surat Keputusan</p>
+                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>{formatJoinedValue(row.nomor_sk)}</p>
                                         </div>
                                         <div className="md:col-span-2">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Lokasi</p>
-                                            <p className="mt-1 text-[0.9rem] font-medium text-foreground">
+                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Lokasi</p>
+                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>
                                                 {[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(' | ') || '-'}
                                             </p>
                                         </div>
                                     </div>
 
                                     <div className="mt-4 flex flex-col md:flex-row gap-4 w-full">
-                                        <div className="grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl border border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5 p-3">
+                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl border p-3 ${theme.badge}`}>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Luas</p>
-                                                <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
+                                                <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Luas</p>
+                                                <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">Jumlah KK</p>
-                                                <p className="mt-1 text-[0.9rem] font-semibold text-foreground">{row.jumlah_kk ?? '-'}</p>
+                                                <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Jumlah KK</p>
+                                                <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{row.jumlah_kk ?? '-'}</p>
                                             </div>
                                         </div>
-                                        <div className="flex-1 grid grid-cols-1 gap-2 text-[0.85rem] text-muted-foreground">
+                                        <div className={`flex-1 grid grid-cols-1 gap-2 text-[0.85rem] ${theme.muted}`}>
                                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                                <p><span className="font-semibold text-foreground">Pengadu:</span> {row.pengadu_nama || '-'}</p>
-                                                <p><span className="font-semibold text-foreground">Instansi:</span> {row.pengadu_instansi || '-'}</p>
-                                                <p><span className="font-semibold text-foreground">Surat:</span> {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
+                                                <p><span className={`font-semibold ${theme.text}`}>Pengadu:</span> {row.pengadu_nama || '-'}</p>
+                                                <p><span className={`font-semibold ${theme.text}`}>Instansi:</span> {row.pengadu_instansi || '-'}</p>
+                                                <p><span className={`font-semibold ${theme.text}`}>Surat:</span> {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
                                             </div>
-                                            <p className="whitespace-pre-wrap leading-relaxed mt-1"><span className="font-semibold text-foreground">Ringkasan:</span> {row.ringkasan_masalah || '-'}</p>
+                                            <p className="whitespace-pre-wrap leading-relaxed mt-1"><span className={`font-semibold ${theme.text}`}>Ringkasan:</span> {row.ringkasan_masalah || '-'}</p>
                                         </div>
                                     </div>
                                 </button>

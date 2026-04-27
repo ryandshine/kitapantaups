@@ -315,12 +315,20 @@ export const DashboardPage: React.FC = () => {
 
                     <div className="space-y-3">
                         {recentAduan.length > 0 ? (
-                            recentAduan.map((aduan: Aduan) => (
+                            recentAduan.map((aduan: Aduan, index: number) => {
+                                const colors = [
+                                    { bg: "bg-[#4285F4]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#4285F4]", iconText: "text-white/70 group-hover:text-[#4285F4]", border: "border-[#4285F4]" },
+                                    { bg: "bg-[#EA4335]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#EA4335]", iconText: "text-white/70 group-hover:text-[#EA4335]", border: "border-[#EA4335]" },
+                                    { bg: "bg-[#FBBC05]", text: "text-[#202124]", muted: "text-[#202124]/80", badge: "bg-[#202124]/10 text-[#202124]", iconBg: "bg-[#202124]/10 group-hover:bg-[#202124] group-hover:text-[#FBBC05]", iconText: "text-[#202124]/70 group-hover:text-[#FBBC05]", border: "border-[#FBBC05]" },
+                                    { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/80", badge: "bg-white/20 text-white", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#34A853]", iconText: "text-white/70 group-hover:text-[#34A853]", border: "border-[#34A853]" },
+                                ];
+                                const theme = colors[index % colors.length];
+                                return (
                                 <motion.div
                                     key={aduan.id}
                                     whileHover={{ scale: 1.005 }}
                                     onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                    className="group relative cursor-pointer border border-green-700/50 bg-[#34A853] p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl"
+                                    className={`group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl ${theme.bg} ${theme.border}`}
                                 >
                                     <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                                         <div className="flex-1 space-y-1.5">
@@ -330,10 +338,10 @@ export const DashboardPage: React.FC = () => {
                                                     aduan.status === 'selesai' ? "bg-emerald-500" :
                                                         aduan.status === 'ditolak' ? "bg-red-500" : "bg-amber-500"
                                                 )} />
-                                                <span className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/80">
+                                                <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
                                                     No Aduan
                                                 </span>
-                                                <span className="text-[10px] font-semibold tracking-[0.14em] text-white">
+                                                <span className={`text-[10px] font-semibold tracking-[0.14em] ${theme.text}`}>
                                                     {aduan.nomor_tiket}
                                                 </span>
                                                 <span className={cn(
@@ -343,17 +351,17 @@ export const DashboardPage: React.FC = () => {
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
-                                                <span className="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-white">
+                                                <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${theme.badge}`}>
                                                     {getRecentAduanBadge(aduan)}
                                                 </span>
                                             </div>
-                                            <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/80">
+                                            <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
                                                 Perihal
                                             </p>
-                                            <h3 className="text-[0.92rem] font-semibold leading-snug text-white transition-colors group-hover:text-white/90">
+                                            <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${theme.text}`}>
                                                 {aduan.perihal}
                                             </h3>
-                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 text-white/80">
+                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${theme.muted}`}>
                                                 <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <MapPin size={12} />
                                                     {getRecentAduanLocation(aduan)}
@@ -372,13 +380,14 @@ export const DashboardPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 self-start md:self-center">
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-white/20 transition-all duration-300 group-hover:bg-white group-hover:text-[#34A853]">
-                                                <ArrowUpRight size={14} className="text-white/70 group-hover:text-[#34A853] transition-colors" />
+                                            <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${theme.iconBg}`}>
+                                                <ArrowUpRight size={14} className={`transition-colors ${theme.iconText}`} />
                                             </div>
                                         </div>
                                     </div>
                                 </motion.div>
-                            ))
+                            );
+                            })
                         ) : (
                             <div className="rounded-3xl border border-dashed border-border/60 bg-white/50 py-14 text-center">
                                 <FileText className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />

@@ -184,12 +184,15 @@ export const UserManagementPage: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center justify-between border-b pb-6">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Manajemen Pengguna</h1>
-                    <p className="text-sm text-muted-foreground">Kelola hak akses dan peran pengguna dalam sistem.</p>
+            <div className="relative overflow-hidden border-y border-green-700/50 bg-[#34A853] p-5 shadow-sm sm:rounded-2xl sm:border md:p-6 mb-6">
+                <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                        <h1 className="text-3xl font-bold tracking-tight text-white">Manajemen Pengguna</h1>
+                        <p className="text-[0.92rem] text-white/90">Kelola hak akses dan peran pengguna dalam sistem.</p>
+                    </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 rounded-full bg-white/10 blur-3xl opacity-60" />
+            </div>
                     <Button
                         variant="primary"
                         leftIcon={<UserPlus className="h-4 w-4" />}
