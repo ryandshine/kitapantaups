@@ -43,6 +43,7 @@ import remarkGfm from 'remark-gfm';
 import { useAduanList, useDashboardStats } from '../hooks/useAduan';
 
 export const DashboardPage: React.FC = () => {
+    const dashboardTheme = { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/90", badge: "bg-white/20 text-white border-white/20", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#34A853]", iconText: "text-white group-hover:text-[#34A853]", border: "border-green-700/30" };
     const navigate = useNavigate();
     const [activities, setActivities] = useState<AppActivity[]>([]);
     const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -253,7 +254,7 @@ export const DashboardPage: React.FC = () => {
                     <motion.div variants={itemVariants} className="flex items-center gap-5">
                         <div className="text-right">
                             <p className="text-4xl font-semibold tracking-tight text-white md:text-[2.75rem]">{totalCount}</p>
-                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80">Total Aduan</p>
+                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">Total Aduan</p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
@@ -323,26 +324,25 @@ export const DashboardPage: React.FC = () => {
 
                     <div className="space-y-3">
                         {recentAduan.length > 0 ? (
-                            recentAduan.map((aduan: Aduan, index: number) => {
-                                const theme = getGoogleCardTheme(index);
-                                return (
+                            recentAduan.map((aduan: Aduan) => (
+                                
                                 <motion.div
                                     key={aduan.id}
                                     whileHover={{ scale: 1.005 }}
                                     onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                    className={`group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl ${theme.bg} ${theme.border}`}
+                                    className={cn("group relative cursor-pointer border p-4 transition-all duration-300 hover:shadow-md sm:rounded-2xl", dashboardTheme.bg, dashboardTheme.border)}
                                 >
                                     <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                                         <div className="flex-1 space-y-1.5">
                                             <div className="mb-1 flex items-center gap-2">
                                                 <span className={cn(
-                                                    "h-2 w-2 rounded-full ring-2 ring-white dark:ring-black",
+                                                    "h-2 w-2 rounded-full ring-2 ring-white/50",
                                                     getGoogleStatusDotClass(aduan.status)
                                                 )} />
-                                                <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                                <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${dashboardTheme.muted}`}>
                                                     No Aduan
                                                 </span>
-                                                <span className={`text-[10px] font-semibold tracking-[0.14em] ${theme.text}`}>
+                                                <span className={`text-[10px] font-semibold tracking-[0.14em] ${dashboardTheme.text}`}>
                                                     {aduan.nomor_tiket}
                                                 </span>
                                                 <span className={cn(
@@ -351,17 +351,17 @@ export const DashboardPage: React.FC = () => {
                                                 )}>
                                                     {aduan.prioritas}
                                                 </span>
-                                                <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${theme.badge}`}>
+                                                <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${dashboardTheme.badge}`}>
                                                     {getRecentAduanBadge(aduan)}
                                                 </span>
                                             </div>
-                                            <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                            <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${dashboardTheme.muted}`}>
                                                 Perihal
                                             </p>
-                                            <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${theme.text}`}>
+                                            <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${dashboardTheme.text}`}>
                                                 {aduan.perihal}
                                             </h3>
-                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${theme.muted}`}>
+                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 pt-0.5 ${dashboardTheme.muted}`}>
                                                 <div className="flex items-center gap-1.5 text-[10px] font-medium">
                                                     <MapPin size={12} />
                                                     {getRecentAduanLocation(aduan)}
@@ -380,8 +380,8 @@ export const DashboardPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 self-start md:self-center">
-                                            <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${theme.iconBg}`}>
-                                                <ArrowUpRight size={14} className={`transition-colors ${theme.iconText}`} />
+                                            <div className={`flex h-7.5 w-7.5 items-center justify-center rounded-full transition-all duration-300 ${dashboardTheme.iconBg}`}>
+                                                <ArrowUpRight size={14} className={`transition-colors ${dashboardTheme.iconText}`} />
                                             </div>
                                         </div>
                                     </div>
