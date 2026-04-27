@@ -264,7 +264,7 @@ const normalizeJenisTlLabel = (value?: string) => {
     return LEGACY_JENIS_TL_LABEL_MAP[normalized] || normalized;
 };
 
-const editSectionClass = "rounded-xl border border-border/70 bg-muted/20 p-4";
+const editSectionClass = "rounded-xl border border-[#34A853]/20/70 bg-transparent p-4";
 
 const getFileAccessErrorMessage = async (response: Response) => {
     const contentType = response.headers.get('content-type') || '';
@@ -307,7 +307,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
             onClose={onClose}
             title="Edit Data Aduan"
             description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            className="max-w-4xl rounded-2xl border-border/80 bg-white p-6"
+            className="max-w-4xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
             size="xl"
         >
             <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -328,7 +328,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     />
                 </div>
 
-                <div className="bg-muted/25 p-4 rounded-xl border border-border/70">
+                <div className="bg-muted/25 p-4 rounded-xl border border-[#34A853]/20/70">
                     <label className="block text-sm font-semibold text-[#34A853] mb-2 flex items-center gap-2">
                         <Sparkles size={16} />
                         Identitas Kelompok / KPS
@@ -345,23 +345,23 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     {editSelectedKpsList.length > 0 && (
                         <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="mb-1 flex flex-wrap items-center gap-2">
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total KPS: {editSelectedKpsList.length}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total luas_total: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.luas_total ?? item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total anggota_pria: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_pria) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total anggota_wanita: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_wanita) || 0), 0).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {editSelectedKpsList.map((kps) => {
                                 const kpsId = getNormalizedKpsId(kps);
                                 return (
-                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-white rounded-md border border-border shadow-sm">
+                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-transparent rounded-md border border-[#34A853]/20 shadow-sm">
                                     <div className="mb-2 flex justify-end">
                                         <button
                                             type="button"
@@ -430,7 +430,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     </div>
                 )}
 
-                <div className="bg-muted/25 p-4 rounded-xl border border-border/70 space-y-4">
+                <div className="bg-muted/25 p-4 rounded-xl border border-[#34A853]/20/70 space-y-4">
                     <label className="block text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
                         <User size={16} className="text-[#34A853]" />
                         Identitas Pengadu
@@ -532,7 +532,7 @@ const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     />
                 </div>
 
-                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
+                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                     <Button
                         type="button"
                         variant="ghost"
@@ -1631,7 +1631,7 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const problemDescriptionCard = (
-        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
             <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02]">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#34A853]/10 text-[#34A853]">
@@ -1738,32 +1738,32 @@ export const AduanDetailPage: React.FC = () => {
             {lokasiObjekItems.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4 avoid-break">
                     <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-[#34A853]">LOKASI OBJEK</h3>
-                    <table className="w-full text-xs border-collapse border border-border">
+                    <table className="w-full text-xs border-collapse border border-[#34A853]/20">
                         <thead>
                             <tr className="bg-muted">
-                                <th className="p-1.5 border border-border text-left">id</th>
-                                <th className="p-1.5 border border-border text-left">nama_lembaga</th>
-                                <th className="p-1.5 border border-border text-left">surat_keputusan</th>
-                                <th className="p-1.5 border border-border text-left">skema</th>
-                                <th className="p-1.5 border border-border text-left">provinsi</th>
-                                <th className="p-1.5 border border-border text-left">kabupaten</th>
-                                <th className="p-1.5 border border-border text-left">luas_total</th>
-                                <th className="p-1.5 border border-border text-left">anggota_pria</th>
-                                <th className="p-1.5 border border-border text-left">anggota_wanita</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">id</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">nama_lembaga</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">surat_keputusan</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">skema</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">provinsi</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">kabupaten</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">luas_total</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">anggota_pria</th>
+                                <th className="p-1.5 border border-[#34A853]/20 text-left">anggota_wanita</th>
                             </tr>
                         </thead>
                         <tbody>
                             {lokasiObjekItems.map((item, index) => (
                                 <tr key={`print-kps-${index}`}>
-                                    <td className="p-1.5 border border-border">{item.idApiKps}</td>
-                                    <td className="p-1.5 border border-border">{item.namaKps}</td>
-                                    <td className="p-1.5 border border-border">{item.noSk}</td>
-                                    <td className="p-1.5 border border-border">{item.kpsType}</td>
-                                    <td className="p-1.5 border border-border">{item.provinsi}</td>
-                                    <td className="p-1.5 border border-border">{item.kabupaten}</td>
-                                    <td className="p-1.5 border border-border">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
-                                    <td className="p-1.5 border border-border">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
-                                    <td className="p-1.5 border border-border">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.idApiKps}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.namaKps}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.noSk}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.kpsType}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.provinsi}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{item.kabupaten}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-[#34A853]/20">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1820,7 +1820,7 @@ export const AduanDetailPage: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => navigate('/pengaduan')}
-                                    className="h-8 rounded-lg px-2.5 text-white/80 hover:bg-white/10 hover:text-white"
+                                    className="h-8 rounded-lg px-2.5 text-white/80 hover:bg-transparent/10 hover:text-white"
                                     leftIcon={<ArrowLeft size={14} />}
                                 >
                                     Kembali
@@ -1835,7 +1835,7 @@ export const AduanDetailPage: React.FC = () => {
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
                                     <h1 className="text-xl font-semibold tracking-tight text-white md:text-2xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none bg-white/20 text-white border-white/10" />
+                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none bg-transparent/20 text-white border-white/10" />
                                 </div>
                                 <p className="max-w-3xl text-[0.92rem] leading-relaxed text-white/90">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
@@ -1844,7 +1844,7 @@ export const AduanDetailPage: React.FC = () => {
                         <div className="flex flex-col gap-3 xl:items-stretch">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
-                                    <div key={card.label} className="rounded-2xl border border-white/20 bg-white/10 p-3 shadow-sm">
+                                    <div key={card.label} className="rounded-2xl border border-white/20 bg-transparent/10 p-3 shadow-sm">
                                         <div className="flex items-center justify-between gap-2">
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">{card.label}</p>
                                             <card.icon size={13} className="text-white/80" />
@@ -1861,7 +1861,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<FileText size={15} />}
                                     onClick={handlePrint}
-                                    className="h-9 rounded-xl px-4 bg-white/20 text-white border-white/20 hover:bg-white/30 hover:text-white"
+                                    className="h-9 rounded-xl px-4 bg-transparent/20 text-white border-white/20 hover:bg-transparent/30 hover:text-white"
                                     isLoading={isExportingPdf}
                                 >
                                     PDF
@@ -1871,7 +1871,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<Upload size={15} />}
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-9 rounded-xl px-4 bg-white/20 text-white border-white/20 hover:bg-white/30 hover:text-white"
+                                    className="h-9 rounded-xl px-4 bg-transparent/20 text-white border-white/20 hover:bg-transparent/30 hover:text-white"
                                 >
                                     Upload
                                 </Button>
@@ -1914,7 +1914,7 @@ export const AduanDetailPage: React.FC = () => {
                         <div className="flex justify-between items-start gap-4">
                             <h3 className="font-semibold text-destructive text-sm uppercase tracking-wider">Aduan Ditolak</h3>
                             {aduan.ditolakAt && (
-                                <span className="text-[10px] bg-white/50 px-2 py-0.5 rounded-md text-destructive font-medium border border-destructive/10">
+                                <span className="text-[10px] bg-transparent/50 px-2 py-0.5 rounded-md text-destructive font-medium border border-destructive/10">
                                     {new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(aduan.ditolakAt))}
                                 </span>
                             )}
@@ -1930,7 +1930,7 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden border border-[#34A853]/30 bg-white p-5 dark:bg-card sm:rounded-2xl shadow-sm"
+                    className="no-print relative overflow-hidden border border-[#34A853]/30 bg-[#34A853]/[0.04] p-5 sm:rounded-2xl shadow-sm"
                 >
                     <div className="mb-3 flex items-center gap-2">
                         <Settings size={15} className="text-muted-foreground" />
@@ -1988,7 +1988,7 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 xl:col-span-8">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
                     <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                             <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <User className="h-4 w-4" />
@@ -2036,7 +2036,7 @@ export const AduanDetailPage: React.FC = () => {
                             </CardContent>
                         </Card>
 
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                             <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                                 <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <FileText className="h-4 w-4" />
@@ -2047,7 +2047,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Nomor Surat</span>
-                                        <span className="font-semibold text-foreground text-[11px] font-mono bg-muted px-2 py-1 rounded border border-border">{aduan.suratMasuk.nomorSurat}</span>
+                                        <span className="font-semibold text-foreground text-[11px] font-mono bg-muted px-2 py-1 rounded border border-[#34A853]/20">{aduan.suratMasuk.nomorSurat}</span>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Tgl Masuk</span>
@@ -2057,7 +2057,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Asal & Perihal</span>
                                     <div className="space-y-1.5">
-                                        <Badge variant="outline" className="bg-muted/60 text-[#34A853] border-border font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
+                                        <Badge variant="outline" className="bg-[#34A853]/10 text-[#34A853] border-[#34A853]/20 font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
                                         <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
                                             {aduan.suratMasuk.perihal || <span className="text-muted-foreground/60 italic font-medium">Tidak dicantumkan</span>}
                                         </p>
@@ -2067,7 +2067,7 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
-                    <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                    <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                         <CardHeader className="border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5">
                             <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                 <MapPin className="h-4 w-4" />
@@ -2076,27 +2076,27 @@ export const AduanDetailPage: React.FC = () => {
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total luas_total: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total anggota_pria: {totalAnggotaPriaObjek.toLocaleString('id-ID')}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-muted text-foreground border-border">
+                                <Badge variant="outline" className="text-[10px] bg-[#34A853]/10 text-[#34A853] border-transparent">
                                     Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {lokasiObjekItems.length === 0 ? (
-                                <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">
+                                <div className="rounded-xl border border-dashed border-[#34A853]/20 bg-transparent p-4 text-sm text-muted-foreground">
                                     Belum ada KPS yang tertaut pada aduan ini.
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-2.5">
                                     {lokasiObjekItems.map((item, index) => (
-                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border/80 bg-white p-3">
+                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-[#34A853]/20/80 bg-transparent p-3">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
                                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">id</span>
@@ -2146,7 +2146,7 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                             <CardHeader
                                 className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] py-3.5"
                                 action={
@@ -2170,7 +2170,7 @@ export const AduanDetailPage: React.FC = () => {
                             </CardHeader>
                             <CardContent className="p-5">
                                 {!canInputRiwayatPenanganan && (
-                                    <p className="mb-4 rounded-lg border border-border bg-muted/40 px-3 py-2 text-[11px] font-medium text-muted-foreground">
+                                    <p className="mb-4 rounded-lg border border-[#34A853]/20 bg-[#34A853]/10 px-3 py-2 text-[11px] font-medium text-[#34A853]">
                                         Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
@@ -2181,7 +2181,7 @@ export const AduanDetailPage: React.FC = () => {
                                         </p>
                                     ) : (
                                         qTindakLanjutList.map((tl, index) => (
-                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border/80 bg-white p-3.5 shadow-sm">
+                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-[#34A853]/20/80 bg-transparent p-3.5 shadow-sm">
                                                 {/* Decorative element */}
                                                 <div className={cn(
                                                     "absolute left-0 top-0 bottom-0 w-1",
@@ -2199,12 +2199,12 @@ export const AduanDetailPage: React.FC = () => {
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-[11px] font-bold text-foreground uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
-                                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-white border-border text-muted-foreground font-mono">
+                                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-[#34A853]/10 border-transparent text-[#34A853] font-mono">
                                                                     {tl.nomorSuratOutput}
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium bg-white px-2 py-0.5 rounded-full border border-border">
+                                                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium bg-transparent px-2 py-0.5 rounded-full border border-[#34A853]/20">
                                                             <Calendar size={10} />
                                                             {formatDate(tl.tanggal)}
                                                         </div>
@@ -2212,7 +2212,7 @@ export const AduanDetailPage: React.FC = () => {
                                                     <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-muted-foreground">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
-                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
+                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#34A853]/20 pt-2">
                                                             <div className="flex items-center gap-2">
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
@@ -2224,7 +2224,7 @@ export const AduanDetailPage: React.FC = () => {
                                                                                 key={i}
                                                                                 type="button"
                                                                                 onClick={() => void openProtectedFile(url, displayName)}
-                                                                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-muted text-foreground hover:bg-muted transition-colors text-[10px] font-medium border border-border"
+                                                                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-muted text-foreground hover:bg-muted transition-colors text-[10px] font-medium border border-[#34A853]/20"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
@@ -2273,7 +2273,7 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                             <CardContent className="space-y-4 p-5">
                                 <div>
                                     <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
@@ -2287,7 +2287,7 @@ export const AduanDetailPage: React.FC = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-muted/20 p-3">
+                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-[#34A853]/20/70 bg-transparent p-3">
                                     <div>
                                         <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
                                         <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{lokasiObjekItems.length}</p>
@@ -2303,7 +2303,7 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Resources */}
                     <div>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 shadow-sm">
+                        <Card className="overflow-hidden rounded-2xl border border-[#34A853]/30 bg-[#34A853]/[0.04] shadow-sm">
                             <CardHeader className="flex flex-row items-center justify-between border-b border-[#34A853]/20 bg-[#34A853]/[0.02] pb-3">
                                 <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-foreground">Lampiran & Berkas</CardTitle>
                                 <div className="flex items-center gap-2">
@@ -2311,7 +2311,7 @@ export const AduanDetailPage: React.FC = () => {
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-border hover:bg-muted"
+                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-[#34A853]/20 hover:bg-muted"
                                             onClick={handleDownloadZip}
                                             disabled={isDownloadingZip}
                                         >
@@ -2322,7 +2322,7 @@ export const AduanDetailPage: React.FC = () => {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-border hover:bg-muted"
+                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-[#34A853]/20 hover:bg-muted"
                                         onClick={() => setIsUploadModalOpen(true)}
                                     >
                                         <Upload size={12} className="mr-1.5" /> Upload
@@ -2333,13 +2333,13 @@ export const AduanDetailPage: React.FC = () => {
                                 {/* Unified Attachment List */}
                                 <div className="flex flex-col gap-2.5">
                                     {allAttachments.length === 0 && (
-                                        <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-center text-xs text-muted-foreground">
+                                        <div className="rounded-xl border border-dashed border-[#34A853]/20 bg-transparent p-4 text-center text-xs text-muted-foreground">
                                             Belum ada lampiran
                                         </div>
                                     )}
 
                                     {allAttachments.map((file) => (
-                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-white p-3 transition-all hover:border-border hover:bg-muted/60">
+                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-transparent p-3 transition-all hover:border-[#34A853]/20 hover:bg-[#34A853]/10">
                                             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-[#34A853]">
                                                 {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
@@ -2393,11 +2393,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={() => setIsTLModalOpen(false)}
                 title="Tambah Dokumen"
                 description="Catat dokumen atau hasil penanganan terbaru agar jejak proses aduan tetap lengkap."
-                className="max-w-3xl rounded-2xl border-border/80 bg-white p-6"
+                className="max-w-3xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
                 size="xl"
             >
                 <form onSubmit={handleTLSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
+                    <div className="rounded-xl border border-[#34A853]/20/70 bg-muted/25 p-4 space-y-4">
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2434,7 +2434,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-border/70 bg-muted/20 p-4">
+                    <div className="space-y-2 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
                         <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                             Upload Dokumen / Foto (Opsional)
                         </label>
@@ -2453,7 +2453,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2479,11 +2479,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={resetEditTlForm}
                 title="Edit Dokumen"
                 description="Perbarui catatan dokumen atau tindak lanjut tanpa membuat catatan baru."
-                className="max-w-3xl rounded-2xl border-border/80 bg-white p-6"
+                className="max-w-3xl rounded-2xl border-[#34A853]/20 bg-transparent p-6"
                 size="xl"
             >
                 <form onSubmit={handleEditTlSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-border/70 bg-muted/25 p-4 space-y-4">
+                    <div className="rounded-xl border border-[#34A853]/20/70 bg-muted/25 p-4 space-y-4">
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2520,7 +2520,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-3 rounded-xl border border-border/70 bg-muted/20 p-4">
+                    <div className="space-y-3 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
                         <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                             Lampiran Saat Ini
                         </label>
@@ -2531,7 +2531,7 @@ export const AduanDetailPage: React.FC = () => {
                                 {editTlForm.fileUrls.map((url, idx) => {
                                     const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${idx + 1}`;
                                     return (
-                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-white border border-border text-[10px] font-medium">
+                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-transparent border border-[#34A853]/20 text-[10px] font-medium">
                                             <FileText size={10} />
                                             <span className="max-w-[180px] truncate">{fileName}</span>
                                             <button
@@ -2549,7 +2549,7 @@ export const AduanDetailPage: React.FC = () => {
                         )}
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-border/70 bg-muted/20 p-4">
+                    <div className="space-y-2 rounded-xl border border-[#34A853]/20/70 bg-transparent p-4">
                         <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
                             Tambah Lampiran Baru (Opsional)
                         </label>
@@ -2565,7 +2565,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border/80 bg-white/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-[#34A853]/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2645,7 +2645,7 @@ export const AduanDetailPage: React.FC = () => {
             >
                 <div className="flex flex-col gap-5">
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="p-4 bg-muted border border-border rounded-lg mb-4">
+                        <div className="p-4 bg-muted border border-[#34A853]/20 rounded-lg mb-4">
                             <h4 className="text-sm font-semibold text-[#34A853] mb-1 flex items-center gap-2">
                                 <FileText size={16} />
                                 Upload Dokumen Pendukung
