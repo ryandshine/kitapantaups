@@ -58,76 +58,76 @@
 
 @layer base {
   :root {
-    --background: 210 66% 44%;
-    --foreground: 199 64% 73%;
-    --card: 199 64% 73%;
-    --card-foreground: 210 66% 44%;
-    --popover: 199 64% 73%;
-    --popover-foreground: 210 66% 44%;
-    --primary: 18 90% 43%;
+    --background: 214 100% 98%;
+    --foreground: 222 33% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 33% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 33% 14%;
+    --primary: 217 89% 61%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 31 100% 46%;
+    --secondary: 122 53% 43%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 210 66% 39%;
-    --muted-foreground: 199 64% 84%;
-    --accent: 43 100% 51%;
-    --accent-foreground: 210 66% 44%;
-    --destructive: 18 90% 43%;
+    --muted: 215 75% 96%;
+    --muted-foreground: 217 24% 44%;
+    --accent: 45 97% 50%;
+    --accent-foreground: 222 33% 14%;
+    --destructive: 4 81% 57%;
     --destructive-foreground: 0 0% 100%;
-    --border: 199 64% 73%;
-    --input: 199 64% 73%;
-    --ring: 43 100% 51%;
+    --border: 214 45% 89%;
+    --input: 214 45% 89%;
+    --ring: 217 89% 61%;
     --radius: 0.5rem;
-    --chart-1: 18 90% 43%;
-    --chart-2: 31 100% 46%;
-    --chart-3: 43 100% 51%;
-    --chart-4: 199 64% 73%;
-    --chart-5: 210 66% 44%;
+    --chart-1: 217 89% 61%;
+    --chart-2: 122 53% 43%;
+    --chart-3: 45 97% 50%;
+    --chart-4: 4 81% 57%;
+    --chart-5: 217 56% 38%;
 
-    --sidebar: 210 66% 44%;
-    --sidebar-foreground: 199 64% 73%;
-    --sidebar-primary: 18 90% 43%;
+    --sidebar: 217 56% 38%;
+    --sidebar-foreground: 214 100% 96%;
+    --sidebar-primary: 4 81% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 199 64% 73%;
-    --sidebar-accent-foreground: 210 66% 44%;
-    --sidebar-border: 199 64% 73%;
-    --sidebar-ring: 43 100% 51%;
+    --sidebar-accent: 217 89% 61%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 47% 47%;
+    --sidebar-ring: 45 97% 50%;
   }
 
   .dark {
-    --background: 210 66% 44%;
-    --foreground: 199 64% 73%;
-    --card: 199 64% 73%;
-    --card-foreground: 210 66% 44%;
-    --popover: 199 64% 73%;
-    --popover-foreground: 210 66% 44%;
-    --primary: 18 90% 43%;
+    --background: 214 100% 98%;
+    --foreground: 222 33% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 33% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 33% 14%;
+    --primary: 217 89% 61%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 31 100% 46%;
+    --secondary: 122 53% 43%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 210 66% 39%;
-    --muted-foreground: 199 64% 84%;
-    --accent: 43 100% 51%;
-    --accent-foreground: 210 66% 44%;
-    --destructive: 18 90% 43%;
+    --muted: 215 75% 96%;
+    --muted-foreground: 217 24% 44%;
+    --accent: 45 97% 50%;
+    --accent-foreground: 222 33% 14%;
+    --destructive: 4 81% 57%;
     --destructive-foreground: 0 0% 100%;
-    --border: 199 64% 73%;
-    --input: 199 64% 73%;
-    --ring: 43 100% 51%;
-    --chart-1: 18 90% 43%;
-    --chart-2: 31 100% 46%;
-    --chart-3: 43 100% 51%;
-    --chart-4: 199 64% 73%;
-    --chart-5: 210 66% 44%;
+    --border: 214 45% 89%;
+    --input: 214 45% 89%;
+    --ring: 217 89% 61%;
+    --chart-1: 217 89% 61%;
+    --chart-2: 122 53% 43%;
+    --chart-3: 45 97% 50%;
+    --chart-4: 4 81% 57%;
+    --chart-5: 217 56% 38%;
 
-    --sidebar: 210 66% 44%;
-    --sidebar-foreground: 199 64% 73%;
-    --sidebar-primary: 18 90% 43%;
+    --sidebar: 217 56% 38%;
+    --sidebar-foreground: 214 100% 96%;
+    --sidebar-primary: 4 81% 57%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 199 64% 73%;
-    --sidebar-accent-foreground: 210 66% 44%;
-    --sidebar-border: 199 64% 73%;
-    --sidebar-ring: 43 100% 51%;
+    --sidebar-accent: 217 89% 61%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217 47% 47%;
+    --sidebar-ring: 45 97% 50%;
   }
 
   * {
@@ -146,7 +146,7 @@
 
 @layer base {
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   .bg-white {
