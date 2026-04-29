@@ -142,3 +142,7 @@ jdk-21/
 
 server/uploads/*
 !server/uploads/.gitkeep
+
+# Codex workspace artifacts
+.codex/
+screenshot/
