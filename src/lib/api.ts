@@ -12,6 +12,25 @@ if (!API_URL) {
 
 let accessToken: string | null = null
 
+const isNetworkError = (error: unknown): error is TypeError =>
+  error instanceof TypeError &&
+  (error.message === 'Failed to fetch' || error.message.includes('NetworkError'))
+
+const getErrorDetails = (error: unknown) => {
+  if (error instanceof Error) {
+    return {
+      error,
+      message: error.message,
+      stack: error.stack,
+    }
+  }
+  return {
+    error,
+    message: String(error),
+    stack: undefined,
+  }
+}
+
 export function getAccessToken(): string | null {
   return accessToken
 }
@@ -63,9 +82,9 @@ export async function authorizedFetch(input: string, options: RequestInit = {}, 
       headers,
       credentials: options.credentials ?? 'include',
     })
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Authorized Fetch Error:', err)
-    if (err.name === 'TypeError' && (err.message === 'Failed to fetch' || err.message.includes('NetworkError'))) {
+    if (isNetworkError(err)) {
       throw new Error(`Gagal terhubung ke API: ${fullUrl}.`)
     }
     throw err
@@ -92,7 +111,7 @@ export async function authorizedFetch(input: string, options: RequestInit = {}, 
   return res
 }
 
-export async function apiFetch(path: string, options: RequestInit = {}, allowRetry = true): Promise<any> {
+export async function apiFetch<T = unknown>(path: string, options: RequestInit = {}, allowRetry = true): Promise<T> {
   const token = getAccessToken()
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -108,16 +127,17 @@ export async function apiFetch(path: string, options: RequestInit = {}, allowRet
   try {
     console.debug(`API Request: ${options.method || 'GET'} ${fullUrl}`)
     res = await fetch(fullUrl, { ...options, headers, credentials: 'include' })
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const details = getErrorDetails(err)
     console.error('API Fetch Error Details:', {
       url: fullUrl,
       method: options.method || 'GET',
-      error: err,
-      message: err.message,
-      stack: err.stack
+      error: details.error,
+      message: details.message,
+      stack: details.stack
     })
     
-    if (err.name === 'TypeError' && (err.message === 'Failed to fetch' || err.message.includes('NetworkError'))) {
+    if (isNetworkError(err)) {
       throw new Error(`Gagal terhubung ke API: ${fullUrl}. Periksa koneksi internet, sertifikat SSL, atau status server (CORS/Down).`)
     }
     throw err
@@ -137,9 +157,9 @@ export async function apiFetch(path: string, options: RequestInit = {}, allowRet
       }
       try {
         res = await fetch(fullUrl, { ...options, headers: retryHeaders, credentials: 'include' })
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('API Retry Fetch Error:', err)
-        if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        if (err instanceof TypeError && err.message === 'Failed to fetch') {
           throw new Error(`Gagal terhubung ke API saat mencoba ulang (${fullUrl}).`)
         }
         throw err
@@ -175,14 +195,14 @@ export async function apiFetch(path: string, options: RequestInit = {}, allowRet
     throw new Error(errMessage)
   }
 
-  if (res.status === 204) return null
-  return res.json()
+  if (res.status === 204) return null as T
+  return res.json() as Promise<T>
 }
 
 export const api = {
-  get: (path: string) => apiFetch(path),
-  post: (path: string, body: any) => apiFetch(path, { method: 'POST', body: JSON.stringify(body) }),
-  patch: (path: string, body: any) => apiFetch(path, { method: 'PATCH', body: JSON.stringify(body) }),
-  put: (path: string, body: any) => apiFetch(path, { method: 'PUT', body: JSON.stringify(body) }),
-  delete: (path: string) => apiFetch(path, { method: 'DELETE' }),
+  get: <T = unknown>(path: string) => apiFetch<T>(path),
+  post: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'POST', body: JSON.stringify(body) }),
+  patch: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  put: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: <T = unknown>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
 }

@@ -1,5 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UserService } from '../lib/user.service';
+import type { User } from '../types';
+
+type CreateUserInput = {
+    email: string;
+    password: string;
+    displayName: string;
+    role: User['role'];
+};
 
 export const useUsersList = (enabled: boolean = true) => {
     return useQuery({
@@ -12,7 +20,7 @@ export const useUsersList = (enabled: boolean = true) => {
 export const useCreateUser = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ email, password, displayName, role }: any) =>
+        mutationFn: ({ email, password, displayName, role }: CreateUserInput) =>
             UserService.createUser(email, password, displayName, role),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users', 'list'] });

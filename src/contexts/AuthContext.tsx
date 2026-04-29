@@ -2,6 +2,28 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, setTokens, clearTokens, refreshAccessToken, getAccessToken } from '../lib/api';
 import type { User } from '../types';
 
+type AuthMeResponse = {
+    id: string;
+    email: string;
+    display_name?: string;
+    role: User['role'];
+    phone?: string;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
+};
+
+type LoginResponse = {
+    access_token: string;
+    user: {
+        id: string;
+        email: string;
+        display_name?: string;
+        role: User['role'];
+        phone?: string;
+    };
+};
+
 interface AuthContextType {
     user: User | null;
     session: null;
@@ -24,6 +46,11 @@ const fallbackDisplayName = (displayName: string | undefined, email: string | un
     return 'User';
 };
 
+const getErrorMessage = (error: unknown) => {
+    if (error instanceof Error && error.message) return error.message;
+    return 'Login gagal.';
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -40,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     }
                 }
 
-                const data = await api.get('/auth/me');
+                const data = await api.get<AuthMeResponse>('/auth/me');
                 setUser({
                     id: data.id,
                     email: data.email,
@@ -66,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(true);
         setError(null);
         try {
-            const data = await api.post('/auth/login', { email, password });
+            const data = await api.post<LoginResponse>('/auth/login', { email, password });
             setTokens(data.access_token);
             setUser({
                 id: data.user.id,
@@ -78,8 +105,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
-        } catch (err: any) {
-            setError(err.message || 'Login gagal.');
+        } catch (err: unknown) {
+            setError(getErrorMessage(err));
             throw err;
         } finally {
             setLoading(false);
@@ -108,7 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 }
             }
 
-            const data = await api.get('/auth/me');
+            const data = await api.get<AuthMeResponse>('/auth/me');
             setUser({
                 id: data.id,
                 email: data.email,

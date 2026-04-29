@@ -1,12 +1,14 @@
 import { api } from './api';
 import type { AppSettings } from '../types';
 
+type SettingsMap = Record<string, string | undefined>;
+
 export const SettingsService = {
     getSettings: async (): Promise<AppSettings> => {
         try {
-            const map = await api.get('/settings');
+            const map = await api.get<SettingsMap>('/settings');
             return {
-                ai_provider: (map.ai_provider as any) || 'openrouter',
+                ai_provider: map.ai_provider === 'gemini' ? 'gemini' : 'openrouter',
                 openrouter_api_key: map.openrouter_api_key || '',
                 openrouter_model: map.openrouter_model || '',
                 gemini_api_key: map.gemini_api_key || '',
@@ -27,7 +29,7 @@ export const SettingsService = {
 
     getSetting: async (key: string): Promise<string | null> => {
         try {
-            const map = await api.get('/settings');
+            const map = await api.get<SettingsMap>('/settings');
             return map[key] || null;
         } catch {
             return null;

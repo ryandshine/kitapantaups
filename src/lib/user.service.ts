@@ -1,7 +1,20 @@
 import { api } from './api';
 import type { User } from '../types';
 
-const mapUser = (u: any): User => ({
+type UserApiRow = {
+    id: string;
+    email: string;
+    display_name: string;
+    role: User['role'];
+    phone?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+};
+
+type UserProfileUpdateInput = Partial<User> & { password?: string };
+
+const mapUser = (u: UserApiRow): User => ({
     id: u.id,
     email: u.email,
     displayName: u.display_name,
@@ -15,7 +28,7 @@ const mapUser = (u: any): User => ({
 export const UserService = {
     getAllUsers: async (): Promise<User[]> => {
         try {
-            const data = await api.get('/users');
+            const data = await api.get('/users') as UserApiRow[];
             return (data || []).map(mapUser);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -23,7 +36,7 @@ export const UserService = {
         }
     },
 
-    createUser: async (email: string, password: string, displayName: string, role: string) => {
+    createUser: async (email: string, password: string, displayName: string, role: User['role']) => {
         try {
             await api.post('/users', { email, password, display_name: displayName, role });
             return true;
@@ -33,7 +46,7 @@ export const UserService = {
         }
     },
 
-    updateUserRole: async (userId: string, role: string) => {
+    updateUserRole: async (userId: string, role: User['role']) => {
         try {
             await api.patch(`/users/${userId}`, { role });
             return true;
@@ -63,14 +76,14 @@ export const UserService = {
         }
     },
 
-    updateUserProfile: async (userId: string, data: Partial<User> & { password?: string }) => {
+    updateUserProfile: async (userId: string, data: UserProfileUpdateInput) => {
         try {
-            const payload: any = {};
+            const payload: Record<string, unknown> = {};
             if (data.displayName) payload.display_name = data.displayName;
             if (data.phone !== undefined) payload.phone = data.phone;
             if (data.role) payload.role = data.role;
             if (data.isActive !== undefined) payload.is_active = data.isActive;
-            if ((data as any).password) payload.password = (data as any).password;
+            if (data.password) payload.password = data.password;
             await api.patch(`/users/${userId}`, payload);
             return true;
         } catch (error) {
@@ -81,7 +94,7 @@ export const UserService = {
 
     updateMe: async (data: { displayName?: string; phone?: string }) => {
         try {
-            const payload: any = {};
+            const payload: Record<string, unknown> = {};
             if (data.displayName) payload.display_name = data.displayName;
             if (data.phone !== undefined) payload.phone = data.phone;
             await api.patch('/auth/profile', payload);

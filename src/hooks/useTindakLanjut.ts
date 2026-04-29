@@ -1,11 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { AduanService } from '../lib/aduan.service';
-import type { CreateTindakLanjutDTO } from '../types';
+import { AduanFollowUpService } from '../lib/aduan.followups';
+import type { CreateTindakLanjutDTO, TindakLanjut } from '../types';
+
+type UpdateTindakLanjutInput = Partial<TindakLanjut> & { id: string };
 
 export const useTindakLanjutList = (aduanId: string | undefined) => {
     return useQuery({
         queryKey: ['aduan', 'tindak-lanjut', aduanId],
-        queryFn: () => (aduanId ? AduanService.getTindakLanjutList(aduanId) : []),
+        queryFn: () => (aduanId ? AduanFollowUpService.getTindakLanjutList(aduanId) : []),
         enabled: !!aduanId,
     });
 };
@@ -13,7 +15,7 @@ export const useTindakLanjutList = (aduanId: string | undefined) => {
 export const useCreateTindakLanjut = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: CreateTindakLanjutDTO) => AduanService.createTindakLanjut(data),
+        mutationFn: (data: CreateTindakLanjutDTO) => AduanFollowUpService.createTindakLanjut(data),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });
             queryClient.invalidateQueries({ queryKey: ['aduan', 'tindak-lanjut', variables.aduanId] });
@@ -24,7 +26,7 @@ export const useCreateTindakLanjut = () => {
 export const useDeleteTindakLanjut = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => AduanService.deleteTindakLanjut(id),
+        mutationFn: (id: string) => AduanFollowUpService.deleteTindakLanjut(id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });
             queryClient.invalidateQueries({ queryKey: ['aduan', 'tindak-lanjut'] });
@@ -35,7 +37,7 @@ export const useDeleteTindakLanjut = () => {
 export const useUpdateTindakLanjut = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (data: any) => AduanService.updateTindakLanjut(data),
+        mutationFn: (data: UpdateTindakLanjutInput) => AduanFollowUpService.updateTindakLanjut(data),
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });
             queryClient.invalidateQueries({ queryKey: ['aduan', 'tindak-lanjut', variables.aduanId] });

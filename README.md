@@ -53,6 +53,33 @@ BASE_URL=http://localhost:3001
 - Frontend build check: `npm run build`
 - Backend unit tests: `cd server && npm test`
 
+## Docker Deploy
+
+Stack Docker sekarang tersedia untuk deployment baru:
+
+1. Salin env deploy:
+   `cp .env.deploy.example .env`
+2. Ubah minimal:
+   - `POSTGRES_PASSWORD`
+   - `JWT_SECRET`
+   - `JWT_REFRESH_SECRET`
+   - `PUBLIC_API_URL`
+   - `PUBLIC_WEB_ORIGIN`
+3. Jalankan stack:
+   `docker compose up --build -d`
+4. Aplikasi akan tersedia di:
+   - frontend: `http://localhost:8080`
+   - backend: `http://localhost:3001`
+
+Catatan penting:
+
+- Frontend Vite memakai `VITE_API_URL` saat build. Nilai `PUBLIC_API_URL` harus berupa URL yang bisa diakses browser pengguna, bukan nama service internal Docker seperti `http://api:3001`.
+- Bootstrap database untuk deployment baru memakai `scripts/init_db_current.sql`.
+- Jangan replay seluruh migration legacy ke database kosong. Ada migration historis yang dibuat untuk transisi data lama, bukan untuk bootstrap environment baru.
+- Volume `api_uploads` menyimpan dokumen upload backend.
+- Setelah stack hidup, sinkronisasi data KPS masih perlu dijalankan jika environment baru belum punya data master:
+  `docker compose exec api npm run sync:kps:gokups`
+
 ## Catatan Keamanan
 
 - Endpoint `/uploads/*` sekarang membutuhkan autentikasi.

@@ -34,6 +34,12 @@ import {
 import type { User } from '../types';
 import { cn } from '../lib/utils';
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error && error.message ? error.message : fallback;
+
+const isUserRole = (value: string): value is User['role'] =>
+    value === 'admin' || value === 'staf';
+
 const UserAvatar: React.FC<{ user: User }> = ({ user }) => {
     const safeDisplayName = (user.displayName || '').trim() || user.email?.split('@')[0] || 'User';
     const safeInitial = safeDisplayName.charAt(0).toUpperCase();
@@ -77,7 +83,7 @@ export const UserManagementPage: React.FC = () => {
         return () => window.clearTimeout(timeout);
     }, [feedback]);
 
-    const handleRoleChange = async (userId: string, newRole: any) => {
+    const handleRoleChange = async (userId: string, newRole: User['role']) => {
         setUpdatingUserId(userId);
         updateUserRole({ userId, newRole }, {
             onSettled: () => setUpdatingUserId(null),
@@ -159,8 +165,8 @@ export const UserManagementPage: React.FC = () => {
                 setNewUserForm({ email: '', password: '', displayName: '', role: 'staf' });
                 setFeedback({ type: 'success', message: 'Pengguna baru berhasil dibuat.' });
             },
-            onError: (error: any) => {
-                setFeedback({ type: 'error', message: `Gagal membuat user: ${error.message}` });
+            onError: (error: unknown) => {
+                setFeedback({ type: 'error', message: `Gagal membuat user: ${getErrorMessage(error, 'Terjadi kesalahan.')}` });
             }
         });
     };
@@ -272,7 +278,11 @@ export const UserManagementPage: React.FC = () => {
                                                 <div className="flex items-center gap-2 max-w-[140px]">
                                                     <Select
                                                         value={u.role}
-                                                        onChange={(val) => handleRoleChange(u.id, val)}
+                                                        onChange={(val) => {
+                                                            if (isUserRole(val)) {
+                                                                void handleRoleChange(u.id, val);
+                                                            }
+                                                        }}
                                                         disabled={u.id === currentUser?.id || updatingUserId === u.id}
                                                         options={[
                                                             { value: 'admin', label: 'Admin' },

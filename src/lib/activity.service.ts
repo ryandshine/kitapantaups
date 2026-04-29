@@ -1,6 +1,17 @@
 import { api } from './api';
 import type { AppActivity, ActivityType } from '../types';
 
+type ActivityApiRow = {
+    id: string;
+    type: ActivityType;
+    description: string;
+    aduan_id?: string;
+    user_id: string;
+    user_name: string;
+    created_at: string;
+    metadata?: Record<string, unknown>;
+};
+
 export const ActivityService = {
     logActivity: async (data: {
         type: ActivityType;
@@ -8,7 +19,7 @@ export const ActivityService = {
         aduanId?: string;
         userId: string;
         userName: string;
-        metadata?: any;
+        metadata?: Record<string, unknown>;
     }) => {
         try {
             await api.post('/activities', {
@@ -28,10 +39,10 @@ export const ActivityService = {
 
     getRecentActivities: async (limit: number = 10): Promise<AppActivity[]> => {
         try {
-            const rows = await api.get(`/activities?limit=${limit}`);
-            return (rows || []).map((row: any) => ({
+            const rows = await api.get<ActivityApiRow[]>(`/activities?limit=${limit}`);
+            return (rows || []).map((row) => ({
                 id: row.id,
-                type: row.type as ActivityType,
+                type: row.type,
                 description: row.description,
                 aduanId: row.aduan_id,
                 userId: row.user_id,

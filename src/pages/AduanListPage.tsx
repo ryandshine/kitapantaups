@@ -6,6 +6,7 @@ import { Button, Select, Badge } from '../components/ui';
 import { useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
 import { getGoogleCardTheme } from '../lib/google-theme';
+import type { Aduan } from '../types';
 
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const AduanListPage: React.FC = () => {
     useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter]);
 
     const loading = loadingItems;
-    const displayList = useMemo<any[]>(() => aduanResult?.data || [], [aduanResult]);
+    const displayList = useMemo<Aduan[]>(() => aduanResult?.data || [], [aduanResult]);
     const totalCount = aduanResult?.total || 0;
     const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
     const statusSummary = useMemo(() => {
@@ -32,7 +33,7 @@ export const AduanListPage: React.FC = () => {
         }, {});
     }, [displayList]);
 
-    const formatDate = (val?: string) => {
+    const formatDate = (val?: string | Date) => {
         return val ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(val)) : '-';
     };
 
@@ -47,7 +48,7 @@ export const AduanListPage: React.FC = () => {
         return '-';
     };
 
-    const getPerihalValue = (row: any) =>
+    const getPerihalValue = (row: Aduan) =>
         row?.perihal?.trim?.()
         || row?.surat_asal_perihal?.trim?.()
         || row?.suratMasuk?.perihal?.trim?.()

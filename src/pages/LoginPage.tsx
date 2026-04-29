@@ -6,6 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 
+const getErrorMessage = (error: unknown) => {
+    if (error instanceof Error && error.message) return error.message;
+    return 'Login gagal. Cek kembali email & password.';
+};
+
 export const LoginPage: React.FC = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -21,8 +26,8 @@ export const LoginPage: React.FC = () => {
         try {
             await login(email, password);
             navigate('/');
-        } catch (err: any) {
-            setError(err.message || 'Login gagal. Cek kembali email & password.');
+        } catch (err: unknown) {
+            setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }

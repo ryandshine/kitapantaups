@@ -21,193 +21,37 @@ import { KpsSearch } from '../components/ui/KpsSearch';
 import { type KpsData } from '../types';
 import { cn } from '../lib/utils';
 import { useUIDensity } from '../hooks/useUIDensity';
+import {
+    applySelectedKpsToForm,
+    buildCreateAduanPayload,
+    buildSelectedFileStates,
+    createInitialNewAduanFormData,
+    DEFAULT_KATEGORI_OPTIONS,
+    DEFAULT_SKEMA,
+    getKpsDisplayAnggotaPria,
+    getKpsDisplayAnggotaWanita,
+    getKpsDisplayId,
+    getKpsDisplayKabupaten,
+    getKpsDisplayName,
+    getKpsDisplayProvinsi,
+    getKpsDisplaySk,
+    getKpsDisplayLuas,
+    getKpsDisplayTotalAnggotaPria,
+    getKpsDisplayTotalAnggotaWanita,
+    getKpsDisplayTotalLuas,
+    normalizeSelectedKps,
+    resetSelectedKpsFormState,
+    resolveKpsType,
+    sortKategoriMasalahOptions,
+    type NewAduanFormData,
+    updateFileStatusAt,
+    validateNewAduanSubmission,
+} from '../features/new-aduan/utils';
 
-interface FormData {
-    skema: string;
-    kategoriMasalah: string;
-    lokasi: {
-        balaiId: string;
-        balaiName: string;
-        provinsi: string;
-        kabupaten: string;
-        kecamatan: string;
-        desa: string;
-        luasHa: number;
-    };
-    pengadu: {
-        nama: string;
-        telepon: string;
-        email: string;
-        instansi: string;
-    };
-    suratMasuk: {
-        nomorSurat: string;
-        tanggalSurat: string;
-        perihal: string;
-        asalSurat: string;
-        asalSuratKategori: string;
-    };
-    jumlahKK: number;
-    ringkasanMasalah: string;
-}
+type KategoriOption = { nama_kategori: string };
 
-const resolveKpsType = (kps: KpsData) => [kps.skema, kps.kps_type, kps.jenis_kps]
-    .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '';
-
-const getKpsDisplayId = (kps: KpsData) => kps.id || '-';
-const getKpsDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || kps.NAMA_KPS || '-';
-const getKpsDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || kps.NO_SK || '-';
-const getKpsDisplayProvinsi = (kps: KpsData) => kps.provinsi || kps.lokasi_prov || kps.PROVINSI || '-';
-const getKpsDisplayKabupaten = (kps: KpsData) => kps.kabupaten || kps.lokasi_kab || kps.KAB_KOTA || '-';
-const getKpsDisplayLuas = (kps: KpsData) => Number(kps.luas_total || kps.lokasi_luas_ha || kps.LUAS_SK || 0);
-const getKpsDisplayAnggotaPria = (kps: KpsData) => Number(kps.anggota_pria || 0);
-const getKpsDisplayAnggotaWanita = (kps: KpsData) => Number(kps.anggota_wanita || 0);
-const getKpsDisplayKK = (kps: KpsData) =>
-    Number(
-        kps.jumlah_anggota
-        || kps.jumlah_kk
-        || kps.JML_KK
-        || (Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0))
-        || 0
-    );
-
-const getKpsDisplayTotalKK = (kpsList: KpsData[]) =>
-    kpsList.reduce((sum, item) => sum + getKpsDisplayKK(item), 0);
-
-const getKpsDisplayTotalLuas = (kpsList: KpsData[]) =>
-    kpsList.reduce((sum, item) => sum + getKpsDisplayLuas(item), 0);
-
-const getKpsDisplayTotalAnggotaPria = (kpsList: KpsData[]) =>
-    kpsList.reduce((sum, item) => sum + getKpsDisplayAnggotaPria(item), 0);
-
-const getKpsDisplayTotalAnggotaWanita = (kpsList: KpsData[]) =>
-    kpsList.reduce((sum, item) => sum + getKpsDisplayAnggotaWanita(item), 0);
-
-const DEFAULT_SKEMA = 'HKm';
-const DEFAULT_KATEGORI_OPTIONS = [
-    { nama_kategori: 'konflik areal' },
-    { nama_kategori: 'perlindungan' },
-    { nama_kategori: 'dan lain-lain' }
-];
-
-const getTodayInputValue = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-const summarizeSelectedKps = (kpsList: KpsData[]) => {
-    const firstKps = kpsList[0];
-
-    return {
-        skema: firstKps ? resolveKpsType(firstKps) || DEFAULT_SKEMA : DEFAULT_SKEMA,
-        totalArea: getKpsDisplayTotalLuas(kpsList),
-        totalKK: getKpsDisplayTotalKK(kpsList),
-        lokasi: {
-            provinsi: firstKps ? getKpsDisplayProvinsi(firstKps) : '',
-            kabupaten: firstKps ? getKpsDisplayKabupaten(firstKps) : '',
-            kecamatan: firstKps?.lokasi_kec || '',
-            desa: firstKps?.lokasi_desa || ''
-        }
-    };
-};
-
-const normalizeSelectedKps = (kps: KpsData): KpsData => ({
-    ...kps,
-    id: String(kps.id || ''),
-    nama_lembaga: kps.nama_lembaga || kps.nama_kps || '',
-    surat_keputusan: kps.surat_keputusan || kps.nomor_sk || '',
-    skema: kps.skema || kps.kps_type || kps.jenis_kps || '',
-    provinsi: kps.provinsi || kps.lokasi_prov || '',
-    kabupaten: kps.kabupaten || kps.lokasi_kab || '',
-    kecamatan: kps.kecamatan || kps.lokasi_kec || '',
-    desa: kps.desa || kps.lokasi_desa || '',
-    luas_total: Number(kps.luas_total ?? kps.lokasi_luas_ha ?? 0) || 0,
-    jumlah_anggota: Number(kps.jumlah_anggota ?? kps.jumlah_kk ?? ((Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0)))) || 0,
-    nama_kps: kps.nama_kps || kps.nama_lembaga || '',
-    jenis_kps: kps.jenis_kps || kps.skema || '',
-    nomor_sk: kps.nomor_sk || kps.surat_keputusan || '',
-    lokasi_prov: kps.lokasi_prov || kps.provinsi || '',
-    lokasi_kab: kps.lokasi_kab || kps.kabupaten || '',
-    lokasi_kec: kps.lokasi_kec || kps.kecamatan || '',
-    lokasi_desa: kps.lokasi_desa || kps.desa || '',
-    lokasi_luas_ha: Number(kps.lokasi_luas_ha ?? kps.luas_total ?? 0) || 0,
-    jumlah_kk: Number(kps.jumlah_kk ?? kps.jumlah_anggota ?? ((Number(kps.anggota_pria || 0) + Number(kps.anggota_wanita || 0)))) || 0,
-});
-
-const extractValidKpsCoordinates = (kpsList: KpsData[]) => {
-    const coordinatePairs = kpsList
-        .map((kps) => {
-            const lat = typeof kps.lat === 'number' && Number.isFinite(kps.lat) ? kps.lat : null;
-            const lng = typeof kps.lng === 'number' && Number.isFinite(kps.lng) ? kps.lng : null;
-            return lat !== null && lng !== null ? { lat, lng } : null;
-        })
-        .filter((pair): pair is { lat: number; lng: number } => pair !== null);
-
-    return {
-        lokasi_lat: coordinatePairs.length > 0 ? coordinatePairs.map((pair) => String(pair.lat)) : undefined,
-        lokasi_lng: coordinatePairs.length > 0 ? coordinatePairs.map((pair) => String(pair.lng)) : undefined,
-    };
-};
-
-const buildSelectedFileStates = (files: Array<Pick<File, 'name'>>): FileUploadItemState[] =>
-    files.map((file) => ({
-        fileName: file.name,
-        status: 'selected',
-    }));
-
-const updateFileStatusAt = (
-    previous: FileUploadItemState[],
-    files: Array<Pick<File, 'name'>>,
-    index: number,
-    patch: Partial<FileUploadItemState>
-): FileUploadItemState[] => {
-    const next = files.map((file, fileIndex) => previous[fileIndex] || {
-        fileName: file.name,
-        status: 'selected' as const,
-    });
-
-    if (!next[index]) return next;
-    next[index] = {
-        ...next[index],
-        ...patch,
-        fileName: files[index]?.name || next[index].fileName,
-    };
-    return next;
-};
-
-const removeKpsFromSelection = (
-    selectedList: KpsData[],
-    removedId: string,
-    selectedKps: KpsData | null,
-    setSelectedKpsList: React.Dispatch<React.SetStateAction<KpsData[]>>,
-    setSelectedKps: React.Dispatch<React.SetStateAction<KpsData | null>>,
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>
-) => {
-    const newList = selectedList.filter((item) => item.id !== removedId);
-    setSelectedKpsList(newList);
-
-    if (selectedKps?.id === removedId) {
-        setSelectedKps(newList[newList.length - 1] || null);
-    }
-
-    const kpsSummary = summarizeSelectedKps(newList);
-    setFormData((prev) => ({
-        ...prev,
-        skema: kpsSummary.skema,
-        jumlahKK: kpsSummary.totalKK,
-        lokasi: {
-            ...prev.lokasi,
-            provinsi: kpsSummary.lokasi.provinsi,
-            kabupaten: kpsSummary.lokasi.kabupaten,
-            kecamatan: kpsSummary.lokasi.kecamatan,
-            desa: kpsSummary.lokasi.desa,
-            luasHa: kpsSummary.totalArea
-        }
-    }));
-};
+const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error && error.message ? error.message : fallback;
 
 export const NewAduanPage: React.FC = () => {
     const navigate = useNavigate();
@@ -215,25 +59,13 @@ export const NewAduanPage: React.FC = () => {
     const { isCompact } = useUIDensity();
 
     // Master data state
-    const [kategoriOptions, setKategoriOptions] = useState<any[]>([]);
+    const [kategoriOptions, setKategoriOptions] = useState<KategoriOption[]>([]);
 
     const categorySortOrder = [
         'konflik areal',
         'perlindungan',
         'dan lain-lain'
     ];
-
-    const sortCategories = (options: any[]) => {
-        return [...options].sort((a, b) => {
-            const indexA = categorySortOrder.indexOf(a.nama_kategori);
-            const indexB = categorySortOrder.indexOf(b.nama_kategori);
-
-            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-            if (indexA !== -1) return -1;
-            if (indexB !== -1) return 1;
-            return a.nama_kategori.localeCompare(b.nama_kategori);
-        });
-    };
 
     const [selectedKpsList, setSelectedKpsList] = useState<KpsData[]>([]);
     const [selectedKps, setSelectedKps] = useState<KpsData | null>(null);
@@ -250,7 +82,7 @@ export const NewAduanPage: React.FC = () => {
                     MasterDataService.getStatusLayanan(),
                     MasterDataService.getKategoriMasalah()
                 ]);
-                setKategoriOptions(categories as any);
+                setKategoriOptions((categories || []) as KategoriOption[]);
             } catch (err) {
                 console.error('Failed to load master data:', err);
                 setFormError('Gagal memuat data master.');
@@ -268,38 +100,11 @@ export const NewAduanPage: React.FC = () => {
     const [suratFileStatuses, setSuratFileStatuses] = useState<FileUploadItemState[]>([]);
 
 
-    const [formData, setFormData] = useState<FormData>({
-        skema: 'HKm',
-        kategoriMasalah: '',
-        lokasi: {
-            balaiId: '',
-            balaiName: '',
-            provinsi: '',
-            kabupaten: '',
-            kecamatan: '',
-            desa: '',
-            luasHa: 0
-        },
-        pengadu: {
-            nama: '',
-            telepon: '',
-            email: '',
-            instansi: ''
-        },
-        suratMasuk: {
-            nomorSurat: '',
-            tanggalSurat: getTodayInputValue(),
-            perihal: '',
-            asalSurat: 'Masyarakat',
-            asalSuratKategori: 'Masyarakat'
-        },
-        jumlahKK: 0,
-        ringkasanMasalah: ''
-    });
+    const [formData, setFormData] = useState<NewAduanFormData>(createInitialNewAduanFormData());
 
 
-    const handleSuratChange = (field: string, value: any) => {
-        setFormData((prev: FormData) => ({
+    const handleSuratChange = (field: keyof NewAduanFormData['suratMasuk'], value: string) => {
+        setFormData((prev: NewAduanFormData) => ({
             ...prev,
             suratMasuk: {
                 ...prev.suratMasuk,
@@ -308,8 +113,8 @@ export const NewAduanPage: React.FC = () => {
         }));
     };
 
-    const handlePengaduChange = (field: string, value: any) => {
-        setFormData((prev: FormData) => ({
+    const handlePengaduChange = (field: keyof NewAduanFormData['pengadu'], value: string) => {
+        setFormData((prev: NewAduanFormData) => ({
             ...prev,
             pengadu: {
                 ...prev.pengadu,
@@ -318,8 +123,11 @@ export const NewAduanPage: React.FC = () => {
         }));
     };
 
-    const handleInputChange = (field: string, value: any) => {
-        setFormData((prev: FormData) => ({ ...prev, [field]: value }));
+    const handleInputChange = (
+        field: keyof Pick<NewAduanFormData, 'skema' | 'kategoriMasalah' | 'jumlahKK' | 'ringkasanMasalah'>,
+        value: string | number
+    ) => {
+        setFormData((prev: NewAduanFormData) => ({ ...prev, [field]: value }));
     };
 
     const handleKpsSelect = (kps: KpsData) => {
@@ -327,26 +135,11 @@ export const NewAduanPage: React.FC = () => {
         // Prevent duplicates
         if (selectedKpsList.some(item => item.id === normalizedKps.id)) return;
 
-        // 1. Initial State
         const newKps = { ...normalizedKps };
         const newList = [...selectedKpsList, newKps];
-        const kpsSummary = summarizeSelectedKps(newList);
         setSelectedKpsList(newList);
         setSelectedKps(newKps);
-
-        setFormData(prev => ({
-            ...prev,
-            skema: kpsSummary.skema,
-            lokasi: {
-                ...prev.lokasi,
-                provinsi: kpsSummary.lokasi.provinsi,
-                kabupaten: kpsSummary.lokasi.kabupaten,
-                kecamatan: kpsSummary.lokasi.kecamatan,
-                desa: kpsSummary.lokasi.desa,
-                luasHa: kpsSummary.totalArea
-            },
-            jumlahKK: kpsSummary.totalKK
-        }));
+        setFormData((prev) => applySelectedKpsToForm(prev, newList));
     };
 
 
@@ -354,56 +147,12 @@ export const NewAduanPage: React.FC = () => {
         e.preventDefault();
         if (!user) return;
 
-
         setIsSubmitting(true);
         setFormError(null);
         try {
-            const trimmedEmail = formData.pengadu.email.trim();
-            if (!formData.suratMasuk.nomorSurat.trim()) {
-                throw new Error('Nomor surat wajib diisi.');
-            }
-            if (!formData.suratMasuk.tanggalSurat) {
-                throw new Error('Tanggal surat wajib diisi.');
-            }
-            if (!formData.pengadu.nama.trim()) {
-                throw new Error('Nama pengadu wajib diisi.');
-            }
-            if (selectedKpsList.length === 0) {
-                throw new Error('Pilih minimal satu KPS sebelum menyimpan aduan.');
-            }
-            if (!formData.ringkasanMasalah.trim()) {
-                throw new Error('Ringkasan masalah wajib diisi.');
-            }
-            if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-                throw new Error('Format email pengadu tidak valid.');
-            }
+            const { trimmedEmail } = validateNewAduanSubmission(formData, selectedKpsList);
+            const dbPayload = buildCreateAduanPayload(formData, selectedKpsList, trimmedEmail);
 
-            // Sequential Process:
-            // 1. Prepare Payload Mapper
-            const { lokasi_lat, lokasi_lng } = extractValidKpsCoordinates(selectedKpsList);
-            const dbPayload = {
-                surat_nomor: formData.suratMasuk.nomorSurat,
-                surat_tanggal: formData.suratMasuk.tanggalSurat,
-                surat_asal_perihal: formData.suratMasuk.perihal,
-                pengadu_nama: formData.pengadu.nama,
-                pengadu_telepon: formData.pengadu.telepon,
-                pengadu_email: trimmedEmail || undefined,
-                pengadu_instansi: formData.pengadu.instansi,
-                kategori_masalah: formData.kategoriMasalah,
-                ringkasan_masalah: formData.ringkasanMasalah,
-                lokasi_prov: formData.lokasi.provinsi,
-                lokasi_kab: formData.lokasi.kabupaten,
-                lokasi_kec: formData.lokasi.kecamatan,
-                lokasi_desa: formData.lokasi.desa,
-                lokasi_luas_ha: formData.lokasi.luasHa,
-                jumlah_kk: formData.jumlahKK,
-                lokasi_lat,
-                lokasi_lng,
-                status: 'baru',
-                kps_ids: selectedKpsList.map(k => String(k.id))
-            };
-
-            // 2. Call Sequential Service
             const result = await AduanService.createAduanWithFiles(
                 dbPayload,
                 selectedKpsList,
@@ -439,10 +188,11 @@ export const NewAduanPage: React.FC = () => {
 
             setFeedback({ type: 'success', message: 'Aduan berhasil disimpan dan sedang diproses.' });
             window.setTimeout(() => navigate('/pengaduan'), 700);
-        } catch (err: any) {
+        } catch (err) {
             console.error('Submission failed:', err);
-            setFormError(`Gagal menyimpan aduan: ${err.message}`);
-            setFeedback({ type: 'error', message: `Gagal menyimpan aduan: ${err.message}` });
+            const message = getErrorMessage(err, 'Terjadi kesalahan saat menyimpan aduan.');
+            setFormError(`Gagal menyimpan aduan: ${message}`);
+            setFeedback({ type: 'error', message: `Gagal menyimpan aduan: ${message}` });
         } finally {
             if (suratFiles.length === 0) {
                 setDocUploadProgress(0);
@@ -696,14 +446,12 @@ export const NewAduanPage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        removeKpsFromSelection(
-                                                            selectedKpsList,
-                                                            kps.id,
-                                                            selectedKps,
-                                                            setSelectedKpsList,
-                                                            setSelectedKps,
-                                                            setFormData
-                                                        );
+                                                        const nextList = selectedKpsList.filter((item) => item.id !== kps.id);
+                                                        setSelectedKpsList(nextList);
+                                                        if (selectedKps?.id === kps.id) {
+                                                            setSelectedKps(nextList[nextList.length - 1] || null);
+                                                        }
+                                                        setFormData((prev) => applySelectedKpsToForm(prev, nextList));
                                                     }}
                                                     className="p-1 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full transition-colors"
                                                 >
@@ -745,19 +493,7 @@ export const NewAduanPage: React.FC = () => {
                                                 onClick={() => {
                                                     setSelectedKpsList([]);
                                                     setSelectedKps(null);
-                                                    setFormData((prev: any) => ({
-                                                        ...prev,
-                                                        skema: DEFAULT_SKEMA,
-                                                        jumlahKK: 0,
-                                                        lokasi: {
-                                                            ...prev.lokasi,
-                                                            provinsi: '',
-                                                            kabupaten: '',
-                                                            kecamatan: '',
-                                                            desa: '',
-                                                            luasHa: 0
-                                                        }
-                                                    }));
+                                                    setFormData((prev) => resetSelectedKpsFormState(prev));
                                                 }}
                                             >
                                                 <X size={14} /> Reset Semua
@@ -787,14 +523,12 @@ export const NewAduanPage: React.FC = () => {
                                                             type="button"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
-                                                                removeKpsFromSelection(
-                                                                    selectedKpsList,
-                                                                    kps.id,
-                                                                    selectedKps,
-                                                                    setSelectedKpsList,
-                                                                    setSelectedKps,
-                                                                    setFormData
-                                                                );
+                                                                const nextList = selectedKpsList.filter((item) => item.id !== kps.id);
+                                                                setSelectedKpsList(nextList);
+                                                                if (selectedKps?.id === kps.id) {
+                                                                    setSelectedKps(nextList[nextList.length - 1] || null);
+                                                                }
+                                                                setFormData((prev) => applySelectedKpsToForm(prev, nextList));
                                                             }}
                                                             className="ml-auto p-1.5 hover:bg-destructive/10 text-muted-foreground hover:text-destructive rounded-full transition-colors shrink-0"
                                                         >
@@ -866,7 +600,7 @@ export const NewAduanPage: React.FC = () => {
                             <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3", isCompact ? "gap-4" : "gap-6")}>
                                 <Select
                                     label="Kategori Masalah"
-                                    options={kategoriOptions.length > 0 ? sortCategories(kategoriOptions).map(cat => ({
+                                    options={kategoriOptions.length > 0 ? sortKategoriMasalahOptions(kategoriOptions, categorySortOrder).map(cat => ({
                                         value: cat.nama_kategori,
                                         label: cat.nama_kategori
                                     })) : DEFAULT_KATEGORI_OPTIONS.map((cat) => ({

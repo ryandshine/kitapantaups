@@ -1,6 +1,10 @@
 node_modules
 dist
 .git
+.codex
+screenshot
+uploads
+*.log
 server
 .env*
 *.md

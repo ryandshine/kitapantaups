@@ -34,7 +34,7 @@ import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
 import { ActivityService } from '../lib/activity.service';
 import { getGoogleCardTheme, getGooglePriorityBadgeClass, getGoogleStatusDotClass } from '../lib/google-theme';
-import type { AppActivity, Aduan } from '../types';
+import type { AppActivity, Aduan, ActivityType } from '../types';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
@@ -42,7 +42,20 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAduanList, useDashboardStats } from '../hooks/useAduan';
 
+const isActivityFilter = (value: string): value is 'all' | 'aduan' | 'system' =>
+    value === 'all' || value === 'aduan' || value === 'system';
+
 export const DashboardPage: React.FC = () => {
+    const systemActivityTypes: ActivityType[] = [
+        'user_login',
+        'user_logout',
+        'create_user',
+        'update_user',
+        'change_role',
+        'update_settings',
+        'ai_generate_summary',
+        'sync_master_data',
+    ];
     const dashboardTheme = {
         bg: "bg-card",
         text: "text-foreground",
@@ -126,7 +139,7 @@ export const DashboardPage: React.FC = () => {
         return Math.abs(updatedAt.getTime() - createdAt.getTime()) < 60_000 ? 'Baru' : 'Diperbarui';
     };
 
-    const getActivityUI = (type: string) => {
+    const getActivityUI = (type: ActivityType) => {
         // Document
         if (['upload_document', 'upload_tl_document'].includes(type)) return { icon: Upload };
         if (['delete_document', 'delete_tl'].includes(type)) return { icon: Trash2 };
@@ -188,7 +201,7 @@ export const DashboardPage: React.FC = () => {
         if (Array.isArray(metadata.changes) && metadata.changes.length > 0) {
             const visibleChanges = metadata.changes
                 .slice(0, 2)
-                .map((item: any) => item?.label)
+                .map((item: { label?: string } | null | undefined) => item?.label)
                 .filter(Boolean)
                 .join(', ');
             if (visibleChanges) {
@@ -209,9 +222,8 @@ export const DashboardPage: React.FC = () => {
 
     const filteredActivities = activities.filter(activity => {
         if (activityFilter === 'all') return true;
-        const systemTypes = ['user_login', 'user_logout', 'create_user', 'update_user', 'change_role', 'update_settings', 'ai_generate_summary', 'sync_master_data'];
-        if (activityFilter === 'system') return systemTypes.includes(activity.type);
-        return !systemTypes.includes(activity.type); // 'aduan' filter
+        if (activityFilter === 'system') return systemActivityTypes.includes(activity.type);
+        return !systemActivityTypes.includes(activity.type); // 'aduan' filter
     }).slice(0, 8); // Show max 8 items
 
     const containerVariants = {
@@ -423,7 +435,9 @@ export const DashboardPage: React.FC = () => {
                                     { value: 'system', label: 'Hanya Sistem' }
                                 ]}
                                 value={activityFilter}
-                                onChange={(val: string) => setActivityFilter(val as any)}
+                                onChange={(val: string) => {
+                                    if (isActivityFilter(val)) setActivityFilter(val);
+                                }}
                                 className="h-8 w-[136px] text-[11px]"
                             />
                         </div>

@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { Download, Settings2 } from 'lucide-react';
 import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
-import { AduanService } from '../lib/aduan.service';
+import { AduanReferenceService } from '../lib/aduan.references';
 import { ReportService } from '../lib/report.service';
 import { useAuth } from '../contexts/AuthContext';
+
+const getErrorMessage = (error: unknown) => {
+    if (error instanceof Error && error.message) return error.message;
+    return 'Terjadi kesalahan saat membuat laporan.';
+};
 
 export const LaporanPage: React.FC = () => {
     const { user } = useAuth();
@@ -30,9 +35,9 @@ export const LaporanPage: React.FC = () => {
         const fetchFilters = async () => {
             try {
                 const [provinceData, statusData, users] = await Promise.all([
-                    AduanService.getUniqueProvinces(),
-                    AduanService.getMasterStatuses(),
-                    user?.role === 'admin' ? AduanService.getUsersByRole() : Promise.resolve([])
+                    AduanReferenceService.getUniqueProvinces(),
+                    AduanReferenceService.getMasterStatuses(),
+                    user?.role === 'admin' ? AduanReferenceService.getUsersByRole() : Promise.resolve([])
                 ]);
                 setProvinces(provinceData);
                 setStatuses((statusData || []).map((item) => item.nama_status).filter(Boolean));
@@ -65,9 +70,9 @@ export const LaporanPage: React.FC = () => {
                 picName: selectedPicId !== 'all' ? selectedPic?.label : undefined,
             });
             setFeedback({ type: 'success', message: 'Laporan berhasil diproses. File akan segera diunduh.' });
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            setFeedback({ type: 'error', message: error?.message || 'Terjadi kesalahan saat membuat laporan.' });
+            setFeedback({ type: 'error', message: getErrorMessage(error) });
         } finally {
             setIsGenerating(false);
         }
