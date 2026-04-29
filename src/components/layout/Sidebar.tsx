@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     !isOpen && "px-0 justify-center"
                 )}>
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent text-white">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
                             <span className="text-base font-bold">K</span>
                         </div>
                         {isOpen && (
@@ -152,7 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     <button
                         onClick={onLogout}
                         className={cn(
-                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium text-red-200 transition-all hover:bg-sidebar-accent hover:text-white active:scale-95",
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium text-red-200 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground active:scale-95",
                             !isOpen && "justify-center px-0"
                         )}
                     >

@@ -423,9 +423,9 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white">
+                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-foreground">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
-                            <h3 className="flex items-center gap-2 text-base font-semibold text-white">
+                            <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
                                 Aktivitas Sistem
                             </h3>
                             <Select
@@ -450,20 +450,20 @@ export const DashboardPage: React.FC = () => {
                                     const contextTags = getActivityContextTags(activity);
                                     
                                     return (
-                                        <div key={activity.id} className="group rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3">
+                                        <div key={activity.id} className="group rounded-xl border border-border/70 bg-card/80 px-3 py-3 shadow-sm">
                                             <div className="flex gap-3.5">
                                                 <div className="flex flex-col items-center">
                                                     <div className={cn(
-                                                        "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/8 text-emerald-200 transition-transform group-hover:scale-105"
+                                                        "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border border-border/70 bg-muted text-primary transition-transform group-hover:scale-105"
                                                     )}>
                                                         <Icon size={14} />
                                                     </div>
                                                     {i < filteredActivities.length - 1 && (
-                                                        <div className="my-2 w-[1px] flex-1 bg-white/20" />
+                                                        <div className="my-2 w-[1px] flex-1 bg-border" />
                                                     )}
                                                 </div>
                                                 <div className="pb-2">
-                                                    <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-white transition-colors group-hover:text-white/90 prose-p:text-white prose-strong:text-white prose-a:text-white">
+                                                    <div className="prose prose-slate prose-xs max-w-none text-[11px] font-medium leading-snug text-foreground transition-colors group-hover:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-a:text-primary">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{activity.description}</ReactMarkdown>
                                                     </div>
                                                     {contextTags.length > 0 && (
@@ -471,17 +471,17 @@ export const DashboardPage: React.FC = () => {
                                                             {contextTags.map((tag, idx) => (
                                                                 <span
                                                                     key={`${activity.id}-context-${idx}`}
-                                                                    className="rounded-full border border-white/20 bg-white/10 px-2 py-0.5 text-[9px] font-medium text-white/90"
+                                                                    className="rounded-full border border-border bg-muted px-2 py-0.5 text-[9px] font-medium text-muted-foreground"
                                                                 >
                                                                     {tag}
                                                                 </span>
                                                             ))}
                                                         </div>
                                                     )}
-                                                    <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-white/70">
+                                                    <p className="mt-1.5 flex items-center gap-2 text-[9px] font-medium text-muted-foreground">
                                                         {formatDistanceToNow(activity.createdAt, { addSuffix: true, locale: localeID })}
-                                                        <span className="h-1 w-1 rounded-full bg-white/30" />
-                                                        <span className="text-white/90">{activity.userName.split(' ')[0]}</span>
+                                                        <span className="h-1 w-1 rounded-full bg-border" />
+                                                        <span className="text-foreground">{activity.userName.split(' ')[0]}</span>
                                                     </p>
                                                 </div>
                                             </div>

@@ -1514,7 +1514,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 )} />
 
                                                 <div className={cn(
-                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm",
+                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow-sm",
                                                     index === 0 ? "bg-primary" : "bg-muted-foreground/70"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
@@ -2038,7 +2038,7 @@ export const AduanDetailPage: React.FC = () => {
                         <Button
                             variant="primary"
                             size="sm"
-                            className="bg-destructive hover:bg-destructive/90 text-white"
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                             onClick={handleDeleteDocument}
                             isLoading={!!deletingDocId}
                         >
