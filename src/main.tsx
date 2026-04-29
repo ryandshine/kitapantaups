@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
 
-document.documentElement.classList.remove('dark')
-document.documentElement.style.colorScheme = 'light'
+document.documentElement.classList.add('dark')
+document.documentElement.style.colorScheme = 'dark'
 
 const queryClient = new QueryClient({
   defaultOptions: {

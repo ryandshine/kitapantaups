@@ -47,8 +47,8 @@ export const PengaturanPage: React.FC = () => {
         <div className="max-w-5xl animate-in fade-in duration-500 flex flex-col gap-8">
             <div className="google-hero mb-2">
                 <div className="relative z-10 flex flex-col gap-1">
-                    <h1 className="text-3xl font-bold leading-none tracking-tight text-white">Pengaturan Akun</h1>
-                    <p className="mt-2 text-[0.92rem] text-white/90">Kelola informasi pribadi, preferensi keamanan, dan notifikasi akun Anda.</p>
+                    <h1 className="text-3xl font-bold leading-none tracking-tight text-foreground">Pengaturan Akun</h1>
+                    <p className="mt-2 text-[0.92rem] text-muted-foreground">Kelola informasi pribadi, preferensi keamanan, dan notifikasi akun Anda.</p>
                 </div>
                 <div className="google-hero-orb" />
             </div>
@@ -88,8 +88,8 @@ export const PengaturanPage: React.FC = () => {
                     {activeTab === 'profil' && (
                         <div className="animate-in slide-in-from-right-4 duration-300 flex flex-col gap-6">
                             <Card>
-                                <CardHeader className="bg-[#34A853] border-b border-green-700/30 text-white">
-                                    <CardTitle className="text-white">Informasi Profil</CardTitle>
+                                <CardHeader className="page-section-header">
+                                    <CardTitle>Informasi Profil</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="flex flex-col items-center gap-8 py-4 sm:flex-row">
@@ -153,9 +153,9 @@ export const PengaturanPage: React.FC = () => {
                     {activeTab === 'keamanan' && (
                         <div className="animate-in slide-in-from-right-4 duration-300 flex flex-col gap-6">
                             <Card>
-                                <CardHeader className="bg-[#34A853] border-b border-green-700/30 text-white">
-                                    <CardTitle className="flex items-center gap-2 text-white">
-                                        <LockIcon className="text-white" size={18} />
+                                <CardHeader className="page-section-header">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <LockIcon className="text-primary" size={18} />
                                         Keamanan Akun
                                     </CardTitle>
                                 </CardHeader>

@@ -76,8 +76,8 @@ export const AduanListPage: React.FC = () => {
             <div className="google-hero">
                 <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
-                        <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-white md:text-3xl">Daftar Pengaduan</motion.h1>
-                        <motion.p variants={itemVariants} className="mt-1.5 text-[0.92rem] leading-relaxed text-white/90">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
+                        <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Daftar Pengaduan</motion.h1>
+                        <motion.p variants={itemVariants} className="mt-1.5 text-[0.92rem] leading-relaxed text-muted-foreground">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-3">
                         <Button
@@ -92,16 +92,16 @@ export const AduanListPage: React.FC = () => {
                 <div className="google-hero-orb" />
             </div>
 
-            <motion.div variants={itemVariants} className="border-y border-[#34A853] bg-[#34A853] p-4 sm:rounded-2xl sm:border">
+            <motion.div variants={itemVariants} className="page-filter-panel">
                 <div className="flex flex-col items-center gap-3 lg:flex-row">
                     <div className="relative w-full lg:flex-1">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <input
                             type="text"
                             placeholder="Cari perihal, lokasi, SK, KPS... (Global Search)"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className={`w-full rounded-xl border border-white/30 bg-white/20 pl-10 pr-4 text-white placeholder-white/70 transition-all focus:border-white/60 focus:ring-2 focus:ring-white/30 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
+                            className={`w-full rounded-xl border border-border bg-muted pl-10 pr-4 text-foreground placeholder:text-muted-foreground transition-all focus:border-primary/60 focus:ring-2 focus:ring-primary/20 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
                         />
                     </div>
                     <div className="flex w-full items-center gap-3 lg:w-auto">
@@ -115,16 +115,16 @@ export const AduanListPage: React.FC = () => {
                             ]}
                             value={statusFilter}
                             onChange={setStatusFilter}
-                            className={`flex-1 md:w-44 border-white/30 bg-white/20 text-white ${isCompact ? 'text-[0.86rem]' : ''}`}
+                            className={`flex-1 md:w-44 ${isCompact ? 'text-[0.86rem]' : ''}`}
                         />
                     </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="gray" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Baris: {displayList.length}</Badge>
-                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Baru: {statusSummary.baru || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Proses: {statusSummary.proses || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full border-white/30 bg-white/20 px-2.5 py-1 text-[9px] text-white">Selesai: {statusSummary.selesai || 0}</Badge>
+                        <Badge variant="gray" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Baris: {displayList.length}</Badge>
+                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Baru: {statusSummary.baru || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Proses: {statusSummary.proses || 0}</Badge>
+                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Selesai: {statusSummary.selesai || 0}</Badge>
                     </div>
                 </div>
             </motion.div>
@@ -140,14 +140,14 @@ export const AduanListPage: React.FC = () => {
                         <div className="flex flex-col gap-4">
                             {displayList.map((row, index) => {
                                 const theme = getGoogleCardTheme(index);
-                                const statPanelClass = index % 4 === 2 ? "bg-[#202124]/8" : "bg-white/10";
+                                const statPanelClass = "page-subpanel";
 
                                 return (
                                 <button
                                     key={row.nomor_tiket}
                                     type="button"
                                     onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className={`flex w-full flex-col text-left rounded-2xl border p-4.5 shadow-sm transition-all hover:shadow-md ${theme.bg} ${theme.border}`}
+                                    className={`flex w-full flex-col rounded-2xl border p-4.5 text-left transition-colors hover:border-primary/25 ${theme.bg} ${theme.border}`}
                                 >
                                     <div className="flex w-full items-start justify-between gap-3">
                                         <div className="min-w-0 flex-1 space-y-1.5">
@@ -184,7 +184,7 @@ export const AduanListPage: React.FC = () => {
                                     </div>
 
                                     <div className="mt-4 flex flex-col md:flex-row gap-4 w-full">
-                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 rounded-xl p-3 ${statPanelClass}`}>
+                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 p-3 ${statPanelClass}`}>
                                             <div>
                                                 <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Luas</p>
                                                 <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
@@ -215,7 +215,7 @@ export const AduanListPage: React.FC = () => {
                 </div>
 
                 {!loading && totalCount > 0 && (
-                    <div className="mt-2 flex flex-col justify-between gap-3 rounded-2xl bg-card/90 p-3.5 ring-1 ring-border/70 sm:flex-row sm:items-center">
+                    <div className="mt-2 flex flex-col justify-between gap-3 rounded-2xl border border-border bg-card p-3.5 sm:flex-row sm:items-center">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                             <span className="hidden sm:inline">Menampilkan {(currentPage - 1) * itemsPerPage + 1} s/d {Math.min(currentPage * itemsPerPage, totalCount)} dari {totalCount} Data</span>
                             <span className="sm:hidden">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalCount)} / {totalCount}</span>

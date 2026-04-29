@@ -30,25 +30,25 @@ export const LoginPage: React.FC = () => {
     return (
         <div className="grid min-h-screen grid-cols-1 bg-gradient-to-br from-background via-muted/20 to-background lg:grid-cols-[1.1fr_1fr]">
             <section className="google-hero hidden border-r p-10 shadow-lg lg:flex lg:flex-col lg:justify-between">
-                <div className="absolute top-0 right-0 h-[40rem] w-[40rem] -translate-y-1/4 translate-x-1/4 rounded-full bg-white/10 blur-3xl opacity-60 pointer-events-none" />
+                <div className="absolute top-0 right-0 h-[40rem] w-[40rem] -translate-y-1/4 translate-x-1/4 rounded-full bg-sky-400/10 blur-3xl opacity-60 pointer-events-none" />
                 <div className="relative z-10 inline-flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/20 shadow-sm backdrop-blur-sm">
-                        <ShieldCheck className="h-5 w-5 text-white" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card/80 shadow-sm backdrop-blur-sm">
+                        <ShieldCheck className="h-5 w-5 text-foreground" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-sm font-semibold tracking-tight text-white">KitapantauPS</span>
-                        <span className="text-[11px] font-medium uppercase tracking-wide text-white/80">Direktorat PPS</span>
+                        <span className="text-sm font-semibold tracking-tight text-foreground">KitapantauPS</span>
+                        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Direktorat PPS</span>
                     </div>
                 </div>
                 <div className="relative z-10 max-w-xl space-y-5">
-                    <h1 className="text-4xl font-bold leading-tight tracking-tight text-white">
+                    <h1 className="text-4xl font-bold leading-tight tracking-tight text-foreground">
                         Sistem Informasi Pengaduan Perhutanan Sosial
                     </h1>
-                    <p className="text-[0.95rem] leading-relaxed text-white/90">
+                    <p className="text-[0.95rem] leading-relaxed text-muted-foreground">
                         Platform terpadu untuk pencatatan aduan, tindak lanjut, dan pelaporan operasional perhutanan sosial.
                     </p>
                 </div>
-                <p className="relative z-10 text-xs font-medium text-white/70">
+                <p className="relative z-10 text-xs font-medium text-muted-foreground">
                     &copy; 2026 Direktorat Pengendalian Perhutanan Sosial
                 </p>
             </section>

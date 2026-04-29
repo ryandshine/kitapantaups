@@ -20,7 +20,6 @@ import {
     AlertTriangle,
     Trash2,
     Briefcase,
-    Sparkles,
     Upload,
     Settings,
     Download
@@ -41,7 +40,6 @@ import {
     Input,
     Select,
     Textarea,
-    KpsSearch,
     FileUpload,
     type FileUploadItemState,
     ConfirmDialog
@@ -57,214 +55,32 @@ import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAd
 import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut, useUpdateTindakLanjut } from '../hooks/useTindakLanjut';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { AduanPdfService } from '../lib/aduan-pdf.service';
-
-const formatDate = (date: Date): string => {
-    if (!date) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    }).format(new Date(date));
-};
-
-const resolveKpsType = (kps?: Partial<KpsData>) =>
-    [kps?.skema, kps?.kps_type, kps?.jenis_kps]
-        .find((value): value is string => typeof value === 'string' && value.trim().length > 0) || '-';
-
-const getDisplayedKpsId = (kps?: Partial<KpsData>) =>
-    kps?.id || '-';
-
-const getNormalizedKpsId = (kps?: Partial<KpsData>) =>
-    kps?.id || '';
-
-const getMimeTypeFromFileName = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    if (!ext) return '';
-
-    const mimeMap: Record<string, string> = {
-        pdf: 'application/pdf',
-        png: 'image/png',
-        jpg: 'image/jpeg',
-        jpeg: 'image/jpeg',
-        gif: 'image/gif',
-        webp: 'image/webp',
-        svg: 'image/svg+xml',
-        txt: 'text/plain',
-        csv: 'text/csv',
-        json: 'application/json',
-        mp3: 'audio/mpeg',
-        m4a: 'audio/mp4',
-        wav: 'audio/wav',
-        ogg: 'audio/ogg',
-        mp4: 'video/mp4',
-        webm: 'video/webm',
-    };
-
-    return mimeMap[ext] || '';
-};
-
-const isPreviewableMimeType = (mimeType: string) =>
-    mimeType === 'application/pdf'
-    || mimeType.startsWith('image/')
-    || mimeType.startsWith('text/')
-    || mimeType.startsWith('audio/')
-    || mimeType.startsWith('video/')
-    || mimeType === 'application/json';
-
-const hasMeaningfulKpsData = (kps?: Partial<KpsData>) =>
-    Boolean(
-        getNormalizedKpsId(kps)
-        || kps?.nama_kps
-        || kps?.nama_lembaga
-        || kps?.nomor_sk
-        || kps?.surat_keputusan
-        || kps?.lokasi_prov
-        || kps?.lokasi_kab
-    );
-
-const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
-    const normalizedId = getNormalizedKpsId(kps);
-    const normalizedType = resolveKpsType(kps);
-
-    return {
-        ...(kps as KpsData),
-        id: normalizedId,
-        nama_kps: kps?.nama_kps || kps?.nama_lembaga || '-',
-        jenis_kps: kps?.jenis_kps || normalizedType || '',
-        nomor_sk: kps?.nomor_sk || kps?.surat_keputusan || '',
-        lokasi_prov: kps?.lokasi_prov || kps?.provinsi || '',
-        lokasi_kab: kps?.lokasi_kab || kps?.kabupaten || '',
-        lokasi_kec: kps?.lokasi_kec || kps?.kecamatan || '',
-        lokasi_desa: kps?.lokasi_desa || kps?.desa || '',
-        lokasi_luas_ha: Number(kps?.lokasi_luas_ha ?? kps?.luas_total ?? 0) || 0,
-        jumlah_kk: Number(kps?.jumlah_kk ?? kps?.jumlah_anggota ?? 0) || 0,
-        kps_type: normalizedType,
-        nama_lembaga: kps?.nama_lembaga || kps?.nama_kps || '',
-        surat_keputusan: kps?.surat_keputusan || kps?.nomor_sk || '',
-        skema: kps?.skema || normalizedType || '',
-        balai: kps?.balai || '',
-    };
-};
-
-const buildSelectedUploadStates = (files: Array<Pick<File, 'name'>>): FileUploadItemState[] =>
-    files.map((file) => ({
-        fileName: file.name,
-        status: 'selected',
-    }));
-
-const buildStoredUploadState = (fileName: string, message = 'Tersimpan di server'): FileUploadItemState[] => [{
-    fileName,
-    status: 'success',
-    progress: 100,
-    message,
-}];
-
-const updateUploadStatusAt = (
-    previous: FileUploadItemState[],
-    files: Array<Pick<File, 'name'>>,
-    index: number,
-    patch: Partial<FileUploadItemState>
-): FileUploadItemState[] => {
-    const next = files.map((file, fileIndex) => previous[fileIndex] || {
-        fileName: file.name,
-        status: 'selected' as const,
-    });
-
-    if (!next[index]) return next;
-    next[index] = {
-        ...next[index],
-        ...patch,
-        fileName: files[index]?.name || next[index].fileName,
-    };
-    return next;
-};
-
-type EditAduanForm = {
-    perihal: string;
-    ringkasanMasalah: string;
-    picName: string;
-    lokasiDesa: string;
-    lokasiKecamatan: string;
-    lokasiKabupaten: string;
-    lokasiProvinsi: string;
-    lokasiLuasHa: number;
-    lokasiBalaiId: string;
-    lokasiBalaiName: string;
-    skema: Aduan['skema'];
-    jumlahKK: number;
-    skTerkait: string;
-    fileUrl: string;
-    kpsId: string;
-    asalSurat: string;
-    suratPerihal: string;
-    asalSuratKategori: string;
-    pengaduNama: string;
-    pengaduTelepon: string;
-    pengaduEmail: string;
-    picId: string;
-};
-
-type EditAduanModalProps = {
-    isOpen: boolean;
-    isAdmin: boolean;
-    editForm: EditAduanForm;
-    editSelectedKpsList: KpsData[];
-    suratFile: File | null;
-    picOptions: { value: string; label: string }[];
-    isLoadingUsers: boolean;
-    emailError?: string;
-    isEditSubmitting: boolean;
-    suratUploadProgress: number;
-    suratFileStatuses: FileUploadItemState[];
-    onSubmit: (e: React.FormEvent) => void;
-    onClose: () => void;
-    onEditInput: (field: keyof EditAduanForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-    onSelectKps: (kps: KpsData) => void;
-    onRemoveKps: (kpsId: string) => void;
-    onSelectPic: (value: string) => void;
-    onAsalSuratKategoriChange: (value: string) => void;
-    onSuratFileSelected: (files: File[]) => void;
-    onSuratFileRemoved: () => void;
-};
-
-type FeedbackState = {
-    type: 'success' | 'error' | 'info';
-    message: string;
-} | null;
-
-const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'Surat/Dokumen Pengadu', label: 'Surat/Dokumen Pengadu' },
-    { value: 'Surat/Dokumen Pihak lain', label: 'Surat/Dokumen Pihak lain' },
-    { value: 'TL Surat Jawaban', label: 'TL Surat Jawaban' },
-    { value: 'TL Nota Dinas', label: 'TL Nota Dinas' },
-    { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
-    { value: 'TL Notula Rapat', label: 'TL Notula Rapat' },
-    { value: 'Laporan Puldasi', label: 'Laporan Puldasi' },
-    { value: 'Berita Acara Evaluasi', label: 'Berita Acara Evaluasi' },
-    { value: 'Lainnya', label: 'Lainnya' }
-];
-
-const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {
-    'Telaah Administrasi': 'Surat/Dokumen Pengadu',
-    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak lain',
-    'Puldasi': 'TL Surat Jawaban',
-    'Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
-    'Agenda Evaluasi': 'Berita Acara Evaluasi',
-    'Agenda Pembahasan Hasil Evaluasi': 'TL Notula Rapat',
-    'ND Perubahan Persetujuan PS': 'TL Nota Dinas',
-    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak lain',
-    'Surat Penolakan Aduan': 'TL Surat Jawaban',
-    'Dokumen Lengkap / Puldasi': 'TL Surat Jawaban',
-    'Sudah Puldasi / Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
-};
-
-const normalizeJenisTlLabel = (value?: string) => {
-    const normalized = value?.trim() || '';
-    if (!normalized) return '';
-    return LEGACY_JENIS_TL_LABEL_MAP[normalized] || normalized;
-};
-
-const editSectionClass = "rounded-xl border border-white/20 bg-white/5 p-4";
+import { EditAduanModal } from '../features/aduan-detail/EditAduanModal';
+import {
+    DEFAULT_JENIS_TL_SELECT_OPTIONS,
+    buildSelectedUploadStates,
+    buildStoredUploadState,
+    detailBadgeClass,
+    detailCardClass,
+    detailCardHeaderClass,
+    detailIconClass,
+    detailLabelClass,
+    detailModalClass,
+    detailSectionClass,
+    detailSectionSoftClass,
+    formatDate,
+    getDisplayedKpsId,
+    getMimeTypeFromFileName,
+    getNormalizedKpsId,
+    hasMeaningfulKpsData,
+    isPreviewableMimeType,
+    normalizeJenisTlLabel,
+    normalizeSelectedKps,
+    resolveKpsType,
+    type EditAduanForm,
+    type FeedbackState,
+    updateUploadStatusAt,
+} from '../features/aduan-detail/utils';
 
 const getFileAccessErrorMessage = async (response: Response) => {
     const contentType = response.headers.get('content-type') || '';
@@ -278,282 +94,6 @@ const getFileAccessErrorMessage = async (response: Response) => {
     const fallbackText = await response.text().catch(() => '');
     return fallbackText.trim() || `HTTP ${response.status}`;
 };
-
-const EditAduanModal: React.FC<EditAduanModalProps> = ({
-    isOpen,
-    isAdmin,
-    editForm,
-    editSelectedKpsList,
-    suratFile,
-    picOptions,
-    isLoadingUsers,
-    emailError,
-    isEditSubmitting,
-    suratUploadProgress,
-    suratFileStatuses,
-    onSubmit,
-    onClose,
-    onEditInput,
-    onSelectKps,
-    onRemoveKps,
-    onSelectPic,
-    onAsalSuratKategoriChange,
-    onSuratFileSelected,
-    onSuratFileRemoved,
-}) => {
-    return (
-        <Modal
-            isOpen={isOpen}
-            onClose={onClose}
-            title="Edit Data Aduan"
-            description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            className="max-w-4xl rounded-2xl border-white/20 bg-transparent p-6"
-            size="xl"
-        >
-            <form onSubmit={onSubmit} className="flex flex-col gap-5">
-                <div className={`${editSectionClass} space-y-4`}>
-                    <Input
-                        label="Perihal / Judul Aduan"
-                        value={editForm.perihal}
-                        onChange={onEditInput('perihal')}
-                        required
-                        fullWidth
-                    />
-                    <Textarea
-                        label="Ringkasan Masalah"
-                        value={editForm.ringkasanMasalah}
-                        onChange={onEditInput('ringkasanMasalah')}
-                        rows={4}
-                        fullWidth
-                    />
-                </div>
-
-                <div className="bg-white/20/25 p-4 rounded-xl border border-white/20/70">
-                    <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                        <Sparkles size={16} />
-                        Identitas Kelompok / KPS
-                    </label>
-
-                    <KpsSearch
-                        onSelect={onSelectKps}
-                        placeholder="Ketik id, nama_lembaga, atau surat_keputusan..."
-                    />
-                    <p className="text-[10px] text-white/80 mt-2">
-                        Cari & pilih data Master KPS. Bisa pilih lebih dari satu.
-                    </p>
-
-                    {editSelectedKpsList.length > 0 && (
-                        <div className="mt-3 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <div className="mb-1 flex flex-wrap items-center gap-2">
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
-                                    Total KPS: {editSelectedKpsList.length}
-                                </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
-                                    Total luas_total: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.luas_total ?? item.lokasi_luas_ha) || 0), 0).toLocaleString('id-ID')} Ha
-                                </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
-                                    Total anggota_pria: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_pria) || 0), 0).toLocaleString('id-ID')}
-                                </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
-                                    Total anggota_wanita: {editSelectedKpsList.reduce((sum, item) => sum + (Number(item.anggota_wanita) || 0), 0).toLocaleString('id-ID')}
-                                </Badge>
-                            </div>
-                            {editSelectedKpsList.map((kps) => {
-                                const kpsId = getNormalizedKpsId(kps);
-                                return (
-                                <div key={`card-${kpsId || kps.nama_kps}`} className="p-3 bg-transparent rounded-md border border-white/20 shadow-sm">
-                                    <div className="mb-2 flex justify-end">
-                                        <button
-                                            type="button"
-                                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-white/80 hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => onRemoveKps(kpsId)}
-                                        >
-                                            <Trash2 size={11} />
-                                            Hapus
-                                        </button>
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">id</span>
-                                            <span className="text-xs font-mono text-white break-all">{getDisplayedKpsId(kps)}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">nama_lembaga</span>
-                                            <span className="text-xs font-semibold text-white">{kps.nama_lembaga || kps.nama_kps || '-'}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">surat_keputusan</span>
-                                            <span className="text-xs font-mono text-white">{kps.surat_keputusan || kps.nomor_sk || '-'}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">skema</span>
-                                            <span className="text-xs font-semibold text-white">{kps.skema || resolveKpsType(kps)}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">provinsi</span>
-                                            <span className="text-xs text-white">{kps.provinsi || kps.lokasi_prov || '-'}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">kabupaten</span>
-                                            <span className="text-xs text-white">{kps.kabupaten || kps.lokasi_kab || '-'}</span>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">luas_total</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.luas_total ?? kps.lokasi_luas_ha ?? 0) || 0).toLocaleString('id-ID')} Ha</Badge>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_pria</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.anggota_pria ?? 0) || 0).toLocaleString('id-ID')}</Badge>
-                                        </div>
-                                        <div className="flex flex-col gap-1">
-                                            <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_wanita</span>
-                                            <Badge variant="outline" className="w-fit">{(Number(kps.anggota_wanita ?? 0) || 0).toLocaleString('id-ID')}</Badge>
-                                        </div>
-                                    </div>
-                                </div>
-                            )})}
-                        </div>
-                    )}
-                </div>
-
-                {isAdmin && (
-                    <div className={editSectionClass}>
-                        <Select
-                            label="PIC (Penanggung Jawab)"
-                            options={picOptions}
-                            value={editForm.picId || '__none__'}
-                            onChange={onSelectPic}
-                            fullWidth
-                            disabled={isLoadingUsers}
-                        />
-                        {isLoadingUsers && <p className="text-[10px] text-white/80 mt-1">Memuat daftar user...</p>}
-                    </div>
-                )}
-
-                <div className="bg-white/20/25 p-4 rounded-xl border border-white/20/70 space-y-4">
-                    <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                        <User size={16} className="text-white" />
-                        Identitas Pengadu
-                    </label>
-                    <Input
-                        label="Nama Pengadu / Kelompok"
-                        value={editForm.pengaduNama}
-                        onChange={onEditInput('pengaduNama')}
-                        fullWidth
-                        required
-                    />
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <Input
-                            label="Nomor Telepon"
-                            value={editForm.pengaduTelepon}
-                            onChange={onEditInput('pengaduTelepon')}
-                            fullWidth
-                        />
-                        <Input
-                            label="Email Pengadu"
-                            placeholder="nama@email.com"
-                            value={editForm.pengaduEmail}
-                            onChange={onEditInput('pengaduEmail')}
-                            error={emailError}
-                            fullWidth
-                        />
-                    </div>
-                </div>
-
-                {editSelectedKpsList.length === 0 && (
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <Input
-                            label="Desa"
-                            value={editForm.lokasiDesa}
-                            onChange={onEditInput('lokasiDesa')}
-                            fullWidth
-                        />
-                        <Input
-                            label="Kecamatan"
-                            value={editForm.lokasiKecamatan}
-                            onChange={onEditInput('lokasiKecamatan')}
-                            fullWidth
-                        />
-                    </div>
-                )}
-
-                <div className={`${editSectionClass} grid grid-cols-1 sm:grid-cols-2 gap-4`}>
-                    <div className="sm:col-span-2">
-                        <label className="text-[10px] font-semibold text-white uppercase tracking-widest block mb-2">Administrasi Surat</label>
-                    </div>
-                    <Select
-                        label="Kategori Asal"
-                        options={[
-                            { value: 'Masyarakat', label: 'Masyarakat' },
-                            { value: 'Kementerian', label: 'Kementerian' },
-                            { value: 'Direktorat', label: 'Direktorat' },
-                            { value: 'Balai', label: 'Balai' },
-                            { value: 'Lainnya', label: 'Lainnya' }
-                        ]}
-                        value={editForm.asalSuratKategori}
-                        onChange={onAsalSuratKategoriChange}
-                        fullWidth
-                    />
-                    {editForm.asalSuratKategori !== 'Masyarakat' && (
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Detail Asal Surat"
-                                value={editForm.asalSurat}
-                                onChange={onEditInput('asalSurat')}
-                                placeholder={`Nama ${editForm.asalSuratKategori.toLowerCase()}...`}
-                                fullWidth
-                                required
-                            />
-                        </div>
-                    )}
-                    <div className="sm:col-span-2">
-                        <Input
-                            label="Perihal Surat"
-                            value={editForm.suratPerihal || ''}
-                            onChange={onEditInput('suratPerihal')}
-                            placeholder="Masukkan perihal surat..."
-                            fullWidth
-                        />
-                    </div>
-                </div>
-
-                <div className={editSectionClass}>
-                    <FileUpload
-                        label="Ganti / Upload Surat Masuk (Lampiran)"
-                        helperText="Unggah surat masuk baru: PDF, JPG, PNG, DOC, atau DOCX"
-                        initialFiles={suratFile ? [suratFile] : (editForm.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : [])}
-                        onFileSelected={onSuratFileSelected}
-                        onFileRemoved={onSuratFileRemoved}
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        maxSizeMB={10}
-                        uploadProgress={suratUploadProgress}
-                        fileStatuses={suratFileStatuses}
-                        isLoading={isEditSubmitting && suratUploadProgress > 0 && suratUploadProgress < 100}
-                    />
-                </div>
-
-                <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onClose}
-                    >
-                        Batal
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="primary"
-                        isLoading={isEditSubmitting}
-                        leftIcon={<CheckCircle size={18} />}
-                    >
-                        Simpan Perubahan
-                    </Button>
-                </ModalFooter>
-            </form>
-        </Modal>
-    );
-};
-
 
 export const AduanDetailPage: React.FC = () => {
     const { nomorTiket } = useParams<{ nomorTiket: string }>();
@@ -1564,31 +1104,31 @@ export const AduanDetailPage: React.FC = () => {
 
     if (isLoadingAduan) {
         return (
-            <div className="flex h-96 flex-col items-center justify-center gap-4">
+            <div className="flex h-96 flex-col items-center justify-center gap-4 text-muted-foreground">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                <p className="text-white/80 animate-pulse">Menghubungkan ke database...</p>
+                <p className="animate-pulse">Menghubungkan ke database...</p>
             </div>
         );
     }
 
     if (isDeleting) {
         return (
-            <div className="flex h-96 flex-col items-center justify-center gap-4">
+            <div className="flex h-96 flex-col items-center justify-center gap-4 text-muted-foreground">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
-                <p className="text-white/80 animate-pulse font-semibold">Menghapus data...</p>
+                <p className="animate-pulse font-semibold">Menghapus data...</p>
             </div>
         );
     }
 
     if (isAduanError || !aduan) {
         return (
-            <Card className="max-w-md mx-auto mt-20 text-center border-none shadow-xl bg-background/50 backdrop-blur-md">
+            <Card className="mx-auto mt-20 max-w-md border-border bg-card text-center shadow-xl">
                 <CardContent className="pt-10 pb-10">
                     <AlertTriangle className="h-16 w-16 text-destructive/50 mx-auto mb-6" />
                     <h2 className="text-xl font-bold mb-3">
                         {isAduanError ? 'Terjadi Kesalahan' : 'Aduan Tidak Ditemukan'}
                     </h2>
-                    <p className="text-white/80 mb-8 text-balance px-4">
+                    <p className="mb-8 px-4 text-balance text-muted-foreground">
                         {isAduanError
                             ? (detailError || 'Gagal menyambung ke server. Silakan periksa koneksi internet Anda.')
                             : 'Maaf, aduan yang Anda cari tidak dapat ditemukan atau sudah dihapus.'}
@@ -1603,7 +1143,7 @@ export const AduanDetailPage: React.FC = () => {
                         </Button>
                         <Button
                             variant="ghost"
-                            className="w-full text-white/80"
+                            className="w-full text-muted-foreground"
                             onClick={() => window.location.reload()}
                         >
                             Coba Lagi
@@ -1631,24 +1171,24 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const problemDescriptionCard = (
-        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
-            <CardHeader className="border-b border-white/20 bg-white/5">
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white">
+        <Card className={detailCardClass}>
+            <CardHeader className={detailCardHeaderClass}>
+                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                    <div className={detailIconClass}>
                         <FileText size={16} />
                     </div>
                     Ringkasan Permasalahan
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-                <h3 className="mb-3 text-lg font-semibold text-white">
+                <h3 className="mb-3 text-lg font-semibold text-foreground">
                     {aduan.perihal}
                 </h3>
-                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-white/90 prose-p:text-white/90 prose-strong:text-white">
+                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
                     {aduan.ringkasanMasalah ? (
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aduan.ringkasanMasalah}</ReactMarkdown>
                     ) : (
-                        <span className="italic text-white/80">Tidak ada ringkasan detail.</span>
+                        <span className="italic text-muted-foreground">Tidak ada ringkasan detail.</span>
                     )}
                 </div>
             </CardContent>
@@ -1669,7 +1209,7 @@ export const AduanDetailPage: React.FC = () => {
                             "mx-auto flex max-w-3xl items-start gap-3 rounded-2xl border px-4 py-3 shadow-sm backdrop-blur",
                             feedback.type === 'success' && "border-secondary/20 bg-secondary/10 text-secondary",
                             feedback.type === 'error' && "border-destructive/20 bg-destructive/10 text-destructive",
-                            feedback.type === 'info' && "border-primary/20 bg-white/20 text-white"
+                            feedback.type === 'info' && "border-primary/20 bg-primary/10 text-foreground"
                         )}
                     >
                         {feedback.type === 'error' ? <AlertTriangle size={16} className="mt-0.5 shrink-0" /> : <CheckCircle size={16} className="mt-0.5 shrink-0" />}
@@ -1689,12 +1229,12 @@ export const AduanDetailPage: React.FC = () => {
             <div className="hidden print:block print-header">
                 <div>
                     <h1 className="text-xl font-semibold">KitapantauSH - Sistem Pemantauan Aduan</h1>
-                    <p className="text-sm text-white/80">Direktorat Pengendalian Perhutanan Sosial</p>
+                    <p className="text-sm text-black/70">Direktorat Pengendalian Perhutanan Sosial</p>
                 </div>
                 <div className="text-right">
                     <p className="text-sm font-semibold">Laporan Detail Aduan</p>
-                    <p className="text-xs text-white/80">Tiket: {aduan.nomorTiket}</p>
-                    <p className="text-xs text-white/80">Dicetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p className="text-xs text-black/70">Tiket: {aduan.nomorTiket}</p>
+                    <p className="text-xs text-black/70">Dicetak: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
             </div>
 
@@ -1716,7 +1256,7 @@ export const AduanDetailPage: React.FC = () => {
                         </tr>
                         <tr className="border-b">
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Nama Pengadu</td>
-                            <td className="py-2 px-2 font-semibold text-white">{aduan.pengadu.nama}</td>
+                            <td className="py-2 px-2 font-semibold">{aduan.pengadu.nama}</td>
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Kontak/HP</td>
                             <td className="py-2 px-2">{aduan.pengadu.telepon || '-'}</td>
                         </tr>
@@ -1737,7 +1277,7 @@ export const AduanDetailPage: React.FC = () => {
             {/* Print Master KPS Info */}
             {lokasiObjekItems.length > 0 && (
                 <div className="hidden print:block border rounded-lg p-4 mb-4 avoid-break">
-                    <h3 className="font-semibold text-[11px] mb-3 border-b-2 border-primary pb-2 uppercase tracking-widest text-white">LOKASI OBJEK</h3>
+                    <h3 className="mb-3 border-b-2 border-primary pb-2 text-[11px] font-semibold uppercase tracking-widest">LOKASI OBJEK</h3>
                     <table className="w-full text-xs border-collapse border border-white/20">
                         <thead>
                             <tr className="bg-white/20">
@@ -1820,13 +1360,13 @@ export const AduanDetailPage: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => navigate('/pengaduan')}
-                                    className="h-8 rounded-lg px-2.5 text-white/80 hover:bg-transparent/10 hover:text-white"
+                                    className="h-8 rounded-lg px-2.5 text-muted-foreground hover:bg-white/8 hover:text-foreground"
                                     leftIcon={<ArrowLeft size={14} />}
                                 >
                                     Kembali
                                 </Button>
-                                <span className="text-white/40">|</span>
-                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-white/80">
+                                <span className="text-border">|</span>
+                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                                     <Tag size={12} />
                                     <span>{aduan.kategoriMasalah || '-'}</span>
                                 </div>
@@ -1834,23 +1374,23 @@ export const AduanDetailPage: React.FC = () => {
 
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
-                                    <h1 className="text-xl font-semibold tracking-tight text-white md:text-2xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="shadow-none bg-transparent/20 text-white border-white/10" />
+                                    <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="border-border bg-muted text-foreground shadow-none" />
                                 </div>
-                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-white/90">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-3 xl:items-stretch">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
-                                    <div key={card.label} className="rounded-2xl border border-white/20 bg-transparent/10 p-3 shadow-sm">
+                                    <div key={card.label} className="rounded-2xl border border-border bg-muted/60 p-3 shadow-sm">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">{card.label}</p>
-                                            <card.icon size={13} className="text-white/80" />
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{card.label}</p>
+                                            <card.icon size={13} className="text-muted-foreground" />
                                         </div>
-                                        <p className="mt-2 text-sm font-semibold text-white">{card.value}</p>
-                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-white/70">{card.hint}</p>
+                                        <p className="mt-2 text-sm font-semibold text-foreground">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{card.hint}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1861,7 +1401,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<FileText size={15} />}
                                     onClick={handlePrint}
-                                    className="h-9 rounded-xl px-4 bg-transparent/20 text-white border-white/20 hover:bg-transparent/30 hover:text-white"
+                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
                                     isLoading={isExportingPdf}
                                 >
                                     PDF
@@ -1871,7 +1411,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<Upload size={15} />}
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-9 rounded-xl px-4 bg-transparent/20 text-white border-white/20 hover:bg-transparent/30 hover:text-white"
+                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
                                 >
                                     Upload
                                 </Button>
@@ -1889,7 +1429,7 @@ export const AduanDetailPage: React.FC = () => {
                                         leftIcon={<Trash2 size={15} />}
                                         onClick={() => setIsDeleteAduanConfirmOpen(true)}
                                         isLoading={isDeleting}
-                                        className="h-9 rounded-xl px-4 text-white/80 hover:bg-destructive/25 hover:text-white"
+                                        className="h-9 rounded-xl px-4 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
                                     >
                                         Hapus
                                     </Button>
@@ -1919,7 +1459,7 @@ export const AduanDetailPage: React.FC = () => {
                                 </span>
                             )}
                         </div>
-                        <p className="text-sm text-white/80 leading-relaxed font-medium">
+                        <p className="text-sm leading-relaxed font-medium text-muted-foreground">
                             {aduan.alasanPenolakan || 'Tidak ada alasan penolakan yang dicatat.'}
                         </p>
                     </div>
@@ -1930,14 +1470,14 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden border border-[#34A853] bg-[#34A853] text-white p-5 sm:rounded-2xl shadow-sm"
+                    className="no-print relative overflow-hidden rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-[var(--shadow-card)]"
                 >
                     <div className="mb-3 flex items-center gap-2">
-                        <Settings size={15} className="text-white/80" />
-                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-white/80">
+                        <Settings size={15} className="text-muted-foreground" />
+                        <span className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground">
                             Ubah Status Aduan
                         </span>
-                        <StatusBadge status={aduan.status} className="ml-auto border-white/20 bg-white/20 text-white" />
+                        <StatusBadge status={aduan.status} className="ml-auto border-border bg-muted text-foreground" />
                     </div>
                     <div className="space-y-3">
                         <Select
@@ -1988,57 +1528,57 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 xl:col-span-8">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
                     <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
-                            <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
+                        <Card className={`h-full ${detailCardClass}`}>
+                            <CardHeader className={`${detailCardHeaderClass} py-3.5`}>
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <User className="h-4 w-4" />
                                     Data Pengadu
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-4 py-5">
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Nama Lengkap</span>
-                                    <span className="text-[0.95rem] font-semibold text-white">{aduan.pengadu.nama}</span>
+                                    <span className={detailLabelClass}>Nama Lengkap</span>
+                                    <span className="text-[0.95rem] font-semibold text-foreground">{aduan.pengadu.nama}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Informasi Kontak</span>
+                                    <span className={detailLabelClass}>Informasi Kontak</span>
                                     <div className="flex flex-col gap-2.5">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/5 text-white">
+                                            <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-primary/10 text-primary">
                                                 <Phone size={14} />
                                             </div>
-                                            <span className="font-mono text-xs font-semibold text-white">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
+                                            <span className="font-mono text-xs font-semibold text-foreground">{aduan.pengadu.telepon || 'Tidak tersedia'}</span>
                                             {aduan.pengadu.telepon && (
-                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-primary/20">
+                                                <a href={`tel:${aduan.pengadu.telepon}`} className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-muted text-foreground transition-colors hover:bg-accent">
                                                     <ExternalLink size={12} />
                                                 </a>
                                             )}
                                         </div>
                                         {aduan.pengadu.email && (
                                             <div className="flex items-center gap-2">
-                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-white/20 text-white">
+                                                <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg border border-border bg-muted text-foreground">
                                                     <Globe size={14} />
                                                 </div>
-                                                <span className="break-all text-[11px] font-semibold text-white">{aduan.pengadu.email}</span>
+                                                <span className="break-all text-[11px] font-semibold text-foreground">{aduan.pengadu.email}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Instansi / Kelompok</span>
-                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-white">
-                                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg bg-white/20 text-white/80">
+                                    <span className={detailLabelClass}>Instansi / Kelompok</span>
+                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-foreground">
+                                        <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
                                             <Briefcase size={14} />
                                         </div>
-                                        <span>{aduan.pengadu.instansi || <span className="text-white/80 italic">Personal / Umum</span>}</span>
+                                        <span>{aduan.pengadu.instansi || <span className="italic text-muted-foreground">Personal / Umum</span>}</span>
                                     </div>
                                 </div>
                             </CardContent>
                         </Card>
 
-                        <Card className="h-full overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
-                            <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
+                        <Card className={`h-full ${detailCardClass}`}>
+                            <CardHeader className={`${detailCardHeaderClass} py-3.5`}>
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                     <FileText className="h-4 w-4" />
                                     Administrasi Surat
                                 </CardTitle>
@@ -2046,20 +1586,20 @@ export const AduanDetailPage: React.FC = () => {
                             <CardContent className="space-y-4 py-5">
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Nomor Surat</span>
-                                        <span className="font-semibold text-white text-[11px] font-mono bg-white/20 px-2 py-1 rounded border border-white/20">{aduan.suratMasuk.nomorSurat}</span>
+                                        <span className={detailLabelClass}>Nomor Surat</span>
+                                        <span className="rounded border border-border bg-muted px-2 py-1 font-mono text-[11px] font-semibold text-foreground">{aduan.suratMasuk.nomorSurat}</span>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
-                                        <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Tgl Masuk</span>
-                                        <span className="text-[0.92rem] font-semibold text-white">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
+                                        <span className={detailLabelClass}>Tgl Masuk</span>
+                                        <span className="text-[0.92rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">Asal & Perihal</span>
+                                    <span className={detailLabelClass}>Asal & Perihal</span>
                                     <div className="space-y-1.5">
-                                        <Badge variant="outline" className="bg-white/20 text-white border-white/20 font-semibold text-[9px] uppercase tracking-widest">{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
-                                        <p className="text-[0.92rem] font-semibold leading-tight text-white">
-                                            {aduan.suratMasuk.perihal || <span className="text-white/80/60 italic font-medium">Tidak dicantumkan</span>}
+                                        <Badge variant="outline" className={`font-semibold text-[9px] uppercase tracking-widest ${detailBadgeClass}`}>{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
+                                        <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
+                                            {aduan.suratMasuk.perihal || <span className="italic font-medium text-muted-foreground">Tidak dicantumkan</span>}
                                         </p>
                                     </div>
                                 </div>
@@ -2067,71 +1607,71 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
-                    <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
-                        <CardHeader className="border-b border-white/20 bg-white/5 py-3.5">
-                            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
+                    <Card className={detailCardClass}>
+                        <CardHeader className={`${detailCardHeaderClass} py-3.5`}>
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
                                 <MapPin className="h-4 w-4" />
                                 Lokasi Objek
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
+                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
+                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
                                     Total luas_total: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
+                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
                                     Total anggota_pria: {totalAnggotaPriaObjek.toLocaleString('id-ID')}
                                 </Badge>
-                                <Badge variant="outline" className="text-[10px] bg-white/20 text-white border-transparent">
+                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
                                     Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {lokasiObjekItems.length === 0 ? (
-                                <div className="rounded-xl border border-dashed border-white/20 bg-transparent p-4 text-sm text-white/80">
+                                <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
                                     Belum ada KPS yang tertaut pada aduan ini.
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 gap-2.5">
                                     {lokasiObjekItems.map((item, index) => (
-                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-white/20 bg-white/5 p-3">
+                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border bg-muted/60 p-3">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">id</span>
-                                                <span className="text-[0.92rem] font-mono text-white">{item.idApiKps}</span>
+                                                <span className={detailLabelClass}>id</span>
+                                                <span className="text-[0.92rem] font-mono text-foreground">{item.idApiKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">nama_lembaga</span>
-                                                <span className="text-[0.92rem] font-semibold text-white">{item.namaKps}</span>
+                                                <span className={detailLabelClass}>nama_lembaga</span>
+                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">surat_keputusan</span>
-                                                <span className="text-[0.92rem] font-mono text-white">{item.noSk}</span>
+                                                <span className={detailLabelClass}>surat_keputusan</span>
+                                                <span className="text-[0.92rem] font-mono text-foreground">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">skema</span>
-                                                <span className="text-[0.92rem] font-semibold text-white">{item.kpsType}</span>
+                                                <span className={detailLabelClass}>skema</span>
+                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">provinsi</span>
-                                                <span className="text-[0.92rem] text-white">{item.provinsi}</span>
+                                                <span className={detailLabelClass}>provinsi</span>
+                                                <span className="text-[0.92rem] text-foreground">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">kabupaten</span>
-                                                <span className="text-[0.92rem] text-white">{item.kabupaten}</span>
+                                                <span className={detailLabelClass}>kabupaten</span>
+                                                <span className="text-[0.92rem] text-foreground">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">luas_total</span>
+                                                <span className={detailLabelClass}>luas_total</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_pria</span>
+                                                <span className={detailLabelClass}>anggota_pria</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className="text-[10px] font-semibold text-white/80 uppercase tracking-widest">anggota_wanita</span>
+                                                <span className={detailLabelClass}>anggota_wanita</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
@@ -2146,9 +1686,9 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                        <Card className={detailCardClass}>
                             <CardHeader
-                                className="flex flex-row items-center justify-between border-b border-white/20 bg-white/5 py-3.5"
+                                className={`flex flex-row items-center justify-between py-3.5 ${detailCardHeaderClass}`}
                                 action={
                                     <Button
                                         size="sm"
@@ -2161,8 +1701,8 @@ export const AduanDetailPage: React.FC = () => {
                                     </Button>
                                 }
                             >
-                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-white">
-                                    <div className="h-8 w-8 rounded-lg bg-white/20 text-white flex items-center justify-center">
+                                <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
+                                    <div className={detailIconClass}>
                                         <Clock size={16} />
                                     </div>
                                     Riwayat Penanganan
@@ -2170,49 +1710,49 @@ export const AduanDetailPage: React.FC = () => {
                             </CardHeader>
                             <CardContent className="p-5">
                                 {!canInputRiwayatPenanganan && (
-                                    <p className="mb-4 rounded-lg border border-white/20 bg-white/20 px-3 py-2 text-[11px] font-medium text-white">
-                                        Ubah status aduan ke <span className="font-semibold text-white">PROSES</span> untuk menambah Riwayat Penanganan.
+                                    <p className="mb-4 rounded-lg border border-border bg-muted px-3 py-2 text-[11px] font-medium text-foreground">
+                                        Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
                                 <div className="flex flex-col gap-3">
                                     {qTindakLanjutList.length === 0 ? (
-                                        <p className="text-sm text-white/80 text-center py-6 italic">
+                                        <p className="py-6 text-center text-sm italic text-muted-foreground">
                                             Belum ada langkah penanganan
                                         </p>
                                     ) : (
                                         qTindakLanjutList.map((tl, index) => (
-                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-white/20 bg-white/5 p-3.5 shadow-sm">
+                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-muted/60 p-3.5 shadow-sm">
                                                 {/* Decorative element */}
                                                 <div className={cn(
                                                     "absolute left-0 top-0 bottom-0 w-1",
-                                                    index === 0 ? "bg-foreground/70" : "bg-white/20-foreground/40"
+                                                    index === 0 ? "bg-primary/70" : "bg-border"
                                                 )} />
 
                                                 <div className={cn(
                                                     "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm",
-                                                    index === 0 ? "bg-foreground/80" : "bg-white/20-foreground/60"
+                                                    index === 0 ? "bg-primary" : "bg-muted-foreground/70"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] font-bold text-white uppercase tracking-tight">{normalizeJenisTlLabel(tl.jenisTL)}</span>
+                                                            <span className="text-[11px] font-bold uppercase tracking-tight text-foreground">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
-                                                                <Badge variant="outline" className="text-[9px] px-1.5 h-5 bg-white/20 border-transparent text-white font-mono">
+                                                                <Badge variant="outline" className={`h-5 px-1.5 text-[9px] font-mono ${detailBadgeClass}`}>
                                                                     {tl.nomorSuratOutput}
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 text-[10px] text-white/80 font-medium bg-transparent px-2 py-0.5 rounded-full border border-white/20">
+                                                        <div className="flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
                                                             <Calendar size={10} />
                                                             {formatDate(tl.tanggal)}
                                                         </div>
                                                     </div>
-                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-white/90 prose-p:text-white/90 prose-strong:text-white">
+                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
-                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/20 pt-2">
+                                                        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
                                                             <div className="flex items-center gap-2">
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
@@ -2224,7 +1764,7 @@ export const AduanDetailPage: React.FC = () => {
                                                                                 key={i}
                                                                                 type="button"
                                                                                 onClick={() => void openProtectedFile(url, displayName)}
-                                                                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-white/20 text-white hover:bg-white/20 transition-colors text-[10px] font-medium border border-white/20"
+                                                                                className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[10px] font-medium text-foreground transition-colors hover:bg-accent"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
@@ -2239,23 +1779,23 @@ export const AduanDetailPage: React.FC = () => {
                                                             {isAdmin && (
                                                                 <button
                                                                     onClick={() => openEditTlModal(tl)}
-                                                                    className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"
+                                                                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                                                                     title="Edit Dokumen"
                                                                 >
                                                                     <Edit size={12} />
                                                                 </button>
                                                             )}
                                                                 {isAdmin && (
-                                                                    <button
-                                                                        onClick={() => setDeleteTlConfirm({ id: tl.id, label: normalizeJenisTlLabel(tl.jenisTL) })}
-                                                                        className="p-1 rounded hover:bg-white/20 text-white/80 hover:text-white transition-colors"
-                                                                        title="Hapus Riwayat"
-                                                                    >
+                                                                <button
+                                                                    onClick={() => setDeleteTlConfirm({ id: tl.id, label: normalizeJenisTlLabel(tl.jenisTL) })}
+                                                                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                                                    title="Hapus Riwayat"
+                                                                >
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             )}
-                                                            <div className="flex items-center gap-1.5 text-[9px] text-white/80 font-semibold uppercase tracking-wider">
-                                                                <User size={10} className="text-white/80" />
+                                                            <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                                                <User size={10} className="text-muted-foreground" />
                                                                 Oleh: {tl.createdByName}
                                                             </div>
                                                         </div>
@@ -2273,28 +1813,28 @@ export const AduanDetailPage: React.FC = () => {
                 <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
                     {/* PIC Info Card */}
                     <motion.div variants={itemVariants}>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
+                        <Card className={detailCardClass}>
                             <CardContent className="space-y-4 p-5">
                                 <div>
-                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/80">Penanggung Jawab (PIC)</p>
+                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 text-base font-semibold text-white">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted text-base font-semibold text-foreground">
                                             {(aduan?.picName || 'U').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-[0.92rem] font-semibold text-white">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-[11px] text-white/80">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
+                                            <p className="text-[0.92rem] font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
+                                            <p className="text-[11px] text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-white/20 bg-white/5 p-3">
+                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/60 p-3">
                                     <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/80">KPS Terkait</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-white">{lokasiObjekItems.length}</p>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{lokasiObjekItems.length}</p>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/80">Lampiran</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-white">{allAttachments.length}</p>
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Lampiran</p>
+                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{allAttachments.length}</p>
                                     </div>
                                 </div>
                             </CardContent>
@@ -2303,15 +1843,15 @@ export const AduanDetailPage: React.FC = () => {
 
                     {/* Resources */}
                     <div>
-                        <Card className="overflow-hidden rounded-2xl border border-[#34A853] bg-[#34A853] text-white shadow-sm">
-                            <CardHeader className="flex flex-row items-center justify-between border-b border-white/20 bg-white/5 pb-3">
-                                <CardTitle className="text-xs font-semibold tracking-[0.15em] uppercase text-white">Lampiran & Berkas</CardTitle>
+                        <Card className={detailCardClass}>
+                            <CardHeader className={`flex flex-row items-center justify-between pb-3 ${detailCardHeaderClass}`}>
+                                <CardTitle className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">Lampiran & Berkas</CardTitle>
                                 <div className="flex items-center gap-2">
                                     {allAttachments.length > 0 && (
                                         <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-8 rounded-lg text-[10px] font-semibold uppercase border-white/20 hover:bg-white/20"
+                                            className="h-8 rounded-lg border-border text-[10px] font-semibold uppercase hover:bg-accent"
                                             onClick={handleDownloadZip}
                                             disabled={isDownloadingZip}
                                         >
@@ -2322,7 +1862,7 @@ export const AduanDetailPage: React.FC = () => {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-8 rounded-lg text-[10px] font-semibold uppercase border-white/20 hover:bg-white/20"
+                                        className="h-8 rounded-lg border-border text-[10px] font-semibold uppercase hover:bg-accent"
                                         onClick={() => setIsUploadModalOpen(true)}
                                     >
                                         <Upload size={12} className="mr-1.5" /> Upload
@@ -2333,25 +1873,25 @@ export const AduanDetailPage: React.FC = () => {
                                 {/* Unified Attachment List */}
                                 <div className="flex flex-col gap-2.5">
                                     {allAttachments.length === 0 && (
-                                        <div className="rounded-xl border border-dashed border-white/20 bg-transparent p-4 text-center text-xs text-white/80">
+                                        <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4 text-center text-xs text-muted-foreground">
                                             Belum ada lampiran
                                         </div>
                                     )}
 
                                     {allAttachments.map((file) => (
-                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border bg-transparent p-3 transition-all hover:border-white/20 hover:bg-white/20">
-                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20 text-white">
+                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-3 transition-all hover:border-primary/25 hover:bg-accent/70">
+                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground">
                                                 {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                             </div>
                                             <div className="flex min-w-0 flex-1 flex-col">
-                                                <span className="truncate pr-2 text-[11px] font-semibold text-white">
+                                                <span className="truncate pr-2 text-[11px] font-semibold text-foreground">
                                                     {file.fileName}
                                                 </span>
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="outline" className="h-5 px-1.5 text-[9px] font-semibold">
                                                         {file.source}
                                                     </Badge>
-                                                    <span className="text-[10px] text-white/80 truncate">{file.meta}</span>
+                                                    <span className="truncate text-[10px] text-muted-foreground">{file.meta}</span>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-1">
@@ -2359,7 +1899,7 @@ export const AduanDetailPage: React.FC = () => {
                                                     <button
                                                         onClick={() => setDeleteConfirmDoc({ id: file.rawId!, fileName: file.fileName })}
                                                         disabled={deletingDocId === file.rawId}
-                                                        className="h-8 w-8 flex items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
                                                         title="Hapus file"
                                                     >
                                                         {deletingDocId === file.rawId ? (
@@ -2372,7 +1912,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => void openProtectedFile(file.url, file.fileName)}
-                                                    className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-white/20 text-white transition-colors"
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent"
                                                     title="Buka File"
                                                 >
                                                     <ExternalLink size={14} />
@@ -2393,11 +1933,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={() => setIsTLModalOpen(false)}
                 title="Tambah Dokumen"
                 description="Catat dokumen atau hasil penanganan terbaru agar jejak proses aduan tetap lengkap."
-                className="max-w-3xl rounded-2xl border-white/20 bg-transparent p-6"
+                className={cn("max-w-3xl", detailModalClass)}
                 size="xl"
             >
                 <form onSubmit={handleTLSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-white/20/70 bg-white/20/25 p-4 space-y-4">
+                    <div className={`${detailSectionSoftClass} space-y-4`}>
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2434,8 +1974,8 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-white/20 bg-white/5 p-4">
-                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
+                    <div className={`${detailSectionClass} space-y-2`}>
+                        <label className="pl-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                             Upload Dokumen / Foto (Opsional)
                         </label>
                         <FileUpload
@@ -2453,7 +1993,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-card/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2479,11 +2019,11 @@ export const AduanDetailPage: React.FC = () => {
                 onClose={resetEditTlForm}
                 title="Edit Dokumen"
                 description="Perbarui catatan dokumen atau tindak lanjut tanpa membuat catatan baru."
-                className="max-w-3xl rounded-2xl border-white/20 bg-transparent p-6"
+                className={cn("max-w-3xl", detailModalClass)}
                 size="xl"
             >
                 <form onSubmit={handleEditTlSubmit} className="flex flex-col gap-5">
-                    <div className="rounded-xl border border-white/20/70 bg-white/20/25 p-4 space-y-4">
+                    <div className={`${detailSectionSoftClass} space-y-4`}>
                         <Select
                             label="Jenis Dokumen"
                             options={jenisTlSelectOptions}
@@ -2520,23 +2060,23 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="space-y-3 rounded-xl border border-white/20 bg-white/5 p-4">
-                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
+                    <div className={`${detailSectionClass} space-y-3`}>
+                        <label className="pl-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                             Lampiran Saat Ini
                         </label>
                         {editTlForm.fileUrls.length === 0 ? (
-                            <p className="text-[11px] text-white/80 italic">Tidak ada lampiran.</p>
+                            <p className="text-[11px] italic text-muted-foreground">Tidak ada lampiran.</p>
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {editTlForm.fileUrls.map((url, idx) => {
                                     const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${idx + 1}`;
                                     return (
-                                        <div key={idx} className="inline-flex items-center gap-2 px-2 py-1 rounded bg-transparent border border-white/20 text-[10px] font-medium">
+                                        <div key={idx} className="inline-flex items-center gap-2 rounded border border-border bg-card px-2 py-1 text-[10px] font-medium text-foreground">
                                             <FileText size={10} />
                                             <span className="max-w-[180px] truncate">{fileName}</span>
                                             <button
                                                 type="button"
-                                                className="p-1 hover:bg-white/20 rounded text-white/80 hover:text-destructive transition-colors"
+                                                className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
                                                 onClick={() => removeExistingTlFile(idx)}
                                                 title="Hapus lampiran ini"
                                             >
@@ -2549,8 +2089,8 @@ export const AduanDetailPage: React.FC = () => {
                         )}
                     </div>
 
-                    <div className="space-y-2 rounded-xl border border-white/20 bg-white/5 p-4">
-                        <label className="text-[10px] font-bold text-white/80 uppercase tracking-widest pl-1">
+                    <div className={`${detailSectionClass} space-y-2`}>
+                        <label className="pl-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                             Tambah Lampiran Baru (Opsional)
                         </label>
                         <FileUpload
@@ -2565,7 +2105,7 @@ export const AduanDetailPage: React.FC = () => {
                         />
                     </div>
 
-                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-white/20 bg-transparent/95 px-1 pt-4 pb-1 backdrop-blur">
+                    <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-card/95 px-1 pt-4 pb-1 backdrop-blur">
                         <Button
                             type="button"
                             variant="ghost"
@@ -2644,13 +2184,13 @@ export const AduanDetailPage: React.FC = () => {
                 size="lg"
             >
                 <div className="flex flex-col gap-5">
-                    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="p-4 bg-white/20 border border-white/20 rounded-lg mb-4">
-                            <h4 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
+                        <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="mb-4 rounded-lg border border-border bg-muted p-4">
+                            <h4 className="mb-1 flex items-center gap-2 text-sm font-semibold text-foreground">
                                 <FileText size={16} />
                                 Upload Dokumen Pendukung
                             </h4>
-                            <p className="text-xs text-white">
+                            <p className="text-xs text-muted-foreground">
                                 Unggah berkas dokumen (PDF, Word, Excel), data spasial (ZIP, SHP), atau audio (MP3, WAV).
                             </p>
                         </div>
@@ -2692,7 +2232,7 @@ export const AduanDetailPage: React.FC = () => {
             </Modal>
 
             {/* Print Only Footer */}
-            <div className="hidden print:block fixed bottom-0 left-0 right-0 border-t pt-2 text-[10px] text-white/80 text-center">
+            <div className="fixed bottom-0 left-0 right-0 hidden border-t pt-2 text-center text-[10px] text-black/70 print:block">
                 Direktorat Pengendalian Perhutanan Sosial - KitapantauSH • Dicetak pada: {new Date().toLocaleString('id-ID')}
             </div>
 
@@ -2702,8 +2242,8 @@ export const AduanDetailPage: React.FC = () => {
                     <DialogHeader>
                         <DialogTitle>Hapus Dokumen</DialogTitle>
                     </DialogHeader>
-                    <p className="text-sm text-white/80">
-                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-white">"{deleteConfirmDoc?.fileName}"</span>?
+                    <p className="text-sm text-muted-foreground">
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">"{deleteConfirmDoc?.fileName}"</span>?
                         File akan dihapus permanen dan tidak dapat dikembalikan.
                     </p>
                     <DialogFooter className="gap-2 mt-4">
@@ -2729,7 +2269,7 @@ export const AduanDetailPage: React.FC = () => {
                 title="Hapus Aduan"
                 description={
                     <>
-                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-white">{aduan.nomorTiket}</span>?
+                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">{aduan.nomorTiket}</span>?
                         Tindakan ini permanen dan tidak dapat dibatalkan.
                     </>
                 }
@@ -2745,7 +2285,7 @@ export const AduanDetailPage: React.FC = () => {
                 title="Hapus Riwayat Penanganan"
                 description={
                     <>
-                        Catatan tindak lanjut <span className="font-semibold text-white">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
+                        Catatan tindak lanjut <span className="font-semibold text-foreground">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
                     </>
                 }
                 confirmLabel="Hapus Riwayat"

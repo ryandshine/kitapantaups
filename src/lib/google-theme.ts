@@ -1,12 +1,12 @@
 export const GOOGLE_CARD_THEMES = [
   {
-    bg: "bg-[#4285F4]",
-    border: "border-[#4285F4]",
-    text: "text-white",
-    muted: "text-white/80",
-    badge: "bg-white/20 text-white border-white/30",
-    iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#4285F4]",
-    iconText: "text-white/70 group-hover:text-[#4285F4]",
+    bg: "bg-card",
+    border: "border-border",
+    text: "text-foreground",
+    muted: "text-muted-foreground",
+    badge: "border border-border bg-muted text-foreground",
+    iconBg: "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
+    iconText: "text-muted-foreground group-hover:text-foreground",
   },
 ] as const;
 
@@ -14,7 +14,7 @@ export const getGoogleCardTheme = (_index: number) =>
   GOOGLE_CARD_THEMES[0];
 
 export const getGoogleStatusDotClass = (_status?: string) => {
-  return "bg-[#34A853]";
+  return "bg-primary";
 };
 
 export const getGooglePriorityBadgeClass = (priority?: string) => {

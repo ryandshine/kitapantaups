@@ -469,10 +469,10 @@ export const NewAduanPage: React.FC = () => {
                 </Button>
                 <div className="google-hero mb-2">
                     <div className="relative z-10 flex flex-col gap-1.5">
-                        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+                        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                             Input Aduan Baru
                         </h1>
-                        <p className="max-w-2xl text-[0.95rem] leading-relaxed text-white/90">
+                        <p className="max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
                             Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                         </p>
                     </div>
@@ -499,9 +499,9 @@ export const NewAduanPage: React.FC = () => {
                 <div className={cn("grid grid-cols-1", isCompact ? "gap-5" : "gap-8")}>
                     {/* 1. Data Surat Masuk */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
-                            <CardTitle className="flex items-center gap-3 text-xl text-white">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
+                        <CardHeader className="page-section-header pb-6">
+                            <CardTitle className="flex items-center gap-3 text-xl">
+                                <div className="page-section-icon">
                                     <FileText size={20} />
                                 </div>
                                 Administrasi Surat Masuk
@@ -580,9 +580,9 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 2. Data Pengadu */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
-                            <CardTitle className="flex items-center gap-3 text-xl text-white">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
+                        <CardHeader className="page-section-header pb-6">
+                            <CardTitle className="flex items-center gap-3 text-xl">
+                                <div className="page-section-icon">
                                     <User size={20} />
                                 </div>
                                 Identitas Pengadu
@@ -630,51 +630,51 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 3. Lokasi Objek */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
-                            <CardTitle className="flex items-center gap-3 text-xl text-white">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
+                        <CardHeader className="page-section-header pb-6">
+                            <CardTitle className="flex items-center gap-3 text-xl">
+                                <div className="page-section-icon">
                                     <MapPin size={20} />
                                 </div>
                                 Lokasi Objek Konflik / Pengaduan
                             </CardTitle>
                         </CardHeader>
                         <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
-                            <div className={cn("bg-primary/[0.03] border border-primary/10 rounded-2xl", isCompact ? "mb-5 p-4 space-y-4" : "mb-8 p-6 space-y-6")}>
+                            <div className={cn("rounded-2xl border border-border bg-muted/40", isCompact ? "mb-5 p-4 space-y-4" : "mb-8 p-6 space-y-6")}>
                                 <KpsSearch onSelect={handleKpsSelect} />
 
                                 {selectedKps && (
-                                    <div className="rounded-2xl border border-green-700/30 bg-[#34A853] p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 text-white">
+                                    <div className="page-filter-panel animate-in fade-in slide-in-from-top-2 p-4 duration-300">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0">
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">KPS Terpilih</p>
-                                                <h4 className="mt-1 text-sm font-semibold text-white break-words">{getKpsDisplayName(selectedKps)}</h4>
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">KPS Terpilih</p>
+                                                <h4 className="mt-1 text-sm font-semibold text-foreground break-words">{getKpsDisplayName(selectedKps)}</h4>
                                                 <p className="mt-1 text-xs text-muted-foreground break-words">
                                                     {getKpsDisplayKabupaten(selectedKps)}, {getKpsDisplayProvinsi(selectedKps)}
                                                 </p>
                                             </div>
                                             <div className="flex flex-wrap gap-2 text-[10px] font-semibold">
-                                                <span className="rounded-full bg-white/20 px-2.5 py-1 text-white">
+                                                <span className="rounded-full border border-border bg-muted px-2.5 py-1 text-foreground">
                                                     id: {getKpsDisplayId(selectedKps)}
                                                 </span>
-                                                <span className="rounded-full bg-secondary px-2.5 py-1 text-muted-foreground">
+                                                <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-primary">
                                                     skema: {resolveKpsType(selectedKps) || DEFAULT_SKEMA}
                                                 </span>
                                             </div>
                                         </div>
                                         <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-2 xl:grid-cols-4">
-                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                            <div className="page-subpanel px-3 py-2">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">surat_keputusan</p>
                                                 <p className="mt-1 break-words">{getKpsDisplaySk(selectedKps)}</p>
                                             </div>
-                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                            <div className="page-subpanel px-3 py-2">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">luas_total</p>
                                                 <p className="mt-1">{getKpsDisplayLuas(selectedKps).toLocaleString('id-ID')} Ha</p>
                                             </div>
-                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                            <div className="page-subpanel px-3 py-2">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_pria</p>
                                                 <p className="mt-1">{getKpsDisplayAnggotaPria(selectedKps).toLocaleString('id-ID')}</p>
                                             </div>
-                                            <div className="rounded-xl border border-border/70 bg-muted/20 px-3 py-2">
+                                            <div className="page-subpanel px-3 py-2">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_wanita</p>
                                                 <p className="mt-1">{getKpsDisplayAnggotaWanita(selectedKps).toLocaleString('id-ID')}</p>
                                             </div>
@@ -687,7 +687,7 @@ export const NewAduanPage: React.FC = () => {
                                         {selectedKpsList.map((kps) => (
                                             <div
                                                 key={kps.id}
-                                                className="flex items-center gap-2 bg-white border border-border pl-3 pr-1 py-1 rounded-full shadow-sm animate-in zoom-in-95 duration-200"
+                                                className="flex items-center gap-2 rounded-full border border-border bg-card pl-3 pr-1 py-1 shadow-sm animate-in zoom-in-95 duration-200"
                                             >
                                                 <div className="flex flex-col">
                                                     <span className="text-[10px] font-semibold leading-none text-foreground">{getKpsDisplayName(kps)}</span>
@@ -717,7 +717,7 @@ export const NewAduanPage: React.FC = () => {
                                 {selectedKpsList.length > 0 && (
                                     <div className={cn("flex flex-col animate-in fade-in slide-in-from-top-4 duration-500", isCompact ? "mt-5 gap-4" : "mt-8 gap-6")}>
                                         {/* 1. Summary Header & Global Actions */}
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 bg-white border border-border rounded-2xl shadow-sm">
+                                        <div className="page-filter-panel flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
                                             <div className="flex flex-wrap gap-6 text-sm">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total luas_total</span>
@@ -769,11 +769,11 @@ export const NewAduanPage: React.FC = () => {
                                             {selectedKpsList.map((kps) => (
                                                 <div
                                                     key={kps.id}
-                                                    className="flex flex-col bg-white border border-border/60 rounded-2xl shadow-sm overflow-hidden"
+                                                    className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
                                                 >
                                                     {/* Card Header */}
-                                                    <div className="p-4 bg-secondary/30 border-b border-border/50 flex items-start gap-4">
-                                                        <div className="p-2.5 bg-primary/10 rounded-xl text-primary shrink-0">
+                                                    <div className="flex items-start gap-4 border-b border-border bg-muted/70 p-4">
+                                                        <div className="shrink-0 rounded-xl bg-primary/10 p-2.5 text-primary">
                                                             <Info size={18} />
                                                         </div>
                                                         <div className="min-w-0">
@@ -854,9 +854,9 @@ export const NewAduanPage: React.FC = () => {
 
                     {/* 4. Substansi Aduan */}
                     <Card className="apple-card overflow-hidden">
-                        <CardHeader className="bg-[#34A853] border-b border-green-700/30 pb-6 text-white">
-                            <CardTitle className="flex items-center gap-3 text-xl text-white">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white border border-white/10">
+                        <CardHeader className="page-section-header pb-6">
+                            <CardTitle className="flex items-center gap-3 text-xl">
+                                <div className="page-section-icon">
                                     <AlertCircle size={20} />
                                 </div>
                                 Substansi Perkara

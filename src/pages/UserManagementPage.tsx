@@ -187,8 +187,8 @@ export const UserManagementPage: React.FC = () => {
             <div className="google-hero mb-6">
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Manajemen Pengguna</h1>
-                        <p className="text-[0.92rem] text-white/90">Kelola hak akses dan peran pengguna dalam sistem.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Manajemen Pengguna</h1>
+                        <p className="text-[0.92rem] text-muted-foreground">Kelola hak akses dan peran pengguna dalam sistem.</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
@@ -212,17 +212,17 @@ export const UserManagementPage: React.FC = () => {
             )}
 
             <Card className="overflow-hidden">
-                <CardHeader className="google-panel-green pb-4 text-white">
+                <CardHeader className="page-section-header pb-4">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <CardTitle className="flex items-center gap-2 text-white">
-                            <Users className="h-4 w-4 text-white" />
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-primary" />
                             Daftar Pengguna ({filteredUsers.length})
                         </CardTitle>
                         <div className="relative">
-                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/65" />
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 placeholder="Cari nama atau email..."
-                                className="w-full pl-9 md:w-64 border-white/25 bg-white/15 text-white placeholder:text-white/70"
+                                className="w-full pl-9 md:w-64"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />

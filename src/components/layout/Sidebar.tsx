@@ -54,14 +54,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[45] bg-background/80 backdrop-blur-sm md:hidden"
+                        className="fixed inset-0 z-[45] bg-black/60 backdrop-blur-sm md:hidden"
                         onClick={onClose}
                     />
                 )}
             </AnimatePresence>
 
             <aside className={cn(
-                "fixed top-0 left-0 z-50 h-full border-r border-sidebar-border/70 bg-[linear-gradient(180deg,hsl(var(--sidebar))_0%,hsl(217_76%_34%)_100%)] text-sidebar-foreground shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
+                "fixed top-0 left-0 z-50 h-full border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] md:shadow-none",
                 !isOpen ? "-translate-x-full md:translate-x-0 md:w-[4.75rem]" : "translate-x-0 w-[min(17rem,calc(100vw-1rem))] md:w-60",
             )}>
                 {/* Logo Section */}
@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     !isOpen && "px-0 justify-center"
                 )}>
                     <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white/16 text-white shadow-lg shadow-black/15 ring-1 ring-white/12 backdrop-blur-sm">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-sidebar-border bg-sidebar-accent text-white">
                             <span className="text-base font-bold">K</span>
                         </div>
                         {isOpen && (
@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                     </div>
                     {isOpen && (
                         <button
-                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-white/10 md:hidden"
+                            className="ml-auto flex h-7 w-7 items-center justify-center rounded-lg transition-colors hover:bg-sidebar-accent md:hidden"
                             onClick={onClose}
                         >
                             <X className="h-4 w-4 text-sidebar-foreground/70" />
@@ -116,8 +116,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                                 "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium transition-all duration-200",
                                                 !isOpen && "justify-center px-0",
                                                 isActive
-                                                    ? "bg-white/14 text-white shadow-md shadow-black/15 ring-1 ring-white/12"
-                                                    : "text-sidebar-foreground/78 hover:bg-white/8 hover:text-sidebar-foreground"
+                                                    ? "bg-sidebar-accent text-sidebar-foreground ring-1 ring-white/8"
+                                                    : "text-sidebar-foreground/78 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                                             )}
                                         >
                                             {({ isActive }) => (
@@ -148,11 +148,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                 </div>
 
                 {/* Bottom Section */}
-                <div className="mt-auto border-t border-sidebar-border/70 bg-black/8 p-3">
+                <div className="mt-auto border-t border-sidebar-border bg-sidebar p-3">
                     <button
                         onClick={onLogout}
                         className={cn(
-                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium text-red-100 transition-all hover:bg-white/10 hover:text-white active:scale-95",
+                            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium text-red-200 transition-all hover:bg-sidebar-accent hover:text-white active:scale-95",
                             !isOpen && "justify-center px-0"
                         )}
                     >

@@ -77,8 +77,8 @@ export const LaporanPage: React.FC = () => {
         <div className="max-w-6xl animate-in fade-in duration-500 flex flex-col gap-6">
             <div className="google-hero mb-2">
                 <div className="relative z-10">
-                    <h1 className="text-3xl font-bold tracking-tight text-white leading-none">Laporan</h1>
-                    <p className="mt-2 text-[0.92rem] text-white/90">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none">Laporan</h1>
+                    <p className="mt-2 text-[0.92rem] text-muted-foreground">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
                 </div>
                 <div className="google-hero-orb" />
             </div>
@@ -91,10 +91,10 @@ export const LaporanPage: React.FC = () => {
                 />
             )}
 
-            <Card className="border border-green-700/30 shadow-none overflow-hidden bg-[#34A853] text-white">
-                <CardHeader className="pb-3 border-b border-white/10">
-                    <CardTitle className="flex items-center gap-2 text-base font-semibold text-white">
-                        <Settings2 size={16} className="text-white" />
+            <Card className="overflow-hidden">
+                <CardHeader className="page-section-header pb-3">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                        <Settings2 size={16} className="text-primary" />
                         Konfigurasi
                     </CardTitle>
                 </CardHeader>
@@ -160,7 +160,7 @@ export const LaporanPage: React.FC = () => {
 
                     <div className="flex items-end">
                         <Button
-                            className="bg-white text-[#34A853] hover:bg-white/90 rounded-xl font-semibold shadow-sm"
+                            className="rounded-xl font-semibold"
                             fullWidth
                             onClick={handleGenerate}
                             isLoading={isGenerating}

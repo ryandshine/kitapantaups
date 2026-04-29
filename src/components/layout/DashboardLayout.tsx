@@ -56,9 +56,7 @@ export const DashboardLayout: React.FC = () => {
     };
 
     return (
-        <div className={cn("relative flex min-h-dvh overflow-x-clip bg-background")}>
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(66,133,244,0.08),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(52,168,83,0.08),transparent_28%)]" />
-
+        <div className={cn("flex min-h-dvh overflow-x-clip bg-background text-foreground")}>
             <div className="z-50">
                 <Sidebar
                     isOpen={isExpanded}
@@ -68,7 +66,7 @@ export const DashboardLayout: React.FC = () => {
             </div>
 
             <div className={cn(
-                "relative z-10 flex w-full flex-1 flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                "flex w-full flex-1 flex-col transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]",
                 "md:ml-60"
             )}>
                 <Header
@@ -81,7 +79,7 @@ export const DashboardLayout: React.FC = () => {
                     } : undefined}
                 />
 
-                <main className="custom-scrollbar min-h-[calc(100dvh-56px)] flex-1 overflow-x-hidden overflow-y-auto bg-transparent">
+                <main className="custom-scrollbar min-h-[calc(100dvh-56px)] flex-1 overflow-x-hidden overflow-y-auto">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
@@ -89,7 +87,7 @@ export const DashboardLayout: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
-                            className="mx-auto w-full max-w-7xl p-4 md:p-6 lg:p-7"
+                            className="mx-auto w-full max-w-7xl px-4 py-4 md:px-6 md:py-6 lg:px-8"
                         >
                             <Outlet />
                         </motion.div>

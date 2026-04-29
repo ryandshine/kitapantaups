@@ -43,7 +43,15 @@ import remarkGfm from 'remark-gfm';
 import { useAduanList, useDashboardStats } from '../hooks/useAduan';
 
 export const DashboardPage: React.FC = () => {
-    const dashboardTheme = { bg: "bg-[#34A853]", text: "text-white", muted: "text-white/90", badge: "bg-white/20 text-white border-white/20", iconBg: "bg-white/20 group-hover:bg-white group-hover:text-[#34A853]", iconText: "text-white group-hover:text-[#34A853]", border: "border-green-700/30" };
+    const dashboardTheme = {
+        bg: "bg-card",
+        text: "text-foreground",
+        muted: "text-muted-foreground",
+        badge: "border border-border bg-muted text-foreground",
+        iconBg: "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
+        iconText: "text-muted-foreground group-hover:text-foreground",
+        border: "border-border"
+    };
     const navigate = useNavigate();
     const [activities, setActivities] = useState<AppActivity[]>([]);
     const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -244,17 +252,17 @@ export const DashboardPage: React.FC = () => {
             <div className="google-hero">
                 <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
-                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-white md:text-3xl">
+                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                             Dashboard Ringkasan
                         </motion.h1>
-                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-white/90">
+                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-muted-foreground">
                             Monitor perkembangan pengaduan dan manajemen KPS secara real-time dan terintegrasi.
                         </motion.p>
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-5">
                         <div className="text-right">
-                            <p className="text-4xl font-semibold tracking-tight text-white md:text-[2.75rem]">{totalCount}</p>
-                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/90">Total Aduan</p>
+                            <p className="text-4xl font-semibold tracking-tight text-foreground md:text-[2.75rem]">{totalCount}</p>
+                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Aduan</p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
@@ -265,7 +273,6 @@ export const DashboardPage: React.FC = () => {
                         </Button>
                     </motion.div>
                 </div>
-                {/* Decorative background - softer */}
                 <div className="google-hero-orb" />
             </div>
 
@@ -279,7 +286,7 @@ export const DashboardPage: React.FC = () => {
                         key={i}
                         variants={itemVariants}
                         className={cn(
-                            "group relative overflow-hidden rounded-2xl p-4 shadow-sm ring-1 ring-white/12 transition-all duration-300",
+                            "group relative overflow-hidden rounded-2xl border p-4 transition-colors duration-300 hover:border-primary/25",
                             theme.bg,
                             theme.border
                         )}
@@ -326,14 +333,14 @@ export const DashboardPage: React.FC = () => {
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan, index: number) => {
                                 const theme = getGoogleCardTheme(index);
-                                const detailPanelClass = index % 4 === 2 ? "bg-[#202124]/8" : "bg-white/10";
+                                const detailPanelClass = "bg-muted/70";
 
                                 return (
                                     <motion.div
                                         key={aduan.id}
                                         whileHover={{ scale: 1.005 }}
                                         onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
-                                        className={cn("group relative cursor-pointer p-4 shadow-sm ring-1 transition-all duration-300 hover:shadow-md sm:rounded-2xl", theme.bg, theme.border)}
+                                        className={cn("group relative cursor-pointer rounded-2xl border p-4 transition-colors duration-300 hover:border-primary/25", theme.bg, theme.border)}
                                     >
                                         <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                                             <div className="flex-1 space-y-1.5">
@@ -371,7 +378,7 @@ export const DashboardPage: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className={`mt-4 rounded-xl px-3.5 py-3 ${detailPanelClass}`}>
+                                        <div className={`mt-4 rounded-xl border border-border px-3.5 py-3 ${detailPanelClass}`}>
                                             <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-medium ${theme.muted}`}>
                                                 <div className="flex items-center gap-1.5">
                                                     <MapPin size={12} />
@@ -394,7 +401,7 @@ export const DashboardPage: React.FC = () => {
                                 );
                             })
                         ) : (
-                            <div className="rounded-3xl border border-dashed border-border/60 bg-white/50 py-14 text-center">
+                            <div className="rounded-3xl border border-dashed border-border bg-card py-14 text-center">
                                 <FileText className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
                                 <p className="text-sm text-muted-foreground font-medium">Belum ada aduan yang ditemukan</p>
                             </div>
@@ -404,7 +411,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white shadow-sm ring-1 ring-white/10">
+                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-white">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
                             <h3 className="flex items-center gap-2 text-base font-semibold text-white">
                                 Aktivitas Sistem
@@ -429,12 +436,11 @@ export const DashboardPage: React.FC = () => {
                                     const contextTags = getActivityContextTags(activity);
                                     
                                     return (
-                                        <div key={activity.id} className="group rounded-xl bg-white/[0.06] px-3 py-3">
+                                        <div key={activity.id} className="group rounded-xl border border-white/8 bg-white/[0.03] px-3 py-3">
                                             <div className="flex gap-3.5">
                                                 <div className="flex flex-col items-center">
                                                     <div className={cn(
-                                                        "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border bg-background transition-transform group-hover:scale-105",
-                                                        "border border-white/30 bg-white text-[#34A853]"
+                                                        "z-10 flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/8 text-emerald-200 transition-transform group-hover:scale-105"
                                                     )}>
                                                         <Icon size={14} />
                                                     </div>

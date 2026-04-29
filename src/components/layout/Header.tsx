@@ -44,10 +44,10 @@ export const Header: React.FC<HeaderProps> = ({
     }, [location.pathname]);
 
     return (
-        <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border/60 bg-background/88 px-4 backdrop-blur-xl transition-all duration-300 md:px-6">
+        <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border bg-background/92 px-4 backdrop-blur-md transition-all duration-300 md:px-6">
             <div className="flex flex-1 items-center gap-3">
-                <button
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-card/90 shadow-sm transition-all hover:bg-accent/20 active:scale-95 md:hidden"
+                    <button
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card transition-colors hover:bg-accent active:scale-95 md:hidden"
                     onClick={onMenuClick}
                 >
                     <Menu className="h-4.5 w-4.5 text-foreground/80" />
@@ -79,9 +79,9 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
                 {/* User Profile */}
                 {user && (
-                    <div className="group flex cursor-pointer items-center gap-2 rounded-full border border-border/70 bg-card/92 py-1 pl-1 pr-2.5 shadow-sm transition-all hover:border-primary/20 hover:bg-accent/12 active:scale-95">
+                    <div className="group flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-card py-1 pl-1 pr-2.5 transition-colors hover:border-primary/30 hover:bg-accent active:scale-95">
                         <div className="h-7 w-7 overflow-hidden rounded-full shadow-sm">
-                            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary to-primary/80 text-[9px] font-bold text-primary-foreground">
+                            <div className="flex h-full w-full items-center justify-center bg-primary text-[9px] font-bold text-primary-foreground">
                                 {safeInitial}
                             </div>
                         </div>
