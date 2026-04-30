@@ -154,7 +154,7 @@ export interface Aduan {
     pengadu_instansi?: string;
     kategori_masalah?: string;
     ringkasan_masalah?: string;
-    prioritas: Prioritas;
+    prioritas?: Prioritas;
     status: string;
 
     // LOCATION & KPS LOGIC (CRITICAL)

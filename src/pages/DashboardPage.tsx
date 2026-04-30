@@ -33,7 +33,7 @@ import {
 import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
 import { ActivityService } from '../lib/activity.service';
-import { getGoogleCardTheme, getGooglePriorityBadgeClass, getGoogleStatusDotClass } from '../lib/google-theme';
+import { getGoogleCardTheme, getGoogleStatusDotClass } from '../lib/google-theme';
 import type { AppActivity, Aduan, ActivityType } from '../types';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -131,12 +131,6 @@ export const DashboardPage: React.FC = () => {
             if (!Number.isNaN(parsed.getTime())) return parsed;
         }
         return fallback ?? new Date();
-    };
-
-    const getRecentAduanBadge = (aduan: Aduan) => {
-        const createdAt = resolveAduanDate(aduan.createdAt ?? aduan.created_at);
-        const updatedAt = resolveAduanDate(aduan.updatedAt ?? createdAt, createdAt);
-        return Math.abs(updatedAt.getTime() - createdAt.getTime()) < 60_000 ? 'Baru' : 'Diperbarui';
     };
 
     const getActivityUI = (type: ActivityType) => {
@@ -366,15 +360,6 @@ export const DashboardPage: React.FC = () => {
                                                     </span>
                                                     <span className={`text-[10px] font-semibold tracking-[0.14em] ${theme.text}`}>
                                                         {aduan.nomor_tiket}
-                                                    </span>
-                                                    <span className={cn(
-                                                        "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
-                                                        getGooglePriorityBadgeClass(aduan.prioritas)
-                                                    )}>
-                                                        {aduan.prioritas}
-                                                    </span>
-                                                    <span className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] ${theme.badge}`}>
-                                                        {getRecentAduanBadge(aduan)}
                                                     </span>
                                                 </div>
                                                 <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>

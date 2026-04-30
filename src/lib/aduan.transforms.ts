@@ -379,7 +379,7 @@ export const mapRowToAduan = (row: AduanApiRow): Aduan => {
         ringkasan_masalah: normalizeOptionalString(row.ringkasan_masalah),
         ringkasanMasalah: normalizeOptionalString(row.ringkasan_masalah),
         status: normalizeString(row.status),
-        prioritas: 'biasa',
+        prioritas: undefined,
         kps_ids: kpsIds,
         nama_kps: namaKps,
         jenis_kps: jenisKps,

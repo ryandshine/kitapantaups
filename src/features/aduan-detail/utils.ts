@@ -142,6 +142,7 @@ export type EditAduanForm = {
     suratPerihal: string;
     asalSuratKategori: string;
     pengaduNama: string;
+    pengaduInstansi: string;
     pengaduTelepon: string;
     pengaduEmail: string;
     picId: string;
@@ -239,6 +240,7 @@ export const buildEditAduanForm = (source?: Partial<Aduan> | null): EditAduanFor
         suratPerihal: source?.suratMasuk?.perihal || '',
         asalSuratKategori: source?.suratMasuk?.asalSuratKategori || 'Masyarakat',
         pengaduNama: source?.pengadu?.nama || '',
+        pengaduInstansi: source?.pengadu?.instansi || source?.pengadu_instansi || '',
         pengaduTelepon: source?.pengadu?.telepon || '',
         pengaduEmail: source?.pengadu?.email || '',
         picId: source?.picId || ''
@@ -377,6 +379,7 @@ export const buildEditAduanUpdatePayload = ({
     pengadu: {
         ...aduan.pengadu,
         nama: editForm.pengaduNama,
+        instansi: editForm.pengaduInstansi,
         telepon: editForm.pengaduTelepon,
         email: editForm.pengaduEmail
     },

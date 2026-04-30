@@ -157,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                         )}
                     >
                         <LogOut className="h-[1.1rem] w-[1.1rem] shrink-0" />
-                        {isOpen && <span className="truncate">Keluar Sistem</span>}
+                        {isOpen && <span className="truncate">Keluar</span>}
                     </button>
 
                 </div>

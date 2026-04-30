@@ -1035,9 +1035,7 @@ export const AduanDetailPage: React.FC = () => {
                         </tr>
                         <tr className="border-b">
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Kategori</td>
-                            <td className="py-2 px-2 capitalize">{aduan.kategoriMasalah?.replace(/_/g, ' ') || '-'}</td>
-                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Prioritas</td>
-                            <td className="py-2 px-2 uppercase">{aduan.prioritas}</td>
+                            <td className="py-2 px-2 capitalize" colSpan={3}>{aduan.kategoriMasalah?.replace(/_/g, ' ') || '-'}</td>
                         </tr>
                         <tr className="border-b">
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Nama Pengadu</td>
@@ -1935,13 +1933,6 @@ export const AduanDetailPage: React.FC = () => {
                         ...prev,
                         picId: normalizedValue,
                         picName: selectedUser ? (selectedUser.displayName || selectedUser.email) : ''
-                    }));
-                }}
-                onAsalSuratKategoriChange={(val) => {
-                    setEditForm(prev => ({
-                        ...prev,
-                        asalSuratKategori: val,
-                        asalSurat: val === 'Masyarakat' ? 'Masyarakat' : prev.asalSurat === 'Masyarakat' ? '' : prev.asalSurat
                     }));
                 }}
                 onSuratFileSelected={(files) => {

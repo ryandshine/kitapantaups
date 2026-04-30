@@ -3,7 +3,6 @@ import { CheckCircle, Sparkles, Trash2, User } from 'lucide-react';
 import {
     Badge,
     Button,
-    FileUpload,
     Input,
     KpsSearch,
     Modal,
@@ -48,7 +47,6 @@ export type EditAduanModalProps = {
     onSelectKps: (kps: KpsData) => void;
     onRemoveKps: (kpsId: string) => void;
     onSelectPic: (value: string) => void;
-    onAsalSuratKategoriChange: (value: string) => void;
     onSuratFileSelected: (files: File[]) => void;
     onSuratFileRemoved: () => void;
 };
@@ -58,22 +56,16 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
     isAdmin,
     editForm,
     editSelectedKpsList,
-    suratFile,
     picOptions,
     isLoadingUsers,
     emailError,
     isEditSubmitting,
-    suratUploadProgress,
-    suratFileStatuses,
     onSubmit,
     onClose,
     onEditInput,
     onSelectKps,
     onRemoveKps,
     onSelectPic,
-    onAsalSuratKategoriChange,
-    onSuratFileSelected,
-    onSuratFileRemoved,
 }) => {
     return (
         <Modal
@@ -217,6 +209,13 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                         fullWidth
                         required
                     />
+                    <Input
+                        label="Lembaga / Kelompok Pengadu"
+                        value={editForm.pengaduInstansi}
+                        onChange={onEditInput('pengaduInstansi')}
+                        placeholder="Contoh: KTH Wana Makmur"
+                        fullWidth
+                    />
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <Input
                             label="Nomor Telepon"
@@ -256,31 +255,6 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     <div className="sm:col-span-2">
                         <label className="mb-2 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Administrasi Surat</label>
                     </div>
-                    <Select
-                        label="Kategori Asal"
-                        options={[
-                            { value: 'Masyarakat', label: 'Masyarakat' },
-                            { value: 'Kementerian', label: 'Kementerian' },
-                            { value: 'Direktorat', label: 'Direktorat' },
-                            { value: 'Balai', label: 'Balai' },
-                            { value: 'Lainnya', label: 'Lainnya' }
-                        ]}
-                        value={editForm.asalSuratKategori}
-                        onChange={onAsalSuratKategoriChange}
-                        fullWidth
-                    />
-                    {editForm.asalSuratKategori !== 'Masyarakat' && (
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Detail Asal Surat"
-                                value={editForm.asalSurat}
-                                onChange={onEditInput('asalSurat')}
-                                placeholder={`Nama ${editForm.asalSuratKategori.toLowerCase()}...`}
-                                fullWidth
-                                required
-                            />
-                        </div>
-                    )}
                     <div className="sm:col-span-2">
                         <Input
                             label="Perihal Surat"
@@ -290,21 +264,6 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                             fullWidth
                         />
                     </div>
-                </div>
-
-                <div className={detailSectionClass}>
-                    <FileUpload
-                        label="Ganti / Upload Surat Masuk (Lampiran)"
-                        helperText="Unggah surat masuk baru: PDF, JPG, PNG, DOC, atau DOCX"
-                        initialFiles={suratFile ? [suratFile] : (editForm.fileUrl ? [{ name: 'Surat Terarsip', size: 0, type: 'application/pdf' } as File] : [])}
-                        onFileSelected={onSuratFileSelected}
-                        onFileRemoved={onSuratFileRemoved}
-                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                        maxSizeMB={10}
-                        uploadProgress={suratUploadProgress}
-                        fileStatuses={suratFileStatuses}
-                        isLoading={isEditSubmitting && suratUploadProgress > 0 && suratUploadProgress < 100}
-                    />
                 </div>
 
                 <ModalFooter className="sticky bottom-0 z-10 -mx-1 border-t border-border bg-card/95 px-1 pt-4 pb-1 backdrop-blur">
