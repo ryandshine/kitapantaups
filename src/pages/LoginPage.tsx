@@ -95,16 +95,6 @@ export const LoginPage: React.FC = () => {
 
                 <section className="flex items-center justify-center">
                     <div className="w-full max-w-[33rem] animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <div className="mb-4 inline-flex items-center gap-3 rounded-2xl border border-primary/12 bg-card/78 px-4 py-3 shadow-[0_18px_48px_-34px_rgba(46,106,87,0.4)] backdrop-blur-sm">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/10 bg-primary/8 text-primary">
-                                <ShieldCheck className="h-5 w-5" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[1rem] font-semibold tracking-tight text-foreground">KitapantauPS</span>
-                                <span className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Direktorat PPS</span>
-                            </div>
-                        </div>
-
                         <div className="mb-4 lg:hidden">
                             <AgroforestryIllustration />
                         </div>

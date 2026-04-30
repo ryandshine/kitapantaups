@@ -11,7 +11,8 @@ import {
     MapPin,
     Tag,
     Calendar,
-    XCircle,
+    Clock,
+    Briefcase,
     Zap,
     Upload,
     Trash2,
@@ -82,13 +83,10 @@ export const DashboardPage: React.FC = () => {
     const recentAduan = recentAduanResult?.data || [];
 
     const totalCount = stats?.total || 0;
-    const totalDisposisi = stats?.by_status?.['baru'] || 0;
-    const totalProses = (stats?.by_status?.['proses'] || 0) +
-        (stats?.by_status?.['puldasi'] || 0) +
-        (stats?.by_status?.['evaluasi'] || 0) +
-        (stats?.by_status?.['monitor'] || 0);
+    const totalBaru = stats?.by_status?.['baru'] || 0;
+    const totalProses = stats?.by_status?.['proses'] || 0;
+    const totalMenungguTanggapan = stats?.by_status?.['menunggu_tanggapan'] || 0;
     const selesaiCount = stats?.by_status?.['selesai'] || 0;
-    const ditolakCount = stats?.by_status?.['ditolak'] || 0;
 
     useEffect(() => {
         const fetchActivities = async () => {
@@ -108,10 +106,10 @@ export const DashboardPage: React.FC = () => {
     const isLoading = isLoadingAduan || isLoadingActivities || isLoadingStats;
 
     const statCards = [
-        { label: 'Disposisi', value: totalDisposisi, icon: Send },
-        { label: 'Proses', value: totalProses, icon: Search },
+        { label: 'Baru', value: totalBaru, icon: Send },
+        { label: 'Proses Penanganan', value: totalProses, icon: Search },
+        { label: 'Menunggu Tanggapan', value: totalMenungguTanggapan, icon: Clock },
         { label: 'Selesai', value: selesaiCount, icon: CheckCircle2 },
-        { label: 'Ditolak', value: ditolakCount, icon: XCircle },
     ];
 
     const getRecentAduanLocation = (aduan: Aduan) =>
@@ -121,6 +119,13 @@ export const DashboardPage: React.FC = () => {
         const values = Array.isArray(aduan.type_kps) && aduan.type_kps.length > 0
             ? aduan.type_kps
             : Array.isArray(aduan.jenis_kps) ? aduan.jenis_kps : [];
+        return values.filter(Boolean)[0] || '-';
+    };
+
+    const getRecentAduanKpsName = (aduan: Aduan) => {
+        const values = Array.isArray(aduan.nama_kps) && aduan.nama_kps.length > 0
+            ? aduan.nama_kps
+            : Array.isArray(aduan.kps_items) ? aduan.kps_items.map((item) => item.nama_lembaga || item.nama_kps || '') : [];
         return values.filter(Boolean)[0] || '-';
     };
 
@@ -377,6 +382,10 @@ export const DashboardPage: React.FC = () => {
                                         </div>
                                         <div className={`mt-4 rounded-xl border border-border px-3.5 py-3 ${detailPanelClass}`}>
                                             <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-medium ${theme.muted}`}>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Briefcase size={12} />
+                                                    {getRecentAduanKpsName(aduan)}
+                                                </div>
                                                 <div className="flex items-center gap-1.5">
                                                     <MapPin size={12} />
                                                     {getRecentAduanLocation(aduan)}

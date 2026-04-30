@@ -337,6 +337,7 @@ CREATE TRIGGER trg_ai_summaries_updated_at
 INSERT INTO public.master_status (nama_status) VALUES
   ('baru'),
   ('proses'),
+  ('menunggu_tanggapan'),
   ('selesai'),
   ('ditolak')
 ON CONFLICT (nama_status) DO NOTHING;

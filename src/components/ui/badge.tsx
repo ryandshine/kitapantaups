@@ -37,6 +37,20 @@ function Badge({ className, variant, ...props }: BadgeProps) {
   )
 }
 
+export const formatStatusLabel = (status?: string) => {
+  const normalized = (status || '').toLowerCase().trim();
+  if (!normalized) return '-';
+  if (normalized === 'baru') return 'Baru';
+  if (normalized === 'proses') return 'Proses Penanganan';
+  if (normalized === 'menunggu_tanggapan') return 'Menunggu Tanggapan';
+  if (normalized === 'selesai') return 'Selesai';
+  if (normalized === 'ditolak') return 'Ditolak';
+  return normalized
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
 // Custom Helpers
 export const StatusBadge = ({ status, className }: { status: string, className?: string }) => {
   let variant: BadgeProps['variant'] = 'gray';
@@ -45,12 +59,13 @@ export const StatusBadge = ({ status, className }: { status: string, className?:
 
   if (['selesai', 'diterima', 'terverifikasi'].includes(s)) variant = 'success';
   else if (['proses', 'tindak_lanjut'].includes(s)) variant = 'info';
+  else if (['menunggu_tanggapan'].includes(s)) variant = 'warning';
   else if (['ditolak', 'dibatalkan', 'masalah'].includes(s)) variant = 'destructive';
   else if (['baru', 'draft', 'pending'].includes(s)) variant = 'warning';
 
   return (
     <Badge variant={variant} className={cn("uppercase tracking-wider font-bold", className)}>
-      {status}
+      {formatStatusLabel(status)}
     </Badge>
   );
 };

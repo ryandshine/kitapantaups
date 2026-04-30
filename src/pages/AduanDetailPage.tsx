@@ -34,6 +34,7 @@ import {
     CardContent,
     Button,
     StatusBadge,
+    formatStatusLabel,
     Badge,
     Modal,
     ModalFooter,
@@ -1031,7 +1032,7 @@ export const AduanDetailPage: React.FC = () => {
                             <td className="py-2 font-semibold w-1/4 bg-white/20 px-2 text-[10px] uppercase">No. Tiket</td>
                             <td className="py-2 px-2 font-mono">{aduan.nomorTiket}</td>
                             <td className="py-2 font-semibold w-1/4 bg-white/20 px-2 text-[10px] uppercase">Status Aduan</td>
-                            <td className="py-2 px-2 font-semibold uppercase">{aduan.status}</td>
+                            <td className="py-2 px-2 font-semibold uppercase">{formatStatusLabel(aduan.status)}</td>
                         </tr>
                         <tr className="border-b">
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Kategori</td>
@@ -1265,14 +1266,12 @@ export const AduanDetailPage: React.FC = () => {
                     <div className="space-y-3">
                         <Select
                             label="Status Baru"
-                            options={masterStatuses.length > 0
-                                ? masterStatuses.map(s => ({ value: s.nama_status, label: s.nama_status.toUpperCase() }))
-                                : [
-                                    { value: 'proses', label: 'PROSES' },
-                                    { value: 'selesai', label: 'SELESAI' },
-                                    { value: 'ditolak', label: 'DITOLAK' },
-                                ]
-                            }
+                            options={[
+                                { value: 'baru', label: 'Baru' },
+                                { value: 'proses', label: 'Proses Penanganan' },
+                                { value: 'menunggu_tanggapan', label: 'Menunggu Tanggapan' },
+                                { value: 'selesai', label: 'Selesai' },
+                            ]}
                             value={statusForm.status}
                             onChange={(val) => setStatusForm(prev => ({ ...prev, status: val, alasanPenolakan: val !== 'ditolak' ? '' : prev.alasanPenolakan }))}
                             fullWidth
