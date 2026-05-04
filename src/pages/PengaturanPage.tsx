@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
 import { Save as SaveIcon, Bell, UserCircle, Mail, Phone, ShieldCheck, RefreshCw, Database } from 'lucide-react';
 import { UserService } from '../lib/user.service';
-import { useSyncKps } from '../hooks/useKps';
+import { useKpsSyncStatus, useSyncKps } from '../hooks/useKps';
 
 export const PengaturanPage: React.FC = () => {
     const { user, refreshUser, isAdmin } = useAuth();
@@ -12,6 +12,9 @@ export const PengaturanPage: React.FC = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
     const syncKpsMutation = useSyncKps();
+    const syncStatusQuery = useKpsSyncStatus(isAdmin);
+    const syncStatus = syncStatusQuery.data;
+    const isSyncRunning = Boolean(syncKpsMutation.isPending || syncStatus?.isRunning);
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -39,11 +42,9 @@ export const PengaturanPage: React.FC = () => {
 
     const handleSyncKps = async () => {
         try {
+            setFeedback({ type: 'info', message: 'Sinkronisasi KPS dimulai. Status akan dipantau otomatis.' });
             const result = await syncKpsMutation.mutateAsync();
-            setFeedback({
-                type: 'success',
-                message: result.message,
-            });
+            setFeedback({ type: 'info', message: result.message });
         } catch (err) {
             console.error(err);
             setFeedback({ type: 'error', message: 'Gagal menjalankan sinkronisasi KPS.' });
@@ -205,13 +206,55 @@ export const PengaturanPage: React.FC = () => {
                             <Button
                                 variant="primary"
                                 onClick={handleSyncKps}
-                                isLoading={syncKpsMutation.isPending}
+                                isLoading={isSyncRunning}
+                                disabled={isSyncRunning}
                                 className="px-6 shadow-lg shadow-primary/20"
                                 leftIcon={<RefreshCw size={16} />}
                             >
-                                Sync KPS
+                                {isSyncRunning ? 'Sedang sync...' : 'Sync KPS'}
                             </Button>
                         </div>
+
+                        {(syncStatus?.isRunning || syncStatus?.lastResult || syncStatus?.lastError) && (
+                            <div className="rounded-2xl border border-border bg-background/90 p-4">
+                                <div className="flex items-start gap-3">
+                                    <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-full ${syncStatus?.isRunning ? 'bg-primary/10 text-primary' : syncStatus?.lastError ? 'bg-destructive/10 text-destructive' : 'bg-secondary/10 text-secondary'}`}>
+                                        {syncStatus?.isRunning ? (
+                                            <RefreshCw className="h-4 w-4 animate-spin" />
+                                        ) : syncStatus?.lastError ? (
+                                            <ShieldCheck className="h-4 w-4" />
+                                        ) : (
+                                            <Database className="h-4 w-4" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-semibold text-foreground">
+                                            {syncStatus?.isRunning
+                                                ? 'Sinkronisasi sedang berjalan'
+                                                : syncStatus?.lastError
+                                                    ? 'Sinkronisasi gagal'
+                                                    : 'Sinkronisasi terakhir selesai'}
+                                        </p>
+                                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                            {syncStatus?.isRunning
+                                                ? 'Halaman ini memantau job aktif di backend. Anda tidak perlu menutup layar.'
+                                                : syncStatus?.lastError
+                                                    ? syncStatus.lastError
+                                                    : syncStatus?.lastResult
+                                                        ? `Berhasil memproses ${syncStatus.lastResult.uniqueRows.toLocaleString('id-ID')} data.`
+                                                        : 'Belum ada status sync yang tercatat.'}
+                                        </p>
+                                        <div className="mt-2 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                                            {syncStatus?.startedAt && <span>Mulai: {new Date(syncStatus.startedAt).toLocaleString('id-ID')}</span>}
+                                            {syncStatus?.finishedAt && <span>Selesai: {new Date(syncStatus.finishedAt).toLocaleString('id-ID')}</span>}
+                                            {syncStatus?.lastResult?.processedRows !== undefined && (
+                                                <span>Diproses: {syncStatus.lastResult.processedRows.toLocaleString('id-ID')}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             )}

@@ -38,6 +38,17 @@ export const useSyncKps = () => {
         mutationFn: () => KpsService.syncKps(),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['kps'] });
+            queryClient.invalidateQueries({ queryKey: ['kps', 'sync'] });
         },
+    });
+};
+
+export const useKpsSyncStatus = (enabled: boolean = true) => {
+    return useQuery({
+        queryKey: ['kps', 'sync'],
+        queryFn: () => KpsService.getKpsSyncStatus(),
+        enabled,
+        refetchInterval: (query) => (query.state.data?.isRunning ? 3000 : false),
+        refetchOnWindowFocus: false,
     });
 };

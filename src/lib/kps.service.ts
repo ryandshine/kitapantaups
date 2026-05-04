@@ -23,6 +23,14 @@ export type KpsSyncResponse = {
     } | null;
 };
 
+export type KpsSyncState = {
+    isRunning: boolean;
+    startedAt: string | null;
+    finishedAt: string | null;
+    lastError: string | null;
+    lastResult: KpsSyncResponse['lastResult'];
+};
+
 export const KpsService = {
     getKpsList: async (page: number = 1, pageSize: number = 20): Promise<KpsData[]> => {
         try {
@@ -74,6 +82,21 @@ export const KpsService = {
         } catch (error) {
             console.error('Error syncing KPS:', error);
             throw error;
+        }
+    },
+
+    getKpsSyncStatus: async (): Promise<KpsSyncState> => {
+        try {
+            return await api.get<KpsSyncState>('/master/kps/sync');
+        } catch (error) {
+            console.error('Error getting KPS sync status:', error);
+            return {
+                isRunning: false,
+                startedAt: null,
+                finishedAt: null,
+                lastError: error instanceof Error ? error.message : 'Gagal memuat status sync KPS.',
+                lastResult: null,
+            };
         }
     },
 };
