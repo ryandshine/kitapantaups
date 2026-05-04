@@ -49,9 +49,25 @@ export type KpsSyncResult = {
   removedStaleRows: boolean
 }
 
+export type KpsSyncJobState = {
+  isRunning: boolean
+  startedAt: string | null
+  finishedAt: string | null
+  lastError: string | null
+  lastResult: KpsSyncResult | null
+}
+
 const defaultLogger: SyncLogger = {
   info: (message) => console.log(message),
   warn: (message) => console.warn(message),
+}
+
+const syncJobState: KpsSyncJobState = {
+  isRunning: false,
+  startedAt: null,
+  finishedAt: null,
+  lastError: null,
+  lastResult: null,
 }
 
 const toText = (value: unknown) => {
@@ -251,4 +267,36 @@ export const syncGokupsKps = async (logger: SyncLogger = defaultLogger): Promise
     uniqueRows: seenIds.size,
     removedStaleRows,
   }
+}
+
+export const getKpsSyncJobState = (): KpsSyncJobState => ({
+  ...syncJobState,
+})
+
+export const startGokupsKpsSyncJob = () => {
+  if (syncJobState.isRunning) {
+    return { started: false, state: getKpsSyncJobState() }
+  }
+
+  syncJobState.isRunning = true
+  syncJobState.startedAt = new Date().toISOString()
+  syncJobState.finishedAt = null
+  syncJobState.lastError = null
+
+  void syncGokupsKps()
+    .then((result) => {
+      syncJobState.lastResult = result
+      syncJobState.lastError = null
+      syncJobState.finishedAt = new Date().toISOString()
+    })
+    .catch((error: unknown) => {
+      syncJobState.lastError = error instanceof Error ? error.message : String(error)
+      syncJobState.finishedAt = new Date().toISOString()
+      console.error('Gagal sinkronisasi GoKUPS:', error)
+    })
+    .finally(() => {
+      syncJobState.isRunning = false
+    })
+
+  return { started: true, state: getKpsSyncJobState() }
 }

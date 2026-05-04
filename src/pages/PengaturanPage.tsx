@@ -42,7 +42,7 @@ export const PengaturanPage: React.FC = () => {
             const result = await syncKpsMutation.mutateAsync();
             setFeedback({
                 type: 'success',
-                message: `Sync KPS selesai. ${result.uniqueRows.toLocaleString('id-ID')} data berhasil diperbarui.`,
+                message: result.message,
             });
         } catch (err) {
             console.error(err);

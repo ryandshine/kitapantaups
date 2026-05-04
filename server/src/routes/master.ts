@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
 import { MasterService } from '../services/master.service.js'
-import { syncGokupsKps } from '../services/kps-sync.service.js'
+import { getKpsSyncJobState, startGokupsKpsSyncJob } from '../services/kps-sync.service.js'
 
 const master = new Hono()
 master.use('*', requireAuth)
@@ -24,6 +24,11 @@ master.get('/jenis-tl', async (c) => {
   return c.json(result)
 })
 
+// GET /master/kps/sync
+master.get('/kps/sync', requireAdmin, async (c) => {
+  return c.json(getKpsSyncJobState())
+})
+
 // GET /master/kps/:id
 master.get('/kps/:id', async (c) => {
   const result = await MasterService.getKpsById(c.req.param('id'))
@@ -39,10 +44,11 @@ master.get('/kps', async (c) => {
 
 // POST /master/kps/sync
 master.post('/kps/sync', requireAdmin, async (c) => {
-  const result = await syncGokupsKps()
+  const { started, state } = startGokupsKpsSyncJob()
   return c.json({
-    message: 'Sinkronisasi KPS selesai',
-    ...result,
+    message: started ? 'Sinkronisasi KPS dimulai' : 'Sinkronisasi KPS sedang berjalan',
+    started,
+    ...state,
   })
 })
 

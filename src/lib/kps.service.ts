@@ -8,12 +8,19 @@ type KpsListResponse = {
 
 export type KpsSyncResponse = {
     message: string;
-    total: number;
-    lastPage: number;
-    startPage: number;
-    processedRows: number;
-    uniqueRows: number;
-    removedStaleRows: boolean;
+    started: boolean;
+    isRunning: boolean;
+    startedAt: string | null;
+    finishedAt: string | null;
+    lastError: string | null;
+    lastResult: {
+        total: number;
+        lastPage: number;
+        startPage: number;
+        processedRows: number;
+        uniqueRows: number;
+        removedStaleRows: boolean;
+    } | null;
 };
 
 export const KpsService = {

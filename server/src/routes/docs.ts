@@ -527,12 +527,21 @@ const buildOpenApiSpec = (origin: string) => ({
       },
     },
     '/master/kps/sync': {
+      get: {
+        tags: ['Master'],
+        summary: 'Status sinkronisasi KPS',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Status job sinkronisasi' },
+          403: { description: 'Hanya admin yang dapat melihat status sync' },
+        },
+      },
       post: {
         tags: ['Master'],
         summary: 'Sinkronisasi data KPS dari GoKUPS',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: 'Sinkronisasi selesai' },
+          200: { description: 'Sinkronisasi dimulai atau sedang berjalan' },
           403: { description: 'Hanya admin yang dapat menjalankan sync' },
         },
       },
