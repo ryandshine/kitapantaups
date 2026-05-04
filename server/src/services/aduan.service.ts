@@ -2,6 +2,30 @@ import { AduanRepository } from '../repositories/aduan.repository.js'
 import { StorageService } from './storage.service.js'
 import { generateAduanTicketNumber } from '../lib/aduan-ticket.js'
 
+const ADUAN_SEARCH_TEXT = `
+  concat_ws(' ',
+    a.pengadu_nama,
+    a.ringkasan_masalah,
+    a.nomor_tiket,
+    a.surat_asal_perihal,
+    a.lokasi_prov,
+    a.lokasi_kab,
+    a.lokasi_kec,
+    a.lokasi_desa
+  )
+`
+
+const KPS_SEARCH_TEXT = `
+  concat_ws(' ',
+    k.id::text,
+    k.nama_lembaga,
+    k.surat_keputusan,
+    k.skema,
+    k.provinsi,
+    k.kabupaten
+  )
+`
+
 export const AduanService = {
   async getList(query: any) {
     const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket, pic_id, sort_by } = query
@@ -18,27 +42,13 @@ export const AduanService = {
     if (search) {
       params.push(`%${search}%`)
       conditions.push(`(
-        a.pengadu_nama ILIKE $${params.length}
-        OR a.ringkasan_masalah ILIKE $${params.length}
-        OR a.nomor_tiket ILIKE $${params.length}
-        OR a.surat_asal_perihal ILIKE $${params.length}
-        OR a.lokasi_prov ILIKE $${params.length}
-        OR a.lokasi_kab ILIKE $${params.length}
-        OR a.lokasi_kec ILIKE $${params.length}
-        OR a.lokasi_desa ILIKE $${params.length}
+        ${ADUAN_SEARCH_TEXT} ILIKE $${params.length}
         OR EXISTS (
           SELECT 1
           FROM public.aduan_kps ak
           JOIN public.kps k ON k.id = ak.kps_id
           WHERE ak.aduan_id = a.id
-            AND (
-              k.nama_lembaga ILIKE $${params.length}
-              OR COALESCE(k.surat_keputusan, '') ILIKE $${params.length}
-              OR k.id::text ILIKE $${params.length}
-              OR COALESCE(k.skema, '') ILIKE $${params.length}
-              OR COALESCE(k.provinsi, '') ILIKE $${params.length}
-              OR COALESCE(k.kabupaten, '') ILIKE $${params.length}
-            )
+            AND ${KPS_SEARCH_TEXT} ILIKE $${params.length}
         )
       )`)
     }

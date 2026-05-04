@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -8,6 +8,16 @@ import { useUIDensity } from '../hooks/useUIDensity';
 import { getGoogleCardTheme } from '../lib/google-theme';
 import type { Aduan } from '../types';
 
+const STATUS_LABELS: Record<string, string> = {
+    baru: 'Baru',
+    proses: 'Proses Penanganan',
+    menunggu_tanggapan: 'Menunggu Tanggapan',
+    selesai: 'Selesai',
+    ditolak: 'Ditolak',
+};
+
+const SUMMARY_STATUS_ORDER = ['baru', 'proses', 'menunggu_tanggapan', 'selesai'] as const;
+
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +25,7 @@ export const AduanListPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const { isCompact } = useUIDensity();
     const itemsPerPage = 10;
+    const listSectionRef = useRef<HTMLDivElement>(null);
 
     const { data: aduanResult, isLoading: loadingItems } = useAduanList(currentPage, itemsPerPage, searchTerm, statusFilter);
 
@@ -32,6 +43,32 @@ export const AduanListPage: React.FC = () => {
             return acc;
         }, {});
     }, [displayList]);
+
+    const summaryCards = useMemo(() => {
+        return SUMMARY_STATUS_ORDER.map((statusKey) => ({
+            key: statusKey,
+            label: STATUS_LABELS[statusKey],
+            count: statusSummary[statusKey] || 0,
+        }));
+    }, [statusSummary]);
+
+    const scrollToListSection = () => {
+        window.requestAnimationFrame(() => {
+            listSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    };
+
+    const handleSummaryCardClick = (statusKey: typeof SUMMARY_STATUS_ORDER[number]) => {
+        setCurrentPage(1);
+        setStatusFilter(statusKey);
+        scrollToListSection();
+    };
+
+    const handleAllSummaryCardClick = () => {
+        setCurrentPage(1);
+        setStatusFilter('all');
+        scrollToListSection();
+    };
 
     const formatDate = (val?: string | Date) => {
         return val ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(val)) : '-';
@@ -110,7 +147,8 @@ export const AduanListPage: React.FC = () => {
                             options={[
                                 { value: 'all', label: 'Semua Status' },
                                 { value: 'baru', label: 'Baru' },
-                                { value: 'proses', label: 'Proses' },
+                                { value: 'proses', label: 'Proses Penanganan' },
+                                { value: 'menunggu_tanggapan', label: 'Menunggu Tanggapan' },
                                 { value: 'selesai', label: 'Selesai' },
                                 { value: 'ditolak', label: 'Ditolak' },
                             ]}
@@ -121,16 +159,37 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="gray" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Baris: {displayList.length}</Badge>
-                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Baru: {statusSummary.baru || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Proses: {statusSummary.proses || 0}</Badge>
-                        <Badge variant="outline" className="rounded-full border-border bg-muted px-2.5 py-1 text-[9px] text-foreground">Selesai: {statusSummary.selesai || 0}</Badge>
+                    <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5">
+                        <button
+                            type="button"
+                            onClick={handleAllSummaryCardClick}
+                            className={`flex min-h-[4.5rem] flex-col justify-center rounded-2xl border px-3 py-2 text-left transition-all ${statusFilter === 'all'
+                                ? 'border-primary/35 bg-primary/8 shadow-sm'
+                                : 'border-border bg-muted/40 hover:border-primary/20 hover:bg-muted/70'
+                                }`}
+                        >
+                            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Semua</span>
+                            <span className="mt-1 text-xl font-semibold text-foreground">{totalCount}</span>
+                        </button>
+                        {summaryCards.map((item) => (
+                            <button
+                                key={item.key}
+                                type="button"
+                                onClick={() => handleSummaryCardClick(item.key)}
+                                className={`flex min-h-[4.5rem] flex-col justify-center rounded-2xl border px-3 py-2 text-left transition-all ${statusFilter === item.key
+                                    ? 'border-primary/35 bg-primary/8 shadow-sm'
+                                    : 'border-border bg-muted/40 hover:border-primary/20 hover:bg-muted/70'
+                                    }`}
+                            >
+                                <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{item.label}</span>
+                                <span className="mt-1 text-xl font-semibold text-foreground">{item.count}</span>
+                            </button>
+                        ))}
                     </div>
                 </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="sm:rounded-2xl">
+            <motion.div variants={itemVariants} className="sm:rounded-2xl" ref={listSectionRef}>
                 <div className="p-4">
                     {loading ? (
                         <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
@@ -163,7 +222,7 @@ export const AduanListPage: React.FC = () => {
                                             </p>
                                         </div>
                                         <Badge variant="gray" className={`shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide backdrop-blur-sm ${theme.badge}`}>
-                                            {row.status?.toUpperCase?.() || '-'}
+                                            {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
                                         </Badge>
                                     </div>
 

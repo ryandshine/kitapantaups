@@ -8,6 +8,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER AS $$
@@ -194,6 +195,28 @@ CREATE INDEX IF NOT EXISTS idx_kps_surat_keputusan ON public.kps(surat_keputusan
 CREATE INDEX IF NOT EXISTS idx_kps_skema ON public.kps(skema);
 CREATE INDEX IF NOT EXISTS idx_kps_provinsi ON public.kps(provinsi);
 CREATE INDEX IF NOT EXISTS idx_kps_kabupaten ON public.kps(kabupaten);
+CREATE INDEX IF NOT EXISTS idx_aduan_search_trgm ON public.aduan USING gin (
+  (concat_ws(' ',
+    pengadu_nama,
+    ringkasan_masalah,
+    nomor_tiket,
+    surat_asal_perihal,
+    lokasi_prov,
+    lokasi_kab,
+    lokasi_kec,
+    lokasi_desa
+  )) gin_trgm_ops
+);
+CREATE INDEX IF NOT EXISTS idx_kps_search_trgm ON public.kps USING gin (
+  (concat_ws(' ',
+    id::text,
+    nama_lembaga,
+    surat_keputusan,
+    skema,
+    provinsi,
+    kabupaten
+  )) gin_trgm_ops
+);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_aduan_kps_position ON public.aduan_kps(aduan_id, position);
 CREATE INDEX IF NOT EXISTS idx_aduan_kps_kps_id ON public.aduan_kps(kps_id);
 CREATE INDEX IF NOT EXISTS idx_aduan_status ON public.aduan(status);
