@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
-import { requireAuth } from '../middleware/auth.js'
+import { requireAuth, requireAdmin } from '../middleware/auth.js'
 import { MasterService } from '../services/master.service.js'
+import { syncGokupsKps } from '../services/kps-sync.service.js'
 
 const master = new Hono()
 master.use('*', requireAuth)
@@ -34,6 +35,15 @@ master.get('/kps/:id', async (c) => {
 master.get('/kps', async (c) => {
   const result = await MasterService.getKps(c.req.query())
   return c.json(result)
+})
+
+// POST /master/kps/sync
+master.post('/kps/sync', requireAdmin, async (c) => {
+  const result = await syncGokupsKps()
+  return c.json({
+    message: 'Sinkronisasi KPS selesai',
+    ...result,
+  })
 })
 
 export default master

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { KpsService } from '../lib/kps.service';
 
 export const useKpsList = (page: number = 1, pageSize: number = 20) => {
@@ -28,5 +28,16 @@ export const useKpsDetail = (kpsId: string | undefined) => {
         queryKey: ['kps', 'detail', kpsId],
         queryFn: () => (kpsId ? KpsService.getKpsById(kpsId) : null),
         enabled: !!kpsId,
+    });
+};
+
+export const useSyncKps = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => KpsService.syncKps(),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['kps'] });
+        },
     });
 };

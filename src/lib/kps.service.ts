@@ -6,6 +6,16 @@ type KpsListResponse = {
     total?: number;
 };
 
+export type KpsSyncResponse = {
+    message: string;
+    total: number;
+    lastPage: number;
+    startPage: number;
+    processedRows: number;
+    uniqueRows: number;
+    removedStaleRows: boolean;
+};
+
 export const KpsService = {
     getKpsList: async (page: number = 1, pageSize: number = 20): Promise<KpsData[]> => {
         try {
@@ -48,6 +58,15 @@ export const KpsService = {
         } catch (error) {
             console.error('Error getting KPS by ID:', error);
             return null;
+        }
+    },
+
+    syncKps: async (): Promise<KpsSyncResponse> => {
+        try {
+            return await api.post<KpsSyncResponse>('/master/kps/sync', {});
+        } catch (error) {
+            console.error('Error syncing KPS:', error);
+            throw error;
         }
     },
 };

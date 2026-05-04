@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
-import { Save as SaveIcon, Bell, UserCircle, Mail, Phone, ShieldCheck } from 'lucide-react';
+import { Save as SaveIcon, Bell, UserCircle, Mail, Phone, ShieldCheck, RefreshCw, Database } from 'lucide-react';
 import { UserService } from '../lib/user.service';
+import { useSyncKps } from '../hooks/useKps';
 
 export const PengaturanPage: React.FC = () => {
-    const { user, refreshUser } = useAuth();
+    const { user, refreshUser, isAdmin } = useAuth();
     const [displayName, setDisplayName] = useState(user?.displayName || '');
     const [phone, setPhone] = useState(user?.phone || '');
     const [isSaving, setIsSaving] = useState(false);
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+    const syncKpsMutation = useSyncKps();
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -32,6 +34,19 @@ export const PengaturanPage: React.FC = () => {
             setFeedback({ type: 'error', message: 'Gagal memperbarui profil.' });
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleSyncKps = async () => {
+        try {
+            const result = await syncKpsMutation.mutateAsync();
+            setFeedback({
+                type: 'success',
+                message: `Sync KPS selesai. ${result.uniqueRows.toLocaleString('id-ID')} data berhasil diperbarui.`,
+            });
+        } catch (err) {
+            console.error(err);
+            setFeedback({ type: 'error', message: 'Gagal menjalankan sinkronisasi KPS.' });
         }
     };
 
@@ -166,6 +181,40 @@ export const PengaturanPage: React.FC = () => {
                     </p>
                 </CardContent>
             </Card>
+
+            {isAdmin && (
+                <Card className="mt-6 border-primary/12 shadow-[0_24px_60px_-38px_rgba(46,106,87,0.24)]">
+                    <CardHeader className="page-section-header">
+                        <CardTitle className="flex items-center gap-2">
+                            <Database className="h-4 w-4 text-primary" />
+                            Sinkronisasi Master KPS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-6">
+                        <div className="rounded-2xl border border-border bg-muted/35 p-4">
+                            <p className="text-sm font-semibold text-foreground">Tarik data terbaru dari GoKUPS</p>
+                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                Gunakan tombol ini untuk memperbarui master KPS tanpa masuk ke server. Setelah sinkron selesai, daftar KPS, pencarian, dan detail terkait akan di-refresh otomatis.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="text-xs leading-relaxed text-muted-foreground">
+                                Proses bisa memakan waktu beberapa menit tergantung jumlah data dari sumber eksternal.
+                            </div>
+                            <Button
+                                variant="primary"
+                                onClick={handleSyncKps}
+                                isLoading={syncKpsMutation.isPending}
+                                className="px-6 shadow-lg shadow-primary/20"
+                                leftIcon={<RefreshCw size={16} />}
+                            >
+                                Sync KPS
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 };

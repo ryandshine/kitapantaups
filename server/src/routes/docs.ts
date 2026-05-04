@@ -526,6 +526,17 @@ const buildOpenApiSpec = (origin: string) => ({
         },
       },
     },
+    '/master/kps/sync': {
+      post: {
+        tags: ['Master'],
+        summary: 'Sinkronisasi data KPS dari GoKUPS',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Sinkronisasi selesai' },
+          403: { description: 'Hanya admin yang dapat menjalankan sync' },
+        },
+      },
+    },
     '/users': {
       get: {
         tags: ['Users'],
