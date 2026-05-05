@@ -80,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                 className="flex flex-col"
                             >
                                 <span className="whitespace-nowrap text-[0.95rem] font-semibold tracking-tight text-sidebar-foreground">KitapantauPS</span>
-                                <span className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-sidebar-foreground/60">Direktorat PPS • V1.0</span>
+                                <span className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-sidebar-foreground/60">Direktorat PPS</span>
                             </motion.div>
                         )}
                     </div>
