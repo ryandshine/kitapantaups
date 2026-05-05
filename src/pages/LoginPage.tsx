@@ -153,14 +153,9 @@ export const LoginPage: React.FC = () => {
                                         Let us know you are human
                                     </p>
                                     <div 
-                                        className="w-full overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm"
-                                        style={{ height: '65px' }}
-                                    >
-                                        <div 
-                                            ref={turnstileRef}
-                                            className="h-full w-full" 
-                                        ></div>
-                                    </div>
+                                        ref={turnstileRef}
+                                        className="w-full min-h-[65px]" 
+                                    ></div>
                                 </div>
 
                                 <Button
