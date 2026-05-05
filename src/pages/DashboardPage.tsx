@@ -420,7 +420,7 @@ export const DashboardPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="surface-panel relative flex flex-1 flex-col overflow-hidden p-5 text-foreground">
+                    <div className="surface-panel relative flex h-full max-h-[920px] flex-col overflow-hidden p-5 text-foreground">
                         <div className="relative z-10 flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar">
                             {filteredActivities.length > 0 ? (
                                 filteredActivities.map((activity, i) => {
