@@ -178,6 +178,8 @@ export interface Aduan {
     // Aggregated or manual values
     lokasi_luas_ha?: number;
     jumlah_kk?: number;
+    balai?: string;
+    sekwil?: string;
 
     // Coordinates
     lokasi_lat?: number[];

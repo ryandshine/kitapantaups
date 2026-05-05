@@ -493,11 +493,11 @@ export const openProtectedFile = async ({
     }
 };
 
-export const detailCardClass = "overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-[var(--shadow-card)]";
-export const detailCardHeaderClass = "border-b border-border bg-muted/70";
-export const detailSectionClass = "rounded-xl border border-border bg-muted/70 p-4";
-export const detailSectionSoftClass = "rounded-xl border border-border bg-muted/50 p-4";
-export const detailBadgeClass = "border-border bg-muted text-foreground";
-export const detailIconClass = "flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-primary";
+export const detailCardClass = "overflow-hidden rounded-2xl border border-[#d7ccb8] bg-[#f7f3e8]/95 text-card-foreground shadow-[0_14px_40px_rgba(34,58,49,0.06)]";
+export const detailCardHeaderClass = "border-b border-[#d7ccb8] bg-[#efe8d7]/80";
+export const detailSectionClass = "rounded-xl border border-[#d7ccb8] bg-[#efe9da]/80 p-4";
+export const detailSectionSoftClass = "rounded-xl border border-[#d7ccb8] bg-[#f4efe2]/80 p-4";
+export const detailBadgeClass = "border-[#cfc2aa] bg-[#efe7d6] text-[#31453d]";
+export const detailIconClass = "flex h-8 w-8 items-center justify-center rounded-lg border border-[#d7ccb8] bg-[#f7f3e8] text-[#2f6b57]";
 export const detailLabelClass = "text-[10px] font-semibold uppercase tracking-widest text-muted-foreground";
-export const detailModalClass = "rounded-2xl border border-border bg-card p-6";
+export const detailModalClass = "rounded-2xl border border-[#d7ccb8] bg-[#f7f3e8] p-6";

@@ -73,14 +73,15 @@ const KPS_AGGREGATE_SELECT = `
         'lokasi_desa', COALESCE(k.desa, ''),
         'lokasi_luas_ha', COALESCE(k.luas_total, 0),
         'jumlah_kk', COALESCE(k.anggota_pria, 0) + COALESCE(k.anggota_wanita, 0),
-        'balai', '',
+        'balai', COALESCE(k.raw_payload->>'nama_balai', ''),
+        'sekwil', COALESCE(k.raw_payload->>'seksi_wilayah', ''),
         'lat', NULL,
         'lng', NULL,
         'skema_pemanfaatan', '',
         'tanggal_sk', k.tanggal,
-        'has_skps', false,
+        'has_skps', (k.raw_payload->>'dokumen_skps' IS NOT NULL),
         'has_petaps', false,
-        'has_rkps', false
+        'has_rkps', (k.raw_payload->>'dokumen_rkps' IS NOT NULL)
       )
       ORDER BY ak.position
     ),
@@ -148,7 +149,9 @@ export const AduanRepository = {
            COALESCE(kps_agg.jenis_kps, ARRAY[]::text[]) AS jenis_kps,
            COALESCE(kps_agg.type_kps, ARRAY[]::text[]) AS type_kps,
            COALESCE(kps_agg.nomor_sk, ARRAY[]::text[]) AS nomor_sk,
-           COALESCE(kps_agg.kps_items, '[]'::jsonb) AS kps_items
+           COALESCE(kps_agg.kps_items, '[]'::jsonb) AS kps_items,
+           COALESCE(kps_agg.kps_items->0->>'balai', '') AS balai,
+           COALESCE(kps_agg.kps_items->0->>'sekwil', '') AS sekwil
          FROM public.aduan a
          LEFT JOIN public.users u ON u.id = a.created_by
          LEFT JOIN LATERAL (
@@ -192,7 +195,9 @@ export const AduanRepository = {
            COALESCE(kps_agg.jenis_kps, ARRAY[]::text[]) AS jenis_kps,
            COALESCE(kps_agg.type_kps, ARRAY[]::text[]) AS type_kps,
            COALESCE(kps_agg.nomor_sk, ARRAY[]::text[]) AS nomor_sk,
-           COALESCE(kps_agg.kps_items, '[]'::jsonb) AS kps_items
+           COALESCE(kps_agg.kps_items, '[]'::jsonb) AS kps_items,
+           COALESCE(kps_agg.kps_items->0->>'balai', '') AS balai,
+           COALESCE(kps_agg.kps_items->0->>'sekwil', '') AS sekwil
          FROM public.aduan a
          LEFT JOIN public.users u ON u.id = a.created_by
          LEFT JOIN LATERAL (

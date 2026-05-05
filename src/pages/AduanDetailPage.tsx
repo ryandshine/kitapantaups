@@ -1135,8 +1135,8 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="google-panel-green relative overflow-hidden rounded-2xl px-5 py-4 backdrop-blur-xl">
-                    <div className="google-hero-orb pointer-events-none" />
+                <div className="detail-hero-panel relative overflow-hidden px-5 py-4 backdrop-blur-xl">
+                    <div className="detail-hero-orb" />
                     <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
@@ -1144,13 +1144,13 @@ export const AduanDetailPage: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => navigate('/pengaduan')}
-                                    className="h-8 rounded-lg px-2.5 text-muted-foreground hover:bg-white/8 hover:text-foreground"
+                                    className="h-8 rounded-lg px-2.5 text-[#5a625b] hover:bg-white/35 hover:text-[#223a31]"
                                     leftIcon={<ArrowLeft size={14} />}
                                 >
                                     Kembali
                                 </Button>
-                                <span className="text-border">|</span>
-                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                                <span className="text-[#b8af9d]">|</span>
+                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#66706a]">
                                     <Tag size={12} />
                                     <span>{aduan.kategoriMasalah || '-'}</span>
                                 </div>
@@ -1158,23 +1158,23 @@ export const AduanDetailPage: React.FC = () => {
 
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
-                                    <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-4xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="border-border bg-muted text-foreground shadow-none text-xs px-3 py-1" />
+                                    <h1 className="text-2xl font-bold tracking-tight text-[#223a31] md:text-4xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="border-[#d6cab4] bg-[#ede6d7] text-[#31453d] shadow-none text-xs px-3 py-1" />
                                 </div>
-                                <p className="text-[1.1rem] font-medium leading-relaxed text-foreground/90">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="text-[1.1rem] font-medium leading-relaxed text-[#364640]">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-3 xl:items-stretch">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
-                                    <div key={card.label} className="rounded-2xl border border-border bg-muted/60 p-3 shadow-sm">
+                                    <div key={card.label} className="detail-hero-surface p-3">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{card.label}</p>
-                                            <card.icon size={13} className="text-muted-foreground" />
+                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#66706a]">{card.label}</p>
+                                            <card.icon size={13} className="text-[#66706a]" />
                                         </div>
-                                        <p className="mt-2 text-sm font-semibold text-foreground">{card.value}</p>
-                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{card.hint}</p>
+                                        <p className="mt-2 text-sm font-semibold text-[#223a31]">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[#66706a]">{card.hint}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1185,7 +1185,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<FileText size={15} />}
                                     onClick={handlePrint}
-                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
+                                    className="h-9 rounded-xl border-[#d6cab4] bg-[#ede6d7] px-4 text-[#223a31] hover:bg-[#e3dccb] hover:text-[#223a31]"
                                     isLoading={isExportingPdf}
                                 >
                                     PDF
@@ -1195,12 +1195,12 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<Upload size={15} />}
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
+                                    className="h-9 rounded-xl border-[#d6cab4] bg-[#ede6d7] px-4 text-[#223a31] hover:bg-[#e3dccb] hover:text-[#223a31]"
                                 >
                                     Upload
                                 </Button>
                                 <Button
-                                    className="google-hero-button h-9 rounded-xl px-4 border-none"
+                                    className="h-9 rounded-xl border-none bg-[#2f6b57] px-4 text-white shadow-sm hover:bg-[#285a49] hover:shadow-md"
                                     leftIcon={<Edit size={15} />}
                                     onClick={openEditModal}
                                 >
@@ -1213,7 +1213,7 @@ export const AduanDetailPage: React.FC = () => {
                                         leftIcon={<Trash2 size={15} />}
                                         onClick={() => setIsDeleteAduanConfirmOpen(true)}
                                         isLoading={isDeleting}
-                                        className="h-9 rounded-xl px-4 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+                                        className="h-9 rounded-xl px-4 text-[#66706a] hover:bg-destructive/15 hover:text-destructive"
                                     >
                                         Hapus
                                     </Button>

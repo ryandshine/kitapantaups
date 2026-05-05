@@ -52,6 +52,7 @@ type KpsItemInput = {
     jumlah_anggota?: unknown;
     jumlah_kk?: unknown;
     balai?: unknown;
+    sekwil?: unknown;
     lat?: unknown;
     lng?: unknown;
     skema_pemanfaatan?: unknown;
@@ -169,6 +170,7 @@ const normalizeKpsItem = (item: KpsItemInput): KpsData => ({
     lokasi_luas_ha: normalizeNumber(item?.lokasi_luas_ha ?? item?.luas_total),
     jumlah_kk: normalizeNumber(item?.jumlah_kk ?? item?.jumlah_anggota ?? ((Number(item?.anggota_pria) || 0) + (Number(item?.anggota_wanita) || 0))),
     balai: normalizeString(item?.balai),
+    sekwil: normalizeString(item?.sekwil),
     lat: normalizeOptionalNumber(item?.lat),
     lng: normalizeOptionalNumber(item?.lng),
     skema_pemanfaatan: normalizeString(item?.skema_pemanfaatan),
@@ -427,5 +429,7 @@ export const mapRowToAduan = (row: AduanApiRow): Aduan => {
         skema: typeKps[0] || kpsItems[0]?.kps_type || '',
         picId: normalizeString(row.pic_id),
         picName: normalizeString(row.pic_name),
+        balai: normalizeString(row.balai),
+        sekwil: normalizeString(row.sekwil),
     };
 };
