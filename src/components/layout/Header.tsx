@@ -87,7 +87,9 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
                         <div className="mr-1 hidden flex-col items-start leading-none md:flex">
                             <span className="text-[11px] font-semibold text-foreground">{safeDisplayName}</span>
-                            <span className="mt-0.5 rounded-full bg-primary/8 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-primary">{user.role}</span>
+                            {safeDisplayName.toLowerCase() !== user.role.toLowerCase() && (
+                                <span className="mt-0.5 rounded-full bg-primary/8 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-primary">{user.role}</span>
+                            )}
                         </div>
                     </div>
                 )}

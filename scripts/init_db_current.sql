@@ -283,5 +283,5 @@ INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
 
 INSERT INTO public.users (email, password_hash, display_name, role) VALUES
-  ('admin@kitapantaups.local', crypt('Admin@123', gen_salt('bf')), 'Administrator', 'admin')
+  ('riandiekop@gmail.com', crypt('Admin@123', gen_salt('bf')), 'Administrator', 'admin')
 ON CONFLICT (email) DO NOTHING;

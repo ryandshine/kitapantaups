@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Button, Select, Badge } from '../components/ui';
+import { Button, Badge } from '../components/ui';
 import { useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
 import type { Aduan } from '../types';
@@ -129,29 +129,14 @@ export const AduanListPage: React.FC = () => {
 
             <motion.div variants={itemVariants} className="page-filter-panel">
                 <div className="flex flex-col items-center gap-3 lg:flex-row">
-                    <div className="relative w-full lg:flex-1">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <div className="relative w-full">
+                        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                         <input
                             type="text"
-                            placeholder="Cari perihal, lokasi, SK, KPS... (Global Search)"
+                            placeholder="Cari nomor tiket, perihal, KPS, lokasi, SK, pengadu, atau instansi... (Global Search)"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
-                            className={`w-full rounded-xl border border-border bg-muted pl-10 pr-4 text-foreground placeholder:text-muted-foreground transition-all focus:border-primary/60 focus:ring-2 focus:ring-primary/20 ${isCompact ? 'h-10 text-[0.9rem]' : 'h-11 text-sm'}`}
-                        />
-                    </div>
-                    <div className="flex w-full items-center gap-3 lg:w-auto">
-                        <Select
-                            options={[
-                                { value: 'all', label: 'Semua Status' },
-                                { value: 'baru', label: 'Baru' },
-                                { value: 'proses', label: 'Proses Penanganan' },
-                                { value: 'menunggu_tanggapan', label: 'Menunggu Tanggapan' },
-                                { value: 'selesai', label: 'Selesai' },
-                                { value: 'ditolak', label: 'Ditolak' },
-                            ]}
-                            value={statusFilter}
-                            onChange={setStatusFilter}
-                            className={`flex-1 md:w-44 ${isCompact ? 'text-[0.86rem]' : ''}`}
+                            className={`w-full rounded-2xl border border-border bg-muted pl-12 pr-4 font-medium text-foreground placeholder:text-muted-foreground transition-all focus:border-primary/60 focus:ring-4 focus:ring-primary/10 ${isCompact ? 'h-11 text-[0.95rem]' : 'h-13 text-[1rem]'}`}
                         />
                     </div>
                 </div>
@@ -194,17 +179,21 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 ) : displayList.length > 0 ? (
                     <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[900px] text-left text-[0.85rem]">
+                        <table className="w-full min-w-[1400px] text-left text-[0.82rem]">
                             <thead>
                                 <tr className="border-b border-border bg-muted/60">
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">No. Tiket</th>
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Perihal / KPS</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Surat Keputusan</th>
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Lokasi</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">BPS (Balai)</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Provinsi</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Kabupaten</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Desa</th>
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-right">Luas (Ha)</th>
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-center">KK</th>
                                     <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Pengadu</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-center">Status</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -219,21 +208,23 @@ export const AduanListPage: React.FC = () => {
                                                 {row.nomor_tiket}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 align-top max-w-[280px]">
+                                        <td className="px-4 py-3 align-top min-w-[200px]">
                                             <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getPerihalValue(row)}</p>
-                                            <p className="mt-0.5 text-[11px] text-muted-foreground truncate">KPS: {formatJoinedValue(row.nama_kps)}</p>
+                                            <p className="mt-0.5 text-[11px] text-muted-foreground">KPS: {formatJoinedValue(row.nama_kps)}</p>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground whitespace-nowrap">{formatJoinedValue(row.type_kps)}</td>
-                                        <td className="px-4 py-3 align-top text-foreground max-w-[200px]">
-                                            <span className="line-clamp-2">{[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(', ') || '-'}</span>
-                                        </td>
+                                        <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.nomor_sk)}</td>
+                                        <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.type_kps)}</td>
+                                        <td className="px-4 py-3 align-top text-foreground">{(row as any).balai || '-'}</td>
+                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_prov || '-'}</td>
+                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_kab || '-'}</td>
+                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_desa || '-'}</td>
                                         <td className="px-4 py-3 align-top text-right font-medium text-foreground tabular-nums whitespace-nowrap">{Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         <td className="px-4 py-3 align-top text-center font-medium text-foreground tabular-nums">{row.jumlah_kk ?? '-'}</td>
-                                        <td className="px-4 py-3 align-top text-foreground max-w-[160px]">
-                                            <p className="truncate">{row.pengadu_nama || '-'}</p>
-                                            {row.pengadu_instansi && <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{row.pengadu_instansi}</p>}
+                                        <td className="px-4 py-3 align-top text-foreground min-w-[140px]">
+                                            <p className="font-medium">{row.pengadu_nama || '-'}</p>
+                                            {row.pengadu_instansi && <p className="mt-0.5 text-[11px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
-                                        <td className="px-4 py-3 align-top text-center">
+                                        <td className="px-4 py-3 align-top">
                                             <Badge variant="gray" className="whitespace-nowrap text-[10px] uppercase tracking-wide border border-border bg-muted text-foreground">
                                                 {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
                                             </Badge>

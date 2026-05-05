@@ -46,8 +46,8 @@ Backend: Node.js (Hono) + PostgreSQL Lokal
 - `settings`
 
 ### Akun admin awal
-- Email: `admin@sipantaups.local`
-- Password: `Admin@1234`
+- Email: `riandiekop@gmail.com`
+- Password: `Admin@123`
 
 ---
 

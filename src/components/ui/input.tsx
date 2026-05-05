@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  labelClassName?: string;
   helperText?: string;
   error?: string;
   leftIcon?: React.ReactNode;
@@ -12,11 +13,11 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, helperText, error, leftIcon, rightIcon, fullWidth, ...props }, ref) => {
+  ({ className, type, label, labelClassName, helperText, error, leftIcon, rightIcon, fullWidth, ...props }, ref) => {
     return (
       <div className={cn("flex flex-col gap-1.5", fullWidth ? "w-full" : "w-auto")}>
         {label && (
-          <label className="ml-0.5 text-[0.82rem] font-semibold text-foreground/72">
+          <label className={cn("ml-0.5 text-[0.82rem] font-semibold text-foreground/72", labelClassName)}>
             {label}
           </label>
         )}

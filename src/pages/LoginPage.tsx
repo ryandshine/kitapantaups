@@ -61,7 +61,6 @@ export const LoginPage: React.FC = () => {
                             </div>
                             <div className="space-y-1">
                                 <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-md">KitapantauPS</h1>
-                                <p className="text-xs font-medium uppercase tracking-[0.3em] text-white/60">Secure Access</p>
                             </div>
                         </CardHeader>
 
@@ -80,10 +79,11 @@ export const LoginPage: React.FC = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         label="Email"
+                                        labelClassName="text-white/90"
                                         placeholder="nama@email.com"
-                                        leftIcon={<Mail className="h-4 w-4 text-white/60" />}
+                                        leftIcon={<Mail className="h-4 w-4 text-white/70" />}
                                         fullWidth
-                                        className="h-12 border-white/15 bg-white/10 text-white placeholder:text-white/30 focus:border-white/40 focus:bg-white/15"
+                                        className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white/40 focus:bg-white/15"
                                     />
 
                                     <Input
@@ -92,10 +92,11 @@ export const LoginPage: React.FC = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         label="Kata Sandi"
+                                        labelClassName="text-white/90"
                                         placeholder="••••••••"
-                                        leftIcon={<Lock className="h-4 w-4 text-white/60" />}
+                                        leftIcon={<Lock className="h-4 w-4 text-white/70" />}
                                         fullWidth
-                                        className="h-12 border-white/15 bg-white/10 text-white placeholder:text-white/30 focus:border-white/40 focus:bg-white/15"
+                                        className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white/40 focus:bg-white/15"
                                     />
                                 </div>
 

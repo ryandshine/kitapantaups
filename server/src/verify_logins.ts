@@ -31,7 +31,7 @@ async function verify(email: string, password: string) {
 
 async function runTests() {
     console.log('--- VERIFYING LOGIN CREDENTIALS ---')
-    await verify('admin@kitapantaups.local', 'Admin@123')
+    await verify('riandiekop@gmail.com', 'Admin@123')
     console.log('-----------------------------------')
     await pool.end()
 }

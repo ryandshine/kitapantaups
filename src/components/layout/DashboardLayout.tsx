@@ -87,7 +87,7 @@ export const DashboardLayout: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.2 }}
-                            className="mx-auto w-full max-w-7xl px-4 py-4 md:px-6 md:py-6 lg:px-8"
+                            className="mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 md:py-6 lg:px-8"
                         >
                             <Outlet />
                         </motion.div>

@@ -967,10 +967,10 @@ export const AduanDetailPage: React.FC = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-                <h3 className="mb-3 text-lg font-semibold text-foreground">
+                <h3 className="mb-3 text-xl font-bold text-foreground leading-tight">
                     {aduan.perihal}
                 </h3>
-                <div className="prose prose-slate prose-sm max-w-none text-sm leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
+                <div className="prose prose-slate prose-sm max-w-none text-[1rem] font-medium leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
                     {aduan.ringkasanMasalah ? (
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aduan.ringkasanMasalah}</ReactMarkdown>
                     ) : (
@@ -986,7 +986,7 @@ export const AduanDetailPage: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="mx-auto flex w-full max-w-6xl flex-col gap-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
+            className="flex w-full flex-col gap-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700"
         >
             {feedback && (
                 <div className="sticky top-20 z-30 no-print">
@@ -1158,10 +1158,10 @@ export const AduanDetailPage: React.FC = () => {
 
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
-                                    <h1 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="border-border bg-muted text-foreground shadow-none" />
+                                    <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-4xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="border-border bg-muted text-foreground shadow-none text-xs px-3 py-1" />
                                 </div>
-                                <p className="max-w-3xl text-[0.92rem] leading-relaxed text-muted-foreground">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="text-[1.1rem] font-medium leading-relaxed text-foreground/90">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
@@ -1398,13 +1398,10 @@ export const AduanDetailPage: React.FC = () => {
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
                                 <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
-                                    Total luas_total: {totalLuasObjek.toLocaleString('id-ID')} Ha
+                                    Total Luas Area: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
                                 <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
-                                    Total anggota_pria: {totalAnggotaPriaObjek.toLocaleString('id-ID')}
-                                </Badge>
-                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
-                                    Total anggota_wanita: {totalAnggotaWanitaObjek.toLocaleString('id-ID')}
+                                    Total Anggota: {(totalAnggotaPriaObjek + totalAnggotaWanitaObjek).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {lokasiObjekItems.length === 0 ? (
@@ -1417,39 +1414,39 @@ export const AduanDetailPage: React.FC = () => {
                                     <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border bg-muted/60 p-3">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>balai</span>
+                                                <span className={detailLabelClass}>BPS (Balai)</span>
                                                 <span className="text-[0.92rem] font-semibold text-foreground">{item.balai}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>nama_lembaga</span>
+                                                <span className={detailLabelClass}>Nama Lembaga</span>
                                                 <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>surat_keputusan</span>
+                                                <span className={detailLabelClass}>Surat Keputusan</span>
                                                 <span className="text-[0.92rem] font-mono text-foreground">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>skema</span>
+                                                <span className={detailLabelClass}>Skema</span>
                                                 <span className="text-[0.92rem] font-semibold text-foreground">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>provinsi</span>
+                                                <span className={detailLabelClass}>Provinsi</span>
                                                 <span className="text-[0.92rem] text-foreground">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>kabupaten</span>
+                                                <span className={detailLabelClass}>Kabupaten</span>
                                                 <span className="text-[0.92rem] text-foreground">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>luas_total</span>
+                                                <span className={detailLabelClass}>Luas Total</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>anggota_pria</span>
+                                                <span className={detailLabelClass}>Anggota Pria</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>anggota_wanita</span>
+                                                <span className={detailLabelClass}>Anggota Wanita</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
