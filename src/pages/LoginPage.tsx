@@ -99,6 +99,14 @@ export const LoginPage: React.FC = () => {
                                         className="h-12 border-white/20 bg-white/10 text-white placeholder:text-white/50 focus:border-white/40 focus:bg-white/15"
                                     />
                                 </div>
+                                
+                                {/* Cloudflare Turnstile Widget */}
+                                <div 
+                                    className="cf-turnstile flex justify-center" 
+                                    data-sitekey="1x00000000000000000000AA"
+                                    data-theme="dark"
+                                    data-size="flexible"
+                                ></div>
 
                                 <Button
                                     type="submit"
