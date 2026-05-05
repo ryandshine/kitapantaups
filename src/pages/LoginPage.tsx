@@ -62,7 +62,7 @@ export const LoginPage: React.FC = () => {
         e.preventDefault();
         
         if (!turnstileToken) {
-            setError('Silakan selesaikan verifikasi "I\\'m not a robot" terlebih dahulu.');
+            setError('Silakan selesaikan verifikasi "I\'m not a robot" terlebih dahulu.');
             return;
         }
 
