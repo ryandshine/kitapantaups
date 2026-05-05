@@ -26,7 +26,7 @@ export const useCreateTindakLanjut = () => {
 export const useDeleteTindakLanjut = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => AduanFollowUpService.deleteTindakLanjut(id),
+        mutationFn: ({ id, password }: { id: string, password?: string }) => AduanFollowUpService.deleteTindakLanjut(id, password),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });
             queryClient.invalidateQueries({ queryKey: ['aduan', 'tindak-lanjut'] });

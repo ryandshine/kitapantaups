@@ -13,6 +13,7 @@ export interface ConfirmDialogProps {
   confirmVariant?: "primary" | "destructive" | "outline" | "ghost"
   isLoading?: boolean
   onConfirm: () => void
+  children?: React.ReactNode
 }
 
 export function ConfirmDialog({
@@ -25,6 +26,7 @@ export function ConfirmDialog({
   confirmVariant = "destructive",
   isLoading = false,
   onConfirm,
+  children,
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -40,6 +42,7 @@ export function ConfirmDialog({
             {description}
           </DialogDescription>
         </DialogHeader>
+        {children && <div className="py-4">{children}</div>}
         <DialogFooter className="pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             {cancelLabel}

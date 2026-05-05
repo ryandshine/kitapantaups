@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { requireAuth } from '../middleware/auth.js'
 import { TindakLanjutService } from '../services/tindak-lanjut.service.js'
+import { authService } from '../lib/auth-service.js'
 
 const tl = new Hono()
 tl.use('*', requireAuth)
@@ -54,6 +55,21 @@ export const updateTl = async (c: any) => {
 // DELETE /tindak-lanjut/:id
 export const deleteTl = async (c: any) => {
   const id = c.req.param('id')
+  const user = c.get('user')
+
+  // Ambil password dari body
+  const body = await c.req.json().catch(() => ({}))
+  const password = body.password
+
+  if (!password) {
+    return c.json({ error: 'Konfirmasi password diperlukan untuk menghapus tindak lanjut' }, 400)
+  }
+
+  const isValid = await authService.verifyPassword(user.userId, password)
+  if (!isValid) {
+    return c.json({ error: 'Password salah. Penghapusan dibatalkan.' }, 401)
+  }
+
   const deleted = await TindakLanjutService.delete(id)
   
   if (!deleted) {

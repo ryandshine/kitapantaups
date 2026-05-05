@@ -252,8 +252,8 @@ export const AduanService = {
         return true;
     },
 
-    deleteAduan: async (id: string) => {
-        await api.delete(`/aduan/${id}`);
+    deleteAduan: async (id: string, password?: string) => {
+        await api.delete(`/aduan/${id}`, { password });
         return true;
     },
 

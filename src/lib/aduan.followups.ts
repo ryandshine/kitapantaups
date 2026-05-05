@@ -78,8 +78,8 @@ export const AduanFollowUpService = {
         return true;
     },
 
-    deleteTindakLanjut: async (id: string) => {
-        await api.delete(`/tindak-lanjut/${id}`);
+    deleteTindakLanjut: async (id: string, password?: string) => {
+        await api.delete(`/tindak-lanjut/${id}`, { password });
         return true;
     },
 

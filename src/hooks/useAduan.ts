@@ -68,7 +68,7 @@ export const useUpdateAduan = () => {
 export const useDeleteAduan = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (id: string) => AduanService.deleteAduan(id),
+        mutationFn: ({ id, password }: { id: string, password?: string }) => AduanService.deleteAduan(id, password),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['aduan'] });
         },

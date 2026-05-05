@@ -380,6 +380,18 @@ export const createAuthService = (dbPool: AuthDbPool = pool) => {
       })
     },
 
+    verifyPassword: async (userId: string, password: string): Promise<boolean> => {
+      return withAuthClient('verify-password', async (client) => {
+        const result = await client.query<{ password_hash: string }>(
+          `SELECT password_hash FROM users WHERE id = $1 AND is_active = true LIMIT 1`,
+          [userId]
+        )
+        const user = result.rows[0]
+        if (!user) return false
+        return await bcrypt.compare(password, user.password_hash)
+      })
+    },
+
   }
 }
 

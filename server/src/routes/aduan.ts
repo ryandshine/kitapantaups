@@ -4,6 +4,7 @@ import { zValidator } from '@hono/zod-validator'
 import { bodyLimit } from 'hono/body-limit'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
 import { AduanService } from '../services/aduan.service.js'
+import { authService } from '../lib/auth-service.js'
 
 const aduan = new Hono()
 aduan.use('*', requireAuth)
@@ -164,6 +165,20 @@ aduan.patch('/:id', zValidator('json', updateAduanSchema), async (c) => {
 
 aduan.delete('/:id', requireAdmin, async (c) => {
   const id = c.req.param('id')
+  const user = c.get('user')
+  
+  // Ambil password dari body (karena ini request DELETE, Hono bisa memproses body JSON)
+  const body = await c.req.json().catch(() => ({}))
+  const password = body.password
+
+  if (!password) {
+    return c.json({ error: 'Konfirmasi password diperlukan untuk menghapus aduan' }, 400)
+  }
+
+  const isValid = await authService.verifyPassword(user.userId, password)
+  if (!isValid) {
+    return c.json({ error: 'Password salah. Penghapusan dibatalkan.' }, 401)
+  }
 
   const deleted = await AduanService.delete(id)
   if (!deleted) return c.json({ error: 'Aduan tidak ditemukan' }, 404)

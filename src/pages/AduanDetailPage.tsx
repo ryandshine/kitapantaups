@@ -303,6 +303,7 @@ export const AduanDetailPage: React.FC = () => {
     const [deleteConfirmDoc, setDeleteConfirmDoc] = useState<{ id: string; fileName: string } | null>(null);
     const [isDeleteAduanConfirmOpen, setIsDeleteAduanConfirmOpen] = useState(false);
     const [deleteTlConfirm, setDeleteTlConfirm] = useState<{ id: string; label: string } | null>(null);
+    const [deletePassword, setDeletePassword] = useState('');
     const [tlUploadProgress, setTlUploadProgress] = useState(0);
     const [suratUploadProgress, setSuratUploadProgress] = useState(0);
     const [suratFileStatuses, setSuratFileStatuses] = useState<FileUploadItemState[]>([]);
@@ -436,9 +437,11 @@ export const AduanDetailPage: React.FC = () => {
             metadata: { nomorTiket: aduan.nomorTiket, perihal: aduan.perihal }
         });
 
-        deleteAduan(aduan.id, {
+        deleteAduan({ id: aduan.id, password: deletePassword }, {
             onSuccess: () => {
                 setFeedback({ type: 'success', message: 'Aduan berhasil dihapus.' });
+                setDeletePassword('');
+                setIsDeleteAduanConfirmOpen(false);
                 navigate('/pengaduan');
             },
             onError: (err: unknown) => {
@@ -449,9 +452,18 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const handleDeleteTlConfirm = () => {
-        if (!deleteTlConfirm) return;
-        deleteTL(deleteTlConfirm.id);
-        setDeleteTlConfirm(null);
+        if (!deleteTlConfirm || !user) return;
+        deleteTL({ id: deleteTlConfirm.id, password: deletePassword }, {
+            onSuccess: () => {
+                setFeedback({ type: 'success', message: 'Tindak lanjut berhasil dihapus.' });
+                setDeletePassword('');
+                setDeleteTlConfirm(null);
+            },
+            onError: (err: unknown) => {
+                console.error(err);
+                setFeedback({ type: 'error', message: `Gagal menghapus tindak lanjut: ${getErrorMessage(err, 'Error tidak diketahui')}` });
+            }
+        });
     };
 
     const handleDeleteDocument = async () => {
@@ -2000,35 +2012,58 @@ export const AduanDetailPage: React.FC = () => {
                 </DialogContent>
             </Dialog>
 
+            {/* Delete Aduan Confirmation */}
             <ConfirmDialog
                 open={isDeleteAduanConfirmOpen}
-                onOpenChange={setIsDeleteAduanConfirmOpen}
+                onOpenChange={(open) => {
+                    setIsDeleteAduanConfirmOpen(open);
+                    if (!open) setDeletePassword('');
+                }}
+                onConfirm={handleDelete}
                 title="Hapus Aduan"
-                description={
-                    <>
-                        Apakah Anda yakin ingin menghapus <span className="font-semibold text-foreground">{aduan.nomorTiket}</span>?
-                        Tindakan ini permanen dan tidak dapat dibatalkan.
-                    </>
-                }
-                confirmLabel="Hapus Aduan"
+                description="Apakah Anda yakin ingin menghapus aduan ini? Tindakan ini tidak dapat dibatalkan. Masukkan password Anda untuk konfirmasi."
+                confirmLabel="Hapus Permanen"
                 confirmVariant="destructive"
                 isLoading={isDeleting}
-                onConfirm={handleDelete}
-            />
+            >
+                <div className="mt-4 space-y-2">
+                    <label className="text-[13px] font-semibold text-foreground">Password Konfirmasi</label>
+                    <Input
+                        type="password"
+                        placeholder="Masukkan password akun Anda"
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        autoFocus
+                    />
+                </div>
+            </ConfirmDialog>
 
+            {/* Delete TL Confirmation */}
             <ConfirmDialog
                 open={!!deleteTlConfirm}
-                onOpenChange={(open) => !open && setDeleteTlConfirm(null)}
-                title="Hapus Riwayat Penanganan"
-                description={
-                    <>
-                        Catatan tindak lanjut <span className="font-semibold text-foreground">{deleteTlConfirm?.label || '-'}</span> akan dihapus permanen dari riwayat aduan.
-                    </>
-                }
-                confirmLabel="Hapus Riwayat"
-                confirmVariant="destructive"
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setDeleteTlConfirm(null);
+                        setDeletePassword('');
+                    }
+                }}
                 onConfirm={handleDeleteTlConfirm}
-            />
+                title="Hapus Tindak Lanjut"
+                description={`Apakah Anda yakin ingin menghapus tindak lanjut "${deleteTlConfirm?.label}"? Masukkan password Anda untuk konfirmasi.`}
+                confirmLabel="Hapus"
+                confirmVariant="destructive"
+            >
+                <div className="mt-4 space-y-2">
+                    <label className="text-[13px] font-semibold text-foreground">Password Konfirmasi</label>
+                    <Input
+                        type="password"
+                        placeholder="Masukkan password akun Anda"
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        autoFocus
+                    />
+                </div>
+            </ConfirmDialog>
         </motion.div>
     );
 };

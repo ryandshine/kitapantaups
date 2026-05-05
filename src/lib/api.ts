@@ -204,5 +204,8 @@ export const api = {
   post: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'POST', body: JSON.stringify(body) }),
   patch: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
   put: <T = unknown>(path: string, body: unknown) => apiFetch<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
-  delete: <T = unknown>(path: string) => apiFetch<T>(path, { method: 'DELETE' }),
+  delete: <T = unknown>(path: string, body?: unknown) => apiFetch<T>(path, { 
+    method: 'DELETE', 
+    ...(body ? { body: JSON.stringify(body) } : {}) 
+  }),
 }
