@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
     FileText,
     CheckCircle2,
@@ -314,20 +314,16 @@ export const DashboardPage: React.FC = () => {
             <div className="grid gap-5 lg:grid-cols-3">
                 {/* Recent Aduan List */}
                 <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
-                    <div className="flex items-center justify-between px-1">
+                    <div className="flex items-end justify-between px-1">
                         <div>
-                            <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                            <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
                                 Aduan Terbaru
                             </h2>
                         </div>
-                        <Button
-                            onClick={() => navigate('/pengaduan')}
-                            variant="ghost"
-                            className="px-0 text-[11px] font-medium text-primary hover:bg-transparent hover:text-primary/80"
-                        >
+                        <Link to="/aduan" className="group mb-0.5 flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary">
                             Lihat Semua
-                            <ChevronRight size={14} className="ml-1" />
-                        </Button>
+                            <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                        </Link>
                     </div>
 
                     <div className="space-y-3">
@@ -350,17 +346,17 @@ export const DashboardPage: React.FC = () => {
                                                         "h-2 w-2 rounded-full ring-2 ring-white/50",
                                                         getAduanStatusDotClass(aduan.status)
                                                     )} />
-                                                    <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                                    <span className={`text-[11px] font-bold uppercase tracking-[0.18em] ${theme.muted}`}>
                                                         No Aduan
                                                     </span>
-                                                    <span className={`text-[10px] font-semibold tracking-[0.14em] ${theme.text}`}>
+                                                    <span className={`text-[11px] font-bold tracking-[0.18em] ${theme.text}`}>
                                                         {aduan.nomor_tiket}
                                                     </span>
                                                 </div>
-                                                <p className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
+                                                <p className={`text-[11px] font-bold uppercase tracking-[0.18em] ${theme.muted}`}>
                                                     Perihal
                                                 </p>
-                                                <h3 className={`text-[0.92rem] font-semibold leading-snug transition-colors ${theme.text}`}>
+                                                <h3 className={`text-[1.05rem] font-bold leading-snug transition-colors ${theme.text}`}>
                                                     {aduan.perihal}
                                                 </h3>
                                             </div>
@@ -371,25 +367,27 @@ export const DashboardPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className={`mt-4 rounded-xl border border-border px-3.5 py-3 ${detailPanelClass}`}>
-                                            <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-medium ${theme.muted}`}>
-                                                <div className="flex items-center gap-1.5">
-                                                    <Briefcase size={12} />
-                                                    {getRecentAduanKpsName(aduan)}
+                                            <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold ${theme.muted}`}>
+                                                <div className="flex items-center gap-2">
+                                                    <Briefcase size={13} className="shrink-0" />
+                                                    <span className="leading-none">{getRecentAduanKpsName(aduan)}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5">
-                                                    <MapPin size={12} />
-                                                    {getRecentAduanLocation(aduan)}
+                                                <div className="flex items-center gap-2">
+                                                    <MapPin size={13} className="shrink-0" />
+                                                    <span className="leading-none">{getRecentAduanLocation(aduan)}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5">
-                                                    <Tag size={12} />
-                                                    {getRecentAduanSkema(aduan)}
+                                                <div className="flex items-center gap-2">
+                                                    <Tag size={13} className="shrink-0" />
+                                                    <span className="leading-none">{getRecentAduanSkema(aduan)}</span>
                                                 </div>
-                                                <div className="flex items-center gap-1.5">
-                                                    <Calendar size={12} />
-                                                    {formatDistanceToNow(
-                                                        resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
-                                                        { addSuffix: true, locale: localeID }
-                                                    )}
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar size={13} className="shrink-0" />
+                                                    <span className="leading-none">
+                                                        {formatDistanceToNow(
+                                                            resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt),
+                                                            { addSuffix: true, locale: localeID }
+                                                        )}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
