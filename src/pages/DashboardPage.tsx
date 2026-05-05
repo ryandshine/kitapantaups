@@ -403,27 +403,26 @@ export const DashboardPage: React.FC = () => {
                     </div>
                 </motion.div>
 
-                {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="surface-panel relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-foreground">
-                        <div className="relative z-10 mb-5 flex items-center justify-between">
-                            <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
-                                Aktivitas Sistem
-                            </h3>
-                            <Select
-                                options={[
-                                    { value: 'all', label: 'Semua Aktivitas' },
-                                    { value: 'aduan', label: 'Hanya Aduan' },
-                                    { value: 'system', label: 'Hanya Sistem' }
-                                ]}
-                                value={activityFilter}
-                                onChange={(val: string) => {
-                                    if (isActivityFilter(val)) setActivityFilter(val);
-                                }}
-                                className="h-8 w-[136px] text-[11px]"
-                            />
-                        </div>
+                    <div className="flex items-end justify-between px-1">
+                        <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+                            Aktivitas Sistem
+                        </h3>
+                        <Select
+                            options={[
+                                { value: 'all', label: 'Semua Aktivitas' },
+                                { value: 'aduan', label: 'Hanya Aduan' },
+                                { value: 'system', label: 'Hanya Sistem' }
+                            ]}
+                            value={activityFilter}
+                            onChange={(val: string) => {
+                                if (isActivityFilter(val)) setActivityFilter(val);
+                            }}
+                            className="h-8 w-[136px] text-[11px]"
+                        />
+                    </div>
 
+                    <div className="surface-panel relative flex h-full max-h-[710px] flex-col overflow-hidden p-5 text-foreground">
                         <div className="relative z-10 flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar">
                             {filteredActivities.length > 0 ? (
                                 filteredActivities.map((activity, i) => {
