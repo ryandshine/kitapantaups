@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,15 +18,57 @@ export const LoginPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const turnstileRef = useRef<HTMLDivElement>(null);
+    const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        let widgetId: string | undefined;
+
+        const renderTurnstile = () => {
+            if ((window as any).turnstile && turnstileRef.current && !widgetId) {
+                widgetId = (window as any).turnstile.render(turnstileRef.current, {
+                    sitekey: '0x4AAAAAADJnzXIXzEdsq1Lc',
+                    theme: 'light',
+                    callback: (token: string) => {
+                        setTurnstileToken(token);
+                    },
+                    'error-callback': () => {
+                        setTurnstileToken(null);
+                    }
+                });
+            }
+        };
+
+        if ((window as any).turnstile) {
+            renderTurnstile();
+        } else {
+            const interval = setInterval(() => {
+                if ((window as any).turnstile) {
+                    renderTurnstile();
+                    clearInterval(interval);
+                }
+            }, 100);
+            return () => clearInterval(interval);
+        }
+
+        return () => {
+            if (widgetId && (window as any).turnstile) {
+                (window as any).turnstile.remove(widgetId);
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (!turnstileToken) {
+            setError('Silakan selesaikan verifikasi "I\\'m not a robot" terlebih dahulu.');
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
         try {
-            // Get Turnstile token
-            const turnstileToken = (window as any).turnstile?.getResponse();
-            
             await login(email, password, turnstileToken);
             navigate('/');
         } catch (err: unknown) {
@@ -111,11 +153,8 @@ export const LoginPage: React.FC = () => {
                                         Let us know you are human
                                     </p>
                                     <div 
-                                        className="cf-turnstile w-full" 
-                                        data-sitekey="0x4AAAAAADJnzXIXzEdsq1Lc"
-                                        data-theme="light"
-                                        data-size="flexible"
-                                        data-width="100%"
+                                        ref={turnstileRef}
+                                        className="w-full min-h-[65px]" 
                                     ></div>
                                 </div>
 
