@@ -58,11 +58,11 @@
 
 @layer base {
   :root {
-    --google-blue: #6b8e7a;
-    --google-red: #c05a44;
-    --google-yellow: #d28b36;
-    --google-green: #2e6a57;
-    --google-ink: #f7f3ec;
+    --forest-blue: #6b8e7a;
+    --forest-red: #c05a44;
+    --forest-yellow: #d28b36;
+    --forest-green: #2e6a57;
+    --forest-ink: #f7f3ec;
 
     --background: 36 36% 95%;
     --foreground: 150 15% 14%;
@@ -198,7 +198,7 @@
     @apply border border-border bg-card/88 backdrop-blur-md;
   }
 
-  .google-hero {
+  .hero-panel {
     background:
       radial-gradient(circle at top right, rgba(210, 139, 54, 0.12), transparent 35%),
       linear-gradient(135deg, rgba(255, 251, 245, 0.98), rgba(246, 240, 230, 0.98));
@@ -206,24 +206,24 @@
     @apply relative overflow-hidden border p-5 text-foreground shadow-[var(--shadow-card)] sm:rounded-2xl md:p-6;
   }
 
-  .google-hero-orb {
+  .hero-orb {
     @apply absolute top-0 right-0 h-80 w-80 -translate-y-1/3 translate-x-1/3 rounded-full blur-3xl opacity-80;
     background: hsla(var(--primary), 0.08);
   }
 
-  .google-hero-button {
+  .hero-button {
     @apply rounded-xl border border-primary/20 bg-primary px-5 font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg active:scale-95;
   }
 
-  .google-panel-green {
+  .surface-panel {
     background:
-      radial-gradient(circle at top right, hsla(var(--primary), 0.05), transparent 40%),
+      radial-gradient(circle at top right, rgba(47, 107, 87, 0.05), transparent 40%),
       linear-gradient(180deg, rgba(255, 251, 245, 0.98), rgba(246, 240, 230, 0.98));
-    border-color: hsla(var(--primary), 0.1);
+    border-color: rgba(47, 107, 87, 0.1);
     @apply border text-foreground shadow-[var(--shadow-card)] sm:rounded-2xl;
   }
 
-  .detail-hero-panel {
+  .detail-panel {
     background:
       radial-gradient(circle at top right, rgba(47, 107, 87, 0.16), transparent 38%),
       radial-gradient(circle at bottom left, rgba(220, 232, 225, 0.78), transparent 30%),
@@ -235,35 +235,35 @@
     @apply border text-foreground sm:rounded-2xl;
   }
 
-  .detail-hero-orb {
+  .detail-panel-orb {
     @apply pointer-events-none absolute -top-16 -right-10 h-64 w-64 rounded-full blur-3xl opacity-70;
     background: rgba(47, 107, 87, 0.12);
   }
 
-  .detail-hero-surface {
+  .detail-panel-surface {
     @apply rounded-2xl border border-white/40 bg-white/60 backdrop-blur-md;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
   }
 
-  .google-soft-blue {
+  .status-soft-blue {
     @apply border border-secondary/25 bg-secondary/12 text-secondary;
   }
 
-  .google-soft-green {
+  .status-soft-green {
     @apply border border-primary/20 bg-primary/12 text-primary;
   }
 
-  .google-soft-yellow {
+  .status-soft-yellow {
     background-color: rgba(210, 139, 54, 0.12);
     border: 1px solid rgba(210, 139, 54, 0.22);
     color: #9a6220;
   }
 
-  .google-soft-red {
+  .status-soft-red {
     @apply border border-destructive/20 bg-destructive/12 text-destructive;
   }
 
-  .google-soft-neutral {
+  .status-soft-neutral {
     @apply border border-border bg-muted text-muted-foreground;
   }
 

@@ -80,12 +80,12 @@ export const LaporanPage: React.FC = () => {
 
     return (
         <div className="max-w-6xl animate-in fade-in duration-500 flex flex-col gap-6">
-            <div className="google-hero mb-2">
+            <div className="hero-panel mb-2">
                 <div className="relative z-10">
                     <h1 className="text-3xl font-bold tracking-tight text-foreground leading-none">Laporan</h1>
                     <p className="mt-2 text-[0.92rem] text-muted-foreground">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
                 </div>
-                <div className="google-hero-orb" />
+                <div className="hero-orb" />
             </div>
 
             {feedback && (

@@ -1,4 +1,4 @@
-export const GOOGLE_CARD_THEMES = [
+export const ADUAN_CARD_THEMES = [
   {
     bg: "bg-card",
     border: "border-border",
@@ -10,16 +10,16 @@ export const GOOGLE_CARD_THEMES = [
   },
 ] as const;
 
-export const getGoogleCardTheme = (_index: number) =>
-  GOOGLE_CARD_THEMES[0];
+export const getAduanCardTheme = (_index: number) =>
+  ADUAN_CARD_THEMES[0];
 
-export const getGoogleStatusDotClass = (_status?: string) => {
+export const getAduanStatusDotClass = (_status?: string) => {
   return "bg-primary";
 };
 
-export const getGooglePriorityBadgeClass = (priority?: string) => {
+export const getPriorityBadgeClass = (priority?: string) => {
   const normalized = (priority || "").toLowerCase();
-  if (normalized === "tinggi") return "google-soft-red";
-  if (normalized === "sedang") return "google-soft-yellow";
-  return "google-soft-blue";
+  if (normalized === "tinggi") return "status-soft-red";
+  if (normalized === "sedang") return "status-soft-yellow";
+  return "status-soft-blue";
 };

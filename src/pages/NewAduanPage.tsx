@@ -217,7 +217,7 @@ export const NewAduanPage: React.FC = () => {
                 >
                     Kembali
                 </Button>
-                <div className="google-hero mb-2">
+                <div className="hero-panel mb-2">
                     <div className="relative z-10 flex flex-col gap-1.5">
                         <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
                             Input Aduan Baru
@@ -226,7 +226,7 @@ export const NewAduanPage: React.FC = () => {
                             Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                         </p>
                     </div>
-                    <div className="google-hero-orb" />
+                    <div className="hero-orb" />
                 </div>
             </div>
 

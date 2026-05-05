@@ -190,7 +190,7 @@ export const UserManagementPage: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="google-hero mb-6">
+            <div className="hero-panel mb-6">
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl font-bold tracking-tight text-foreground">Manajemen Pengguna</h1>
@@ -198,7 +198,7 @@ export const UserManagementPage: React.FC = () => {
                     </div>
                     <div className="flex gap-2">
                         <Button
-                            className="google-hero-button"
+                            className="hero-button"
                             leftIcon={<UserPlus className="h-4 w-4" />}
                             onClick={() => setIsAddModalOpen(true)}
                         >
@@ -206,7 +206,7 @@ export const UserManagementPage: React.FC = () => {
                         </Button>
                     </div>
                 </div>
-                <div className="google-hero-orb" />
+                <div className="hero-orb" />
             </div>
 
             {feedback && (
@@ -297,8 +297,8 @@ export const UserManagementPage: React.FC = () => {
                                                     className={cn(
                                                         'inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider',
                                                         u.isActive
-                                                            ? 'google-soft-green'
-                                                            : 'google-soft-red'
+                                                            ? 'status-soft-green'
+                                                            : 'status-soft-red'
                                                     )}
                                                 >
                                                     {u.isActive ? (

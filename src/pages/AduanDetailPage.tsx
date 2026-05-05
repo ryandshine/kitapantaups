@@ -1135,8 +1135,8 @@ export const AduanDetailPage: React.FC = () => {
 
             {/* Sticky Header Area */}
             <div className="sticky top-0 z-20 no-print transition-all">
-                <div className="detail-hero-panel relative overflow-hidden px-5 py-4 backdrop-blur-xl">
-                    <div className="detail-hero-orb" />
+                <div className="detail-panel relative overflow-hidden px-5 py-4 backdrop-blur-xl">
+                    <div className="detail-panel-orb" />
                     <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
                         <div className="flex flex-col gap-3">
                             <div className="flex items-center gap-2">
@@ -1168,7 +1168,7 @@ export const AduanDetailPage: React.FC = () => {
                         <div className="flex flex-col gap-3 xl:items-stretch">
                             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-2 xl:w-full">
                                 {overviewCards.map((card) => (
-                                    <div key={card.label} className="detail-hero-surface p-3">
+                                    <div key={card.label} className="detail-panel-surface p-3">
                                         <div className="flex items-center justify-between gap-2">
                                             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#66706a]">{card.label}</p>
                                             <card.icon size={13} className="text-[#66706a]" />

@@ -108,7 +108,7 @@ export const AduanListPage: React.FC = () => {
             variants={containerVariants}
             className="flex flex-col gap-5"
         >
-            <div className="google-hero">
+            <div className="hero-panel">
                 <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
                         <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Daftar Pengaduan</motion.h1>
@@ -116,7 +116,7 @@ export const AduanListPage: React.FC = () => {
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-3">
                         <Button
-                            className="google-hero-button"
+                            className="hero-button"
                             onClick={() => navigate('/pengaduan/baru')}
                         >
                             <Plus size={18} className="mr-2" />
@@ -124,7 +124,7 @@ export const AduanListPage: React.FC = () => {
                         </Button>
                     </motion.div>
                 </div>
-                <div className="google-hero-orb" />
+                <div className="hero-orb" />
             </div>
 
             <motion.div variants={itemVariants} className="page-filter-panel">

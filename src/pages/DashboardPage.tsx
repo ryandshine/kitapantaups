@@ -34,7 +34,7 @@ import {
 import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
 import { ActivityService } from '../lib/activity.service';
-import { getGoogleCardTheme, getGoogleStatusDotClass } from '../lib/google-theme';
+import { getAduanCardTheme, getAduanStatusDotClass } from '../lib/neutral-theme';
 import type { AppActivity, Aduan, ActivityType } from '../types';
 import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -253,7 +253,7 @@ export const DashboardPage: React.FC = () => {
             className="space-y-5"
         >
             {/* Hero Section */}
-            <div className="google-hero">
+            <div className="hero-panel">
                 <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
                         <motion.h1 variants={itemVariants} className="mb-2 text-2xl font-bold tracking-tight text-foreground md:text-4xl">
@@ -268,14 +268,14 @@ export const DashboardPage: React.FC = () => {
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}
-                            className="google-hero-button text-[0.9rem]"
+                            className="hero-button text-[0.9rem]"
                         >
                             <Plus className="mr-2 h-4 w-4" />
                             Buat Aduan
                         </Button>
                     </motion.div>
                 </div>
-                <div className="google-hero-orb" />
+                <div className="hero-orb" />
             </div>
 
             {/* Stats Grid */}
@@ -333,7 +333,7 @@ export const DashboardPage: React.FC = () => {
                     <div className="space-y-3">
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan, index: number) => {
-                                const theme = getGoogleCardTheme(index);
+                                const theme = getAduanCardTheme(index);
                                 const detailPanelClass = "bg-muted/70";
 
                                 return (
@@ -348,7 +348,7 @@ export const DashboardPage: React.FC = () => {
                                                 <div className="mb-1 flex items-center gap-2">
                                                     <span className={cn(
                                                         "h-2 w-2 rounded-full ring-2 ring-white/50",
-                                                        getGoogleStatusDotClass(aduan.status)
+                                                        getAduanStatusDotClass(aduan.status)
                                                     )} />
                                                     <span className={`text-[10px] font-medium uppercase tracking-[0.14em] ${theme.muted}`}>
                                                         No Aduan
@@ -407,7 +407,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Activity & Stats Sidebar */}
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="google-panel-green relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-foreground">
+                    <div className="surface-panel relative flex h-full max-h-[760px] flex-col overflow-hidden p-5 text-foreground">
                         <div className="relative z-10 mb-5 flex items-center justify-between">
                             <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
                                 Aktivitas Sistem
