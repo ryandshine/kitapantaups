@@ -311,9 +311,9 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Content Section */}
-            <div className="grid gap-5 lg:grid-cols-3">
+            <div className="grid gap-5 lg:grid-cols-3 items-stretch">
                 {/* Recent Aduan List */}
-                <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
+                <motion.div variants={itemVariants} className="flex h-full flex-col space-y-4 lg:col-span-2">
                     <div className="flex h-10 items-center justify-between px-1">
                         <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground leading-none">
                             Aduan Terbaru
@@ -401,7 +401,7 @@ export const DashboardPage: React.FC = () => {
                     </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="space-y-4">
+                <motion.div variants={itemVariants} className="flex h-full flex-col space-y-4">
                     <div className="flex h-10 items-center justify-between px-1">
                         <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground leading-none">
                             Aktivitas Sistem
@@ -420,7 +420,7 @@ export const DashboardPage: React.FC = () => {
                         />
                     </div>
 
-                    <div className="surface-panel relative flex h-full max-h-[710px] flex-col overflow-hidden p-5 text-foreground">
+                    <div className="surface-panel relative flex flex-1 flex-col overflow-hidden p-5 text-foreground">
                         <div className="relative z-10 flex-1 space-y-5 overflow-y-auto pr-2 custom-scrollbar">
                             {filteredActivities.length > 0 ? (
                                 filteredActivities.map((activity, i) => {
