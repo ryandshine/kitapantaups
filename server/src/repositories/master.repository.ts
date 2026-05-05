@@ -35,14 +35,15 @@ const KPS_SELECT = `
     COALESCE(k.desa, '') AS lokasi_desa,
     COALESCE(k.luas_total, 0) AS lokasi_luas_ha,
     COALESCE(k.anggota_pria, 0) + COALESCE(k.anggota_wanita, 0) AS jumlah_kk,
-    ''::text AS balai,
+    COALESCE(k.raw_payload->>'nama_balai', '') AS balai,
+    COALESCE(k.raw_payload->>'seksi_wilayah', '') AS sekwil,
     NULL::numeric AS lat,
     NULL::numeric AS lng,
     ''::text AS skema_pemanfaatan,
     k.tanggal AS tanggal_sk,
-    false AS has_skps,
+    (k.raw_payload->>'dokumen_skps' IS NOT NULL) AS has_skps,
     false AS has_petaps,
-    false AS has_rkps
+    (k.raw_payload->>'dokumen_rkps' IS NOT NULL) AS has_rkps
   FROM public.kps k
 `
 

@@ -53,20 +53,20 @@ export const PengaturanPage: React.FC = () => {
 
     return (
         <div className="mx-auto max-w-4xl animate-in fade-in duration-500">
-            <div className="google-panel-green relative mb-8 overflow-hidden rounded-3xl p-6 md:p-10 shadow-xl">
-                <div className="google-hero-orb pointer-events-none" />
+            <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#2e6a57] to-[#1e4639] p-6 shadow-2xl md:p-10">
+                <div className="absolute top-0 right-0 h-64 w-64 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
                 <div className="relative z-10 flex flex-col items-center gap-6 text-center md:flex-row md:items-center md:text-left">
-                    <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[2.2rem] border-4 border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
-                        <UserCircle className="h-20 w-20 text-white" />
+                    <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[2.2rem] border-4 border-white/20 bg-white/15 shadow-2xl backdrop-blur-xl">
+                        <UserCircle className="h-20 w-20 text-white/90" />
                     </div>
                     <div className="flex flex-col gap-1.5 text-white">
-                        <p className="text-[0.72rem] font-bold uppercase tracking-[0.3em] opacity-75">Profil Saya</p>
-                        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">{user?.displayName || '-'}</h1>
+                        <p className="text-[0.72rem] font-bold uppercase tracking-[0.3em] text-white/60">Profil Saya</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">{user?.displayName || '-'}</h1>
                         <div className="mt-1 flex flex-wrap items-center justify-center gap-2 md:justify-start">
-                            <span className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
+                            <span className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
                                 {user?.role}
                             </span>
-                            <span className="text-[11px] font-medium opacity-60">
+                            <span className="text-[11px] font-medium text-white/50">
                                 ID: {user?.id.substring(0, 8).toUpperCase()}
                             </span>
                         </div>

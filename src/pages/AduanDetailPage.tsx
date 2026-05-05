@@ -1418,6 +1418,10 @@ export const AduanDetailPage: React.FC = () => {
                                                 <span className="text-[0.92rem] font-semibold text-foreground">{item.balai}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
+                                                <span className={detailLabelClass}>Seksi Wilayah</span>
+                                                <span className="text-[0.92rem] text-foreground">{item.sekwil}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Nama Lembaga</span>
                                                 <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
                                             </div>

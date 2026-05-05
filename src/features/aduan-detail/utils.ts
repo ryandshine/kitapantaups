@@ -86,6 +86,7 @@ export const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
         surat_keputusan: kps?.surat_keputusan || kps?.nomor_sk || '',
         skema: kps?.skema || normalizedType || '',
         balai: kps?.balai || '',
+        sekwil: kps?.sekwil || '',
     };
 };
 
@@ -166,6 +167,7 @@ export type LokasiObjekItem = {
     anggotaWanita: number;
     jumlahKk: number;
     balai: string;
+    sekwil: string;
 };
 
 export type FeedbackState = {
@@ -287,6 +289,7 @@ const mergeLokasiObjekItem = (
         anggotaWanita: Number(mergedKps.anggota_wanita ?? 0),
         jumlahKk: Number(mergedKps.jumlah_kk ?? mergedKps.jumlah_anggota ?? 0),
         balai: mergedKps.balai || aduan?.lokasi?.balaiName || '-',
+        sekwil: mergedKps.sekwil || '-',
     };
 };
 
