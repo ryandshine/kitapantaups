@@ -42,11 +42,13 @@ import { id as localeID } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useAduanList, useDashboardStats } from '../hooks/useAduan';
+import { useAuth } from '../contexts/AuthContext';
 
 const isActivityFilter = (value: string): value is 'all' | 'aduan' | 'system' =>
     value === 'all' || value === 'aduan' || value === 'system';
 
 export const DashboardPage: React.FC = () => {
+    const { user } = useAuth();
     const systemActivityTypes: ActivityType[] = [
         'user_login',
         'user_logout',
@@ -57,15 +59,6 @@ export const DashboardPage: React.FC = () => {
         'ai_generate_summary',
         'sync_master_data',
     ];
-    const dashboardTheme = {
-        bg: "bg-card",
-        text: "text-foreground",
-        muted: "text-muted-foreground",
-        badge: "border border-border bg-muted text-foreground",
-        iconBg: "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-foreground",
-        iconText: "text-muted-foreground group-hover:text-foreground",
-        border: "border-border"
-    };
     const navigate = useNavigate();
     const [activities, setActivities] = useState<AppActivity[]>([]);
     const [isLoadingActivities, setIsLoadingActivities] = useState(true);
@@ -263,12 +256,10 @@ export const DashboardPage: React.FC = () => {
             <div className="google-hero">
                 <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div>
-                        <motion.h1 variants={itemVariants} className="mb-1.5 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
-                            Dashboard Ringkasan
+                        <motion.h1 variants={itemVariants} className="mb-2 text-2xl font-bold tracking-tight text-foreground md:text-4xl">
+                            Halo, {user?.displayName?.split(' ')[0] || 'Admin'}!
                         </motion.h1>
-                        <motion.p variants={itemVariants} className="max-w-lg text-[0.92rem] leading-relaxed text-muted-foreground">
-                            Monitor perkembangan pengaduan dan manajemen KPS secara real-time dan terintegrasi.
-                        </motion.p>
+
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-5">
                         <div className="text-right">
@@ -288,33 +279,35 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {statCards.map((stat, i) => (
-                    (() => {
-                        const theme = dashboardTheme;
-                        return (
-                    <motion.div
-                        key={i}
-                        variants={itemVariants}
-                        className={cn(
-                            "group relative overflow-hidden rounded-2xl border p-4 transition-colors duration-300 hover:border-primary/25",
-                            theme.bg,
-                            theme.border
-                        )}
-                    >
-                        <div className="mb-3 flex items-center justify-between">
-                            <div className={cn("rounded-full p-2 transition-colors", theme.badge, theme.text)}>
-                                <stat.icon className="h-4 w-4" />
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {statCards.map((stat, i) => {
+                    const colors = [
+                        'border-blue-500/20 bg-blue-50/30 text-blue-700',
+                        'border-orange-500/20 bg-orange-50/30 text-orange-700',
+                        'border-amber-500/20 bg-amber-50/30 text-amber-700',
+                        'border-emerald-500/20 bg-emerald-50/30 text-emerald-700',
+                    ];
+                    return (
+                        <motion.div
+                            key={i}
+                            variants={itemVariants}
+                            className={cn(
+                                "group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
+                                colors[i % colors.length]
+                            )}
+                        >
+                            <div className="mb-4 flex items-center justify-between">
+                                <div className="rounded-xl bg-white/50 p-2 shadow-sm backdrop-blur-sm">
+                                    <stat.icon className="h-5 w-5" />
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <p className={cn("mb-1 text-[10px] font-semibold uppercase tracking-[0.16em]", theme.muted)}>{stat.label}</p>
-                            <h3 className={cn("text-xl font-semibold tracking-tight md:text-2xl", theme.text)}>{stat.value}</h3>
-                        </div>
-                    </motion.div>
-                        );
-                    })()
-                ))}
+                            <div>
+                                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">{stat.label}</p>
+                                <h3 className="text-2xl font-bold tracking-tight md:text-3xl">{stat.value}</h3>
+                            </div>
+                        </motion.div>
+                    );
+                })}
             </div>
 
             {/* Content Section */}
@@ -326,9 +319,6 @@ export const DashboardPage: React.FC = () => {
                             <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                                 Aduan Terbaru
                             </h2>
-                            <p className="mt-1 text-[11px] text-muted-foreground">
-                                Menampilkan 5 aduan dengan aktivitas terbaru.
-                            </p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan')}
