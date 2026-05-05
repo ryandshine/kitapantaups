@@ -30,7 +30,7 @@ interface AuthContextType {
     loading: boolean;
     error: string | null;
     isAdmin: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, turnstileToken?: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     clearError: () => void;
@@ -89,11 +89,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         void bootstrapSession();
     }, []);
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, turnstileToken?: string) => {
         setLoading(true);
         setError(null);
         try {
-            const data = await api.post<LoginResponse>('/auth/login', { email, password });
+            const data = await api.post<LoginResponse>('/auth/login', { 
+                email, 
+                password,
+                turnstile_token: turnstileToken 
+            });
             setTokens(data.access_token);
             setUser({
                 id: data.user.id,

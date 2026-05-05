@@ -26,6 +26,7 @@ const refreshRateLimit = createRateLimit({
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
+  turnstile_token: z.string().optional(),
 })
 
 const respondAuthError = (c: any, error: unknown) => {
@@ -36,10 +37,37 @@ const respondAuthError = (c: any, error: unknown) => {
   throw error
 }
 
+const verifyTurnstile = async (token?: string) => {
+  const secretKey = process.env.TURNSTILE_SECRET_KEY;
+  if (!secretKey) return true; // Skip if not configured
+  if (!token) return false;
+  
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${secretKey}&response=${token}`
+    });
+    
+    const data = await response.json() as any;
+    return !!data.success;
+  } catch (error) {
+    console.error('Turnstile verification error:', error);
+    return false;
+  }
+};
+
 // POST /auth/login
 auth.post('/login', loginRateLimit, zValidator('json', loginSchema), async (c) => {
   try {
-    const { email, password } = c.req.valid('json')
+    const { email, password, turnstile_token } = c.req.valid('json')
+
+    // Verify Turnstile
+    const isHuman = await verifyTurnstile(turnstile_token);
+    if (!isHuman) {
+      return c.json({ error: 'Verifikasi bot gagal. Silakan coba lagi.' }, 403);
+    }
+
     const session = await authService.login({ email, password })
 
     setRefreshTokenCookie(c, session.refreshToken, session.refreshTokenExpiresAt)

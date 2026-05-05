@@ -24,10 +24,15 @@ export const LoginPage: React.FC = () => {
         setIsLoading(true);
         setError(null);
         try {
-            await login(email, password);
+            // Get Turnstile token
+            const turnstileToken = (window as any).turnstile?.getResponse();
+            
+            await login(email, password, turnstileToken);
             navigate('/');
         } catch (err: unknown) {
             setError(getErrorMessage(err));
+            // Reset turnstile on error
+            (window as any).turnstile?.reset();
         } finally {
             setIsLoading(false);
         }
