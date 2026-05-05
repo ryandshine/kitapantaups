@@ -12,15 +12,16 @@ type LokasiObjekItem = {
     luasHa: number;
     anggotaPria?: number;
     anggotaWanita?: number;
+    balai?: string;
 };
 
 const APP_NAME = 'KitapantauPS';
 const AGENCY_NAME = 'Direktorat Pengendalian Perhutanan Sosial';
 const DOC_TITLE = 'Laporan Detail Aduan';
-const COLOR_BRAND = [13, 71, 161] as const;
-const COLOR_BRAND_DARK = [9, 46, 105] as const;
-const COLOR_SURFACE = [246, 249, 255] as const;
-const COLOR_BORDER = [216, 225, 241] as const;
+const COLOR_BRAND = [46, 106, 87] as const;
+const COLOR_BRAND_DARK = [32, 74, 61] as const;
+const COLOR_SURFACE = [252, 251, 248] as const;
+const COLOR_BORDER = [227, 221, 207] as const;
 const COLOR_TEXT = [31, 41, 55] as const;
 
 const formatDate = (value?: Date | string) => {
@@ -107,9 +108,17 @@ const drawKpiCards = (doc: any, startY: number, cards: Array<{ label: string; va
         doc.setTextColor(86, 99, 124);
         doc.text(card.label, x + 3, startY + 6.5);
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
+        let fontSize = 11;
+        doc.setFontSize(fontSize);
+        let text = card.value.replace(/_/g, ' ');
+        
+        while (doc.getTextWidth(text) > cardWidth - 6 && fontSize > 6) {
+            fontSize -= 0.5;
+            doc.setFontSize(fontSize);
+        }
+        
         doc.setTextColor(...COLOR_BRAND_DARK);
-        doc.text(card.value, x + 3, startY + 13.5);
+        doc.text(text, x + 3, startY + 13.5);
         doc.setFont('helvetica', 'normal');
     });
 };
@@ -120,7 +129,7 @@ const drawFooterAllPages = (doc: any) => {
 
     for (let page = 1; page <= totalPages; page += 1) {
         doc.setPage(page);
-        doc.setDrawColor(215, 220, 228);
+        doc.setDrawColor(...COLOR_BORDER);
         doc.line(14, 288, 196, 288);
         doc.setFontSize(8);
         doc.setTextColor(107, 114, 128);
@@ -135,16 +144,12 @@ export const AduanPdfService = {
         const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' }) as any;
         const nomorTiket = aduan.nomorTiket || aduan.nomor_tiket || aduan.id;
         const totalLuas = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.luasHa || 0), 0);
-        const totalAnggotaPria = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.anggotaPria || 0), 0);
-        const totalAnggotaWanita = (lokasiObjekItems || []).reduce((acc, item) => acc + Number(item.anggotaWanita || 0), 0);
 
         drawHeader(doc, nomorTiket);
         drawKpiCards(doc, 49, [
             { label: 'Status', value: compact(aduan.status).toUpperCase() },
-            { label: 'Lokasi Objek', value: `${(lokasiObjekItems || []).length}` },
-            { label: 'Total luas_total', value: `${totalLuas.toLocaleString('id-ID')} Ha` },
-            { label: 'Total anggota_pria', value: `${totalAnggotaPria.toLocaleString('id-ID')}` },
-            { label: 'Total anggota_wanita', value: `${totalAnggotaWanita.toLocaleString('id-ID')}` },
+            { label: 'Lokasi Objek', value: `${(lokasiObjekItems || []).length} KPS` },
+            { label: 'Total Luas Area', value: `${totalLuas.toLocaleString('id-ID')} Ha` },
         ]);
 
         drawSectionTitle(doc, 74, 'Informasi Utama Aduan');
@@ -161,9 +166,9 @@ export const AduanPdfService = {
                 ['Tanggal Masuk', formatDate(aduan.createdAt || aduan.created_at)],
                 ['Perihal', compact(aduan.perihal || aduan.surat_asal_perihal)],
             ],
-            styles: { fontSize: 9, cellPadding: 2.6, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
+            styles: { fontSize: 9, cellPadding: 2.6, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
-            alternateRowStyles: { fillColor: [250, 252, 255] },
+            alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
             margin: { left: 14, right: 14, bottom: 14 },
             columnStyles: {
@@ -173,7 +178,7 @@ export const AduanPdfService = {
         });
 
         const lokasiRows = (lokasiObjekItems || []).map((item) => [
-            compact(item.idApiKps),
+            compact(item.balai),
             compact(item.namaKps),
             compact(item.noSk),
             compact(item.kpsType),
@@ -187,11 +192,11 @@ export const AduanPdfService = {
         drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Lokasi Objek KPS');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['id', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'anggota_pria', 'anggota_wanita']],
+            head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'anggota_pria', 'anggota_wanita']],
             body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-']],
-            styles: { fontSize: 8, cellPadding: 2, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
+            styles: { fontSize: 8, cellPadding: 2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
-            alternateRowStyles: { fillColor: [250, 252, 255] },
+            alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
             margin: { left: 14, right: 14, bottom: 14 },
             columnStyles: {
@@ -211,8 +216,8 @@ export const AduanPdfService = {
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
             body: [[stripMarkdown(aduan.ringkasanMasalah || aduan.ringkasan_masalah)]],
-            styles: { fontSize: 9, cellPadding: 3.2, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
-            alternateRowStyles: { fillColor: [250, 252, 255] },
+            styles: { fontSize: 9, cellPadding: 3.2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
+            alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
             margin: { left: 14, right: 14, bottom: 14 },
         });
@@ -229,9 +234,9 @@ export const AduanPdfService = {
             startY: doc.lastAutoTable.finalY + 13,
             head: [['Tanggal', 'Jenis Dokumen', 'Keterangan', 'Oleh']],
             body: tlRows.length > 0 ? tlRows : [['-', '-', 'Belum ada dokumen tindak lanjut', '-']],
-            styles: { fontSize: 8, cellPadding: 2.2, valign: 'top', lineColor: [226, 232, 240], lineWidth: 0.1 },
+            styles: { fontSize: 8, cellPadding: 2.2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
-            alternateRowStyles: { fillColor: [250, 252, 255] },
+            alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
             margin: { left: 14, right: 14, bottom: 16 },
             columnStyles: {

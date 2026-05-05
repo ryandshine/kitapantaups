@@ -161,7 +161,7 @@ export const AduanDetailPage: React.FC = () => {
                     jenisTL: normalizeJenisTlLabel(tl.jenisTL),
                     tanggal: tl.tanggal,
                     fileName: url.split('/').pop()?.split('?')[0] || `Lampiran Dokumen ${index + 1}`,
-                    source: 'Dokumen Tindak Lanjut',
+                    source: 'Dok. Tindak Lanjut',
                 }))
         );
     }, [qTindakLanjutList]);
@@ -1305,9 +1305,8 @@ export const AduanDetailPage: React.FC = () => {
                 </motion.div>
             )}
 
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-                {/* Main Info Column */}
-                <div className="flex flex-col gap-5 xl:col-span-8">
+            <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-5">
                     {/* Summary Info - Always 2 columns for Pengadu & Surat Masuk */}
                     <motion.div variants={itemVariants} className="grid grid-cols-1 gap-5 md:grid-cols-2">
                         <Card className={`h-full ${detailCardClass}`}>
@@ -1377,13 +1376,10 @@ export const AduanDetailPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <span className={detailLabelClass}>Asal & Perihal</span>
-                                    <div className="space-y-1.5">
-                                        <Badge variant="outline" className={`font-semibold text-[9px] uppercase tracking-widest ${detailBadgeClass}`}>{aduan.suratMasuk.asalSuratKategori || 'Masyarakat'}</Badge>
-                                        <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
-                                            {aduan.suratMasuk.perihal || <span className="italic font-medium text-muted-foreground">Tidak dicantumkan</span>}
-                                        </p>
-                                    </div>
+                                    <span className={detailLabelClass}>Perihal</span>
+                                    <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
+                                        {aduan.suratMasuk.perihal || <span className="italic font-medium text-muted-foreground">Tidak dicantumkan</span>}
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -1421,8 +1417,8 @@ export const AduanDetailPage: React.FC = () => {
                                     <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border bg-muted/60 p-3">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>id</span>
-                                                <span className="text-[0.92rem] font-mono text-foreground">{item.idApiKps}</span>
+                                                <span className={detailLabelClass}>balai</span>
+                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.balai}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>nama_lembaga</span>
@@ -1590,122 +1586,87 @@ export const AduanDetailPage: React.FC = () => {
                             </CardContent>
                         </Card>
                     </motion.div>
-                </div>
 
-                <div className="flex flex-col gap-5 self-start xl:col-span-4 xl:sticky xl:top-28">
-                    {/* PIC Info Card */}
-                    <motion.div variants={itemVariants}>
-                        <Card className={detailCardClass}>
-                            <CardContent className="space-y-4 p-5">
-                                <div>
-                                    <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Penanggung Jawab (PIC)</p>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-muted text-base font-semibold text-foreground">
-                                            {(aduan?.picName || 'U').charAt(0)}
-                                        </div>
-                                        <div>
-                                            <p className="text-[0.92rem] font-semibold text-foreground">{aduan?.picName || 'Belum Ditetapkan'}</p>
-                                            <p className="text-[11px] text-muted-foreground">{latestTindakLanjut ? `Update terakhir ${formatDate(latestTindakLanjut.tanggal)}` : 'Belum ada update tindak lanjut'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 rounded-xl border border-border bg-muted/60 p-3">
-                                    <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">KPS Terkait</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{lokasiObjekItems.length}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Lampiran</p>
-                                        <p className="mt-1 text-[0.92rem] font-semibold text-foreground">{allAttachments.length}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    {/* Resources */}
-                    <div>
-                        <Card className={detailCardClass}>
-                            <CardHeader className={`flex flex-row items-center justify-between pb-3 ${detailCardHeaderClass}`}>
-                                <CardTitle className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">Lampiran & Berkas</CardTitle>
-                                <div className="flex items-center gap-2">
-                                    {allAttachments.length > 0 && (
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="h-8 rounded-lg border-border text-[10px] font-semibold uppercase hover:bg-accent"
-                                            onClick={handleDownloadZip}
-                                            disabled={isDownloadingZip}
-                                        >
-                                            <Download size={12} className="mr-1.5" />
-                                            {isDownloadingZip ? 'Memproses...' : 'ZIP'}
-                                        </Button>
-                                    )}
+                    {/* Lampiran & Berkas */}
+                    <Card className={detailCardClass}>
+                        <CardHeader className={`flex flex-row items-center justify-between pb-3 ${detailCardHeaderClass}`}>
+                            <CardTitle className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">Lampiran & Berkas</CardTitle>
+                            <div className="flex items-center gap-2">
+                                {allAttachments.length > 0 && (
                                     <Button
                                         size="sm"
                                         variant="outline"
                                         className="h-8 rounded-lg border-border text-[10px] font-semibold uppercase hover:bg-accent"
-                                        onClick={() => setIsUploadModalOpen(true)}
+                                        onClick={handleDownloadZip}
+                                        disabled={isDownloadingZip}
                                     >
-                                        <Upload size={12} className="mr-1.5" /> Upload
+                                        <Download size={12} className="mr-1.5" />
+                                        {isDownloadingZip ? 'Memproses...' : 'ZIP'}
                                     </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex flex-col gap-3 p-4">
-                                {/* Unified Attachment List */}
-                                <div className="flex flex-col gap-2.5">
-                                    {allAttachments.length === 0 && (
-                                        <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4 text-center text-xs text-muted-foreground">
-                                            Belum ada lampiran
-                                        </div>
-                                    )}
+                                )}
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8 rounded-lg border-border text-[10px] font-semibold uppercase hover:bg-accent"
+                                    onClick={() => setIsUploadModalOpen(true)}
+                                >
+                                    <Upload size={12} className="mr-1.5" /> Upload
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-3 p-4">
+                            <div className="flex flex-col gap-2.5">
+                                {allAttachments.length === 0 && (
+                                    <div className="rounded-xl border border-dashed border-border bg-muted/40 p-4 text-center text-xs text-muted-foreground">
+                                        Belum ada lampiran
+                                    </div>
+                                )}
 
-                                    {allAttachments.map((file) => (
-                                        <div key={file.id} className="group flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-3 transition-all hover:border-primary/25 hover:bg-accent/70">
-                                            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground">
-                                                {file.source === 'Dokumen Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
-                                            </div>
-                                            <div className="flex min-w-0 flex-1 flex-col">
-                                                <span className="truncate pr-2 text-[11px] font-semibold text-foreground">
-                                                    {file.fileName}
-                                                </span>
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline" className="h-5 px-1.5 text-[9px] font-semibold">
-                                                        {file.source}
-                                                    </Badge>
-                                                    <span className="truncate text-[10px] text-muted-foreground">{file.meta}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                {isAdmin && file.rawId && (
-                                                    <button
-                                                        onClick={() => setDeleteConfirmDoc({ id: file.rawId!, fileName: file.fileName })}
-                                                        disabled={deletingDocId === file.rawId}
-                                                        className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
-                                                        title="Hapus file"
-                                                    >
-                                                        {deletingDocId === file.rawId ? (
-                                                            <div className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
-                                                        ) : (
-                                                            <Trash2 size={14} />
-                                                        )}
-                                                    </button>
-                                                )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => void handleOpenProtectedFile(file.url, file.fileName)}
-                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent"
-                                                    title="Buka File"
-                                                >
-                                                    <ExternalLink size={14} />
-                                                </button>
+                                {allAttachments.map((file) => (
+                                    <div key={file.id} className="group flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-3 transition-all hover:border-primary/25 hover:bg-accent/70">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground">
+                                            {file.source === 'Dok. Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
+                                        </div>
+                                        <div className="flex min-w-0 flex-1 flex-col">
+                                            <span className="truncate pr-2 text-[11px] font-semibold text-foreground">
+                                                {file.fileName}
+                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className="px-1.5 py-0.5 text-[9px] font-semibold leading-tight">
+                                                    {file.source}
+                                                </Badge>
+                                                <span className="truncate text-[10px] text-muted-foreground">{file.meta}</span>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                                        <div className="flex items-center gap-1">
+                                            {isAdmin && file.rawId && (
+                                                <button
+                                                    onClick={() => setDeleteConfirmDoc({ id: file.rawId!, fileName: file.fileName })}
+                                                    disabled={deletingDocId === file.rawId}
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                                                    title="Hapus file"
+                                                >
+                                                    {deletingDocId === file.rawId ? (
+                                                        <div className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                                                    ) : (
+                                                        <Trash2 size={14} />
+                                                    )}
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleOpenProtectedFile(file.url, file.fileName)}
+                                                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent"
+                                                title="Buka File"
+                                            >
+                                                <ExternalLink size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 

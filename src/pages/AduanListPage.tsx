@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Button, Select, Badge } from '../components/ui';
 import { useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
-import { getGoogleCardTheme } from '../lib/google-theme';
 import type { Aduan } from '../types';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -70,9 +69,7 @@ export const AduanListPage: React.FC = () => {
         scrollToListSection();
     };
 
-    const formatDate = (val?: string | Date) => {
-        return val ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(val)) : '-';
-    };
+
 
     const formatJoinedValue = (value: unknown) => {
         if (Array.isArray(value)) {
@@ -189,93 +186,71 @@ export const AduanListPage: React.FC = () => {
                 </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} className="sm:rounded-2xl" ref={listSectionRef}>
-                <div className="p-4">
-                    {loading ? (
-                        <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
-                            <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-                            <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
-                        </div>
-                    ) : displayList.length > 0 ? (
-                        <div className="flex flex-col gap-4">
-                            {displayList.map((row, index) => {
-                                const theme = getGoogleCardTheme(index);
-                                const statPanelClass = "page-subpanel";
-
-                                return (
-                                <button
-                                    key={row.nomor_tiket}
-                                    type="button"
-                                    onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className={`flex w-full flex-col rounded-2xl border p-4.5 text-left transition-colors hover:border-primary/25 ${theme.bg} ${theme.border}`}
-                                >
-                                    <div className="flex w-full items-start justify-between gap-3">
-                                        <div className="min-w-0 flex-1 space-y-1.5">
-                                            <span className={`inline-flex rounded-md px-2 py-0.5 font-mono text-[11px] font-bold backdrop-blur-sm ${theme.badge}`}>
+            <motion.div variants={itemVariants} className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]" ref={listSectionRef}>
+                {loading ? (
+                    <div className="flex h-64 flex-col items-center justify-center gap-3 p-8 text-muted-foreground">
+                        <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+                        <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
+                    </div>
+                ) : displayList.length > 0 ? (
+                    <div className="overflow-x-auto custom-scrollbar-horizontal">
+                        <table className="w-full min-w-[900px] text-left text-[0.85rem]">
+                            <thead>
+                                <tr className="border-b border-border bg-muted/60">
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">No. Tiket</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Perihal / KPS</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Lokasi</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-right">Luas (Ha)</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-center">KK</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Pengadu</th>
+                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {displayList.map((row) => (
+                                    <tr
+                                        key={row.nomor_tiket}
+                                        onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
+                                        className="border-b border-border/60 transition-colors hover:bg-primary/4 cursor-pointer group"
+                                    >
+                                        <td className="px-4 py-3 align-top">
+                                            <span className="inline-flex rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground">
                                                 {row.nomor_tiket}
                                             </span>
-                                            <p className={`text-[1rem] font-semibold ${theme.text}`}>
-                                                {getPerihalValue(row)}
-                                            </p>
-                                            <p className={`text-[11px] font-medium ${theme.muted}`}>
-                                                KPS: {formatJoinedValue(row.nama_kps)}
-                                            </p>
-                                        </div>
-                                        <Badge variant="gray" className={`shrink-0 max-w-[7rem] whitespace-normal break-words text-center text-[10px] uppercase tracking-wide backdrop-blur-sm ${theme.badge}`}>
-                                            {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
-                                        </Badge>
-                                    </div>
-
-                                    <div className="mt-5 grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                        <div>
-                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Skema</p>
-                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>{formatJoinedValue(row.type_kps)}</p>
-                                        </div>
-                                        <div>
-                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Surat Keputusan</p>
-                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>{formatJoinedValue(row.nomor_sk)}</p>
-                                        </div>
-                                        <div className="md:col-span-2">
-                                            <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Lokasi</p>
-                                            <p className={`mt-1 text-[0.9rem] font-medium ${theme.text}`}>
-                                                {[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(' | ') || '-'}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-4 flex flex-col md:flex-row gap-4 w-full">
-                                        <div className={`grid grid-cols-2 gap-3 md:w-64 shrink-0 p-3 ${statPanelClass}`}>
-                                            <div>
-                                                <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Luas</p>
-                                                <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{Number(row.lokasi_luas_ha || 0).toFixed(2)} Ha</p>
-                                            </div>
-                                            <div>
-                                                <p className={`text-[10px] font-semibold uppercase tracking-[0.14em] ${theme.muted}`}>Jumlah KK</p>
-                                                <p className={`mt-1 text-[0.9rem] font-semibold ${theme.text}`}>{row.jumlah_kk ?? '-'}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`flex-1 grid grid-cols-1 gap-2 text-[0.85rem] ${theme.muted}`}>
-                                            <div className="flex flex-col sm:flex-row sm:gap-6">
-                                                <p><span className={`font-semibold ${theme.text}`}>Pengadu:</span> {row.pengadu_nama || '-'}</p>
-                                                <p><span className={`font-semibold ${theme.text}`}>Instansi:</span> {row.pengadu_instansi || '-'}</p>
-                                                <p><span className={`font-semibold ${theme.text}`}>Surat:</span> {row.surat_nomor || '-'} • {formatDate(row.surat_tanggal)}</p>
-                                            </div>
-                                            <p className="whitespace-pre-wrap leading-relaxed mt-1"><span className={`font-semibold ${theme.text}`}>Ringkasan:</span> {row.ringkasan_masalah || '-'}</p>
-                                        </div>
-                                    </div>
-                                </button>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="flex h-48 items-center justify-center px-6 text-center italic text-muted-foreground">
-                            Tidak ada data pengaduan yang ditemukan.
-                        </div>
-                    )}
-                </div>
+                                        </td>
+                                        <td className="px-4 py-3 align-top max-w-[280px]">
+                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getPerihalValue(row)}</p>
+                                            <p className="mt-0.5 text-[11px] text-muted-foreground truncate">KPS: {formatJoinedValue(row.nama_kps)}</p>
+                                        </td>
+                                        <td className="px-4 py-3 align-top text-foreground whitespace-nowrap">{formatJoinedValue(row.type_kps)}</td>
+                                        <td className="px-4 py-3 align-top text-foreground max-w-[200px]">
+                                            <span className="line-clamp-2">{[row.lokasi_prov, row.lokasi_kab, row.lokasi_kec, row.lokasi_desa].filter(Boolean).join(', ') || '-'}</span>
+                                        </td>
+                                        <td className="px-4 py-3 align-top text-right font-medium text-foreground tabular-nums whitespace-nowrap">{Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className="px-4 py-3 align-top text-center font-medium text-foreground tabular-nums">{row.jumlah_kk ?? '-'}</td>
+                                        <td className="px-4 py-3 align-top text-foreground max-w-[160px]">
+                                            <p className="truncate">{row.pengadu_nama || '-'}</p>
+                                            {row.pengadu_instansi && <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{row.pengadu_instansi}</p>}
+                                        </td>
+                                        <td className="px-4 py-3 align-top text-center">
+                                            <Badge variant="gray" className="whitespace-nowrap text-[10px] uppercase tracking-wide border border-border bg-muted text-foreground">
+                                                {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
+                                            </Badge>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="flex h-48 items-center justify-center px-6 text-center italic text-muted-foreground">
+                        Tidak ada data pengaduan yang ditemukan.
+                    </div>
+                )}
 
                 {!loading && totalCount > 0 && (
-                    <div className="mt-2 flex flex-col justify-between gap-3 rounded-2xl border border-border bg-card p-3.5 sm:flex-row sm:items-center">
+                    <div className="flex flex-col justify-between gap-3 border-t border-border p-3.5 sm:flex-row sm:items-center">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                             <span className="hidden sm:inline">Menampilkan {(currentPage - 1) * itemsPerPage + 1} s/d {Math.min(currentPage * itemsPerPage, totalCount)} dari {totalCount} Data</span>
                             <span className="sm:hidden">{(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, totalCount)} / {totalCount}</span>
@@ -289,7 +264,7 @@ export const AduanListPage: React.FC = () => {
                             >
                                 Sebelumnya
                             </Button>
-                            <div className="rounded-md border border-border bg-card px-3 py-1 text-[11px] font-bold">
+                            <div className="rounded-md border border-border bg-muted px-3 py-1 text-[11px] font-bold">
                                 {currentPage} / {totalPages}
                             </div>
                             <Button

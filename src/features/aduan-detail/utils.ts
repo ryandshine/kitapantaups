@@ -165,6 +165,7 @@ export type LokasiObjekItem = {
     anggotaPria: number;
     anggotaWanita: number;
     jumlahKk: number;
+    balai: string;
 };
 
 export type FeedbackState = {
@@ -285,6 +286,7 @@ const mergeLokasiObjekItem = (
         anggotaPria: Number(mergedKps.anggota_pria ?? 0),
         anggotaWanita: Number(mergedKps.anggota_wanita ?? 0),
         jumlahKk: Number(mergedKps.jumlah_kk ?? mergedKps.jumlah_anggota ?? 0),
+        balai: mergedKps.balai || aduan?.lokasi?.balaiName || '-',
     };
 };
 
