@@ -314,13 +314,11 @@ export const DashboardPage: React.FC = () => {
             <div className="grid gap-5 lg:grid-cols-3">
                 {/* Recent Aduan List */}
                 <motion.div variants={itemVariants} className="space-y-4 lg:col-span-2">
-                    <div className="flex items-end justify-between px-1">
-                        <div>
-                            <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
-                                Aduan Terbaru
-                            </h2>
-                        </div>
-                        <Link to="/aduan" className="group mb-0.5 flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary">
+                    <div className="flex h-10 items-center justify-between px-1">
+                        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground leading-none">
+                            Aduan Terbaru
+                        </h2>
+                        <Link to="/aduan" className="group flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary leading-none">
                             Lihat Semua
                             <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                         </Link>
@@ -404,8 +402,8 @@ export const DashboardPage: React.FC = () => {
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="space-y-4">
-                    <div className="flex items-end justify-between px-1">
-                        <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+                    <div className="flex h-10 items-center justify-between px-1">
+                        <h3 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground leading-none">
                             Aktivitas Sistem
                         </h3>
                         <Select
