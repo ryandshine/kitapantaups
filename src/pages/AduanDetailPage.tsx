@@ -1372,7 +1372,7 @@ export const AduanDetailPage: React.FC = () => {
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <span className={detailLabelClass}>Tgl Masuk</span>
-                                        <span className="text-[0.92rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
+                                        <span className="text-[1rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -1415,31 +1415,31 @@ export const AduanDetailPage: React.FC = () => {
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>BPS (Balai)</span>
-                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.balai}</span>
+                                                <span className="text-[1rem] font-semibold text-foreground">{item.balai}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Seksi Wilayah</span>
-                                                <span className="text-[0.92rem] text-foreground">{item.sekwil}</span>
+                                                <span className="text-[1rem] text-foreground">{item.sekwil}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Nama Lembaga</span>
-                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.namaKps}</span>
+                                                <span className="text-[1rem] font-semibold text-foreground">{item.namaKps}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Surat Keputusan</span>
-                                                <span className="text-[0.92rem] font-mono text-foreground">{item.noSk}</span>
+                                                <span className="text-[1rem] font-mono text-foreground">{item.noSk}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Skema</span>
-                                                <span className="text-[0.92rem] font-semibold text-foreground">{item.kpsType}</span>
+                                                <span className="text-[1rem] font-semibold text-foreground">{item.kpsType}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Provinsi</span>
-                                                <span className="text-[0.92rem] text-foreground">{item.provinsi}</span>
+                                                <span className="text-[1rem] text-foreground">{item.provinsi}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Kabupaten</span>
-                                                <span className="text-[0.92rem] text-foreground">{item.kabupaten}</span>
+                                                <span className="text-[1rem] text-foreground">{item.kabupaten}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Luas Total</span>

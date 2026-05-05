@@ -302,7 +302,7 @@ export const DashboardPage: React.FC = () => {
                                 </div>
                             </div>
                             <div>
-                                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.2em] opacity-70">{stat.label}</p>
+                                <p className="mb-1 text-[12px] font-bold uppercase tracking-[0.2em] opacity-70">{stat.label}</p>
                                 <h3 className="text-2xl font-bold tracking-tight md:text-3xl">{stat.value}</h3>
                             </div>
                         </motion.div>

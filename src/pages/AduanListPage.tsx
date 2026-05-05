@@ -179,21 +179,21 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 ) : displayList.length > 0 ? (
                     <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[1400px] text-left text-[0.82rem]">
+                        <table className="w-full min-w-[1400px] text-left text-[0.88rem]">
                             <thead>
-                                <tr className="border-b border-border bg-muted/60">
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">No. Tiket</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Perihal / KPS</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Surat Keputusan</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Skema</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">BPS (Balai)</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Provinsi</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Kabupaten</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Desa</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-right">Luas (Ha)</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground text-center">KK</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Pengadu</th>
-                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Status</th>
+                                <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">No. Tiket</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Perihal / KPS</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Surat Keputusan</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Skema</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">BPS (Balai)</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Provinsi</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Kabupaten</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Desa</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90 text-right">Luas (Ha)</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90 text-center">KK</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,13 +204,13 @@ export const AduanListPage: React.FC = () => {
                                         className="border-b border-border/60 transition-colors hover:bg-primary/4 cursor-pointer group"
                                     >
                                         <td className="px-4 py-3 align-top">
-                                            <span className="inline-flex rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[11px] font-bold text-foreground">
+                                            <span className="inline-flex rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[12px] font-bold text-foreground">
                                                 {row.nomor_tiket}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 align-top min-w-[200px]">
                                             <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getPerihalValue(row)}</p>
-                                            <p className="mt-0.5 text-[11px] text-muted-foreground">KPS: {formatJoinedValue(row.nama_kps)}</p>
+                                            <p className="mt-0.5 text-[12px] text-muted-foreground">KPS: {formatJoinedValue(row.nama_kps)}</p>
                                         </td>
                                         <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.nomor_sk)}</td>
                                         <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.type_kps)}</td>
@@ -222,7 +222,7 @@ export const AduanListPage: React.FC = () => {
                                         <td className="px-4 py-3 align-top text-center font-medium text-foreground tabular-nums">{row.jumlah_kk ?? '-'}</td>
                                         <td className="px-4 py-3 align-top text-foreground min-w-[140px]">
                                             <p className="font-medium">{row.pengadu_nama || '-'}</p>
-                                            {row.pengadu_instansi && <p className="mt-0.5 text-[11px] text-muted-foreground">{row.pengadu_instansi}</p>}
+                                            {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
                                         <td className="px-4 py-3 align-top">
                                             <Badge variant="gray" className="whitespace-nowrap text-[10px] uppercase tracking-wide border border-border bg-muted text-foreground">
