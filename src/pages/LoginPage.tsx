@@ -106,12 +106,17 @@ export const LoginPage: React.FC = () => {
                                 </div>
                                 
                                 {/* Cloudflare Turnstile Widget */}
-                                <div 
-                                    className="cf-turnstile flex justify-center" 
-                                    data-sitekey="0x4AAAAAADJnzXIXzEdsq1Lc"
-                                    data-theme="dark"
-                                    data-size="flexible"
-                                ></div>
+                                <div className="space-y-3">
+                                    <p className="text-center text-sm font-medium text-white/80">
+                                        Let us know you are human
+                                    </p>
+                                    <div 
+                                        className="cf-turnstile flex justify-center" 
+                                        data-sitekey="0x4AAAAAADJnzXIXzEdsq1Lc"
+                                        data-theme="light"
+                                        data-size="flexible"
+                                    ></div>
+                                </div>
 
                                 <Button
                                     type="submit"
