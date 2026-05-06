@@ -233,6 +233,10 @@ export const AduanListPage: React.FC = () => {
                                         <td className="px-4 py-3 align-top min-w-[220px] text-foreground">
                                             <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
                                                 <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KPS</span>
+                                                    <span className="leading-snug">{formatJoinedValue(row.nama_kps)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">SK</span>
                                                     <span className="leading-snug">{formatJoinedValue(row.nomor_sk)}</span>
                                                 </div>
