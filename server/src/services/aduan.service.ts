@@ -4,7 +4,10 @@ import { generateAduanTicketNumber } from '../lib/aduan-ticket.js'
 
 const ADUAN_SEARCH_TEXT = `
   concat_ws(' ',
+    a.surat_nomor,
     a.pengadu_nama,
+    a.pengadu_instansi,
+    a.kategori_masalah,
     a.ringkasan_masalah,
     a.nomor_tiket,
     a.surat_asal_perihal,
@@ -21,8 +24,12 @@ const KPS_SEARCH_TEXT = `
     k.nama_lembaga,
     k.surat_keputusan,
     k.skema,
+    k.raw_payload->>'nama_balai',
+    k.raw_payload->>'seksi_wilayah',
     k.provinsi,
-    k.kabupaten
+    k.kabupaten,
+    k.kecamatan,
+    k.desa
   )
 `
 

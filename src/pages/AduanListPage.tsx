@@ -16,6 +16,11 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const SUMMARY_STATUS_ORDER = ['baru', 'proses', 'menunggu_tanggapan', 'selesai'] as const;
+const DATE_FORMATTER = new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+});
 
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
@@ -89,6 +94,11 @@ export const AduanListPage: React.FC = () => {
         || row?.surat_asal_perihal?.trim?.()
         || row?.suratMasuk?.perihal?.trim?.()
         || '-';
+
+    const formatDateValue = (value?: Date) => {
+        if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '-';
+        return DATE_FORMATTER.format(value);
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -181,14 +191,14 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 ) : displayList.length > 0 ? (
                     <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[1120px] text-left text-[0.88rem]">
+                        <table className="w-full min-w-[1180px] text-left text-[0.88rem]">
                             <thead>
                                 <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">No. Tiket</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Legalitas</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Data KPS</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Status</th>
                                 </tr>
@@ -208,6 +218,18 @@ export const AduanListPage: React.FC = () => {
                                         <td className="px-4 py-3 align-top min-w-[200px]">
                                             <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
                                         </td>
+                                        <td className="px-4 py-3 align-top min-w-[180px] text-foreground">
+                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
+                                                    <span className="leading-snug">{formatDateValue(row.surat_tanggal)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Dibuat</span>
+                                                    <span className="leading-snug">{formatDateValue(row.created_at || row.createdAt)}</span>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-4 py-3 align-top min-w-[220px] text-foreground">
                                             <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
                                                 <div className="flex gap-2 px-3 py-2">
@@ -217,6 +239,16 @@ export const AduanListPage: React.FC = () => {
                                                 <div className="flex gap-2 px-3 py-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Skema</span>
                                                     <span className="leading-snug">{formatJoinedValue(row.type_kps)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Luas</span>
+                                                    <span className="font-medium tabular-nums whitespace-nowrap">
+                                                        {Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Ha
+                                                    </span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KK</span>
+                                                    <span className="font-medium tabular-nums">{row.jumlah_kk ?? '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -237,20 +269,6 @@ export const AduanListPage: React.FC = () => {
                                                 <div className="flex gap-2 px-3 py-2">
                                                     <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">BPS</span>
                                                     <span className="leading-snug">{(row as any).balai || '-'}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3 align-top min-w-[150px] text-foreground">
-                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
-                                                <div className="flex gap-2 px-3 py-2">
-                                                    <span className="w-12 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Luas</span>
-                                                    <span className="font-medium tabular-nums whitespace-nowrap">
-                                                        {Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Ha
-                                                    </span>
-                                                </div>
-                                                <div className="flex gap-2 px-3 py-2">
-                                                    <span className="w-12 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KK</span>
-                                                    <span className="font-medium tabular-nums">{row.jumlah_kk ?? '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
