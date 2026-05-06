@@ -198,7 +198,7 @@ export const PengaturanPage: React.FC = () => {
                                         </p>
                                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                             {syncStatus?.isRunning
-                                                ? 'Halaman ini memantau job aktif di backend. Anda tidak perlu menutup layar.'
+                                                ? ''
                                                 : syncStatus?.lastError
                                                     ? syncStatus.lastError
                                                     : syncStatus?.lastResult
