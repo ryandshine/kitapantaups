@@ -148,13 +148,13 @@ export const LoginPage: React.FC = () => {
                                 </div>
                                 
                                 {/* Cloudflare Turnstile Widget */}
-                                <div className="space-y-1.5">
-                                    <p className="text-left text-[14px] font-medium text-white/90">
+                                <div className="space-y-1.5 flex flex-col items-center">
+                                    <p className="text-center text-[14px] font-medium text-white/90">
                                         Let us know you are human
                                     </p>
                                     <div 
                                         ref={turnstileRef}
-                                        className="w-full min-h-[65px]" 
+                                        className="min-h-[65px]" 
                                     ></div>
                                 </div>
 
