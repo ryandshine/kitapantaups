@@ -98,8 +98,7 @@ export const AduanService = {
       throw new Error('Aduan tidak ditemukan')
     }
 
-    const url = await StorageService.saveAduanFile(file, aduanId, aduan.nomor_tiket as string, category)
-    return { url }
+    return await StorageService.saveAduanFile(file, aduanId, aduan.nomor_tiket as string, category)
   },
 
   async addDocument(aduanId: string, data: any, userId: string) {

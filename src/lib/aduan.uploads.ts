@@ -10,6 +10,11 @@ export type UploadBatchProgress = {
     errorMessage?: string;
 };
 
+export type UploadedFileResult = {
+    url: string;
+    fileName: string;
+};
+
 const getErrorMessage = (error: unknown) => {
     if (error instanceof Error && error.message) return error.message;
     return 'Terjadi kesalahan yang tidak diketahui';
@@ -22,7 +27,7 @@ const uploadToServer = async (
     onProgress?: (percent: number) => void,
     allowRetry = true,
     tokenOverride?: string | null
-): Promise<string> => {
+): Promise<UploadedFileResult> => {
     if (!aduanId) throw new Error('aduanId wajib diisi untuk upload file');
 
     const token = tokenOverride ?? getAccessToken();
@@ -55,7 +60,14 @@ const uploadToServer = async (
                     try {
                         const data = JSON.parse(xhr.responseText);
                         if (!data?.url) rejectWithError('URL file upload tidak ditemukan', xhr.status);
-                        else resolve(data.url);
+                        else resolve({
+                            url: data.url,
+                            fileName: typeof data.fileName === 'string'
+                                ? data.fileName
+                                : typeof data.file_name === 'string'
+                                    ? data.file_name
+                                    : fileName,
+                        });
                     } catch {
                         rejectWithError('Respons tidak valid dari server', xhr.status);
                     }
@@ -90,10 +102,10 @@ export const uploadAduanDocument = (file: File | Blob, aduanId: string, onProgre
     uploadToServer(file, 'dokumen', aduanId, onProgress);
 
 export const uploadAduanSuratMasuk = (file: File | Blob, aduanId: string, onProgress?: (percent: number) => void) =>
-    uploadToServer(file, 'surat_masuk', aduanId, onProgress);
+    uploadToServer(file, 'surat_masuk', aduanId, onProgress).then((result) => result.url);
 
 export const uploadAduanTindakLanjut = (file: File | Blob, aduanId: string, onProgress?: (percent: number) => void) =>
-    uploadToServer(file, 'tindak_lanjut', aduanId, onProgress);
+    uploadToServer(file, 'tindak_lanjut', aduanId, onProgress).then((result) => result.url);
 
 export const uploadAdditionalAduanDocuments = async (
     aduanId: string,
@@ -113,7 +125,7 @@ export const uploadAdditionalAduanDocuments = async (
                 status: 'uploading',
             });
 
-            const fileUrl = await uploadAduanDocument(file, aduanId, (percent) => {
+            const uploadedFile = await uploadAduanDocument(file, aduanId, (percent) => {
                 onProgress?.({
                     fileIndex: index,
                     totalFiles: files.length,
@@ -125,8 +137,8 @@ export const uploadAdditionalAduanDocuments = async (
             });
 
             await api.post(`/aduan/${aduanId}/documents`, {
-                file_url: fileUrl,
-                file_name: file.name,
+                file_url: uploadedFile.url,
+                file_name: uploadedFile.fileName,
                 file_category: 'dokumen',
             });
 

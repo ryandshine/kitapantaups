@@ -311,7 +311,20 @@ const buildOpenApiSpec = (origin: string) => ({
           },
         },
         responses: {
-          200: { description: 'File berhasil di-upload' },
+          200: {
+            description: 'File berhasil di-upload',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    url: { type: 'string' },
+                    fileName: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
           400: { description: 'Payload upload tidak valid' },
         },
       },

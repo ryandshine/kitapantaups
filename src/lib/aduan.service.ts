@@ -153,7 +153,7 @@ export const AduanService = {
     },
 
     uploadFileToBucket: async (f: File, _b: string, _id: string): Promise<string> => {
-        return uploadAduanDocument(f, _id);
+        return (await uploadAduanDocument(f, _id)).url;
     },
     uploadSuratMasuk: async (f: File | Blob, aduanId: string, onProgress?: (p: number) => void): Promise<string> => {
         return uploadAduanSuratMasuk(f, aduanId, onProgress);

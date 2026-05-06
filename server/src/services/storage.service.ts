@@ -2,9 +2,9 @@ import path from 'path'
 import { mkdir, unlink } from 'fs/promises'
 import { createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
-import { randomUUID } from 'crypto'
 import {
   buildUploadPublicUrl,
+  buildStoredUploadFileName,
   getAllowedUploadExtensions,
   getUploadsRoot,
   isAllowedUploadExtension,
@@ -34,7 +34,7 @@ export const StorageService = {
     }
 
     const safeCategory = sanitizePathSegment(category)
-    const fileName = `${safeCategory}_${randomUUID()}.${ext}`
+    const fileName = buildStoredUploadFileName(safeCategory || 'dokumen', ext)
     const uploadDir = path.join(getUploadsRoot(), nomorTiketFolder)
 
     await mkdir(uploadDir, { recursive: true })
@@ -50,7 +50,10 @@ export const StorageService = {
     }
 
     const baseUrl = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`
-    return buildUploadPublicUrl(baseUrl, nomorTiketFolder, fileName)
+    return {
+      url: buildUploadPublicUrl(baseUrl, nomorTiketFolder, fileName),
+      fileName,
+    }
   },
 
   async deleteFile(fileUrl: string) {

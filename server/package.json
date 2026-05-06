@@ -7,6 +7,7 @@
     "build": "tsup src/index.ts --format esm --out-dir dist",
     "start": "node dist/index.js",
     "migrate:sql": "tsx scripts/run_sql_file.ts",
+    "migrate:legacy-documents": "tsx scripts/migrate_legacy_aduan_documents_storage.ts",
     "sync:kps:gokups": "tsx scripts/sync_gokups_kps.ts",
     "test": "node --import tsx --test src/lib/*.test.ts"
   },
