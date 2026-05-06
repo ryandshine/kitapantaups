@@ -4,6 +4,7 @@ import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner
 import { Save as SaveIcon, UserCircle, ShieldCheck, RefreshCw, Database } from 'lucide-react';
 import { UserService } from '../lib/user.service';
 import { useKpsSyncStatus, useSyncKps } from '../hooks/useKps';
+import './PengaturanPage.css';
 
 export const PengaturanPage: React.FC = () => {
     const { user, refreshUser, isAdmin } = useAuth();
@@ -145,16 +146,11 @@ export const PengaturanPage: React.FC = () => {
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4 pt-6">
-                        <div className="rounded-2xl border border-border bg-muted/35 p-4">
-                            <p className="text-sm font-semibold text-foreground">Tarik data terbaru dari GoKUPS</p>
-                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                                Gunakan tombol ini untuk memperbarui master KPS tanpa masuk ke server. Setelah sinkron selesai, daftar KPS, pencarian, dan detail terkait akan di-refresh otomatis.
-                            </p>
-                        </div>
-
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="text-xs leading-relaxed text-muted-foreground">
-                                Proses bisa memakan waktu beberapa menit tergantung jumlah data dari sumber eksternal.
+                                {isSyncRunning
+                                    ? 'Sinkronisasi sedang berjalan. Halaman akan memperbarui status secara otomatis.'
+                                    : 'Sinkronisasi master KPS dapat dijalankan kapan saja dari sini.'}
                             </div>
                             <Button
                                 variant="primary"
@@ -164,9 +160,21 @@ export const PengaturanPage: React.FC = () => {
                                 className="px-6 shadow-lg shadow-primary/20"
                                 leftIcon={<RefreshCw size={16} />}
                             >
-                                {isSyncRunning ? 'Sedang sync...' : 'Sync KPS'}
+                                    {isSyncRunning ? 'Sedang sync...' : 'Sync KPS'}
                             </Button>
                         </div>
+
+                        {isSyncRunning && (
+                            <div className="space-y-2" aria-live="polite">
+                                <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                                    <span>Progress Sync</span>
+                                    <span>Berjalan</span>
+                                </div>
+                                <div className="sync-progress-track" role="progressbar" aria-label="Progres sinkronisasi KPS" aria-valuetext="Sinkronisasi sedang berjalan">
+                                    <div className="sync-progress-bar" />
+                                </div>
+                            </div>
+                        )}
 
                         {(syncStatus?.isRunning || syncStatus?.lastResult || syncStatus?.lastError) && (
                             <div className="rounded-2xl border border-border bg-background/90 p-4">
