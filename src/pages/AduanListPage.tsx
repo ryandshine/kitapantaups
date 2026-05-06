@@ -82,8 +82,10 @@ export const AduanListPage: React.FC = () => {
         return '-';
     };
 
-    const getPerihalValue = (row: Aduan) =>
-        row?.perihal?.trim?.()
+    const getRingkasanMasalahValue = (row: Aduan) =>
+        row?.ringkasanMasalah?.trim?.()
+        || row?.ringkasan_masalah?.trim?.()
+        || row?.perihal?.trim?.()
         || row?.surat_asal_perihal?.trim?.()
         || row?.suratMasuk?.perihal?.trim?.()
         || '-';
@@ -179,19 +181,14 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 ) : displayList.length > 0 ? (
                     <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[1400px] text-left text-[0.88rem]">
+                        <table className="w-full min-w-[1120px] text-left text-[0.88rem]">
                             <thead>
                                 <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">No. Tiket</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Perihal / KPS</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Surat Keputusan</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Skema</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">BPS (Balai)</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Provinsi</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Kabupaten</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Desa</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90 text-right">Luas (Ha)</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90 text-center">KK</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Legalitas</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Data KPS</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Status</th>
                                 </tr>
@@ -209,17 +206,54 @@ export const AduanListPage: React.FC = () => {
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 align-top min-w-[200px]">
-                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getPerihalValue(row)}</p>
-                                            <p className="mt-0.5 text-[12px] text-muted-foreground">KPS: {formatJoinedValue(row.nama_kps)}</p>
+                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.nomor_sk)}</td>
-                                        <td className="px-4 py-3 align-top text-foreground">{formatJoinedValue(row.type_kps)}</td>
-                                        <td className="px-4 py-3 align-top text-foreground">{(row as any).balai || '-'}</td>
-                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_prov || '-'}</td>
-                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_kab || '-'}</td>
-                                        <td className="px-4 py-3 align-top text-foreground">{row.lokasi_desa || '-'}</td>
-                                        <td className="px-4 py-3 align-top text-right font-medium text-foreground tabular-nums whitespace-nowrap">{Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className="px-4 py-3 align-top text-center font-medium text-foreground tabular-nums">{row.jumlah_kk ?? '-'}</td>
+                                        <td className="px-4 py-3 align-top min-w-[220px] text-foreground">
+                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">SK</span>
+                                                    <span className="leading-snug">{formatJoinedValue(row.nomor_sk)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Skema</span>
+                                                    <span className="leading-snug">{formatJoinedValue(row.type_kps)}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 align-top min-w-[240px] text-foreground">
+                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Provinsi</span>
+                                                    <span className="leading-snug">{row.lokasi_prov || '-'}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kabupaten</span>
+                                                    <span className="leading-snug">{row.lokasi_kab || '-'}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Desa</span>
+                                                    <span className="leading-snug">{row.lokasi_desa || '-'}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">BPS</span>
+                                                    <span className="leading-snug">{(row as any).balai || '-'}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 align-top min-w-[150px] text-foreground">
+                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-12 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Luas</span>
+                                                    <span className="font-medium tabular-nums whitespace-nowrap">
+                                                        {Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Ha
+                                                    </span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-12 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KK</span>
+                                                    <span className="font-medium tabular-nums">{row.jumlah_kk ?? '-'}</span>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td className="px-4 py-3 align-top text-foreground min-w-[140px]">
                                             <p className="font-medium">{row.pengadu_nama || '-'}</p>
                                             {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
