@@ -23,6 +23,33 @@ type DocumentRow = {
   created_at: string | Date | null
 }
 
+type TindakLanjutRow = {
+  id: string
+  aduan_id: string
+  file_urls: string[] | null
+  created_at: string | Date | null
+}
+
+type DocumentPlan = {
+  id: string
+  from: string
+  to: string
+  fileUrlBefore: string
+  fileUrlAfter: string
+  fileNameAfter: string
+}
+
+type TindakLanjutPlan = {
+  id: string
+  renames: Array<{
+    from: string
+    to: string
+    fileUrlBefore: string
+    fileUrlAfter: string
+  }>
+  fileUrlsAfter: string[]
+}
+
 const args = new Set(process.argv.slice(2))
 const applyChanges = args.has('--apply')
 const limitArg = process.argv.find((arg) => arg.startsWith('--limit='))
@@ -37,8 +64,101 @@ const getDateForFile = (value: string | Date | null) => {
   return Number.isNaN(date.getTime()) ? new Date() : date
 }
 
+const getSourceFileInfo = (fileUrl: string) => {
+  const sourcePath = resolveStoredUploadPathFromUrl(fileUrl)
+  const currentBaseName = path.basename(sourcePath)
+  const folderName = path.basename(path.dirname(sourcePath))
+  const ext = path.extname(currentBaseName).slice(1).toLowerCase()
+  return { sourcePath, currentBaseName, folderName, ext }
+}
+
+const buildLegacyFileName = (
+  dateValue: string | Date | null,
+  category: string,
+  stableKey: string,
+  ext: string
+) =>
+  buildStoredUploadFileName(
+    normalizeUploadLabel(category || 'dokumen'),
+    ext,
+    getDateForFile(dateValue),
+    deriveStableUploadCode(stableKey)
+  )
+
+const buildDocumentPlan = (row: DocumentRow): DocumentPlan | null => {
+  const { sourcePath, currentBaseName, folderName, ext } = getSourceFileInfo(row.file_url)
+
+  if (!ext) {
+    console.warn(`SKIP document:${row.id}: ekstensi tidak ditemukan dari ${currentBaseName}`)
+    return null
+  }
+
+  if (isModernUploadFileName(currentBaseName)) {
+    return null
+  }
+
+  const fileNameAfter = buildLegacyFileName(row.created_at, row.file_category || 'dokumen', row.id, ext)
+  if (currentBaseName === fileNameAfter) {
+    return null
+  }
+
+  const fileUrlAfter = buildFileUrlWithNewName(row.file_url, fileNameAfter)
+
+  return {
+    id: row.id,
+    from: sourcePath,
+    to: path.join(getUploadsRoot(), folderName, fileNameAfter),
+    fileUrlBefore: row.file_url,
+    fileUrlAfter,
+    fileNameAfter,
+  }
+}
+
+const buildTindakLanjutPlan = (row: TindakLanjutRow): TindakLanjutPlan | null => {
+  const fileUrls = (row.file_urls || []).filter((url): url is string => Boolean(url))
+  if (fileUrls.length === 0) return null
+
+  const renames = fileUrls.flatMap((fileUrl, index) => {
+    try {
+      const { sourcePath, currentBaseName, folderName, ext } = getSourceFileInfo(fileUrl)
+
+      if (!ext || isModernUploadFileName(currentBaseName)) {
+        return []
+      }
+
+      const fileNameAfter = buildLegacyFileName(row.created_at, 'tindak_lanjut', `${row.id}:${index}`, ext)
+      if (currentBaseName === fileNameAfter) {
+        return []
+      }
+
+      return [{
+        from: sourcePath,
+        to: path.join(getUploadsRoot(), folderName, fileNameAfter),
+        fileUrlBefore: fileUrl,
+        fileUrlAfter: buildFileUrlWithNewName(fileUrl, fileNameAfter),
+      }]
+    } catch (error) {
+      console.warn(`SKIP tindak_lanjut:${row.id}[${index}]: ${(error as Error).message}`)
+      return []
+    }
+  })
+
+  if (renames.length === 0) return null
+
+  const fileUrlsAfter = fileUrls.map((fileUrl) => {
+    const matched = renames.find((item) => item.fileUrlBefore === fileUrl)
+    return matched?.fileUrlAfter || fileUrl
+  })
+
+  return {
+    id: row.id,
+    renames,
+    fileUrlsAfter,
+  }
+}
+
 const run = async () => {
-  const result = await pool.query<DocumentRow>(
+  const documentResult = await pool.query<DocumentRow>(
     `
       SELECT id, aduan_id, file_name, file_url, file_category, created_at
       FROM public.aduan_documents
@@ -49,63 +169,41 @@ const run = async () => {
     limit ? [limit] : []
   )
 
-  const rows = result.rows
-  const uploadRoot = getUploadsRoot()
-  const plan: Array<{
-    id: string
-    from: string
-    to: string
-    fileUrlBefore: string
-    fileUrlAfter: string
-  }> = []
+  const tlResult = await pool.query<TindakLanjutRow>(
+    `
+      SELECT id, aduan_id, file_urls, created_at
+      FROM public.tindak_lanjut
+      WHERE file_urls IS NOT NULL
+        AND array_length(file_urls, 1) > 0
+      ORDER BY created_at ASC, id ASC
+      ${limit ? 'LIMIT $1' : ''}
+    `,
+    limit ? [limit] : []
+  )
 
-  for (const row of rows) {
-    const sourcePath = resolveStoredUploadPathFromUrl(row.file_url)
-    const currentBaseName = path.basename(sourcePath)
-    const folderName = path.basename(path.dirname(sourcePath))
-    const ext = path.extname(currentBaseName).slice(1).toLowerCase()
+  const documentPlans = documentResult.rows.map(buildDocumentPlan).filter((item): item is DocumentPlan => Boolean(item))
+  const tindakLanjutPlans = tlResult.rows.map(buildTindakLanjutPlan).filter((item): item is TindakLanjutPlan => Boolean(item))
 
-    if (!ext) {
-      console.warn(`SKIP ${row.id}: ekstensi tidak ditemukan dari ${currentBaseName}`)
-      continue
-    }
-
-    if (isModernUploadFileName(currentBaseName)) {
-      continue
-    }
-
-    const normalizedCategory = normalizeUploadLabel(row.file_category || 'dokumen')
-    const newFileName = buildStoredUploadFileName(
-      normalizedCategory,
-      ext,
-      getDateForFile(row.created_at),
-      deriveStableUploadCode(row.id)
-    )
-    const targetPath = path.join(uploadRoot, folderName, newFileName)
-
-    if (currentBaseName === newFileName) {
-      continue
-    }
-
-    plan.push({
-      id: row.id,
-      from: sourcePath,
-      to: targetPath,
-      fileUrlBefore: row.file_url,
-      fileUrlAfter: buildFileUrlWithNewName(row.file_url, newFileName),
-    })
-  }
-
-  if (plan.length === 0) {
+  if (documentPlans.length === 0 && tindakLanjutPlans.length === 0) {
     console.log('Tidak ada file legacy yang perlu di-rename.')
     return
   }
 
-  console.log(`Ditemukan ${plan.length} file yang akan di-rename.`)
-  for (const item of plan) {
-    console.log(`- ${item.id}`)
+  const totalFiles = documentPlans.length + tindakLanjutPlans.reduce((sum, item) => sum + item.renames.length, 0)
+  console.log(`Ditemukan ${totalFiles} file yang akan di-rename.`)
+
+  for (const item of documentPlans) {
+    console.log(`- document:${item.id}`)
     console.log(`  from: ${item.from}`)
     console.log(`  to:   ${item.to}`)
+  }
+
+  for (const item of tindakLanjutPlans) {
+    for (const renameItem of item.renames) {
+      console.log(`- tindak_lanjut:${item.id}`)
+      console.log(`  from: ${renameItem.from}`)
+      console.log(`  to:   ${renameItem.to}`)
+    }
   }
 
   if (!applyChanges) {
@@ -113,10 +211,10 @@ const run = async () => {
     return
   }
 
-  for (const item of plan) {
+  for (const item of documentPlans) {
     const fromExists = await access(item.from).then(() => true).catch(() => false)
     if (!fromExists) {
-      console.warn(`SKIP ${item.id}: file sumber tidak ditemukan`)
+      console.warn(`SKIP document:${item.id}: file sumber tidak ditemukan`)
       continue
     }
 
@@ -150,14 +248,71 @@ const run = async () => {
 
       await client.query(
         'UPDATE public.aduan_documents SET file_url = $2, file_name = $3 WHERE id = $1',
-        [item.id, item.fileUrlAfter, path.basename(item.to)]
+        [item.id, item.fileUrlAfter, item.fileNameAfter]
       )
 
       await client.query('COMMIT')
-      console.log(`OK ${item.id}`)
+      console.log(`OK document:${item.id}`)
     } catch (error) {
       await client.query('ROLLBACK')
       await rename(item.to, item.from).catch(() => {})
+      throw error
+    } finally {
+      client.release()
+    }
+  }
+
+  for (const item of tindakLanjutPlans) {
+    const sourcesExist = await Promise.all(item.renames.map(async (renameItem) => access(renameItem.from).then(() => true).catch(() => false)))
+    if (sourcesExist.some((exists) => !exists)) {
+      console.warn(`SKIP tindak_lanjut:${item.id}: ada file sumber yang tidak ditemukan`)
+      continue
+    }
+
+    const targetsExist = await Promise.all(item.renames.map(async (renameItem) => access(renameItem.to).then(() => true).catch(() => false)))
+    if (targetsExist.some((exists) => exists)) {
+      throw new Error(`Target sudah ada untuk tindak_lanjut:${item.id}`)
+    }
+
+    for (const renameItem of item.renames) {
+      await mkdir(path.dirname(renameItem.to), { recursive: true })
+    }
+
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+
+      const rowResult = await client.query<TindakLanjutRow>(
+        'SELECT id, file_urls FROM public.tindak_lanjut WHERE id = $1 FOR UPDATE',
+        [item.id]
+      )
+
+      const row = rowResult.rows[0]
+      if (!row) {
+        throw new Error(`Tindak lanjut tidak ditemukan: ${item.id}`)
+      }
+
+      const currentUrls = (row.file_urls || []).filter((url): url is string => Boolean(url))
+      if (currentUrls.length !== item.fileUrlsAfter.length) {
+        throw new Error(`Jumlah lampiran berubah untuk tindak_lanjut:${item.id}`)
+      }
+
+      for (const renameItem of item.renames) {
+        await rename(renameItem.from, renameItem.to)
+      }
+
+      await client.query(
+        'UPDATE public.tindak_lanjut SET file_urls = $2 WHERE id = $1',
+        [item.id, item.fileUrlsAfter]
+      )
+
+      await client.query('COMMIT')
+      console.log(`OK tindak_lanjut:${item.id}`)
+    } catch (error) {
+      await client.query('ROLLBACK')
+      for (const renameItem of item.renames.slice().reverse()) {
+        await rename(renameItem.to, renameItem.from).catch(() => {})
+      }
       throw error
     } finally {
       client.release()
