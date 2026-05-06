@@ -89,6 +89,9 @@ import {
 const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error && error.message ? error.message : fallback;
 
+const getFileNameFromUrl = (url: string, fallback: string) =>
+    url.split('/').pop()?.split('?')[0] || fallback;
+
 export const AduanDetailPage: React.FC = () => {
     const { nomorTiket } = useParams<{ nomorTiket: string }>();
     const navigate = useNavigate();
@@ -136,7 +139,7 @@ export const AduanDetailPage: React.FC = () => {
         return {
             id: 'surat-masuk-legacy',
             url: aduan.suratMasuk.fileUrl,
-            fileName: aduan.suratMasuk.fileUrl.split('/').pop()?.split('?')[0] || 'Surat Masuk',
+            fileName: getFileNameFromUrl(aduan.suratMasuk.fileUrl, 'Surat Masuk'),
             source: 'Surat Masuk',
             meta: 'Administrasi Surat (Legacy)',
         };
@@ -160,7 +163,7 @@ export const AduanDetailPage: React.FC = () => {
                     url,
                     jenisTL: normalizeJenisTlLabel(tl.jenisTL),
                     tanggal: tl.tanggal,
-                    fileName: url.split('/').pop()?.split('?')[0] || `Lampiran Dokumen ${index + 1}`,
+                    fileName: getFileNameFromUrl(url, `Lampiran Dokumen ${index + 1}`),
                     source: 'Dok. Tindak Lanjut',
                 }))
         );
@@ -1548,18 +1551,17 @@ export const AduanDetailPage: React.FC = () => {
                                                             {tl.fileUrls && tl.fileUrls.length > 0 && (
                                                                 <div className="flex flex-wrap gap-1.5">
                                                                     {tl.fileUrls.filter(Boolean).map((url, i) => {
-                                                                        const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${i + 1}`;
-                                                                        const displayName = fileName.includes('_') ? fileName.split('_').slice(1).join('_') : fileName;
+                                                                        const fileName = getFileNameFromUrl(url, `Lampiran ${i + 1}`);
                                                                         return (
                                                                             <button
                                                                                 key={i}
                                                                                 type="button"
-                                                                                onClick={() => void handleOpenProtectedFile(url, displayName)}
+                                                                                onClick={() => void handleOpenProtectedFile(url, fileName)}
                                                                                 className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[10px] font-medium text-foreground transition-colors hover:bg-accent"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
-                                                                                <span className="max-w-[150px] truncate">{displayName}</span>
+                                                                                <span className="max-w-[150px] truncate">{fileName}</span>
                                                                             </button>
                                                                         );
                                                                     })}
@@ -1825,7 +1827,7 @@ export const AduanDetailPage: React.FC = () => {
                         ) : (
                             <div className="flex flex-wrap gap-2">
                                 {editTlForm.fileUrls.map((url, idx) => {
-                                    const fileName = url?.split('/').pop()?.split('?')[0] || `Lampiran ${idx + 1}`;
+                                    const fileName = getFileNameFromUrl(url, `Lampiran ${idx + 1}`);
                                     return (
                                         <div key={idx} className="inline-flex items-center gap-2 rounded border border-border bg-card px-2 py-1 text-[10px] font-medium text-foreground">
                                             <FileText size={10} />
