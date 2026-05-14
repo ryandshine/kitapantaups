@@ -1,0 +1,94 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: kitapantaups-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Install API dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Test API
+        working-directory: server
+        run: npm test
+
+      - name: Build API
+        working-directory: server
+        run: npm run build
+
+      - name: Build frontend Docker image
+        run: docker build -t kitapantaups-web:${{ github.sha }} .
+
+      - name: Build API Docker image
+        run: docker build -t kitapantaups-api:${{ github.sha }} ./server
+
+  deploy:
+    name: Deploy to VPS
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Configure SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          test -n "$VPS_HOST"
+          test -n "$VPS_USER"
+          test -n "$VPS_SSH_KEY"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${VPS_PORT:-22}" "$VPS_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          APP_DIR: ${{ vars.APP_DIR }}
+          DOKPLOY_API_WEBHOOK_URL: ${{ secrets.DOKPLOY_API_WEBHOOK_URL }}
+          DOKPLOY_FRONTEND_WEBHOOK_URL: ${{ secrets.DOKPLOY_FRONTEND_WEBHOOK_URL }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" \
+            "cd '${APP_DIR:-/home/ryandshinevps/kitapantaups}' && \
+             git pull --ff-only origin main && \
+             DOKPLOY_API_WEBHOOK_URL='$DOKPLOY_API_WEBHOOK_URL' \
+             DOKPLOY_FRONTEND_WEBHOOK_URL='$DOKPLOY_FRONTEND_WEBHOOK_URL' \
+             ./scripts/deploy-dokploy.sh"
