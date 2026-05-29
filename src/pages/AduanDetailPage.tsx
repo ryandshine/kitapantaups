@@ -1169,7 +1169,7 @@ export const AduanDetailPage: React.FC = () => {
                                     Kembali
                                 </Button>
                                 <span className="text-[#b8af9d]">|</span>
-                                <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#66706a]">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#66706a]">
                                     <Tag size={12} />
                                     <span>{aduan.kategoriMasalah || '-'}</span>
                                 </div>
@@ -1189,11 +1189,11 @@ export const AduanDetailPage: React.FC = () => {
                                 {overviewCards.map((card) => (
                                     <div key={card.label} className="detail-panel-surface p-3">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#66706a]">{card.label}</p>
+                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#66706a]">{card.label}</p>
                                             <card.icon size={13} className="text-[#66706a]" />
                                         </div>
-                                        <p className="mt-2 text-sm font-semibold text-[#223a31]">{card.value}</p>
-                                        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[#66706a]">{card.hint}</p>
+                                        <p className="mt-2 text-base font-semibold text-[#223a31]">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[#66706a]">{card.hint}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1338,7 +1338,7 @@ export const AduanDetailPage: React.FC = () => {
                             <CardContent className="flex flex-col gap-4 py-5">
                                 <div className="flex flex-col gap-1.5">
                                     <span className={detailLabelClass}>Nama Lengkap</span>
-                                    <span className="text-[0.95rem] font-semibold text-foreground">{aduan.pengadu.nama}</span>
+                                    <span className="text-base font-semibold text-foreground">{aduan.pengadu.nama}</span>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className={detailLabelClass}>Informasi Kontak</span>
@@ -1359,14 +1359,14 @@ export const AduanDetailPage: React.FC = () => {
                                                 <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg border border-border bg-muted text-foreground">
                                                     <Globe size={14} />
                                                 </div>
-                                                <span className="break-all text-[11px] font-semibold text-foreground">{aduan.pengadu.email}</span>
+                                                <span className="break-all text-sm font-semibold text-foreground">{aduan.pengadu.email}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className={detailLabelClass}>Instansi / Kelompok</span>
-                                    <div className="flex items-center gap-2 text-[0.92rem] font-medium text-foreground">
+                                    <div className="flex items-center gap-2 text-base font-medium text-foreground">
                                         <div className="flex h-7.5 w-7.5 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground">
                                             <Briefcase size={14} />
                                         </div>
@@ -1387,16 +1387,16 @@ export const AduanDetailPage: React.FC = () => {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1.5">
                                         <span className={detailLabelClass}>Nomor Surat</span>
-                                        <span className="rounded border border-border bg-muted px-2 py-1 font-mono text-[11px] font-semibold text-foreground">{aduan.suratMasuk.nomorSurat}</span>
+                                        <span className="rounded border border-border bg-muted px-2 py-1 font-mono text-sm font-semibold text-foreground">{aduan.suratMasuk.nomorSurat}</span>
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <span className={detailLabelClass}>Tgl Masuk</span>
-                                        <span className="text-[1rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
+                                        <span className="text-[1.05rem] font-semibold text-foreground">{formatDate(aduan.suratMasuk.tanggalSurat)}</span>
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1.5">
                                     <span className={detailLabelClass}>Perihal</span>
-                                    <p className="text-[0.92rem] font-semibold leading-tight text-foreground">
+                                    <p className="text-base font-semibold leading-tight text-foreground">
                                         {aduan.suratMasuk.perihal || <span className="italic font-medium text-muted-foreground">Tidak dicantumkan</span>}
                                     </p>
                                 </div>
@@ -1413,13 +1413,13 @@ export const AduanDetailPage: React.FC = () => {
                         </CardHeader>
                         <CardContent className="py-4">
                             <div className="mb-3 flex flex-wrap items-center gap-1.5">
-                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
+                                <Badge variant="outline" className={`text-xs ${detailBadgeClass}`}>
                                     Total KPS: {lokasiObjekItems.length}
                                 </Badge>
-                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
+                                <Badge variant="outline" className={`text-xs ${detailBadgeClass}`}>
                                     Total Luas Area: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
-                                <Badge variant="outline" className={`text-[10px] ${detailBadgeClass}`}>
+                                <Badge variant="outline" className={`text-xs ${detailBadgeClass}`}>
                                     Total Anggota: {(totalAnggotaPriaObjek + totalAnggotaWanitaObjek).toLocaleString('id-ID')}
                                 </Badge>
                             </div>
@@ -1508,7 +1508,7 @@ export const AduanDetailPage: React.FC = () => {
                             </CardHeader>
                             <CardContent className="p-5">
                                 {!canInputRiwayatPenanganan && (
-                                    <p className="mb-4 rounded-lg border border-border bg-muted px-3 py-2 text-[11px] font-medium text-foreground">
+                                    <p className="mb-4 rounded-lg border border-border bg-muted px-3 py-2 text-sm font-medium text-foreground">
                                         Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
@@ -1527,7 +1527,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 )} />
 
                                                 <div className={cn(
-                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-primary-foreground shadow-sm",
+                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-primary-foreground shadow-sm",
                                                     index === 0 ? "bg-primary" : "bg-muted-foreground/70"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
@@ -1535,19 +1535,19 @@ export const AduanDetailPage: React.FC = () => {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="text-[11px] font-bold uppercase tracking-tight text-foreground">{normalizeJenisTlLabel(tl.jenisTL)}</span>
+                                                            <span className="text-sm font-bold uppercase tracking-tight text-foreground">{normalizeJenisTlLabel(tl.jenisTL)}</span>
                                                             {tl.nomorSuratOutput && (
-                                                                <Badge variant="outline" className={`h-5 px-1.5 text-[9px] font-mono ${detailBadgeClass}`}>
+                                                                <Badge variant="outline" className={`h-5 px-1.5 text-xs font-mono ${detailBadgeClass}`}>
                                                                     {tl.nomorSuratOutput}
                                                                 </Badge>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                                                        <div className="flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">
                                                             <Calendar size={10} />
                                                             {formatDate(tl.tanggal)}
                                                         </div>
                                                     </div>
-                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-[11px] leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
+                                                    <div className="prose prose-slate prose-sm mb-3 max-w-none text-sm leading-relaxed text-foreground prose-p:text-foreground prose-strong:text-foreground">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>{tl.keterangan}</ReactMarkdown>
                                                     </div>
                                                         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-2">
@@ -1561,7 +1561,7 @@ export const AduanDetailPage: React.FC = () => {
                                                                                 key={i}
                                                                                 type="button"
                                                                                 onClick={() => void handleOpenProtectedFile(url, fileName)}
-                                                                                className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-[10px] font-medium text-foreground transition-colors hover:bg-accent"
+                                                                                className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                                                                                 title={fileName}
                                                                             >
                                                                                 <FileText size={10} />
@@ -1591,7 +1591,7 @@ export const AduanDetailPage: React.FC = () => {
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             )}
-                                                            <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                                            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                                                 <User size={10} className="text-muted-foreground" />
                                                                 Oleh: {tl.createdByName}
                                                             </div>

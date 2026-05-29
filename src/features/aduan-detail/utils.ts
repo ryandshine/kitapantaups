@@ -512,5 +512,5 @@ export const detailSectionClass = "rounded-xl border border-[#d7ccb8] bg-[#efe9d
 export const detailSectionSoftClass = "rounded-xl border border-[#d7ccb8] bg-[#f4efe2]/80 p-4";
 export const detailBadgeClass = "border-[#cfc2aa] bg-[#efe7d6] text-[#31453d]";
 export const detailIconClass = "flex h-8 w-8 items-center justify-center rounded-lg border border-[#d7ccb8] bg-[#f7f3e8] text-[#2f6b57]";
-export const detailLabelClass = "text-[10px] font-semibold uppercase tracking-widest text-muted-foreground";
+export const detailLabelClass = "text-xs font-semibold uppercase tracking-widest text-muted-foreground";
 export const detailModalClass = "rounded-2xl border border-[#d7ccb8] bg-[#f7f3e8] p-6";
