@@ -158,8 +158,8 @@ export const AduanService = {
     uploadSuratMasuk: async (f: File | Blob, aduanId: string, onProgress?: (p: number) => void): Promise<string> => {
         return uploadAduanSuratMasuk(f, aduanId, onProgress);
     },
-    uploadTindakLanjutFile: async (f: File | Blob, aduanId: string, onProgress?: (p: number) => void): Promise<string> => {
-        return uploadAduanTindakLanjut(f, aduanId, onProgress);
+    uploadTindakLanjutFile: async (f: File | Blob, aduanId: string, category?: string, onProgress?: (p: number) => void): Promise<string> => {
+        return uploadAduanTindakLanjut(f, aduanId, category, onProgress);
     },
     uploadAdditionalDocuments: async (
         id: string,

@@ -26,6 +26,7 @@ type DocumentRow = {
 type TindakLanjutRow = {
   id: string
   aduan_id: string
+  jenis_tl: string | null
   file_urls: string[] | null
   created_at: string | Date | null
 }
@@ -93,13 +94,18 @@ const buildDocumentPlan = (row: DocumentRow): DocumentPlan | null => {
     return null
   }
 
-  if (isModernUploadFileName(currentBaseName)) {
+  const targetCategory = normalizeUploadLabel(row.file_category || 'dokumen')
+  const fileNameAfter = buildLegacyFileName(row.created_at, targetCategory, row.id, ext)
+  if (currentBaseName === fileNameAfter) {
     return null
   }
 
-  const fileNameAfter = buildLegacyFileName(row.created_at, row.file_category || 'dokumen', row.id, ext)
-  if (currentBaseName === fileNameAfter) {
-    return null
+  if (isModernUploadFileName(currentBaseName)) {
+    const match = currentBaseName.match(/^\d{8}_([a-z0-9_]+)_[a-z0-9]{6}\.[a-z0-9]+$/i)
+    const currentCategory = match ? match[1] : ''
+    if (currentCategory === targetCategory) {
+      return null
+    }
   }
 
   const fileUrlAfter = buildFileUrlWithNewName(row.file_url, fileNameAfter)
@@ -122,13 +128,22 @@ const buildTindakLanjutPlan = (row: TindakLanjutRow): TindakLanjutPlan | null =>
     try {
       const { sourcePath, currentBaseName, folderName, ext } = getSourceFileInfo(fileUrl)
 
-      if (!ext || isModernUploadFileName(currentBaseName)) {
+      if (!ext) {
         return []
       }
 
-      const fileNameAfter = buildLegacyFileName(row.created_at, 'tindak_lanjut', `${row.id}:${index}`, ext)
+      const targetCategory = normalizeUploadLabel(row.jenis_tl || 'tindak_lanjut')
+      const fileNameAfter = buildLegacyFileName(row.created_at, targetCategory, `${row.id}:${index}`, ext)
       if (currentBaseName === fileNameAfter) {
         return []
+      }
+
+      if (isModernUploadFileName(currentBaseName)) {
+        const match = currentBaseName.match(/^\d{8}_([a-z0-9_]+)_[a-z0-9]{6}\.[a-z0-9]+$/i)
+        const currentCategory = match ? match[1] : ''
+        if (currentCategory === targetCategory) {
+          return []
+        }
       }
 
       return [{
@@ -171,7 +186,7 @@ const run = async () => {
 
   const tlResult = await pool.query<TindakLanjutRow>(
     `
-      SELECT id, aduan_id, file_urls, created_at
+      SELECT id, aduan_id, jenis_tl, file_urls, created_at
       FROM public.tindak_lanjut
       WHERE file_urls IS NOT NULL
         AND array_length(file_urls, 1) > 0

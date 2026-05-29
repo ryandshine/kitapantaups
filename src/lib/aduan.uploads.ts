@@ -104,8 +104,8 @@ export const uploadAduanDocument = (file: File | Blob, aduanId: string, onProgre
 export const uploadAduanSuratMasuk = (file: File | Blob, aduanId: string, onProgress?: (percent: number) => void) =>
     uploadToServer(file, 'surat_masuk', aduanId, onProgress).then((result) => result.url);
 
-export const uploadAduanTindakLanjut = (file: File | Blob, aduanId: string, onProgress?: (percent: number) => void) =>
-    uploadToServer(file, 'tindak_lanjut', aduanId, onProgress).then((result) => result.url);
+export const uploadAduanTindakLanjut = (file: File | Blob, aduanId: string, category = 'tindak_lanjut', onProgress?: (percent: number) => void) =>
+    uploadToServer(file, category, aduanId, onProgress).then((result) => result.url);
 
 export const uploadAdditionalAduanDocuments = async (
     aduanId: string,

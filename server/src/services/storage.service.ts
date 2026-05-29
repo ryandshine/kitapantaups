@@ -33,8 +33,7 @@ export const StorageService = {
       throw new Error(`Tipe file tidak diizinkan. Gunakan: ${getAllowedUploadExtensions().join(', ')}`)
     }
 
-    const safeCategory = sanitizePathSegment(category)
-    const fileName = buildStoredUploadFileName(safeCategory || 'dokumen', ext)
+    const fileName = buildStoredUploadFileName(category || 'dokumen', ext)
     const uploadDir = path.join(getUploadsRoot(), nomorTiketFolder)
 
     await mkdir(uploadDir, { recursive: true })

@@ -502,7 +502,7 @@ export const AduanDetailPage: React.FC = () => {
             if (tlForm.files && tlForm.files.length > 0) {
                 fileUrls = await Promise.all(
                     tlForm.files.map((file, idx) =>
-                        AduanService.uploadTindakLanjutFile(file, aduan.id, (p) => {
+                        AduanService.uploadTindakLanjutFile(file, aduan.id, tlForm.jenisTL, (p) => {
                             // Rata-rata progress semua file
                             setTlUploadProgress(Math.round((idx / tlForm.files!.length) * 100 + p / tlForm.files!.length));
                         })
@@ -640,7 +640,7 @@ export const AduanDetailPage: React.FC = () => {
             if (editTlForm.newFiles.length > 0) {
                 uploadedUrls = await Promise.all(
                     editTlForm.newFiles.map((file, idx) =>
-                        AduanService.uploadTindakLanjutFile(file, aduan.id, (p) => {
+                        AduanService.uploadTindakLanjutFile(file, aduan.id, editTlForm.jenisTL, (p) => {
                             setEditTlUploadProgress(Math.round((idx / editTlForm.newFiles!.length) * 100 + p / editTlForm.newFiles!.length));
                         })
                     )
