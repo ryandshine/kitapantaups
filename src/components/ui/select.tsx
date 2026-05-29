@@ -168,6 +168,7 @@ interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimit
   allowScroll?: boolean;
   contentClassName?: string;
   viewportClassName?: string;
+  modal?: boolean;
 }
 
 const Select = ({
@@ -184,6 +185,7 @@ const Select = ({
   allowScroll = true,
   contentClassName,
   viewportClassName,
+  modal = false,
   ...props
 }: SelectProps) => {
   // If no options provided, behave like Root (but this component returns a full structure, so not really possible to be purely Root unless we check children. simpler to assume if used as <Select>, it's likely the wrapper or compound usage)
