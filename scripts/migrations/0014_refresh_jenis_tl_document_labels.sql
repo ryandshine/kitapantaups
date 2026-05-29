@@ -1,15 +1,16 @@
 INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
   ('Surat/Dokumen Pengadu'),
+  ('Surat/Dokumen Pihak Terkait'),
+  ('Surat Pemegang PS'),
+  ('Surat/ND Internal'),
   ('TL Surat Jawaban'),
   ('TL Nota Dinas'),
-  ('TL BA Rapat Pembahasan'),
   ('TL Notula Rapat'),
-  ('Laporan Puldasi'),
-  ('Lainnya'),
-  ('Surat/Dokumen Pihak Terkait'),
+  ('TL BA Rapat Pembahasan'),
   ('TL Berita Acara Evaluasi'),
   ('TL Surat Teguran'),
   ('Laporan Pengawasan'),
+  ('Laporan Puldasi'),
   ('Notula'),
   ('Berita Acara'),
   ('SK Perubahan'),
@@ -17,8 +18,7 @@ INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
   ('SK Pencabutan Pembekuan'),
   ('SK Perpanjangan'),
   ('SK Tim Evaluasi'),
-  ('Surat Pemegang PS'),
-  ('Surat/ND Internal')
+  ('Lainnya')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
 
 UPDATE public.tindak_lanjut

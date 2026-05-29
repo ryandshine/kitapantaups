@@ -177,16 +177,17 @@ export type FeedbackState = {
 
 export const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'Surat/Dokumen Pengadu', label: 'Surat/Dokumen Pengadu' },
+    { value: 'Surat/Dokumen Pihak Terkait', label: 'Surat/Dokumen Pihak Terkait' },
+    { value: 'Surat Pemegang PS', label: 'Surat Pemegang PS' },
+    { value: 'Surat/ND Internal', label: 'Surat/ND Internal' },
     { value: 'TL Surat Jawaban', label: 'TL Surat Jawaban' },
     { value: 'TL Nota Dinas', label: 'TL Nota Dinas' },
-    { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
     { value: 'TL Notula Rapat', label: 'TL Notula Rapat' },
-    { value: 'Laporan Puldasi', label: 'Laporan Puldasi' },
-    { value: 'Lainnya', label: 'Lainnya' },
-    { value: 'Surat/Dokumen Pihak Terkait', label: 'Surat/Dokumen Pihak Terkait' },
+    { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
     { value: 'TL Berita Acara Evaluasi', label: 'TL Berita Acara Evaluasi' },
     { value: 'TL Surat Teguran', label: 'TL Surat Teguran' },
     { value: 'Laporan Pengawasan', label: 'Laporan Pengawasan' },
+    { value: 'Laporan Puldasi', label: 'Laporan Puldasi' },
     { value: 'Notula', label: 'Notula' },
     { value: 'Berita Acara', label: 'Berita Acara' },
     { value: 'SK Perubahan', label: 'SK Perubahan' },
@@ -194,8 +195,7 @@ export const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: stri
     { value: 'SK Pencabutan Pembekuan', label: 'SK Pencabutan Pembekuan' },
     { value: 'SK Perpanjangan', label: 'SK Perpanjangan' },
     { value: 'SK Tim Evaluasi', label: 'SK Tim Evaluasi' },
-    { value: 'Surat Pemegang PS', label: 'Surat Pemegang PS' },
-    { value: 'Surat/ND Internal', label: 'Surat/ND Internal' }
+    { value: 'Lainnya', label: 'Lainnya' }
 ];
 
 const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {

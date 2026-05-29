@@ -67,13 +67,17 @@ SelectScrollDownButton.displayName =
 
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & {
+    allowScroll?: boolean
+    viewportClassName?: string
+  }
+>(({ className, children, position = "popper", allowScroll = true, viewportClassName, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-xl shadow-black/8 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]",
+        "relative z-50 min-w-[8rem] rounded-xl border border-border/80 bg-popover text-popover-foreground shadow-xl shadow-black/8 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]",
+        allowScroll ? "max-h-[--radix-select-content-available-height] overflow-x-hidden overflow-y-auto" : "max-h-none overflow-visible",
         position === "popper" &&
         "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
@@ -81,17 +85,20 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
-      <SelectScrollUpButton />
+      {allowScroll && <SelectScrollUpButton />}
       <SelectPrimitive.Viewport
         className={cn(
-          "p-1",
+          allowScroll ? "p-1" : "p-2",
           position === "popper" &&
-          "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          (allowScroll
+            ? "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+            : "h-auto w-auto min-w-[var(--radix-select-trigger-width)]"),
+          viewportClassName
         )}
       >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
+      {allowScroll && <SelectScrollDownButton />}
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))
@@ -158,6 +165,9 @@ interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimit
   fullWidth?: boolean;
   className?: string; // goes to Trigger
   onChange?: (value: string) => void; // alias for onValueChange
+  allowScroll?: boolean;
+  contentClassName?: string;
+  viewportClassName?: string;
 }
 
 const Select = ({
@@ -171,6 +181,9 @@ const Select = ({
   onChange,
   onValueChange,
   disabled,
+  allowScroll = true,
+  contentClassName,
+  viewportClassName,
   ...props
 }: SelectProps) => {
   // If no options provided, behave like Root (but this component returns a full structure, so not really possible to be purely Root unless we check children. simpler to assume if used as <Select>, it's likely the wrapper or compound usage)
@@ -193,7 +206,11 @@ const Select = ({
         <SelectTrigger className={cn(className, error && "border-destructive focus:border-destructive")}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent
+          allowScroll={allowScroll}
+          className={contentClassName}
+          viewportClassName={viewportClassName}
+        >
           {options?.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>
               {opt.label}

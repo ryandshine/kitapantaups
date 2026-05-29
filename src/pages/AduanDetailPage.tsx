@@ -327,6 +327,11 @@ export const AduanDetailPage: React.FC = () => {
 
         return options;
     }, [jenisTlOptions]);
+    const jenisTlDropdownProps = {
+        allowScroll: false,
+        contentClassName: 'w-[min(58rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-visible',
+        viewportClassName: 'grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-4',
+    };
     const picOptions = useMemo(
         () => [
             { value: '__none__', label: '-- Pilih PIC --' },
@@ -1701,6 +1706,7 @@ export const AduanDetailPage: React.FC = () => {
                             options={jenisTlSelectOptions}
                             value={tlForm.jenisTL}
                             onChange={(val) => setTlForm({ ...tlForm, jenisTL: val })}
+                            {...jenisTlDropdownProps}
                             fullWidth
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1787,6 +1793,7 @@ export const AduanDetailPage: React.FC = () => {
                             options={jenisTlSelectOptions}
                             value={editTlForm.jenisTL}
                             onChange={(val) => setEditTlForm(prev => ({ ...prev, jenisTL: val }))}
+                            {...jenisTlDropdownProps}
                             fullWidth
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
