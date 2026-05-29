@@ -1,3 +1,5 @@
+import { createRefreshTokenCoordinator } from './refresh-token-coordinator'
+
 const rawApiUrl = import.meta.env.VITE_API_URL
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 const productionUrl = 'https://api-kitapantaups.ditpps.com'
@@ -11,6 +13,25 @@ if (!API_URL) {
 }
 
 let accessToken: string | null = null
+
+const requestRefreshAccessToken = async (): Promise<string | null> => {
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({}),
+  })
+
+  if (!res.ok) return null
+  const data = await res.json().catch(() => null)
+  const nextAccessToken = data?.access_token
+  if (!nextAccessToken) return null
+
+  accessToken = nextAccessToken
+  return nextAccessToken
+}
+
+const refreshCoordinator = createRefreshTokenCoordinator(requestRefreshAccessToken)
 
 const isNetworkError = (error: unknown): error is TypeError =>
   error instanceof TypeError &&
@@ -45,20 +66,7 @@ export function clearTokens() {
 
 export async function refreshAccessToken(): Promise<string | null> {
   try {
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({}),
-    })
-
-    if (!res.ok) return null
-    const data = await res.json().catch(() => null)
-    const nextAccessToken = data?.access_token
-    if (!nextAccessToken) return null
-
-    accessToken = nextAccessToken
-    return nextAccessToken
+    return await refreshCoordinator.refresh()
   } catch {
     return null
   }

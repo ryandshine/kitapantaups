@@ -191,16 +191,20 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 ) : displayList.length > 0 ? (
                     <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[1180px] text-left text-[0.88rem]">
+                        <table className="w-full min-w-[1120px] text-left text-[0.88rem]">
                             <thead>
                                 <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">No. Tiket</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Legalitas</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
+                                    <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">
+                                        <div className="inline-flex min-w-[8.5rem] flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset] backdrop-blur-sm">
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/70">Nomor Aduan</span>
+                                            <span className="border-t border-white/15 pt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/85">Status</span>
+                                        </div>
+                                    </th>
                                     <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Status</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
+                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -210,25 +214,22 @@ export const AduanListPage: React.FC = () => {
                                         onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
                                         className="border-b border-border/60 transition-colors hover:bg-primary/4 cursor-pointer group"
                                     >
-                                        <td className="px-4 py-3 align-top">
-                                            <span className="inline-flex rounded-md border border-border bg-muted px-2 py-0.5 font-mono text-[12px] font-bold text-foreground">
-                                                {row.nomor_tiket}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 align-top min-w-[200px]">
-                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
-                                        </td>
-                                        <td className="px-4 py-3 align-top min-w-[180px] text-foreground">
-                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
-                                                <div className="flex gap-2 px-3 py-2">
-                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
-                                                    <span className="leading-snug">{formatDateValue(row.surat_tanggal)}</span>
-                                                </div>
-                                                <div className="flex gap-2 px-3 py-2">
-                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Dibuat</span>
-                                                    <span className="leading-snug">{formatDateValue(row.created_at || row.createdAt)}</span>
-                                                </div>
+                                        <td className="px-4 py-3 align-top min-w-[170px]">
+                                            <div className="flex flex-col gap-2 rounded-2xl border border-border/50 bg-muted/30 px-3 py-3 shadow-[0_1px_0_rgba(255,255,255,0.35)_inset]">
+                                                <span className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm">
+                                                    {row.nomor_tiket}
+                                                </span>
+                                                <Badge variant="gray" className="w-fit whitespace-nowrap border border-border bg-muted text-[10px] font-bold uppercase tracking-[0.16em] text-foreground">
+                                                    {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
+                                                </Badge>
                                             </div>
+                                        </td>
+                                        <td className="px-4 py-3 align-top min-w-[140px] text-foreground">
+                                            <p className="font-medium">{row.pengadu_nama || '-'}</p>
+                                            {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
+                                        </td>
+                                        <td className="px-4 py-3 align-top min-w-[240px]">
+                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
                                         </td>
                                         <td className="px-4 py-3 align-top min-w-[220px] text-foreground">
                                             <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
@@ -276,14 +277,17 @@ export const AduanListPage: React.FC = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground min-w-[140px]">
-                                            <p className="font-medium">{row.pengadu_nama || '-'}</p>
-                                            {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
-                                        </td>
-                                        <td className="px-4 py-3 align-top">
-                                            <Badge variant="gray" className="whitespace-nowrap text-[10px] uppercase tracking-wide border border-border bg-muted text-foreground">
-                                                {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
-                                            </Badge>
+                                        <td className="px-4 py-3 align-top min-w-[180px] text-foreground">
+                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
+                                                    <span className="leading-snug">{formatDateValue(row.surat_tanggal)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Dibuat</span>
+                                                    <span className="leading-snug">{formatDateValue(row.created_at || row.createdAt)}</span>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

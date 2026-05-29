@@ -262,24 +262,26 @@ INSERT INTO public.master_kategori_masalah (nama_kategori) VALUES
 ON CONFLICT (nama_kategori) DO NOTHING;
 
 INSERT INTO public.master_jenis_tl (nama_jenis_tl) VALUES
-  ('Telaah Administrasi'),
-  ('Hasil Telaah Dikembalikan'),
-  ('Puldasi'),
-  ('Agenda Rapat Pembahasan'),
-  ('Agenda Evaluasi'),
-  ('Agenda Pembahasan Hasil Evaluasi'),
-  ('ND Perubahan Persetujuan PS'),
-  ('Respon pengadu/Pihak ketiga'),
-  ('Surat Penolakan Aduan'),
   ('Surat/Dokumen Pengadu'),
-  ('Surat/Dokumen Pihak lain'),
   ('TL Surat Jawaban'),
   ('TL Nota Dinas'),
   ('TL BA Rapat Pembahasan'),
   ('TL Notula Rapat'),
   ('Laporan Puldasi'),
-  ('Berita Acara Evaluasi'),
-  ('Lainnya')
+  ('Lainnya'),
+  ('Surat/Dokumen Pihak Terkait'),
+  ('TL Berita Acara Evaluasi'),
+  ('TL Surat Teguran'),
+  ('Laporan Pengawasan'),
+  ('Notula'),
+  ('Berita Acara'),
+  ('SK Perubahan'),
+  ('SK Pembekuan'),
+  ('SK Pencabutan Pembekuan'),
+  ('SK Perpanjangan'),
+  ('SK Tim Evaluasi'),
+  ('Surat Pemegang PS'),
+  ('Surat/ND Internal')
 ON CONFLICT (nama_jenis_tl) DO NOTHING;
 
 INSERT INTO public.users (email, password_hash, display_name, role) VALUES

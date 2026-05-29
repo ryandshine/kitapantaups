@@ -177,28 +177,41 @@ export type FeedbackState = {
 
 export const DEFAULT_JENIS_TL_SELECT_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'Surat/Dokumen Pengadu', label: 'Surat/Dokumen Pengadu' },
-    { value: 'Surat/Dokumen Pihak lain', label: 'Surat/Dokumen Pihak lain' },
     { value: 'TL Surat Jawaban', label: 'TL Surat Jawaban' },
     { value: 'TL Nota Dinas', label: 'TL Nota Dinas' },
     { value: 'TL BA Rapat Pembahasan', label: 'TL BA Rapat Pembahasan' },
     { value: 'TL Notula Rapat', label: 'TL Notula Rapat' },
     { value: 'Laporan Puldasi', label: 'Laporan Puldasi' },
-    { value: 'Berita Acara Evaluasi', label: 'Berita Acara Evaluasi' },
-    { value: 'Lainnya', label: 'Lainnya' }
+    { value: 'Lainnya', label: 'Lainnya' },
+    { value: 'Surat/Dokumen Pihak Terkait', label: 'Surat/Dokumen Pihak Terkait' },
+    { value: 'TL Berita Acara Evaluasi', label: 'TL Berita Acara Evaluasi' },
+    { value: 'TL Surat Teguran', label: 'TL Surat Teguran' },
+    { value: 'Laporan Pengawasan', label: 'Laporan Pengawasan' },
+    { value: 'Notula', label: 'Notula' },
+    { value: 'Berita Acara', label: 'Berita Acara' },
+    { value: 'SK Perubahan', label: 'SK Perubahan' },
+    { value: 'SK Pembekuan', label: 'SK Pembekuan' },
+    { value: 'SK Pencabutan Pembekuan', label: 'SK Pencabutan Pembekuan' },
+    { value: 'SK Perpanjangan', label: 'SK Perpanjangan' },
+    { value: 'SK Tim Evaluasi', label: 'SK Tim Evaluasi' },
+    { value: 'Surat Pemegang PS', label: 'Surat Pemegang PS' },
+    { value: 'Surat/ND Internal', label: 'Surat/ND Internal' }
 ];
 
 const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {
     'Telaah Administrasi': 'Surat/Dokumen Pengadu',
-    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak lain',
+    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak Terkait',
     'Puldasi': 'TL Surat Jawaban',
     'Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
-    'Agenda Evaluasi': 'Berita Acara Evaluasi',
+    'Agenda Evaluasi': 'TL Berita Acara Evaluasi',
     'Agenda Pembahasan Hasil Evaluasi': 'TL Notula Rapat',
     'ND Perubahan Persetujuan PS': 'TL Nota Dinas',
-    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak lain',
+    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak Terkait',
     'Surat Penolakan Aduan': 'TL Surat Jawaban',
     'Dokumen Lengkap / Puldasi': 'TL Surat Jawaban',
     'Sudah Puldasi / Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+    'Surat/Dokumen Pihak lain': 'Surat/Dokumen Pihak Terkait',
+    'Berita Acara Evaluasi': 'TL Berita Acara Evaluasi',
 };
 
 export const normalizeJenisTlLabel = (value?: string) => {

@@ -59,7 +59,34 @@ export const MasterRepository = {
   },
 
   async findJenisTl() {
-    const result = await pool.query('SELECT * FROM master_jenis_tl ORDER BY nama_jenis_tl')
+    const result = await pool.query(`
+      SELECT *
+      FROM master_jenis_tl
+      ORDER BY CASE nama_jenis_tl
+        WHEN 'Surat/Dokumen Pengadu' THEN 1
+        WHEN 'TL Surat Jawaban' THEN 2
+        WHEN 'TL Nota Dinas' THEN 3
+        WHEN 'TL BA Rapat Pembahasan' THEN 4
+        WHEN 'TL Notula Rapat' THEN 5
+        WHEN 'Laporan Puldasi' THEN 6
+        WHEN 'Lainnya' THEN 7
+        WHEN 'Surat/Dokumen Pihak Terkait' THEN 8
+        WHEN 'TL Berita Acara Evaluasi' THEN 9
+        WHEN 'TL Surat Teguran' THEN 10
+        WHEN 'Laporan Pengawasan' THEN 11
+        WHEN 'Notula' THEN 12
+        WHEN 'Berita Acara' THEN 13
+        WHEN 'SK Perubahan' THEN 14
+        WHEN 'SK Pembekuan' THEN 15
+        WHEN 'SK Pencabutan Pembekuan' THEN 16
+        WHEN 'SK Perpanjangan' THEN 17
+        WHEN 'SK Tim Evaluasi' THEN 18
+        WHEN 'Surat Pemegang PS' THEN 19
+        WHEN 'Surat/ND Internal' THEN 20
+        ELSE 999
+      END,
+      nama_jenis_tl
+    `)
     return result.rows
   },
 

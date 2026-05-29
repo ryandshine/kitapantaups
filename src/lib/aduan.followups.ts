@@ -4,16 +4,18 @@ import type { TindakLanjut } from '../types';
 
 const LEGACY_JENIS_TL_LABEL_MAP: Record<string, string> = {
     'Telaah Administrasi': 'Surat/Dokumen Pengadu',
-    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak lain',
+    'Hasil Telaah Dikembalikan': 'Surat/Dokumen Pihak Terkait',
     'Puldasi': 'TL Surat Jawaban',
     'Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
-    'Agenda Evaluasi': 'Berita Acara Evaluasi',
+    'Agenda Evaluasi': 'TL Berita Acara Evaluasi',
     'Agenda Pembahasan Hasil Evaluasi': 'TL Notula Rapat',
     'ND Perubahan Persetujuan PS': 'TL Nota Dinas',
-    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak lain',
+    'Respon pengadu/Pihak ketiga': 'Surat/Dokumen Pihak Terkait',
     'Surat Penolakan Aduan': 'TL Surat Jawaban',
     'Dokumen Lengkap / Puldasi': 'TL Surat Jawaban',
     'Sudah Puldasi / Agenda Rapat Pembahasan': 'TL BA Rapat Pembahasan',
+    'Surat/Dokumen Pihak lain': 'Surat/Dokumen Pihak Terkait',
+    'Berita Acara Evaluasi': 'TL Berita Acara Evaluasi',
 };
 
 export const normalizeJenisTlLabel = (value?: string) => {
