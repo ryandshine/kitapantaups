@@ -88,6 +88,8 @@ const SelectContent = React.forwardRef<
     >
       {allowScroll && <SelectScrollUpButton />}
       <SelectPrimitive.Viewport
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className={cn(
           allowScroll ? "max-h-[--radix-select-content-available-height] min-h-0 overflow-y-auto p-1 custom-scrollbar" : "p-2",
           position === "popper" &&
