@@ -265,12 +265,6 @@ export const AduanDetailPage: React.FC = () => {
             icon: Calendar,
         },
         {
-            label: 'Penanggung Jawab',
-            value: aduan?.picName || 'Belum ditentukan',
-            hint: isAdmin ? 'Bisa diubah dari panel admin' : 'PIC aktif saat ini',
-            icon: User,
-        },
-        {
             label: 'Lampiran',
             value: `${allAttachments.length} berkas`,
             hint: suratMasukAttachment ? 'Termasuk surat masuk' : 'Belum ada surat masuk',
@@ -1067,10 +1061,8 @@ export const AduanDetailPage: React.FC = () => {
                             <td className="py-2 px-2" colSpan={3}>{aduan.pengadu.instansi || '-'}</td>
                         </tr>
                         <tr>
-                            <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">PIC Petugas</td>
-                            <td className="py-2 px-2">{aduan.picName || 'Belum ditentukan'}</td>
                             <td className="py-2 font-semibold bg-white/20 px-2 text-[10px] uppercase">Tgl Masuk</td>
-                            <td className="py-2 px-2">{formatDate(aduan.createdAt || new Date())}</td>
+                            <td className="py-2 px-2" colSpan={3}>{formatDate(aduan.createdAt || new Date())}</td>
                         </tr>
                     </tbody>
                 </table>
