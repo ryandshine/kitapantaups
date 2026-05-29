@@ -70,9 +70,10 @@ const SelectContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & {
     allowScroll?: boolean
     viewportClassName?: string
+    usePortal?: boolean
   }
->(({ className, children, position = "popper", allowScroll = true, viewportClassName, ...props }, ref) => (
-  <SelectPrimitive.Portal>
+>(({ className, children, position = "popper", allowScroll = true, viewportClassName, usePortal = true, ...props }, ref) => {
+  const content = (
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
@@ -100,8 +101,13 @@ const SelectContent = React.forwardRef<
       </SelectPrimitive.Viewport>
       {allowScroll && <SelectScrollDownButton />}
     </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-))
+  );
+
+  if (usePortal) {
+    return <SelectPrimitive.Portal>{content}</SelectPrimitive.Portal>;
+  }
+  return content;
+})
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
 const SelectLabel = React.forwardRef<
@@ -168,7 +174,7 @@ interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimit
   allowScroll?: boolean;
   contentClassName?: string;
   viewportClassName?: string;
-  modal?: boolean;
+  usePortal?: boolean;
 }
 
 const Select = ({
@@ -185,7 +191,7 @@ const Select = ({
   allowScroll = true,
   contentClassName,
   viewportClassName,
-  modal = false,
+  usePortal = true,
   ...props
 }: SelectProps) => {
   // If no options provided, behave like Root (but this component returns a full structure, so not really possible to be purely Root unless we check children. simpler to assume if used as <Select>, it's likely the wrapper or compound usage)
@@ -212,6 +218,7 @@ const Select = ({
           allowScroll={allowScroll}
           className={contentClassName}
           viewportClassName={viewportClassName}
+          usePortal={usePortal}
         >
           {options?.map((opt) => (
             <SelectItem key={opt.value} value={opt.value}>

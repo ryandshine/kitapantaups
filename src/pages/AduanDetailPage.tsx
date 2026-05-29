@@ -1708,6 +1708,7 @@ export const AduanDetailPage: React.FC = () => {
                             onChange={(val) => setTlForm({ ...tlForm, jenisTL: val })}
                             {...jenisTlDropdownProps}
                             fullWidth
+                            usePortal={false}
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Input
@@ -1795,6 +1796,7 @@ export const AduanDetailPage: React.FC = () => {
                             onChange={(val) => setEditTlForm(prev => ({ ...prev, jenisTL: val }))}
                             {...jenisTlDropdownProps}
                             fullWidth
+                            usePortal={false}
                         />
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Input
