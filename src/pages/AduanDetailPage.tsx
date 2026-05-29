@@ -1129,7 +1129,6 @@ export const AduanDetailPage: React.FC = () => {
                                 <th className="py-2 px-2 text-left font-semibold w-24">Tanggal</th>
                                 <th className="py-2 px-2 text-left font-semibold w-32">Jenis Dokumen</th>
                                 <th className="py-2 px-2 text-left font-semibold">Keterangan</th>
-                                <th className="py-2 px-2 text-left font-semibold w-28">Oleh</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1139,7 +1138,6 @@ export const AduanDetailPage: React.FC = () => {
                                     <td className="py-2 px-2 align-top text-xs">{formatDate(tl.tanggal)}</td>
                                     <td className="py-2 px-2 align-top font-medium">{normalizeJenisTlLabel(tl.jenisTL)}</td>
                                     <td className="py-2 px-2 align-top">{tl.keterangan}</td>
-                                    <td className="py-2 px-2 align-top text-xs">{tl.createdByName}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1584,10 +1582,6 @@ export const AduanDetailPage: React.FC = () => {
                                                                     <Trash2 size={12} />
                                                                 </button>
                                                             )}
-                                                            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                                                <User size={10} className="text-muted-foreground" />
-                                                                Oleh: {tl.createdByName}
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
