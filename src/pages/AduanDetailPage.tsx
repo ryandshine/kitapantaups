@@ -265,6 +265,12 @@ export const AduanDetailPage: React.FC = () => {
             icon: Calendar,
         },
         {
+            label: 'Penanggung Jawab',
+            value: aduan?.picName || 'Belum ditentukan',
+            hint: isAdmin ? 'Bisa diubah dari panel admin' : 'PIC aktif saat ini',
+            icon: User,
+        },
+        {
             label: 'Lampiran',
             value: `${allAttachments.length} berkas`,
             hint: suratMasukAttachment ? 'Termasuk surat masuk' : 'Belum ada surat masuk',
