@@ -329,8 +329,8 @@ export const AduanDetailPage: React.FC = () => {
     }, [jenisTlOptions]);
     const jenisTlDropdownProps = {
         allowScroll: true,
-        contentClassName: 'w-[min(30rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] h-[18rem]',
-        viewportClassName: 'flex h-full flex-col gap-1.5 overflow-y-auto',
+        contentClassName: 'w-[min(30rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] !h-auto !max-h-[18rem]',
+        viewportClassName: 'flex !max-h-[17.5rem] flex-col gap-1.5 overflow-y-auto custom-scrollbar',
     };
     const picOptions = useMemo(
         () => [
