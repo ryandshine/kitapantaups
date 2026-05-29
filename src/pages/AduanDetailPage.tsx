@@ -256,8 +256,7 @@ export const AduanDetailPage: React.FC = () => {
     const lokasiObjekItems = useMemo(() => buildLokasiObjekItems(aduan, relatedKpsById), [aduan, relatedKpsById]);
 
     const totalLuasObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.luasHa) || 0), 0);
-    const totalAnggotaPriaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaPria) || 0), 0);
-    const totalAnggotaWanitaObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.anggotaWanita) || 0), 0);
+    const totalJumlahKkObjek = lokasiObjekItems.reduce((sum, item) => sum + (Number(item.jumlahKk) || 0), 0);
     const overviewCards = [
         {
             label: 'Tanggal Masuk',
@@ -1091,8 +1090,7 @@ export const AduanDetailPage: React.FC = () => {
                                 <th className="p-1.5 border border-white/20 text-left">provinsi</th>
                                 <th className="p-1.5 border border-white/20 text-left">kabupaten</th>
                                 <th className="p-1.5 border border-white/20 text-left">luas_total</th>
-                                <th className="p-1.5 border border-white/20 text-left">anggota_pria</th>
-                                <th className="p-1.5 border border-white/20 text-left">anggota_wanita</th>
+                                <th className="p-1.5 border border-white/20 text-left">jumlah_kk</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1105,8 +1103,7 @@ export const AduanDetailPage: React.FC = () => {
                                     <td className="p-1.5 border border-white/20">{item.provinsi}</td>
                                     <td className="p-1.5 border border-white/20">{item.kabupaten}</td>
                                     <td className="p-1.5 border border-white/20">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
-                                    <td className="p-1.5 border border-white/20">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</td>
-                                    <td className="p-1.5 border border-white/20">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-white/20">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1420,7 +1417,7 @@ export const AduanDetailPage: React.FC = () => {
                                     Total Luas Area: {totalLuasObjek.toLocaleString('id-ID')} Ha
                                 </Badge>
                                 <Badge variant="outline" className={`text-xs ${detailBadgeClass}`}>
-                                    Total Anggota: {(totalAnggotaPriaObjek + totalAnggotaWanitaObjek).toLocaleString('id-ID')}
+                                    Total KK: {totalJumlahKkObjek.toLocaleString('id-ID')}
                                 </Badge>
                             </div>
                             {lokasiObjekItems.length === 0 ? (
@@ -1465,12 +1462,8 @@ export const AduanDetailPage: React.FC = () => {
                                                 <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>Anggota Pria</span>
-                                                <Badge variant="outline" className="w-fit">{(Number(item.anggotaPria) || 0).toLocaleString('id-ID')}</Badge>
-                                            </div>
-                                            <div className="flex flex-col gap-1">
-                                                <span className={detailLabelClass}>Anggota Wanita</span>
-                                                <Badge variant="outline" className="w-fit">{(Number(item.anggotaWanita) || 0).toLocaleString('id-ID')}</Badge>
+                                                <span className={detailLabelClass}>Jumlah KK</span>
+                                                <Badge variant="outline" className="w-fit">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</Badge>
                                             </div>
                                         </div>
                                     </div>
