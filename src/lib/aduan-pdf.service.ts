@@ -10,8 +10,7 @@ type LokasiObjekItem = {
     provinsi: string;
     kabupaten: string;
     luasHa: number;
-    anggotaPria?: number;
-    anggotaWanita?: number;
+    jumlahKk?: number;
     balai?: string;
 };
 
@@ -162,7 +161,6 @@ export const AduanPdfService = {
                 ['Telepon', compact(aduan.pengadu?.telepon)],
                 ['Email', compact(aduan.pengadu?.email)],
                 ['Instansi/Kelompok', compact(aduan.pengadu?.instansi || aduan.pengadu_instansi)],
-                ['PIC', compact(aduan.picName)],
                 ['Tanggal Masuk', formatDate(aduan.createdAt || aduan.created_at)],
                 ['Perihal', compact(aduan.perihal || aduan.surat_asal_perihal)],
             ],
@@ -185,15 +183,14 @@ export const AduanPdfService = {
             compact(item.provinsi),
             compact(item.kabupaten),
             `${Number(item.luasHa || 0).toLocaleString('id-ID')} Ha`,
-            `${Number(item.anggotaPria || 0).toLocaleString('id-ID')}`,
-            `${Number(item.anggotaWanita || 0).toLocaleString('id-ID')}`,
+            `${Number(item.jumlahKk || 0).toLocaleString('id-ID')}`,
         ]);
 
         drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Lokasi Objek KPS');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'anggota_pria', 'anggota_wanita']],
-            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-']],
+            head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'jumlah_kk']],
+            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-']],
             styles: { fontSize: 8, cellPadding: 2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [245, 243, 238] },
@@ -201,14 +198,13 @@ export const AduanPdfService = {
             margin: { left: 14, right: 14, bottom: 14 },
             columnStyles: {
                 0: { cellWidth: 22 },
-                1: { cellWidth: 30 },
-                2: { cellWidth: 24 },
-                3: { cellWidth: 19 },
-                4: { cellWidth: 24 },
-                5: { cellWidth: 24 },
-                6: { cellWidth: 18 },
-                7: { cellWidth: 16 },
-                8: { cellWidth: 16 },
+                1: { cellWidth: 33 },
+                2: { cellWidth: 27 },
+                3: { cellWidth: 21 },
+                4: { cellWidth: 25 },
+                5: { cellWidth: 25 },
+                6: { cellWidth: 20 },
+                7: { cellWidth: 20 },
             },
         });
 
@@ -226,14 +222,13 @@ export const AduanPdfService = {
             formatDate(tl.tanggal),
             compact(tl.jenisTL),
             stripMarkdown(tl.keterangan),
-            compact(tl.createdByName),
         ]);
 
         drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Riwayat Dokumen Tindak Lanjut');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['Tanggal', 'Jenis Dokumen', 'Keterangan', 'Oleh']],
-            body: tlRows.length > 0 ? tlRows : [['-', '-', 'Belum ada dokumen tindak lanjut', '-']],
+            head: [['Tanggal', 'Jenis Dokumen', 'Keterangan']],
+            body: tlRows.length > 0 ? tlRows : [['-', '-', 'Belum ada dokumen tindak lanjut']],
             styles: { fontSize: 8, cellPadding: 2.2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [245, 243, 238] },
@@ -242,8 +237,7 @@ export const AduanPdfService = {
             columnStyles: {
                 0: { cellWidth: 26 },
                 1: { cellWidth: 33 },
-                2: { cellWidth: 95 },
-                3: { cellWidth: 28 },
+                2: { cellWidth: 123 },
             },
         });
 
