@@ -43,7 +43,9 @@ const KPS_SELECT = `
     k.tanggal AS tanggal_sk,
     (k.raw_payload->>'dokumen_skps' IS NOT NULL) AS has_skps,
     false AS has_petaps,
-    (k.raw_payload->>'dokumen_rkps' IS NOT NULL) AS has_rkps
+    (k.raw_payload->>'dokumen_rkps' IS NOT NULL) AS has_rkps,
+    (SELECT string_agg(DISTINCT ku.kelas, ', ') FROM public.kups ku WHERE ku.lembaga_id = k.id) AS status_kelas,
+    COALESCE(k.raw_payload->>'dokumen_rkps', '-') AS status_rkps
   FROM public.kps k
 `
 

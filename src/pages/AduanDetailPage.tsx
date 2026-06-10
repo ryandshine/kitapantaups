@@ -1089,6 +1089,8 @@ export const AduanDetailPage: React.FC = () => {
                                 <th className="p-1.5 border border-white/20 text-left">kabupaten</th>
                                 <th className="p-1.5 border border-white/20 text-left">luas_total</th>
                                 <th className="p-1.5 border border-white/20 text-left">jumlah_kk</th>
+                                <th className="p-1.5 border border-white/20 text-left">status_kelas</th>
+                                <th className="p-1.5 border border-white/20 text-left">status_rkps</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1102,6 +1104,8 @@ export const AduanDetailPage: React.FC = () => {
                                     <td className="p-1.5 border border-white/20">{item.kabupaten}</td>
                                     <td className="p-1.5 border border-white/20">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</td>
                                     <td className="p-1.5 border border-white/20">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</td>
+                                    <td className="p-1.5 border border-white/20">{item.statusKelas || '-'}</td>
+                                    <td className="p-1.5 border border-white/20">{item.statusRkps || '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1460,6 +1464,14 @@ export const AduanDetailPage: React.FC = () => {
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Jumlah KK</span>
                                                 <Badge variant="outline" className="w-fit">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</Badge>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className={detailLabelClass}>Status Kelas (KUPS)</span>
+                                                <Badge variant="outline" className="w-fit font-semibold">{item.statusKelas || '-'}</Badge>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <span className={detailLabelClass}>Status Dokumen RKPS</span>
+                                                <Badge variant="outline" className="w-fit font-semibold">{item.statusRkps || '-'}</Badge>
                                             </div>
                                         </div>
                                     </div>

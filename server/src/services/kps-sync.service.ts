@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import { pool } from '../db.js'
+import { syncGokupsKups } from './kups-sync.service.js'
 
 const API_URL = 'https://gokups.hutsos.kehutanan.go.id/api/v1/kps'
 const REQUEST_HEADERS = {
@@ -254,7 +255,14 @@ export const syncGokupsKps = async (logger: SyncLogger = defaultLogger): Promise
 
   const removedStaleRows = START_PAGE === 1
   if (removedStaleRows) {
-    await pool.query('DELETE FROM public.kps WHERE NOT (id = ANY($1::text[]))', [[...seenIds]])
+    await pool.query(
+      `DELETE FROM public.kps 
+       WHERE NOT (id = ANY($1::text[]))
+         AND NOT EXISTS (
+           SELECT 1 FROM public.aduan_kps ak WHERE ak.kps_id = public.kps.id
+         )`,
+      [[...seenIds]]
+    )
   }
 
   logger.info(`Sync finished. Upserted ${seenIds.size} rows from GoKUPS in this run.`)
@@ -283,16 +291,21 @@ export const startGokupsKpsSyncJob = () => {
   syncJobState.finishedAt = null
   syncJobState.lastError = null
 
-  void syncGokupsKps()
-    .then((result) => {
-      syncJobState.lastResult = result
+  void (async () => {
+    const kpsResult = await syncGokupsKps()
+    console.log('KPS Sync completed. Starting KUPS Sync...')
+    const kupsResult = await syncGokupsKups()
+    return { kpsResult, kupsResult }
+  })()
+    .then((combined) => {
+      syncJobState.lastResult = combined.kpsResult
       syncJobState.lastError = null
       syncJobState.finishedAt = new Date().toISOString()
     })
     .catch((error: unknown) => {
       syncJobState.lastError = error instanceof Error ? error.message : String(error)
       syncJobState.finishedAt = new Date().toISOString()
-      console.error('Gagal sinkronisasi GoKUPS:', error)
+      console.error('Gagal sinkronisasi GoKUPS (KPS/KUPS):', error)
     })
     .finally(() => {
       syncJobState.isRunning = false

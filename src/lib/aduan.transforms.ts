@@ -59,6 +59,8 @@ type KpsItemInput = {
     has_skps?: unknown;
     has_petaps?: unknown;
     has_rkps?: unknown;
+    status_kelas?: unknown;
+    status_rkps?: unknown;
 };
 
 const resolveKpsType = (kps: {
@@ -178,6 +180,8 @@ const normalizeKpsItem = (item: KpsItemInput): KpsData => ({
     has_skps: Boolean(item?.has_skps),
     has_petaps: Boolean(item?.has_petaps),
     has_rkps: Boolean(item?.has_rkps),
+    status_kelas: normalizeString(item?.status_kelas),
+    status_rkps: normalizeString(item?.status_rkps),
 });
 
 const normalizeKpsItems = (row: AduanApiRow): KpsData[] => {

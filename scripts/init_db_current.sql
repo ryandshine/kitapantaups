@@ -89,6 +89,22 @@ CREATE TABLE IF NOT EXISTS public.kps (
   CONSTRAINT kps_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS public.kups (
+  id               text        NOT NULL,
+  lembaga_id       text        NOT NULL REFERENCES public.kps(id) ON DELETE CASCADE,
+  nama_kups        text        NOT NULL,
+  kelas            text,
+  lintang          numeric,
+  bujur            numeric,
+  potensi          jsonb       NOT NULL DEFAULT '[]'::jsonb,
+  produk           jsonb       NOT NULL DEFAULT '[]'::jsonb,
+  raw_payload      jsonb       NOT NULL DEFAULT '{}'::jsonb,
+  synced_at        timestamptz NOT NULL DEFAULT now(),
+  created_at       timestamptz NOT NULL DEFAULT now(),
+  updated_at       timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT kups_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS public.aduan (
   id                  uuid        NOT NULL DEFAULT uuid_generate_v4(),
   nomor_tiket         text        NOT NULL UNIQUE,
@@ -219,6 +235,11 @@ CREATE INDEX IF NOT EXISTS idx_kps_search_trgm ON public.kps USING gin (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_aduan_kps_position ON public.aduan_kps(aduan_id, position);
 CREATE INDEX IF NOT EXISTS idx_aduan_kps_kps_id ON public.aduan_kps(kps_id);
+
+CREATE INDEX IF NOT EXISTS idx_kups_lembaga_id ON public.kups(lembaga_id);
+CREATE INDEX IF NOT EXISTS idx_kups_nama_kups ON public.kups(nama_kups);
+CREATE INDEX IF NOT EXISTS idx_kups_kelas ON public.kups(kelas);
+
 CREATE INDEX IF NOT EXISTS idx_aduan_status ON public.aduan(status);
 CREATE INDEX IF NOT EXISTS idx_aduan_created_at ON public.aduan(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_aduan_created_by ON public.aduan(created_by);
@@ -235,6 +256,11 @@ CREATE TRIGGER trg_users_updated_at
 DROP TRIGGER IF EXISTS trg_kps_updated_at ON public.kps;
 CREATE TRIGGER trg_kps_updated_at
   BEFORE UPDATE ON public.kps
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+DROP TRIGGER IF EXISTS trg_kups_updated_at ON public.kups;
+CREATE TRIGGER trg_kups_updated_at
+  BEFORE UPDATE ON public.kups
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 DROP TRIGGER IF EXISTS trg_aduan_updated_at ON public.aduan;

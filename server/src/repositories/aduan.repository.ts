@@ -81,7 +81,9 @@ const KPS_AGGREGATE_SELECT = `
         'tanggal_sk', k.tanggal,
         'has_skps', (k.raw_payload->>'dokumen_skps' IS NOT NULL),
         'has_petaps', false,
-        'has_rkps', (k.raw_payload->>'dokumen_rkps' IS NOT NULL)
+        'has_rkps', (k.raw_payload->>'dokumen_rkps' IS NOT NULL),
+        'status_kelas', (SELECT string_agg(DISTINCT ku.kelas, ', ') FROM public.kups ku WHERE ku.lembaga_id = k.id),
+        'status_rkps', COALESCE(k.raw_payload->>'dokumen_rkps', '-')
       )
       ORDER BY ak.position
     ),

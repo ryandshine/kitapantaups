@@ -53,6 +53,8 @@ export interface KpsData {
     has_skps?: boolean;
     has_petaps?: boolean;
     has_rkps?: boolean;
+    status_kelas?: string;
+    status_rkps?: string;
     // For UI tracking
     lat?: number;
     lng?: number;

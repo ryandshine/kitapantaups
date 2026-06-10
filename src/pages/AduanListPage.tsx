@@ -100,6 +100,28 @@ export const AduanListPage: React.FC = () => {
         return DATE_FORMATTER.format(value);
     };
 
+    const getKpsStatusKelas = (row: Aduan) => {
+        if (Array.isArray(row.kps_items) && row.kps_items.length > 0) {
+            const classes = row.kps_items
+                .map((item) => item.status_kelas)
+                .filter(Boolean)
+                .filter((val) => val !== '-');
+            return classes.length > 0 ? Array.from(new Set(classes)).join(', ') : '-';
+        }
+        return '-';
+    };
+
+    const getKpsStatusRkps = (row: Aduan) => {
+        if (Array.isArray(row.kps_items) && row.kps_items.length > 0) {
+            const rkps = row.kps_items
+                .map((item) => item.status_rkps)
+                .filter(Boolean)
+                .filter((val) => val !== '-');
+            return rkps.length > 0 ? Array.from(new Set(rkps)).join(', ') : '-';
+        }
+        return '-';
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -254,6 +276,14 @@ export const AduanListPage: React.FC = () => {
                                                 <div className="flex gap-2 px-3 py-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KK</span>
                                                     <span className="font-medium tabular-nums">{row.jumlah_kk ?? '-'}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kelas</span>
+                                                    <span className="leading-snug">{getKpsStatusKelas(row)}</span>
+                                                </div>
+                                                <div className="flex gap-2 px-3 py-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">RKPS</span>
+                                                    <span className="leading-snug">{getKpsStatusRkps(row)}</span>
                                                 </div>
                                             </div>
                                         </td>

@@ -9,6 +9,7 @@
     "migrate:sql": "tsx scripts/run_sql_file.ts",
     "migrate:legacy-documents": "tsx scripts/migrate_legacy_aduan_documents_storage.ts",
     "sync:kps:gokups": "tsx scripts/sync_gokups_kps.ts",
+    "sync:kups:gokups": "tsx scripts/sync_gokups_kups.ts",
     "test": "node --import tsx --test src/lib/*.test.ts"
   },
   "dependencies": {

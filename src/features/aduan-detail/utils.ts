@@ -168,6 +168,8 @@ export type LokasiObjekItem = {
     jumlahKk: number;
     balai: string;
     sekwil: string;
+    statusKelas?: string;
+    statusRkps?: string;
 };
 
 export type FeedbackState = {
@@ -303,6 +305,8 @@ const mergeLokasiObjekItem = (
         jumlahKk: Number(mergedKps.jumlah_kk ?? mergedKps.jumlah_anggota ?? 0),
         balai: mergedKps.balai || aduan?.lokasi?.balaiName || '-',
         sekwil: mergedKps.sekwil || '-',
+        statusKelas: mergedKps.status_kelas || masterKps?.status_kelas || aggregateKps?.status_kelas || '-',
+        statusRkps: mergedKps.status_rkps || masterKps?.status_rkps || aggregateKps?.status_rkps || '-',
     };
 };
 

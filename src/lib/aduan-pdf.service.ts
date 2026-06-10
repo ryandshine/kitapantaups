@@ -12,6 +12,8 @@ type LokasiObjekItem = {
     luasHa: number;
     jumlahKk?: number;
     balai?: string;
+    statusKelas?: string;
+    statusRkps?: string;
 };
 
 const APP_NAME = 'KitapantauPS';
@@ -184,27 +186,31 @@ export const AduanPdfService = {
             compact(item.kabupaten),
             `${Number(item.luasHa || 0).toLocaleString('id-ID')} Ha`,
             `${Number(item.jumlahKk || 0).toLocaleString('id-ID')}`,
+            compact(item.statusKelas),
+            compact(item.statusRkps),
         ]);
 
         drawSectionTitle(doc, doc.lastAutoTable.finalY + 9, 'Lokasi Objek KPS');
         autoTable(doc, {
             startY: doc.lastAutoTable.finalY + 13,
-            head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'jumlah_kk']],
-            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-']],
-            styles: { fontSize: 8, cellPadding: 2, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
+            head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'jumlah_kk', 'status_kelas', 'status_rkps']],
+            body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']],
+            styles: { fontSize: 7, cellPadding: 1.5, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
             margin: { left: 14, right: 14, bottom: 14 },
             columnStyles: {
-                0: { cellWidth: 22 },
-                1: { cellWidth: 33 },
-                2: { cellWidth: 27 },
-                3: { cellWidth: 21 },
-                4: { cellWidth: 25 },
-                5: { cellWidth: 25 },
-                6: { cellWidth: 20 },
-                7: { cellWidth: 20 },
+                0: { cellWidth: 18 },
+                1: { cellWidth: 24 },
+                2: { cellWidth: 22 },
+                3: { cellWidth: 16 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 20 },
+                6: { cellWidth: 15 },
+                7: { cellWidth: 13 },
+                8: { cellWidth: 20 },
+                9: { cellWidth: 15 },
             },
         });
 
