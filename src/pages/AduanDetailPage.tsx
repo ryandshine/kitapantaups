@@ -1459,19 +1459,19 @@ export const AduanDetailPage: React.FC = () => {
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Luas Total</span>
-                                                <Badge variant="outline" className="w-fit">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</Badge>
+                                                <span className="text-[1rem] font-semibold text-foreground">{(Number(item.luasHa) || 0).toLocaleString('id-ID')} Ha</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Jumlah KK</span>
-                                                <Badge variant="outline" className="w-fit">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</Badge>
+                                                <span className="text-[1rem] text-foreground">{(Number(item.jumlahKk) || 0).toLocaleString('id-ID')}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Status Kelas (KUPS)</span>
-                                                <Badge variant="outline" className="w-fit font-semibold">{item.statusKelas || '-'}</Badge>
+                                                <span className="text-[1rem] font-semibold text-foreground">{item.statusKelas || '-'}</span>
                                             </div>
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>Status Dokumen RKPS</span>
-                                                <Badge variant="outline" className="w-fit font-semibold">{item.statusRkps || '-'}</Badge>
+                                                <span className="text-[1rem] text-foreground">{item.statusRkps || '-'}</span>
                                             </div>
                                         </div>
                                     </div>
