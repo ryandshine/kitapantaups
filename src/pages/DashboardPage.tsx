@@ -330,9 +330,6 @@ export const DashboardPage: React.FC = () => {
                                     {stats?.rkps || 0} <span className="text-sm font-semibold text-muted-foreground">/ {totalCount} aduan</span>
                                 </p>
                             </div>
-                            <span className="rounded-xl bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
-                                Real-time
-                            </span>
                         </div>
 
                         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
@@ -390,10 +387,10 @@ export const DashboardPage: React.FC = () => {
                                     />
                                 </svg>
                                 <div className="absolute flex flex-col items-center justify-center group-hover:translate-y-[-1px] transition-transform">
-                                    <span className="text-2xl font-black text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    <span className="text-2xl font-black text-blue-900 dark:text-blue-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
                                     </span>
-                                    <span className="text-[8px] font-extrabold uppercase tracking-widest text-muted-foreground mt-0.5">Memiliki</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-950 dark:text-blue-50 mt-0.5">Memiliki</span>
                                 </div>
                             </div>
                         </div>
@@ -407,7 +404,7 @@ export const DashboardPage: React.FC = () => {
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-orange-700 dark:text-orange-400">
-                                    Unit Usaha (KUPS)
+                                    Kelas KUPS
                                 </h3>
                                 <p className="text-2xl font-black text-foreground mt-1">
                                     {((stats?.kups?.BIRU || 0) + (stats?.kups?.PERAK || 0) + (stats?.kups?.EMAS || 0) + (stats?.kups?.PLATINUM || 0))} <span className="text-sm font-semibold text-muted-foreground">unit terproses</span>
@@ -421,10 +418,10 @@ export const DashboardPage: React.FC = () => {
                         {/* Visual Progress Bars */}
                         <div className="space-y-3.5">
                             {[
-                                { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-500' },
-                                { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-400 to-zinc-300', glow: 'shadow-slate-400/10', text: 'text-slate-400' },
-                                { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-500 to-yellow-400', glow: 'shadow-amber-500/10', text: 'text-amber-500' },
-                                { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-500 to-purple-400', glow: 'shadow-indigo-500/10', text: 'text-indigo-500' },
+                                { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-700 dark:text-blue-400' },
+                                { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-500 to-zinc-400', glow: 'shadow-slate-500/10', text: 'text-slate-700 dark:text-slate-300' },
+                                { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-600 to-yellow-500', glow: 'shadow-amber-600/10', text: 'text-amber-700 dark:text-amber-400' },
+                                { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-600 to-purple-500', glow: 'shadow-indigo-600/10', text: 'text-indigo-700 dark:text-indigo-400' },
                             ].map((item, index) => {
                                 const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
                                 const percentage = (item.value / maxVal) * 100;
