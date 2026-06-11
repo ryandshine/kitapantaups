@@ -342,7 +342,7 @@ export const DashboardPage: React.FC = () => {
                                 </p>
                                 <div className="flex items-center gap-3 text-xs font-semibold">
                                     <button
-                                        onClick={() => navigate('/aduan?rkps=Sudah')}
+                                        onClick={() => navigate('/pengaduan?rkps=Sudah')}
                                         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-blue-500/20 bg-blue-500/5 transition-all hover:bg-blue-500/10 hover:border-blue-500/40 text-blue-700 dark:text-blue-400 group"
                                         title="Filter aduan dengan RKPS: Sudah"
                                     >
@@ -350,7 +350,7 @@ export const DashboardPage: React.FC = () => {
                                         <span>Sudah ({stats?.rkps || 0})</span>
                                     </button>
                                     <button
-                                        onClick={() => navigate('/aduan?rkps=Belum')}
+                                        onClick={() => navigate('/pengaduan?rkps=Belum')}
                                         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-muted bg-muted/15 transition-all hover:bg-muted/30 hover:border-muted-foreground/30 text-muted-foreground group"
                                         title="Filter aduan dengan RKPS: Belum"
                                     >
@@ -362,7 +362,7 @@ export const DashboardPage: React.FC = () => {
 
                             {/* Donut Gauge */}
                             <div 
-                                onClick={() => navigate('/aduan?rkps=Sudah')}
+                                onClick={() => navigate('/pengaduan?rkps=Sudah')}
                                 className="relative flex shrink-0 items-center justify-center h-28 w-28 cursor-pointer hover:scale-105 transition-transform duration-300 group"
                                 title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
                             >
@@ -432,7 +432,7 @@ export const DashboardPage: React.FC = () => {
                                 return (
                                     <div 
                                         key={index} 
-                                        onClick={() => navigate(`/aduan?kups_kelas=${item.key}`)}
+                                        onClick={() => navigate(`/pengaduan?kups_kelas=${item.key}`)}
                                         className="space-y-1 rounded-xl border border-transparent p-1.5 transition-all hover:bg-orange-500/5 dark:hover:bg-orange-500/10 hover:border-orange-500/10 cursor-pointer group"
                                         title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
                                     >
@@ -464,7 +464,7 @@ export const DashboardPage: React.FC = () => {
                         <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground leading-none">
                             Aduan Terbaru
                         </h2>
-                        <Link to="/aduan" className="group flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary leading-none">
+                        <Link to="/pengaduan" className="group flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary leading-none">
                             Lihat Semua
                             <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                         </Link>
