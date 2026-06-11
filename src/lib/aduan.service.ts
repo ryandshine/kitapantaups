@@ -194,9 +194,41 @@ export const AduanService = {
         catch { return 0; }
     },
 
-    getDashboardStats: async (): Promise<{ total: number; by_status: Record<string, number>; last_30_days: number }> => {
-        try { return await api.get<{ total: number; by_status: Record<string, number>; last_30_days: number }>('/dashboard/stats'); }
-        catch { return { total: 0, by_status: {}, last_30_days: 0 }; }
+    getDashboardStats: async (): Promise<{
+        total: number;
+        by_status: Record<string, number>;
+        last_30_days: number;
+        rkps?: number;
+        kups?: {
+            BIRU: number;
+            PERAK: number;
+            EMAS: number;
+            PLATINUM: number;
+        };
+    }> => {
+        try {
+            return await api.get<{
+                total: number;
+                by_status: Record<string, number>;
+                last_30_days: number;
+                rkps: number;
+                kups: {
+                    BIRU: number;
+                    PERAK: number;
+                    EMAS: number;
+                    PLATINUM: number;
+                };
+            }>('/dashboard/stats');
+        }
+        catch {
+            return {
+                total: 0,
+                by_status: {},
+                last_30_days: 0,
+                rkps: 0,
+                kups: { BIRU: 0, PERAK: 0, EMAS: 0, PLATINUM: 0 }
+            };
+        }
     },
 
     getAduanById: async (id: string) => {

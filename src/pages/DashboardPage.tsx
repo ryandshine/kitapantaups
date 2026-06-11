@@ -310,6 +310,79 @@ export const DashboardPage: React.FC = () => {
                 })}
             </div>
 
+            {/* Rekap Perencanaan dan Kelembagaan */}
+            <div className="space-y-3">
+                <h2 className="text-xl font-bold tracking-tight text-foreground px-1">
+                    Rekap Perencanaan dan Kelembagaan
+                </h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* RKPS Card */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-2xl border border-blue-500/10 bg-blue-50/10 p-5 dark:border-blue-500/20 dark:bg-blue-950/10"
+                    >
+                        <div className="mb-4">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">RKPS</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 items-end">
+                            <div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase">Jumlah</p>
+                                <p className="text-3xl font-bold text-foreground">
+                                    {stats?.rkps || 0}/{totalCount}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground mt-1">dari total {totalCount} aduan</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase">Persentase</p>
+                                <p className="text-3xl font-bold text-foreground">
+                                    {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
+                                </p>
+                                <div className="mt-2.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                                    <div
+                                        className="h-full bg-blue-600 rounded-full"
+                                        style={{ width: `${totalCount > 0 ? ((stats?.rkps || 0) / totalCount) * 100 : 0}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* KUPS Card */}
+                    <motion.div
+                        variants={itemVariants}
+                        className="rounded-2xl border border-orange-500/10 bg-orange-50/10 p-5 dark:border-orange-500/20 dark:bg-orange-950/10"
+                    >
+                        <div className="mb-3">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">KUPS</h3>
+                        </div>
+                        <div className="flex flex-col justify-between h-full">
+                            <div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Jumlah</p>
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-foreground">
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Kelas Biru</span>
+                                        <span className="font-bold">: {stats?.kups?.BIRU || 0} unit</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Kelas Silver</span>
+                                        <span className="font-bold">: {stats?.kups?.PERAK || 0} unit</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Kelas Emas</span>
+                                        <span className="font-bold">: {stats?.kups?.EMAS || 0} unit</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Kelas Platinum</span>
+                                        <span className="font-bold">: {stats?.kups?.PLATINUM || 0} unit</span>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-2">dari total {totalCount} aduan</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+
             {/* Content Section */}
             <div className="grid gap-5 lg:grid-cols-3 items-stretch">
                 {/* Recent Aduan List */}
