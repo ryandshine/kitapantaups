@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Badge } from '../components/ui';
@@ -24,6 +24,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('id-ID', {
 
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
@@ -31,10 +32,26 @@ export const AduanListPage: React.FC = () => {
     const itemsPerPage = 10;
     const listSectionRef = useRef<HTMLDivElement>(null);
 
-    const { data: aduanResult, isLoading: loadingItems } = useAduanList(currentPage, itemsPerPage, searchTerm, statusFilter);
+    const rkpsParam = searchParams.get('rkps') || '';
+    const kupsKelasParam = searchParams.get('kups_kelas') || '';
+
+    const aduanOptions = useMemo(() => {
+        const opt: Record<string, string> = {};
+        if (rkpsParam) opt.rkps = rkpsParam;
+        if (kupsKelasParam) opt.kups_kelas = kupsKelasParam;
+        return opt;
+    }, [rkpsParam, kupsKelasParam]);
+
+    const { data: aduanResult, isLoading: loadingItems } = useAduanList(
+        currentPage,
+        itemsPerPage,
+        searchTerm,
+        statusFilter,
+        aduanOptions
+    );
 
     // Reset ke halaman 1 saat search atau filter berubah
-    useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter]);
+    useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter, rkpsParam, kupsKelasParam]);
 
     const loading = loadingItems;
     const displayList = useMemo<Aduan[]>(() => aduanResult?.data || [], [aduanResult]);
@@ -174,6 +191,56 @@ export const AduanListPage: React.FC = () => {
                         />
                     </div>
                 </div>
+
+                {/* Active Filters Display */}
+                {(rkpsParam || kupsKelasParam) && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
+                        <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">Filter Aktif:</span>
+                        {rkpsParam && (
+                            <Badge variant="info" className="gap-1.5 px-2.5 py-1 font-bold text-xs uppercase rounded-lg">
+                                RKPS: {rkpsParam}
+                                <button
+                                    onClick={() => {
+                                        const newParams = new URLSearchParams(searchParams);
+                                        newParams.delete('rkps');
+                                        setSearchParams(newParams);
+                                    }}
+                                    className="ml-1 hover:text-red-500 font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
+                                >
+                                    ×
+                                </button>
+                            </Badge>
+                        )}
+                        {kupsKelasParam && (
+                            <Badge variant="warning" className="gap-1.5 px-2.5 py-1 font-bold text-xs uppercase rounded-lg">
+                                KUPS Kelas: {kupsKelasParam}
+                                <button
+                                    onClick={() => {
+                                        const newParams = new URLSearchParams(searchParams);
+                                        newParams.delete('kups_kelas');
+                                        setSearchParams(newParams);
+                                    }}
+                                    className="ml-1 hover:text-red-500 font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
+                                >
+                                    ×
+                                </button>
+                            </Badge>
+                        )}
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="ml-auto text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
+                            onClick={() => {
+                                const newParams = new URLSearchParams(searchParams);
+                                newParams.delete('rkps');
+                                newParams.delete('kups_kelas');
+                                setSearchParams(newParams);
+                            }}
+                        >
+                            Hapus Semua Filter
+                        </Button>
+                    </div>
+                )}
                 <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5">
                         <button

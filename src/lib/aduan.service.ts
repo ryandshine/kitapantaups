@@ -27,8 +27,10 @@ type AduanReportFilters = {
     picId?: string;
 };
 
-type AduanListOptions = {
+export type AduanListOptions = {
     sortBy?: 'created_at' | 'updated_at';
+    rkps?: string;
+    kups_kelas?: string;
 };
 
 type AduanApiRow = {
@@ -180,6 +182,8 @@ export const AduanService = {
         if (searchTerm?.trim()) params.set('search', searchTerm.trim());
         if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);
         if (options?.sortBy) params.set('sort_by', options.sortBy);
+        if (options?.rkps) params.set('rkps', options.rkps);
+        if (options?.kups_kelas) params.set('kups_kelas', options.kups_kelas);
         const result = await api.get<AduanListResponse>(`/aduan?${params}`);
         return {
             data: (result.data || []).map(AduanService.mapToAduan),

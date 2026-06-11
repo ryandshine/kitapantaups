@@ -340,20 +340,32 @@ export const DashboardPage: React.FC = () => {
                                 <p className="text-xs text-muted-foreground leading-relaxed">
                                     Menunjukkan proporsi aduan kelompok Perhutanan Sosial yang <strong>telah memiliki</strong> dokumen Rencana Kerja Perhutanan Sosial (RKPS).
                                 </p>
-                                <div className="flex items-center gap-4 text-xs font-semibold">
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                                <div className="flex items-center gap-3 text-xs font-semibold">
+                                    <button
+                                        onClick={() => navigate('/aduan?rkps=Sudah')}
+                                        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-blue-500/20 bg-blue-500/5 transition-all hover:bg-blue-500/10 hover:border-blue-500/40 text-blue-700 dark:text-blue-400 group"
+                                        title="Filter aduan dengan RKPS: Sudah"
+                                    >
+                                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500 group-hover:scale-110 transition-transform" />
                                         <span>Sudah ({stats?.rkps || 0})</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="h-2.5 w-2.5 rounded-full bg-muted" />
+                                    </button>
+                                    <button
+                                        onClick={() => navigate('/aduan?rkps=Belum')}
+                                        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-muted bg-muted/15 transition-all hover:bg-muted/30 hover:border-muted-foreground/30 text-muted-foreground group"
+                                        title="Filter aduan dengan RKPS: Belum"
+                                    >
+                                        <span className="h-2.5 w-2.5 rounded-full bg-muted group-hover:scale-110 transition-transform" />
                                         <span>Belum ({totalCount - (stats?.rkps || 0)})</span>
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
 
                             {/* Donut Gauge */}
-                            <div className="relative flex shrink-0 items-center justify-center h-28 w-28">
+                            <div 
+                                onClick={() => navigate('/aduan?rkps=Sudah')}
+                                className="relative flex shrink-0 items-center justify-center h-28 w-28 cursor-pointer hover:scale-105 transition-transform duration-300 group"
+                                title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
+                            >
                                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                                     <circle
                                         cx="50"
@@ -367,7 +379,7 @@ export const DashboardPage: React.FC = () => {
                                         cx="50"
                                         cy="50"
                                         r="38"
-                                        className="stroke-blue-500 dark:stroke-blue-400"
+                                        className="stroke-blue-500 dark:stroke-blue-400 group-hover:stroke-blue-600 transition-colors"
                                         strokeWidth="8"
                                         fill="transparent"
                                         strokeDasharray={2 * Math.PI * 38}
@@ -377,8 +389,8 @@ export const DashboardPage: React.FC = () => {
                                         strokeLinecap="round"
                                     />
                                 </svg>
-                                <div className="absolute flex flex-col items-center justify-center">
-                                    <span className="text-2xl font-black text-foreground">
+                                <div className="absolute flex flex-col items-center justify-center group-hover:translate-y-[-1px] transition-transform">
+                                    <span className="text-2xl font-black text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                         {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
                                     </span>
                                     <span className="text-[8px] font-extrabold uppercase tracking-widest text-muted-foreground mt-0.5">Memiliki</span>
@@ -409,23 +421,28 @@ export const DashboardPage: React.FC = () => {
                         {/* Visual Progress Bars */}
                         <div className="space-y-3.5">
                             {[
-                                { label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-500' },
-                                { label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-400 to-zinc-300', glow: 'shadow-slate-400/10', text: 'text-slate-400' },
-                                { label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-500 to-yellow-400', glow: 'shadow-amber-500/10', text: 'text-amber-500' },
-                                { label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-500 to-purple-400', glow: 'shadow-indigo-500/10', text: 'text-indigo-500' },
+                                { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-500' },
+                                { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-400 to-zinc-300', glow: 'shadow-slate-400/10', text: 'text-slate-400' },
+                                { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-500 to-yellow-400', glow: 'shadow-amber-500/10', text: 'text-amber-500' },
+                                { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-500 to-purple-400', glow: 'shadow-indigo-500/10', text: 'text-indigo-500' },
                             ].map((item, index) => {
                                 const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
                                 const percentage = (item.value / maxVal) * 100;
 
                                 return (
-                                    <div key={index} className="space-y-1.5">
+                                    <div 
+                                        key={index} 
+                                        onClick={() => navigate(`/aduan?kups_kelas=${item.key}`)}
+                                        className="space-y-1 rounded-xl border border-transparent p-1.5 transition-all hover:bg-orange-500/5 dark:hover:bg-orange-500/10 hover:border-orange-500/10 cursor-pointer group"
+                                        title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
+                                    >
                                         <div className="flex justify-between items-center text-xs font-semibold">
-                                            <span className="text-foreground/90">{item.label}</span>
-                                            <span className={`${item.text} font-bold`}>{item.value} unit</span>
+                                            <span className="text-foreground/90 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">{item.label}</span>
+                                            <span className={`${item.text} font-bold group-hover:scale-105 transition-transform`}>{item.value} unit</span>
                                         </div>
                                         <div className="relative h-2 w-full rounded-full bg-muted/50 overflow-hidden dark:bg-muted/20">
                                             <motion.div
-                                                className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} ${item.glow} shadow-sm`}
+                                                className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} ${item.glow} shadow-sm group-hover:brightness-110 transition-all`}
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${percentage}%` }}
                                                 transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}

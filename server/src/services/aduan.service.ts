@@ -35,7 +35,7 @@ const KPS_SEARCH_TEXT = `
 
 export const AduanService = {
   async getList(query: any) {
-    const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket, pic_id, sort_by } = query
+    const { status, search, page = 1, limit = 20, offset: reqOffset, start_date, end_date, provinsi, nomor_tiket, pic_id, sort_by, rkps, kups_kelas } = query
     const offset = reqOffset ? Number(reqOffset) : (Number(page) - 1) * Number(limit)
     const sortBy = sort_by === 'updated_at' ? 'updated_at' : 'created_at'
 
@@ -78,6 +78,31 @@ export const AduanService = {
     if (pic_id && pic_id !== 'all') {
       params.push(pic_id)
       conditions.push(`a.pic_id = $${params.length}`)
+    }
+    if (rkps) {
+      if (rkps === 'Sudah') {
+        conditions.push(`EXISTS (
+          SELECT 1 FROM public.aduan_kps ak
+          JOIN public.kps k ON k.id = ak.kps_id
+          WHERE ak.aduan_id = a.id AND k.raw_payload->>'dokumen_rkps' = 'Sudah'
+        )`)
+      } else if (rkps === 'Belum') {
+        conditions.push(`NOT EXISTS (
+          SELECT 1 FROM public.aduan_kps ak
+          JOIN public.kps k ON k.id = ak.kps_id
+          WHERE ak.aduan_id = a.id AND k.raw_payload->>'dokumen_rkps' = 'Sudah'
+        )`)
+      }
+    }
+    if (kups_kelas) {
+      params.push(kups_kelas)
+      conditions.push(`EXISTS (
+        SELECT 1
+        FROM public.aduan_kps ak
+        JOIN public.kups ku ON ak.kps_id = ku.lembaga_id
+        WHERE ak.aduan_id = a.id
+          AND ku.kelas = $${params.length}
+      )`)
     }
 
     const { data, total } = await AduanRepository.findAndCountAll(params, conditions, Number(limit), offset, sortBy)
