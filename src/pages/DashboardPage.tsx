@@ -311,37 +311,77 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Rekap Perencanaan dan Kelembagaan */}
-            <div className="space-y-3">
+            <div className="space-y-4">
                 <h2 className="text-xl font-bold tracking-tight text-foreground px-1">
                     Rekap Perencanaan dan Kelembagaan
                 </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     {/* RKPS Card */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-blue-500/10 bg-blue-50/10 p-5 dark:border-blue-500/20 dark:bg-blue-950/10"
+                        className="relative overflow-hidden rounded-3xl border border-blue-500/10 bg-gradient-to-br from-blue-50/10 to-transparent p-6 shadow-sm backdrop-blur-sm dark:border-blue-500/20 dark:from-blue-950/10"
                     >
-                        <div className="mb-4">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-blue-700 dark:text-blue-400">RKPS</h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 items-end">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase">Jumlah</p>
-                                <p className="text-3xl font-bold text-foreground">
-                                    {stats?.rkps || 0}/{totalCount}
+                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-400">
+                                    Dokumen RKPS
+                                </h3>
+                                <p className="text-2xl font-black text-foreground mt-1">
+                                    {stats?.rkps || 0} <span className="text-sm font-semibold text-muted-foreground">/ {totalCount} aduan</span>
                                 </p>
-                                <p className="text-[10px] text-muted-foreground mt-1">dari total {totalCount} aduan</p>
                             </div>
-                            <div>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase">Persentase</p>
-                                <p className="text-3xl font-bold text-foreground">
-                                    {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
+                            <span className="rounded-xl bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+                                Real-time
+                            </span>
+                        </div>
+
+                        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+                            <div className="flex-1 space-y-3">
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    Menunjukkan proporsi aduan kelompok Perhutanan Sosial yang <strong>telah memiliki</strong> dokumen Rencana Kerja Perhutanan Sosial (RKPS).
                                 </p>
-                                <div className="mt-2.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                                    <div
-                                        className="h-full bg-blue-600 rounded-full"
-                                        style={{ width: `${totalCount > 0 ? ((stats?.rkps || 0) / totalCount) * 100 : 0}%` }}
+                                <div className="flex items-center gap-4 text-xs font-semibold">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+                                        <span>Sudah ({stats?.rkps || 0})</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="h-2.5 w-2.5 rounded-full bg-muted" />
+                                        <span>Belum ({totalCount - (stats?.rkps || 0)})</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Donut Gauge */}
+                            <div className="relative flex shrink-0 items-center justify-center h-28 w-28">
+                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="38"
+                                        className="stroke-muted/20 dark:stroke-muted/10"
+                                        strokeWidth="8"
+                                        fill="transparent"
                                     />
+                                    <motion.circle
+                                        cx="50"
+                                        cy="50"
+                                        r="38"
+                                        className="stroke-blue-500 dark:stroke-blue-400"
+                                        strokeWidth="8"
+                                        fill="transparent"
+                                        strokeDasharray={2 * Math.PI * 38}
+                                        initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
+                                        animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - (totalCount > 0 ? (stats?.rkps || 0) / totalCount : 0)) }}
+                                        transition={{ duration: 1.2, ease: "easeOut" }}
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                <div className="absolute flex flex-col items-center justify-center">
+                                    <span className="text-2xl font-black text-foreground">
+                                        {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
+                                    </span>
+                                    <span className="text-[8px] font-extrabold uppercase tracking-widest text-muted-foreground mt-0.5">Memiliki</span>
                                 </div>
                             </div>
                         </div>
@@ -350,34 +390,50 @@ export const DashboardPage: React.FC = () => {
                     {/* KUPS Card */}
                     <motion.div
                         variants={itemVariants}
-                        className="rounded-2xl border border-orange-500/10 bg-orange-50/10 p-5 dark:border-orange-500/20 dark:bg-orange-950/10"
+                        className="relative overflow-hidden rounded-3xl border border-orange-500/10 bg-gradient-to-br from-orange-50/10 to-transparent p-6 shadow-sm backdrop-blur-sm dark:border-orange-500/20 dark:from-orange-950/10"
                     >
-                        <div className="mb-3">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-orange-700 dark:text-orange-400">KUPS</h3>
-                        </div>
-                        <div className="flex flex-col justify-between h-full">
+                        <div className="flex items-center justify-between mb-4">
                             <div>
-                                <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Jumlah</p>
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-foreground">
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Kelas Biru</span>
-                                        <span className="font-bold">: {stats?.kups?.BIRU || 0} unit</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Kelas Silver</span>
-                                        <span className="font-bold">: {stats?.kups?.PERAK || 0} unit</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Kelas Emas</span>
-                                        <span className="font-bold">: {stats?.kups?.EMAS || 0} unit</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Kelas Platinum</span>
-                                        <span className="font-bold">: {stats?.kups?.PLATINUM || 0} unit</span>
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-muted-foreground mt-2">dari total {totalCount} aduan</p>
+                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-orange-700 dark:text-orange-400">
+                                    Unit Usaha (KUPS)
+                                </h3>
+                                <p className="text-2xl font-black text-foreground mt-1">
+                                    {((stats?.kups?.BIRU || 0) + (stats?.kups?.PERAK || 0) + (stats?.kups?.EMAS || 0) + (stats?.kups?.PLATINUM || 0))} <span className="text-sm font-semibold text-muted-foreground">unit terproses</span>
+                                </p>
                             </div>
+                            <span className="rounded-xl bg-orange-500/10 px-2.5 py-1 text-[10px] font-bold text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
+                                Status Proses
+                            </span>
+                        </div>
+
+                        {/* Visual Progress Bars */}
+                        <div className="space-y-3.5">
+                            {[
+                                { label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-500' },
+                                { label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-400 to-zinc-300', glow: 'shadow-slate-400/10', text: 'text-slate-400' },
+                                { label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-500 to-yellow-400', glow: 'shadow-amber-500/10', text: 'text-amber-500' },
+                                { label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-500 to-purple-400', glow: 'shadow-indigo-500/10', text: 'text-indigo-500' },
+                            ].map((item, index) => {
+                                const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
+                                const percentage = (item.value / maxVal) * 100;
+
+                                return (
+                                    <div key={index} className="space-y-1.5">
+                                        <div className="flex justify-between items-center text-xs font-semibold">
+                                            <span className="text-foreground/90">{item.label}</span>
+                                            <span className={`${item.text} font-bold`}>{item.value} unit</span>
+                                        </div>
+                                        <div className="relative h-2 w-full rounded-full bg-muted/50 overflow-hidden dark:bg-muted/20">
+                                            <motion.div
+                                                className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} ${item.glow} shadow-sm`}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${percentage}%` }}
+                                                transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
+                                            />
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </motion.div>
                 </div>
