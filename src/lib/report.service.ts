@@ -17,6 +17,14 @@ export interface ReportFilters {
     picName?: string;
 }
 
+const collectKpsField = (row: Aduan, field: 'status_kelas' | 'status_rkps'): string => {
+    if (!Array.isArray(row.kps_items) || row.kps_items.length === 0) return '-';
+    const values = row.kps_items
+        .map((item) => item[field])
+        .filter((val): val is string => Boolean(val) && val !== '-');
+    return values.length > 0 ? Array.from(new Set(values)).join(', ') : '-';
+};
+
 const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
     nomorTiket: { id: 'nomorTiket', label: 'Nomor Tiket', getValue: (row) => row.nomorTiket || row.nomor_tiket },
     createdAt: { id: 'createdAt', label: 'Tanggal Buat', getValue: (row) => row.createdAt ? format(new Date(row.createdAt), 'dd MMM yyyy', { locale: id }) : '-' },
@@ -38,6 +46,16 @@ const REPORT_COLUMNS_MAP: Record<string, ColumnDefinition> = {
             const values = (row.type_kps && row.type_kps.length > 0) ? row.type_kps : row.jenis_kps;
             return values && values.length > 0 ? values.join(', ') : '-';
         }
+    },
+    statusKelas: {
+        id: 'statusKelas',
+        label: 'Status Kelas',
+        getValue: (row) => collectKpsField(row, 'status_kelas'),
+    },
+    statusRkps: {
+        id: 'statusRkps',
+        label: 'Status Dokumen RKPS',
+        getValue: (row) => collectKpsField(row, 'status_rkps'),
     },
     perihal: { id: 'perihal', label: 'Perihal', getValue: (row) => row.perihal },
     ringkasanKasus: {
@@ -62,6 +80,8 @@ export const FIXED_REPORT_COLUMN_IDS: string[] = [
     'namaKps',
     'nomorSk',
     'typeKps',
+    'statusKelas',
+    'statusRkps',
     'perihal',
     'ringkasanKasus',
     'pengadu',
