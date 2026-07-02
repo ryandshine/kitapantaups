@@ -395,6 +395,7 @@ const buildOpenApiSpec = (origin: string) => ({
                 properties: {
                   file_url: { type: 'string', format: 'uri' },
                   file_name: { type: 'string' },
+                  original_file_name: { type: 'string' },
                   file_category: { type: 'string' },
                 },
               },

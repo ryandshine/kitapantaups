@@ -212,7 +212,20 @@ export const AduanRepository = {
         [id]
       ),
       pool.query('SELECT * FROM public.tindak_lanjut WHERE aduan_id = $1 ORDER BY tanggal DESC', [id]),
-      pool.query('SELECT * FROM public.aduan_documents WHERE aduan_id = $1 ORDER BY created_at DESC', [id]),
+      pool.query(
+        `SELECT
+           d.*,
+           a.surat_tanggal AS document_date,
+           CASE
+             WHEN a.surat_tanggal IS NULL THEN 'perlu_perbaikan_tanggal_dokumen'
+             ELSE 'siap'
+           END AS naming_status
+         FROM public.aduan_documents d
+         JOIN public.aduan a ON a.id = d.aduan_id
+         WHERE d.aduan_id = $1
+         ORDER BY d.created_at DESC`,
+        [id]
+      ),
     ])
 
     if (aduanResult.rows.length === 0) return null
@@ -225,7 +238,13 @@ export const AduanRepository = {
   },
 
   async findSimpleById(id: string) {
-    const result = await pool.query('SELECT id, nomor_tiket FROM public.aduan WHERE id = $1 LIMIT 1', [id])
+    const result = await pool.query(
+      `SELECT id, nomor_tiket, to_char(surat_tanggal, 'YYYY-MM-DD') AS surat_tanggal
+       FROM public.aduan
+       WHERE id = $1
+       LIMIT 1`,
+      [id]
+    )
     return result.rows.length > 0 ? result.rows[0] : null
   },
 
@@ -343,10 +362,19 @@ export const AduanRepository = {
     return result.rowCount !== 0
   },
 
-  async createDocument(aduanId: string, fileUrl: string, fileName: string, fileCategory: string, userId: string) {
+  async createDocument(
+    aduanId: string,
+    fileUrl: string,
+    fileName: string,
+    originalFileName: string,
+    fileCategory: string,
+    userId: string
+  ) {
     await pool.query(
-      `INSERT INTO public.aduan_documents (aduan_id, file_url, file_name, file_category, created_by) VALUES ($1, $2, $3, $4, $5)`,
-      [aduanId, fileUrl, fileName, fileCategory, userId]
+      `INSERT INTO public.aduan_documents
+         (aduan_id, file_url, file_name, original_file_name, file_category, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [aduanId, fileUrl, fileName, originalFileName, fileCategory, userId]
     )
   },
 

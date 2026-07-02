@@ -1,9 +1,21 @@
 import { pool } from '../db.js'
 
 export const TindakLanjutRepository = {
+  async findById(id: string) {
+    const result = await pool.query('SELECT * FROM tindak_lanjut WHERE id = $1 LIMIT 1', [id])
+    return result.rows[0] || null
+  },
+
   async findByAduanId(aduanId: string) {
     const result = await pool.query(
-      'SELECT * FROM tindak_lanjut WHERE aduan_id = $1 ORDER BY tanggal DESC',
+      `SELECT *,
+         CASE
+           WHEN tanggal IS NULL THEN 'perlu_perbaikan_tanggal_dokumen'
+           ELSE 'siap'
+         END AS naming_status
+       FROM tindak_lanjut
+       WHERE aduan_id = $1
+       ORDER BY tanggal DESC`,
       [aduanId]
     )
     return result.rows
@@ -38,6 +50,34 @@ export const TindakLanjutRepository = {
       ]
     )
     return result.rowCount !== null && result.rowCount > 0 ? result.rows[0] : null
+  },
+
+  async updateFileUrls(id: string, fileUrls: string[]) {
+    const result = await pool.query(
+      'UPDATE tindak_lanjut SET file_urls = $2 WHERE id = $1 RETURNING *',
+      [id, fileUrls]
+    )
+    return result.rows[0] || null
+  },
+
+  async restore(id: string, data: any) {
+    await pool.query(
+      `UPDATE tindak_lanjut
+       SET tanggal = $2,
+           jenis_tl = $3,
+           keterangan = $4,
+           file_urls = $5,
+           nomor_surat_output = $6
+       WHERE id = $1`,
+      [
+        id,
+        data.tanggal,
+        data.jenis_tl,
+        data.keterangan,
+        data.file_urls,
+        data.nomor_surat_output,
+      ]
+    )
   },
 
   async delete(id: string) {

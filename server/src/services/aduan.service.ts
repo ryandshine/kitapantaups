@@ -122,12 +122,28 @@ export const AduanService = {
     if (!aduan) {
       throw new Error('Aduan tidak ditemukan')
     }
+    if (!aduan.surat_tanggal) {
+      throw new Error('Perlu Perbaikan Tanggal Dokumen: tanggal surat belum tersedia')
+    }
 
-    return await StorageService.saveAduanFile(file, aduanId, aduan.nomor_tiket as string, category)
+    return await StorageService.saveAduanFile(
+      file,
+      aduanId,
+      aduan.nomor_tiket as string,
+      category,
+      aduan.surat_tanggal as string
+    )
   },
 
   async addDocument(aduanId: string, data: any, userId: string) {
-    await AduanRepository.createDocument(aduanId, data.file_url, data.file_name, data.file_category || 'dokumen', userId)
+    await AduanRepository.createDocument(
+      aduanId,
+      data.file_url,
+      data.file_name,
+      data.original_file_name || data.file_name,
+      data.file_category || 'dokumen',
+      userId
+    )
   },
 
   async deleteDocument(aduanId: string, docId: string, user: any) {

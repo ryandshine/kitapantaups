@@ -13,6 +13,7 @@ export type UploadBatchProgress = {
 export type UploadedFileResult = {
     url: string;
     fileName: string;
+    originalFileName: string;
 };
 
 const getErrorMessage = (error: unknown) => {
@@ -67,6 +68,9 @@ const uploadToServer = async (
                                 : typeof data.file_name === 'string'
                                     ? data.file_name
                                     : fileName,
+                            originalFileName: typeof data.originalFileName === 'string'
+                                ? data.originalFileName
+                                : fileName,
                         });
                     } catch {
                         rejectWithError('Respons tidak valid dari server', xhr.status);
@@ -139,6 +143,7 @@ export const uploadAdditionalAduanDocuments = async (
             await api.post(`/aduan/${aduanId}/documents`, {
                 file_url: uploadedFile.url,
                 file_name: uploadedFile.fileName,
+                original_file_name: uploadedFile.originalFileName,
                 file_category: 'dokumen',
             });
 

@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS public.aduan_documents (
   id            uuid        NOT NULL DEFAULT uuid_generate_v4(),
   aduan_id      uuid        NOT NULL REFERENCES public.aduan(id) ON DELETE CASCADE,
   file_name     text        NOT NULL,
+  original_file_name text,
   file_url      text        NOT NULL,
   file_category text,
   created_by    uuid        REFERENCES public.users(id),

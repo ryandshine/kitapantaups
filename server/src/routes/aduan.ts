@@ -56,6 +56,7 @@ aduan.get('/:id', async (c) => {
 const addDocumentSchema = z.object({
   file_url: z.string().url(),
   file_name: z.string().min(1).max(255),
+  original_file_name: z.string().min(1).max(255).optional(),
   file_category: z.string().optional(),
 })
 

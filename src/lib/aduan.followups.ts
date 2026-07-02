@@ -35,6 +35,7 @@ type TindakLanjutApiRow = {
     created_by: string;
     created_by_name: string;
     created_at: string;
+    naming_status?: 'siap' | 'perlu_perbaikan_tanggal_dokumen';
 };
 
 export const AduanFollowUpService = {
@@ -57,6 +58,7 @@ export const AduanFollowUpService = {
                 createdBy: item.created_by,
                 createdByName: item.created_by_name,
                 createdAt: new Date(item.created_at),
+                namingStatus: item.naming_status,
             } as TindakLanjut));
         } catch { return []; }
     },

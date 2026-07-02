@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildFileUrlWithNewName,
+  buildMigrationFileName,
   deriveStableUploadCode,
   isModernUploadFileName,
 } from './upload-migration.js'
@@ -22,6 +23,17 @@ test('buildFileUrlWithNewName keeps origin and folder while replacing basename',
 })
 
 test('isModernUploadFileName detects the new upload pattern', () => {
-  assert.equal(isModernUploadFileName('20260506_dokumen_K4P9QX.pdf'), true)
+  assert.equal(isModernUploadFileName('20260529_SuratMasuk_K4P9QX.pdf'), true)
   assert.equal(isModernUploadFileName('dokumen_oldname.pdf'), false)
+})
+
+test('buildMigrationFileName uses the database document date and stable code', () => {
+  assert.equal(
+    buildMigrationFileName('2026-05-29', 'Surat Masuk', 'document-1', 'PDF'),
+    `20260529_SuratMasuk_${deriveStableUploadCode('document-1')}.pdf`
+  )
+})
+
+test('buildMigrationFileName returns null when the database document date is missing', () => {
+  assert.equal(buildMigrationFileName(null, 'Surat Masuk', 'document-1', 'pdf'), null)
 })

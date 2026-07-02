@@ -139,6 +139,7 @@ export interface TindakLanjut {
     createdBy: string;
     createdByName: string;
     createdAt: Date;
+    namingStatus?: 'siap' | 'perlu_perbaikan_tanggal_dokumen';
 }
 
 
@@ -222,7 +223,10 @@ export interface Aduan {
         id: string;
         file_url: string;
         file_name: string;
+        original_file_name?: string;
         file_category?: string;
+        document_date?: string;
+        naming_status?: 'siap' | 'perlu_perbaikan_tanggal_dokumen';
     }[];
 }
 

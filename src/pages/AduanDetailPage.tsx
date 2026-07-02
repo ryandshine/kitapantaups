@@ -151,7 +151,9 @@ export const AduanDetailPage: React.FC = () => {
             url: doc.file_url,
             fileName: doc.file_name,
             source: 'Dokumen',
-            meta: `Dokumen Pendukung ${doc.file_category === 'susulan' ? '(Susulan)' : ''}`.trim(),
+            meta: doc.naming_status === 'perlu_perbaikan_tanggal_dokumen'
+                ? 'Perlu Perbaikan Tanggal Dokumen'
+                : `Dokumen Pendukung ${doc.file_category === 'susulan' ? '(Susulan)' : ''}`.trim(),
         }));
     }, [aduan?.documents]);
     const tindakLanjutAttachments = useMemo(() => {
@@ -165,6 +167,7 @@ export const AduanDetailPage: React.FC = () => {
                     tanggal: tl.tanggal,
                     fileName: getFileNameFromUrl(url, `Lampiran Dokumen ${index + 1}`),
                     source: 'Dok. Tindak Lanjut',
+                    namingStatus: tl.namingStatus,
                 }))
         );
     }, [qTindakLanjutList]);
@@ -178,7 +181,9 @@ export const AduanDetailPage: React.FC = () => {
                 url: file.url,
                 fileName: file.fileName,
                 source: file.source,
-                meta: `${file.jenisTL} • ${formatDate(file.tanggal)}`,
+                meta: file.namingStatus === 'perlu_perbaikan_tanggal_dokumen'
+                    ? 'Perlu Perbaikan Tanggal Dokumen'
+                    : `${file.jenisTL} • ${formatDate(file.tanggal)}`,
             })),
         ];
         return items;

@@ -90,7 +90,15 @@ const normalizeDate = (value: unknown, fallback = new Date()): Date => {
     return fallback;
 };
 
-const normalizeDocuments = (value: unknown): Array<{ id: string; file_url: string; file_name: string; file_category?: string }> => {
+const normalizeDocuments = (value: unknown): Array<{
+    id: string;
+    file_url: string;
+    file_name: string;
+    original_file_name?: string;
+    file_category?: string;
+    document_date?: string;
+    naming_status?: 'siap' | 'perlu_perbaikan_tanggal_dokumen';
+}> => {
     if (!Array.isArray(value)) return [];
     return value.map((item) => {
         const record = (item && typeof item === 'object' ? item : {}) as Record<string, unknown>;
@@ -98,7 +106,12 @@ const normalizeDocuments = (value: unknown): Array<{ id: string; file_url: strin
             id: normalizeString(record.id),
             file_url: normalizeString(record.file_url),
             file_name: normalizeString(record.file_name),
+            original_file_name: normalizeOptionalString(record.original_file_name),
             file_category: normalizeOptionalString(record.file_category),
+            document_date: normalizeOptionalString(record.document_date),
+            naming_status: record.naming_status === 'perlu_perbaikan_tanggal_dokumen'
+                ? 'perlu_perbaikan_tanggal_dokumen'
+                : 'siap',
         };
     });
 };

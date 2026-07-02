@@ -16,14 +16,51 @@ export const isAllowedUploadExtension = (ext: string) => allowedExtensions.has(e
 
 export const sanitizePathSegment = (value: string) => value.replace(/[^a-zA-Z0-9_-]/g, '')
 
-export const normalizeUploadLabel = (value: string) =>
-  value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '') || 'dokumen'
+export const normalizeDocumentTypeLabel = (value: string) => {
+  const words = value.trim().match(/[a-zA-Z0-9]+/g) || []
+  if (words.length === 0) return 'Dokumen'
 
-export const formatUploadDateStamp = (date = new Date(), timeZone = process.env.UPLOAD_TIMEZONE || 'Asia/Jakarta') => {
+  return words
+    .map((word) => {
+      if (/^[A-Z0-9]+$/.test(word)) return word
+      return `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`
+    })
+    .join('')
+}
+
+// Kept as an alias for callers that only need a safe path label.
+export const normalizeUploadLabel = normalizeDocumentTypeLabel
+
+export type DocumentDateValue = string | Date | null | undefined
+
+export const formatUploadDateStamp = (
+  date: DocumentDateValue,
+  timeZone = process.env.UPLOAD_TIMEZONE || 'Asia/Jakarta'
+) => {
+  if (typeof date === 'string') {
+    const calendarDate = date.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+    if (!calendarDate) {
+      throw new Error('Tanggal dokumen tidak valid')
+    }
+
+    const [, year, month, day] = calendarDate
+    const parsed = new Date(`${year}-${month}-${day}T00:00:00.000Z`)
+    if (
+      Number.isNaN(parsed.getTime())
+      || parsed.getUTCFullYear() !== Number(year)
+      || parsed.getUTCMonth() + 1 !== Number(month)
+      || parsed.getUTCDate() !== Number(day)
+    ) {
+      throw new Error('Tanggal dokumen tidak valid')
+    }
+
+    return `${year}${month}${day}`
+  }
+
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+    throw new Error('Tanggal dokumen wajib tersedia')
+  }
+
   const formatter = new Intl.DateTimeFormat('en-CA', {
     timeZone,
     year: 'numeric',
@@ -45,12 +82,15 @@ export const generateUploadCode = (length = 6) => {
   return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('').slice(0, length)
 }
 
+export const getUploadCodeFromFileName = (fileName: string) =>
+  fileName.match(/_([A-Z0-9]{6})\.[A-Z0-9]+$/i)?.[1]?.toUpperCase() || null
+
 export const buildStoredUploadFileName = (
   category: string,
   ext: string,
-  date = new Date(),
+  documentDate: DocumentDateValue,
   code = generateUploadCode()
-) => `${formatUploadDateStamp(date)}_${normalizeUploadLabel(category)}_${code}.${ext.toLowerCase()}`
+) => `${formatUploadDateStamp(documentDate)}_${normalizeDocumentTypeLabel(category)}_${code}.${ext.toLowerCase()}`
 
 export const buildUploadPublicUrl = (baseUrl: string, ...segments: string[]) => {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, '')

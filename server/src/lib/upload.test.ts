@@ -6,10 +6,11 @@ import {
   buildUploadPublicUrl,
   formatUploadDateStamp,
   getAllowedUploadExtensions,
+  getUploadCodeFromFileName,
   getUploadsRoot,
   isAllowedUploadExtension,
+  normalizeDocumentTypeLabel,
   resolveStoredUploadPathFromUrl,
-  normalizeUploadLabel,
   sanitizePathSegment,
 } from './upload.js'
 
@@ -23,20 +24,31 @@ test('upload extension allowlist covers common document uploads', () => {
   assert.ok(getAllowedUploadExtensions().includes('docx'))
 })
 
-test('normalizeUploadLabel converts names to snake_case', () => {
-  assert.equal(normalizeUploadLabel('Surat Masuk'), 'surat_masuk')
-  assert.equal(normalizeUploadLabel('  Data-Pendukung  '), 'data_pendukung')
-  assert.equal(normalizeUploadLabel('!!!'), 'dokumen')
+test('normalizeDocumentTypeLabel converts names to archive-safe PascalCase', () => {
+  assert.equal(normalizeDocumentTypeLabel('Surat Masuk'), 'SuratMasuk')
+  assert.equal(normalizeDocumentTypeLabel('TL BA Rapat Pembahasan'), 'TLBARapatPembahasan')
+  assert.equal(normalizeDocumentTypeLabel('  data-pendukung  '), 'DataPendukung')
+  assert.equal(normalizeDocumentTypeLabel('!!!'), 'Dokumen')
 })
 
-test('formatUploadDateStamp uses Jakarta date by default', () => {
-  const stamp = formatUploadDateStamp(new Date('2026-05-05T17:30:00.000Z'))
-  assert.equal(stamp, '20260506')
+test('formatUploadDateStamp uses the supplied document calendar date', () => {
+  assert.equal(formatUploadDateStamp('2026-05-29'), '20260529')
+  assert.equal(formatUploadDateStamp(new Date('2026-05-05T17:30:00.000Z')), '20260506')
+})
+
+test('formatUploadDateStamp rejects a missing or invalid document date', () => {
+  assert.throws(() => formatUploadDateStamp(null), /tanggal dokumen/i)
+  assert.throws(() => formatUploadDateStamp('not-a-date'), /tanggal dokumen/i)
 })
 
 test('buildStoredUploadFileName follows the expected pattern', () => {
-  const fileName = buildStoredUploadFileName('Surat Masuk', 'PDF', new Date('2026-05-05T17:30:00.000Z'), 'K4P9QX')
-  assert.equal(fileName, '20260506_surat_masuk_K4P9QX.pdf')
+  const fileName = buildStoredUploadFileName('Surat Masuk', 'PDF', '2026-05-29', 'K4P9QX')
+  assert.equal(fileName, '20260529_SuratMasuk_K4P9QX.pdf')
+})
+
+test('getUploadCodeFromFileName preserves an existing generated code', () => {
+  assert.equal(getUploadCodeFromFileName('20260529_surat_masuk_K4P9QX.pdf'), 'K4P9QX')
+  assert.equal(getUploadCodeFromFileName('legacy-file.pdf'), null)
 })
 
 test('buildUploadPublicUrl and resolveStoredUploadPathFromUrl round-trip safely', () => {

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { buildStoredUploadFileName, type DocumentDateValue } from './upload.js'
 
 export const deriveStableUploadCode = (docId: string) => {
   const digest = createHash('sha1').update(docId).digest('hex').toUpperCase()
@@ -14,4 +15,20 @@ export const buildFileUrlWithNewName = (fileUrl: string, newFileName: string) =>
 }
 
 export const isModernUploadFileName = (fileName: string) =>
-  /^\d{8}_[a-z0-9_]+_[a-z0-9]{6}\.[a-z0-9]+$/i.test(fileName)
+  /^\d{8}_[a-z0-9]+_[a-z0-9]{6}\.[a-z0-9]+$/i.test(fileName)
+
+export const buildMigrationFileName = (
+  documentDate: DocumentDateValue,
+  documentType: string,
+  stableKey: string,
+  extension: string
+) => {
+  if (!documentDate) return null
+
+  return buildStoredUploadFileName(
+    documentType,
+    extension,
+    documentDate,
+    deriveStableUploadCode(stableKey)
+  )
+}
