@@ -77,6 +77,73 @@ const formatDocumentDate = (value: string) => {
   return `${match[3]}/${match[2]}/${match[1]}`
 }
 
+const buildSkpRow = (record: SkpFileRecord, quarterLabel: string, index: number) => [
+  index + 1,
+  quarterLabel,
+  record.documentType,
+  record.documentNumber || '-',
+  formatDocumentDate(record.documentDate),
+  record.complaintNumber || '-',
+  record.institutionName || '-',
+  record.scheme || '-',
+  record.complainant || '-',
+  record.regency || '-',
+  record.province || '-',
+  record.status || '-',
+  record.fileName,
+]
+
+const SKP_COLUMN_WIDTHS = [
+  { wch: 8 },
+  { wch: 12 },
+  { wch: 30 },
+  { wch: 24 },
+  { wch: 18 },
+  { wch: 18 },
+  { wch: 36 },
+  { wch: 28 },
+  { wch: 24 },
+  { wch: 24 },
+  { wch: 24 },
+  { wch: 16 },
+  { wch: 48 },
+]
+
+const buildSkpWorkbook = (
+  rows: (string | number)[][],
+  sheetName: string,
+  props: XLSX.FullProperties
+) => {
+  const worksheet = XLSX.utils.aoa_to_sheet([SKP_EXCEL_HEADERS, ...rows])
+  worksheet['!autofilter'] = { ref: `A1:M${Math.max(rows.length + 1, 1)}` }
+  worksheet['!cols'] = SKP_COLUMN_WIDTHS
+
+  const workbook = XLSX.utils.book_new()
+  workbook.Props = props
+  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+
+  return Buffer.from(XLSX.write(workbook, {
+    type: 'buffer',
+    bookType: 'xlsx',
+    compression: true,
+  }))
+}
+
+export const createSkpSummaryWorkbookBuffer = (
+  year: number,
+  records: SkpFileRecord[]
+) => {
+  const rows = records.map((record, index) =>
+    buildSkpRow(record, getSkpQuarter(record.documentDate).label, index)
+  )
+
+  return buildSkpWorkbook(rows, `SKP ${year}`, {
+    Title: `SKP ${year}`,
+    Subject: 'Rekap seluruh dokumen tindak lanjut SKP KITAPANTAUPS',
+    Author: 'KITAPANTAUPS',
+  })
+}
+
 export const createSkpWorkbookBuffer = (
   year: number,
   quarterKey: SkpQuarterKey,
@@ -85,53 +152,13 @@ export const createSkpWorkbookBuffer = (
   const quarter = SKP_QUARTERS.find((item) => item.key === quarterKey)
   if (!quarter) throw new Error(`Triwulan SKP tidak valid: ${quarterKey}`)
 
-  const rows = records.map((record, index) => [
-    index + 1,
-    quarter.label,
-    record.documentType,
-    record.documentNumber || '-',
-    formatDocumentDate(record.documentDate),
-    record.complaintNumber || '-',
-    record.institutionName || '-',
-    record.scheme || '-',
-    record.complainant || '-',
-    record.regency || '-',
-    record.province || '-',
-    record.status || '-',
-    record.fileName,
-  ])
+  const rows = records.map((record, index) => buildSkpRow(record, quarter.label, index))
 
-  const worksheet = XLSX.utils.aoa_to_sheet([SKP_EXCEL_HEADERS, ...rows])
-  worksheet['!autofilter'] = { ref: `A1:M${Math.max(rows.length + 1, 1)}` }
-  worksheet['!cols'] = [
-    { wch: 8 },
-    { wch: 12 },
-    { wch: 30 },
-    { wch: 24 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 36 },
-    { wch: 28 },
-    { wch: 24 },
-    { wch: 24 },
-    { wch: 24 },
-    { wch: 16 },
-    { wch: 48 },
-  ]
-
-  const workbook = XLSX.utils.book_new()
-  workbook.Props = {
+  return buildSkpWorkbook(rows, quarter.label, {
     Title: `SKP ${year} ${quarter.label}`,
     Subject: 'Rekap dokumen tindak lanjut KITAPANTAUPS',
     Author: 'KITAPANTAUPS',
-  }
-  XLSX.utils.book_append_sheet(workbook, worksheet, quarter.label)
-
-  return Buffer.from(XLSX.write(workbook, {
-    type: 'buffer',
-    bookType: 'xlsx',
-    compression: true,
-  }))
+  })
 }
 
 export const createSkpArchiveStream = (year: number, records: SkpArchiveRecord[]) => {
@@ -161,6 +188,10 @@ export const createSkpArchiveStream = (year: number, records: SkpArchiveRecord[]
   const archive = new ZipArchive({ zlib: { level: 6 } })
   archive.on('error', (error) => output.destroy(error))
   archive.pipe(output)
+
+  archive.append(createSkpSummaryWorkbookBuffer(year, records), {
+    name: `SKP_${year}.xlsx`,
+  })
 
   for (const quarter of SKP_QUARTERS) {
     const quarterRecords = groupedRecords.get(quarter.key) || []

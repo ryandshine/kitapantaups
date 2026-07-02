@@ -38,17 +38,30 @@ export const ReportRepository = {
          COALESCE(NULLIF(btrim(tl.nomor_surat_output), ''), '-') AS document_number,
          to_char(tl.tanggal AT TIME ZONE 'Asia/Jakarta', 'YYYY-MM-DD') AS document_date,
          a.nomor_tiket AS complaint_number,
-         COALESCE(NULLIF(btrim(array_to_string(a.nama_kps, ', ')), ''), '-') AS institution_name,
-         COALESCE(NULLIF(btrim(array_to_string(a.jenis_kps, ', ')), ''), '-') AS scheme,
+         COALESCE(NULLIF(kps_data.institution_name, ''), '-') AS institution_name,
+         COALESCE(NULLIF(kps_data.scheme, ''), '-') AS scheme,
          COALESCE(NULLIF(btrim(a.pengadu_nama), ''), '-') AS complainant,
-         COALESCE(NULLIF(btrim(a.lokasi_kab), ''), '-') AS regency,
-         COALESCE(NULLIF(btrim(a.lokasi_prov), ''), '-') AS province,
+         COALESCE(NULLIF(btrim(a.lokasi_kab), ''), NULLIF(kps_data.regency, ''), '-') AS regency,
+         COALESCE(NULLIF(btrim(a.lokasi_prov), ''), NULLIF(kps_data.province, ''), '-') AS province,
          COALESCE(NULLIF(btrim(a.status), ''), '-') AS status,
          file_item.file_url
        FROM public.tindak_lanjut tl
        JOIN public.aduan a ON a.id = tl.aduan_id
        CROSS JOIN LATERAL unnest(COALESCE(tl.file_urls, ARRAY[]::text[]))
          WITH ORDINALITY AS file_item(file_url, file_position)
+       LEFT JOIN LATERAL (
+         SELECT
+           string_agg(
+             DISTINCT COALESCE(NULLIF(btrim(k.nama_lembaga), ''), NULLIF(btrim(k.surat_keputusan), ''), k.id::text),
+             ', '
+           ) AS institution_name,
+           string_agg(DISTINCT NULLIF(btrim(k.skema), ''), ', ') AS scheme,
+           string_agg(DISTINCT NULLIF(btrim(k.kabupaten), ''), ', ') AS regency,
+           string_agg(DISTINCT NULLIF(btrim(k.provinsi), ''), ', ') AS province
+         FROM public.aduan_kps ak
+         JOIN public.kps k ON k.id = ak.kps_id
+         WHERE ak.aduan_id = a.id
+       ) kps_data ON true
        WHERE tl.jenis_tl = ANY($1::text[])
          AND tl.tanggal >= make_timestamptz($2, 1, 1, 0, 0, 0, 'Asia/Jakarta')
          AND tl.tanggal < make_timestamptz($2 + 1, 1, 1, 0, 0, 0, 'Asia/Jakarta')

@@ -346,6 +346,7 @@ ON CONFLICT (nama_status) DO NOTHING;
 INSERT INTO public.master_kategori_masalah (nama_kategori) VALUES
   ('konflik areal'),
   ('perlindungan'),
+  ('Pengembalian SK'),
   ('dan lain-lain')
 ON CONFLICT (nama_kategori) DO NOTHING;
 
