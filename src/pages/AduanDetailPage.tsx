@@ -50,6 +50,7 @@ import { AduanService } from '../lib/aduan.service';
 import { KpsService } from '../lib/kps.service';
 import { ActivityService } from '../lib/activity.service';
 import { authorizedFetch } from '../lib/api';
+import { getZipEntryName } from '../lib/archive-file-name';
 import { AduanFollowUpService } from '../lib/aduan.followups';
 import { AduanReferenceService } from '../lib/aduan.references';
 import { useAuth } from '../contexts/AuthContext';
@@ -883,12 +884,11 @@ export const AduanDetailPage: React.FC = () => {
             const JSZip = (await import('jszip')).default;
             const zip = new JSZip();
             await Promise.all(
-                allAttachments.map(async (file, index) => {
+                allAttachments.map(async (file) => {
                     try {
                         const res = await fetchAuthorizedFile(file.url);
                         const blob = await res.blob();
-                        const safeName = `${String(index + 1).padStart(2, '0')}_${file.fileName}`;
-                        zip.file(safeName, blob);
+                        zip.file(getZipEntryName(file.fileName), blob);
                     } catch (err) {
                         console.warn(`Gagal mengunduh ${file.fileName}:`, err);
                     }
