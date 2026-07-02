@@ -22,6 +22,7 @@ import dashboardRoute from './routes/dashboard.js'
 import activitiesRoute from './routes/activities.js'
 import settingsRoute from './routes/settings.js'
 import docsRoute from './routes/docs.js'
+import reportsRoute from './routes/reports.js'
 
 const app = new Hono()
 const allowedCorsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
@@ -46,7 +47,7 @@ app.use('*', cors({
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
-  exposeHeaders: ['Content-Length', 'X-Kuma-Revision'],
+  exposeHeaders: ['Content-Length', 'Content-Disposition', 'X-Kuma-Revision', 'X-SKP-File-Count'],
   credentials: true,
   maxAge: 86400,
 }))
@@ -141,6 +142,7 @@ app.route('/users', usersRoute)
 app.route('/dashboard', dashboardRoute)
 app.route('/activities', activitiesRoute)
 app.route('/settings', settingsRoute)
+app.route('/reports', reportsRoute)
 
 // Error & not found handler
 app.onError((err, c) => errorHandler(err, c))

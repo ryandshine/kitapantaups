@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Download, Settings2 } from 'lucide-react';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
+import { Archive, CalendarDays, Download, Settings2 } from 'lucide-react';
+import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input, Modal, ModalFooter } from '../components/ui';
 import { AduanReferenceService } from '../lib/aduan.references';
 import { ReportService } from '../lib/report.service';
+import { SkpReportService } from '../lib/skp-report.service';
 import { useAuth } from '../contexts/AuthContext';
 
 const getErrorMessage = (error: unknown) => {
@@ -22,6 +23,11 @@ export const LaporanPage: React.FC = () => {
     const [statuses, setStatuses] = useState<string[]>([]);
     const [picOptions, setPicOptions] = useState<Array<{ value: string; label: string }>>([{ value: 'all', label: 'Semua PIC' }]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isSkpModalOpen, setIsSkpModalOpen] = useState(false);
+    const [isLoadingSkpYears, setIsLoadingSkpYears] = useState(false);
+    const [isGeneratingSkp, setIsGeneratingSkp] = useState(false);
+    const [skpYears, setSkpYears] = useState<number[]>([]);
+    const [selectedSkpYear, setSelectedSkpYear] = useState('');
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
     React.useEffect(() => {
@@ -75,6 +81,44 @@ export const LaporanPage: React.FC = () => {
             setFeedback({ type: 'error', message: getErrorMessage(error) });
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const openSkpModal = async () => {
+        setIsSkpModalOpen(true);
+        if (skpYears.length > 0) return;
+
+        setIsLoadingSkpYears(true);
+        try {
+            const years = await SkpReportService.getYears();
+            setSkpYears(years);
+            setSelectedSkpYear(String(years[0] || new Date().getFullYear()));
+        } catch (error) {
+            setFeedback({ type: 'error', message: getErrorMessage(error) });
+        } finally {
+            setIsLoadingSkpYears(false);
+        }
+    };
+
+    const handleGenerateSkp = async () => {
+        const year = Number(selectedSkpYear);
+        if (!Number.isInteger(year)) {
+            setFeedback({ type: 'info', message: 'Pilih tahun SKP terlebih dahulu.' });
+            return;
+        }
+
+        setIsGeneratingSkp(true);
+        try {
+            const result = await SkpReportService.download(year);
+            setIsSkpModalOpen(false);
+            setFeedback({
+                type: 'success',
+                message: `${result.fileName} berhasil dibuat dengan ${result.totalFiles} file dokumen.`,
+            });
+        } catch (error) {
+            setFeedback({ type: 'error', message: getErrorMessage(error) });
+        } finally {
+            setIsGeneratingSkp(false);
         }
     };
 
@@ -174,9 +218,73 @@ export const LaporanPage: React.FC = () => {
                             {isGenerating ? 'Memproses...' : 'Download Laporan'}
                         </Button>
                     </div>
+
+                    <div className="flex items-end">
+                        <Button
+                            className="rounded-xl font-semibold"
+                            variant="outline"
+                            fullWidth
+                            onClick={() => void openSkpModal()}
+                            leftIcon={<Archive size={16} />}
+                        >
+                            SKP
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
-            
+
+            <Modal
+                isOpen={isSkpModalOpen}
+                onClose={() => !isGeneratingSkp && setIsSkpModalOpen(false)}
+                title="Export SKP"
+                description="Pilih tahun dokumen untuk membuat arsip SKP per triwulan."
+                size="sm"
+            >
+                <div className="flex flex-col gap-4">
+                    <div className="rounded-xl border border-border bg-muted/45 p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <CalendarDays size={18} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-foreground">Arsip tahunan per triwulan</p>
+                                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                    ZIP berisi folder TW I sampai TW IV, rekap Excel, dan file dokumen tindak lanjut.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Select
+                        label="Tahun Dokumen"
+                        options={skpYears.map((year) => ({ value: String(year), label: String(year) }))}
+                        value={selectedSkpYear}
+                        onChange={setSelectedSkpYear}
+                        placeholder={isLoadingSkpYears ? 'Memuat tahun...' : 'Pilih tahun'}
+                        disabled={isLoadingSkpYears || isGeneratingSkp}
+                        fullWidth
+                    />
+                </div>
+
+                <ModalFooter className="mt-5">
+                    <Button
+                        variant="ghost"
+                        onClick={() => setIsSkpModalOpen(false)}
+                        disabled={isGeneratingSkp}
+                    >
+                        Batal
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={() => void handleGenerateSkp()}
+                        isLoading={isGeneratingSkp}
+                        disabled={!selectedSkpYear || isLoadingSkpYears}
+                        leftIcon={!isGeneratingSkp && <Download size={16} />}
+                    >
+                        {isGeneratingSkp ? 'Membuat ZIP...' : 'Download SKP'}
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };

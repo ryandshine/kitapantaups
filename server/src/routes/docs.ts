@@ -18,6 +18,7 @@ const buildOpenApiSpec = (origin: string) => ({
     { name: 'Aduan', description: 'Manajemen aduan' },
     { name: 'Tindak Lanjut', description: 'Manajemen tindak lanjut aduan' },
     { name: 'Dashboard', description: 'Ringkasan statistik dashboard' },
+    { name: 'Reports', description: 'Export laporan dan arsip dokumen' },
     { name: 'Activities', description: 'Aktivitas sistem dan audit trail' },
     { name: 'Master', description: 'Master data referensi' },
     { name: 'Users', description: 'Manajemen pengguna' },
@@ -624,6 +625,39 @@ const buildOpenApiSpec = (origin: string) => ({
         summary: 'Statistik dashboard',
         security: [{ bearerAuth: [] }],
         responses: { 200: { description: 'Ringkasan statistik dashboard' } },
+      },
+    },
+    '/reports/skp/years': {
+      get: {
+        tags: ['Reports'],
+        summary: 'Daftar tahun dokumen SKP',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Daftar tahun yang dapat dipilih untuk export SKP' },
+        },
+      },
+    },
+    '/reports/skp': {
+      get: {
+        tags: ['Reports'],
+        summary: 'Download ZIP SKP berdasarkan tahun dokumen',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: 'year',
+            in: 'query',
+            required: true,
+            schema: { type: 'integer', minimum: 1900, maximum: 2100 },
+          },
+        ],
+        responses: {
+          200: {
+            description: 'ZIP SKP berisi empat folder triwulan, workbook, dan dokumen',
+            content: { 'application/zip': { schema: { type: 'string', format: 'binary' } } },
+          },
+          400: { description: 'Tahun tidak valid' },
+          409: { description: 'File dokumen tidak lengkap atau konflik nama' },
+        },
       },
     },
     '/activities': {
