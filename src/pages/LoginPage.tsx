@@ -113,7 +113,7 @@ export const LoginPage: React.FC = () => {
 
                         <CardContent className="relative space-y-6 pb-10">
                             {error && (
-                                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-center text-sm font-medium text-red-200 backdrop-blur-sm">
+                                <div className="rounded-xl border border-destructive/40 bg-destructive/15 p-3 text-center text-sm font-medium text-destructive-foreground backdrop-blur-sm">
                                     {error}
                                 </div>
                             )}

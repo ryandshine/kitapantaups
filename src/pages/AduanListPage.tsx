@@ -205,7 +205,7 @@ export const AduanListPage: React.FC = () => {
                                         newParams.delete('rkps');
                                         setSearchParams(newParams);
                                     }}
-                                    className="ml-1 hover:text-red-500 font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
+                                    className="ml-1 hover:text-destructive font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
                                 >
                                     ×
                                 </button>
@@ -220,7 +220,7 @@ export const AduanListPage: React.FC = () => {
                                         newParams.delete('kups_kelas');
                                         setSearchParams(newParams);
                                     }}
-                                    className="ml-1 hover:text-red-500 font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
+                                    className="ml-1 hover:text-destructive font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
                                 >
                                     ×
                                 </button>
@@ -229,7 +229,7 @@ export const AduanListPage: React.FC = () => {
                         <Button
                             size="sm"
                             variant="ghost"
-                            className="ml-auto text-xs font-bold text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
+                            className="ml-auto text-xs font-bold text-destructive hover:bg-destructive/10 hover:text-destructive"
                             onClick={() => {
                                 const newParams = new URLSearchParams(searchParams);
                                 newParams.delete('rkps');

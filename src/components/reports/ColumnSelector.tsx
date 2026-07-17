@@ -32,7 +32,7 @@ export const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                 return (
                     <div key={category} className="flex flex-col gap-3">
                         <div className="flex items-center justify-between border-b pb-2">
-                            <h3 className="text-xs font-black text-slate-500 uppercase tracking-widest">{category}</h3>
+                            <h3 className="text-xs font-black text-muted-foreground uppercase tracking-widest">{category}</h3>
                             <button
                                 onClick={() => isAllCategorySelected ? onDeselectAll(category) : onSelectAll(category)}
                                 className="text-[10px] font-bold text-primary hover:underline transition-all"
@@ -46,16 +46,16 @@ export const ColumnSelector: React.FC<ColumnSelectorProps> = ({
                                     key={col.id}
                                     className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group ${selectedColumns.includes(col.id)
                                         ? 'bg-primary/5 border-primary shadow-sm shadow-primary/10'
-                                        : 'bg-white border-slate-200 hover:border-slate-300'
+                                        : 'bg-card border-border hover:border-muted-foreground/30'
                                         }`}
                                 >
                                     <input
                                         type="checkbox"
                                         checked={selectedColumns.includes(col.id)}
                                         onChange={() => onToggle(col.id)}
-                                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer"
+                                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
                                     />
-                                    <span className={`text-sm font-medium transition-colors ${selectedColumns.includes(col.id) ? 'text-primary' : 'text-slate-600 group-hover:text-slate-900'
+                                    <span className={`text-sm font-medium transition-colors ${selectedColumns.includes(col.id) ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
                                         }`}>
                                         {col.label}
                                     </span>
