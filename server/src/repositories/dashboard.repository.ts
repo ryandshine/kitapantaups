@@ -14,13 +14,12 @@ export const DashboardRepository = {
         WHERE k.raw_payload->>'dokumen_rkps' = 'Sudah'
       `),
       pool.query(`
-        SELECT 
+        SELECT
           COALESCE(ku.kelas, 'Unknown') as kelas,
           COUNT(DISTINCT a.id) as count
         FROM aduan a
         JOIN aduan_kps ak ON a.id = ak.aduan_id
         JOIN kups ku ON ak.kps_id = ku.lembaga_id
-        WHERE a.status = 'proses'
         GROUP BY ku.kelas
       `),
     ])

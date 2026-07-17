@@ -415,7 +415,7 @@ export const DashboardPage: React.FC = () => {
                                         Kesiapan Kelas KUPS
                                     </h3>
                                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                                        Kelas Kelompok Usaha Perhutanan Sosial dari aduan yang sedang <strong>diproses</strong>.
+                                        Kelas Kelompok Usaha Perhutanan Sosial dari <strong>seluruh</strong> aduan yang tercatat.
                                     </p>
                                 </div>
                                 <span className="shrink-0 rounded-xl bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
