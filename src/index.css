@@ -209,6 +209,11 @@
     @apply border border-border bg-card/88 backdrop-blur-md;
   }
 
+  /* hero-panel's background is a fixed light-cream gradient that never
+     switches with the theme (it's a deliberate light accent island on a
+     dark page), so its text must stay a fixed dark ink too — never the
+     text-foreground/text-muted-foreground tokens, which flip to light
+     cream in dark mode and would go unreadable on this fixed-light bg. */
   .hero-panel {
     background:
       radial-gradient(circle at top right, rgba(47, 107, 87, 0.15), transparent 32%),
@@ -218,7 +223,16 @@
     box-shadow:
       0 16px 42px rgba(34, 58, 49, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.55);
-    @apply relative overflow-hidden border p-5 text-foreground shadow-[var(--shadow-card)] sm:rounded-2xl md:p-6;
+    color: #1e2924;
+    @apply relative overflow-hidden border p-5 shadow-[var(--shadow-card)] sm:rounded-2xl md:p-6;
+  }
+
+  .hero-heading {
+    color: #1e2924;
+  }
+
+  .hero-muted {
+    color: #5c7066;
   }
 
   .hero-orb {
@@ -298,9 +312,7 @@
   }
 
   .status-soft-yellow {
-    background-color: rgba(210, 139, 54, 0.12);
-    border: 1px solid rgba(210, 139, 54, 0.22);
-    color: #9a6220;
+    @apply border border-accent/25 bg-accent/12 text-accent;
   }
 
   .status-soft-red {

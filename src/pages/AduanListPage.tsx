@@ -162,8 +162,8 @@ export const AduanListPage: React.FC = () => {
             <div className="hero-panel">
                 <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
                     <div>
-                        <motion.h1 variants={itemVariants} className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">Daftar Pengaduan</motion.h1>
-                        <motion.p variants={itemVariants} className="mt-1.5 text-[0.92rem] leading-relaxed text-muted-foreground">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
+                        <motion.h1 variants={itemVariants} className="hero-heading text-2xl font-semibold tracking-tight md:text-3xl">Daftar Pengaduan</motion.h1>
+                        <motion.p variants={itemVariants} className="hero-muted mt-1.5 text-[0.92rem] leading-relaxed">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
                     </div>
                     <motion.div variants={itemVariants} className="flex items-center gap-3">
                         <Button

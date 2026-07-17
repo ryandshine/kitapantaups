@@ -219,10 +219,10 @@ export const NewAduanPage: React.FC = () => {
                 </Button>
                 <div className="hero-panel mb-2">
                     <div className="relative z-10 flex flex-col gap-1.5">
-                        <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                        <h1 className="hero-heading flex items-center gap-3 text-2xl font-semibold tracking-tight md:text-3xl">
                             Input Aduan Baru
                         </h1>
-                        <p className="max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
+                        <p className="hero-muted max-w-2xl text-[0.95rem] leading-relaxed">
                             Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
                         </p>
                     </div>

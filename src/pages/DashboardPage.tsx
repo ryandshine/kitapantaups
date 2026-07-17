@@ -256,14 +256,14 @@ export const DashboardPage: React.FC = () => {
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-stretch">
                 {/* Hero tile */}
                 <div className="hero-panel flex flex-col justify-between lg:col-span-5">
-                    <motion.h1 variants={itemVariants} className="relative z-10 mb-2 text-2xl font-bold tracking-tight text-foreground md:text-4xl">
+                    <motion.h1 variants={itemVariants} className="hero-heading relative z-10 mb-2 text-2xl font-bold tracking-tight md:text-4xl">
                         Halo, {user?.displayName?.split(' ')[0] || 'Admin'}!
                     </motion.h1>
 
                     <motion.div variants={itemVariants} className="relative z-10 mt-6 flex items-end justify-between gap-4">
                         <div>
-                            <p className="text-4xl font-semibold tracking-tight text-foreground md:text-[2.75rem]">{totalCount}</p>
-                            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Aduan</p>
+                            <p className="hero-heading text-4xl font-semibold tracking-tight md:text-[2.75rem]">{totalCount}</p>
+                            <p className="hero-muted mt-1 text-[10px] font-semibold uppercase tracking-[0.16em]">Total Aduan</p>
                         </div>
                         <Button
                             onClick={() => navigate('/pengaduan/baru')}

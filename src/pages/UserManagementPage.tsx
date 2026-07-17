@@ -193,8 +193,8 @@ export const UserManagementPage: React.FC = () => {
             <div className="hero-panel mb-6">
                 <div className="relative z-10 flex items-center justify-between">
                     <div className="flex flex-col gap-1">
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Manajemen Pengguna</h1>
-                        <p className="text-[0.92rem] text-muted-foreground">Kelola hak akses dan peran pengguna dalam sistem.</p>
+                        <h1 className="hero-heading text-3xl font-bold tracking-tight">Manajemen Pengguna</h1>
+                        <p className="hero-muted text-[0.92rem]">Kelola hak akses dan peran pengguna dalam sistem.</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
