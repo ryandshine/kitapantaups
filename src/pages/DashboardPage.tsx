@@ -317,10 +317,6 @@ export const DashboardPage: React.FC = () => {
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 shadow-sm backdrop-blur-sm"
                 >
-                    {/* Layered glow blobs for depth */}
-                    <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-secondary/10 blur-3xl dark:bg-secondary/15" />
-                    <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-accent/10 blur-3xl dark:bg-accent/15" />
-
                     <div className="relative flex flex-col lg:flex-row">
                         {/* RKPS side */}
                         <div className="flex flex-1 flex-col gap-5 p-6 lg:p-7">
