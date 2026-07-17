@@ -24,7 +24,7 @@ import {
     Settings,
     Download
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -1406,6 +1406,12 @@ export const AduanDetailPage: React.FC = () => {
                         </Card>
                     </motion.div>
 
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                    >
                     <Card className={detailCardClass}>
                         <CardHeader className={`${detailCardHeaderClass} py-3.5`}>
                             <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-foreground">
@@ -1485,8 +1491,7 @@ export const AduanDetailPage: React.FC = () => {
                             )}
                         </CardContent>
                     </Card>
-
-
+                    </motion.div>
 
                     {/* Dokumen Tindak Lanjut Timeline */}
                     <motion.div variants={itemVariants}>
@@ -1524,8 +1529,17 @@ export const AduanDetailPage: React.FC = () => {
                                             Belum ada langkah penanganan
                                         </p>
                                     ) : (
-                                        qTindakLanjutList.map((tl, index) => (
-                                            <div key={tl.id} className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-muted/60 p-3.5 shadow-sm">
+                                        <AnimatePresence initial={false}>
+                                        {qTindakLanjutList.map((tl, index) => (
+                                            <motion.div
+                                                key={tl.id}
+                                                layout
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, x: -16, transition: { duration: 0.18 } }}
+                                                transition={{ duration: 0.25, ease: "easeOut" }}
+                                                className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-muted/60 p-3.5 shadow-sm"
+                                            >
                                                 {/* Decorative element */}
                                                 <div className={cn(
                                                     "absolute left-0 top-0 bottom-0 w-1",
@@ -1600,8 +1614,9 @@ export const AduanDetailPage: React.FC = () => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
+                                            </motion.div>
+                                        ))}
+                                        </AnimatePresence>
                                     )}
                                 </div>
                             </CardContent>
@@ -1609,6 +1624,12 @@ export const AduanDetailPage: React.FC = () => {
                     </motion.div>
 
                     {/* Lampiran & Berkas */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-80px" }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                    >
                     <Card className={detailCardClass}>
                         <CardHeader className={`flex flex-row items-center justify-between pb-3 ${detailCardHeaderClass}`}>
                             <CardTitle className="text-xs font-semibold uppercase tracking-[0.15em] text-foreground">Lampiran & Berkas</CardTitle>
@@ -1688,6 +1709,7 @@ export const AduanDetailPage: React.FC = () => {
                             </div>
                         </CardContent>
                     </Card>
+                    </motion.div>
                 </div>
             </div>
 

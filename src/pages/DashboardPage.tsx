@@ -286,6 +286,7 @@ export const DashboardPage: React.FC = () => {
                         return (
                             <motion.div
                                 key={i}
+                                layout
                                 variants={itemVariants}
                                 className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
                             >
@@ -312,6 +313,7 @@ export const DashboardPage: React.FC = () => {
                 </h2>
 
                 <motion.div
+                    layout
                     variants={itemVariants}
                     className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 shadow-sm backdrop-blur-sm"
                 >
@@ -423,8 +425,9 @@ export const DashboardPage: React.FC = () => {
                                     const hasValue = item.value > 0;
 
                                     return (
-                                        <div
+                                        <motion.div
                                             key={item.key}
+                                            layout
                                             onClick={() => navigate(`/pengaduan?kups_kelas=${item.key}`)}
                                             className="group flex items-center gap-3 rounded-xl border border-transparent p-1.5 transition-all hover:border-border hover:bg-muted/40 cursor-pointer"
                                             title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
@@ -450,7 +453,7 @@ export const DashboardPage: React.FC = () => {
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     );
                                 })}
                             </div>

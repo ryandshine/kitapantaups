@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { CalendarDays, Download, FileText, FolderArchive } from 'lucide-react';
 import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
 import { AduanReferenceService } from '../lib/aduan.references';
@@ -139,7 +140,14 @@ export const LaporanPage: React.FC = () => {
             )}
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <Card className="overflow-hidden lg:col-span-2 flex flex-col">
+                <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="lg:col-span-2 flex flex-col"
+                >
+                <Card className="overflow-hidden flex h-full flex-col">
                     <CardHeader className="page-section-header pb-3">
                         <CardTitle className="flex items-center gap-2 text-base font-semibold">
                             <FileText size={16} className="text-primary" />
@@ -223,8 +231,16 @@ export const LaporanPage: React.FC = () => {
                         </div>
                     </CardContent>
                 </Card>
+                </motion.div>
 
-                <Card className="overflow-hidden flex flex-col">
+                <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.4, ease: "easeOut", delay: 0.08 }}
+                    className="flex flex-col"
+                >
+                <Card className="overflow-hidden flex h-full flex-col">
                     <CardHeader className="page-section-header pb-3">
                         <CardTitle className="flex items-center gap-2 text-base font-semibold">
                             <FolderArchive size={16} className="text-primary" />
@@ -273,6 +289,7 @@ export const LaporanPage: React.FC = () => {
                         </div>
                     </CardContent>
                 </Card>
+                </motion.div>
             </div>
         </div>
     );
