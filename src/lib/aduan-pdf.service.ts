@@ -158,12 +158,13 @@ export const AduanPdfService = {
             startY: 78,
             head: [['Field', 'Nilai']],
             body: [
+                ['Nomor Surat Aduan', compact(aduan.surat_nomor)],
                 ['Kategori', compact(aduan.kategoriMasalah || aduan.kategori_masalah)],
                 ['Nama Pengadu', compact(aduan.pengadu?.nama || aduan.pengadu_nama)],
                 ['Telepon', compact(aduan.pengadu?.telepon)],
                 ['Email', compact(aduan.pengadu?.email)],
                 ['Instansi/Kelompok', compact(aduan.pengadu?.instansi || aduan.pengadu_instansi)],
-                ['Tanggal Masuk', formatDate(aduan.createdAt || aduan.created_at)],
+                ['Tanggal Surat Aduan', formatDate(aduan.surat_tanggal || aduan.createdAt || aduan.created_at)],
                 ['Perihal', compact(aduan.perihal || aduan.surat_asal_perihal)],
             ],
             styles: { fontSize: 9, cellPadding: 2.6, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
@@ -195,22 +196,23 @@ export const AduanPdfService = {
             startY: doc.lastAutoTable.finalY + 13,
             head: [['balai', 'nama_lembaga', 'surat_keputusan', 'skema', 'provinsi', 'kabupaten', 'luas_total', 'jumlah_kk', 'status_kelas', 'status_rkps']],
             body: lokasiRows.length > 0 ? lokasiRows : [['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']],
-            styles: { fontSize: 7, cellPadding: 1.5, valign: 'top', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
+            styles: { fontSize: 6.5, cellPadding: 1.3, valign: 'top', overflow: 'linebreak', lineColor: [...COLOR_BORDER] as any, lineWidth: 0.1 },
             headStyles: { fillColor: [...COLOR_BRAND] as any, textColor: [255, 255, 255], fontStyle: 'bold' },
             alternateRowStyles: { fillColor: [245, 243, 238] },
             theme: 'grid',
+            tableWidth: 182,
             margin: { left: 14, right: 14, bottom: 14 },
             columnStyles: {
-                0: { cellWidth: 18 },
-                1: { cellWidth: 24 },
-                2: { cellWidth: 22 },
-                3: { cellWidth: 16 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 15 },
-                7: { cellWidth: 13 },
-                8: { cellWidth: 20 },
-                9: { cellWidth: 15 },
+                0: { cellWidth: 16 },
+                1: { cellWidth: 22 },
+                2: { cellWidth: 20 },
+                3: { cellWidth: 14 },
+                4: { cellWidth: 18 },
+                5: { cellWidth: 18 },
+                6: { cellWidth: 14 },
+                7: { cellWidth: 12 },
+                8: { cellWidth: 18 },
+                9: { cellWidth: 14 },
             },
         });
 
@@ -224,7 +226,13 @@ export const AduanPdfService = {
             margin: { left: 14, right: 14, bottom: 14 },
         });
 
-        const tlRows = (tindakLanjutList || []).map((tl) => [
+        const sortedTindakLanjutList = [...(tindakLanjutList || [])].sort((a, b) => {
+            const timeA = a.tanggal ? new Date(a.tanggal).getTime() : 0;
+            const timeB = b.tanggal ? new Date(b.tanggal).getTime() : 0;
+            return timeA - timeB;
+        });
+
+        const tlRows = sortedTindakLanjutList.map((tl) => [
             formatDate(tl.tanggal),
             compact(tl.jenisTL),
             stripMarkdown(tl.keterangan),
