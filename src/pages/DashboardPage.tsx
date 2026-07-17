@@ -29,11 +29,7 @@ import {
     Bot,
     Database,
     ShieldAlert,
-    Filter,
-    Crown,
-    Award,
-    Medal,
-    Shield
+    Filter
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
@@ -256,17 +252,16 @@ export const DashboardPage: React.FC = () => {
             variants={containerVariants}
             className="space-y-5"
         >
-            {/* Hero Section */}
-            <div className="hero-panel">
-                <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-center">
-                    <div>
-                        <motion.h1 variants={itemVariants} className="mb-2 text-2xl font-bold tracking-tight text-foreground md:text-4xl">
-                            Halo, {user?.displayName?.split(' ')[0] || 'Admin'}!
-                        </motion.h1>
+            {/* Hero + Stats bento cluster */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-stretch">
+                {/* Hero tile */}
+                <div className="hero-panel flex flex-col justify-between lg:col-span-5">
+                    <motion.h1 variants={itemVariants} className="relative z-10 mb-2 text-2xl font-bold tracking-tight text-foreground md:text-4xl">
+                        Halo, {user?.displayName?.split(' ')[0] || 'Admin'}!
+                    </motion.h1>
 
-                    </div>
-                    <motion.div variants={itemVariants} className="flex items-center gap-5">
-                        <div className="text-right">
+                    <motion.div variants={itemVariants} className="relative z-10 mt-6 flex items-end justify-between gap-4">
+                        <div>
                             <p className="text-4xl font-semibold tracking-tight text-foreground md:text-[2.75rem]">{totalCount}</p>
                             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Total Aduan</p>
                         </div>
@@ -278,40 +273,36 @@ export const DashboardPage: React.FC = () => {
                             Buat Aduan
                         </Button>
                     </motion.div>
+                    <div className="hero-orb" />
                 </div>
-                <div className="hero-orb" />
-            </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                {statCards.map((stat, i) => {
-                    const colors = [
-                        'border-blue-500/20 bg-blue-50/30 text-blue-700',
-                        'border-orange-500/20 bg-orange-50/30 text-orange-700',
-                        'border-amber-500/20 bg-amber-50/30 text-amber-700',
-                        'border-emerald-500/20 bg-emerald-50/30 text-emerald-700',
-                    ];
-                    return (
-                        <motion.div
-                            key={i}
-                            variants={itemVariants}
-                            className={cn(
-                                "group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5",
-                                colors[i % colors.length]
-                            )}
-                        >
-                            <div className="mb-4 flex items-center justify-between">
-                                <div className="rounded-xl bg-white/50 p-2 shadow-sm backdrop-blur-sm">
-                                    <stat.icon className="h-5 w-5" />
+                {/* Stats 2x2 tile grid */}
+                <div className="grid grid-cols-2 gap-4 lg:col-span-7">
+                    {statCards.map((stat, i) => {
+                        // Reuses the app's existing semantic tokens (secondary/accent/destructive/primary)
+                        // instead of ad hoc rainbow colors, to match neutral-theme.ts conventions.
+                        const accents = ['bg-secondary', 'bg-accent', 'bg-destructive', 'bg-primary'];
+                        const accent = accents[i % accents.length];
+                        return (
+                            <motion.div
+                                key={i}
+                                variants={itemVariants}
+                                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+                            >
+                                <span className={cn("absolute inset-y-0 left-0 w-1", accent)} />
+                                <div className="mb-4 flex items-center justify-between">
+                                    <div className="rounded-xl bg-muted p-2 text-foreground/70 shadow-sm">
+                                        <stat.icon className="h-5 w-5" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <p className="mb-1 text-[12px] font-bold uppercase tracking-[0.2em] opacity-70">{stat.label}</p>
-                                <h3 className="text-2xl font-bold tracking-tight md:text-3xl">{stat.value}</h3>
-                            </div>
-                        </motion.div>
-                    );
-                })}
+                                <div>
+                                    <p className="mb-1 text-[12px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{stat.label}</p>
+                                    <h3 className="text-2xl font-black tracking-tight text-foreground md:text-3xl">{stat.value}</h3>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
             </div>
 
             {/* Rekap Perencanaan dan Kelembagaan */}
@@ -322,73 +313,70 @@ export const DashboardPage: React.FC = () => {
 
                 <motion.div
                     variants={itemVariants}
-                    className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-sm backdrop-blur-sm"
+                    className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 shadow-sm backdrop-blur-sm"
                 >
                     {/* Layered glow blobs for depth */}
-                    <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/15" />
-                    <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl dark:bg-amber-500/15" />
+                    <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-secondary/10 blur-3xl dark:bg-secondary/15" />
+                    <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-accent/10 blur-3xl dark:bg-accent/15" />
 
                     <div className="relative flex flex-col lg:flex-row">
                         {/* RKPS side */}
                         <div className="flex flex-1 flex-col gap-5 p-6 lg:p-7">
                             <div>
-                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-blue-800 dark:text-blue-400">
+                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-secondary">
                                     Dokumen RKPS
                                 </h3>
-                                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                                    Proporsi aduan kelompok Perhutanan Sosial yang <strong>telah memiliki</strong> dokumen Rencana Kerja Perhutanan Sosial (RKPS).
-                                </p>
                             </div>
 
-                            <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-8">
                                 {/* Donut Gauge */}
                                 <div
                                     onClick={() => navigate('/pengaduan?rkps=Sudah')}
-                                    className="group relative flex h-28 w-28 shrink-0 cursor-pointer items-center justify-center transition-transform duration-300 hover:scale-105"
+                                    className="group relative flex h-44 w-44 shrink-0 cursor-pointer items-center justify-center transition-transform duration-300 hover:scale-105"
                                     title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
                                 >
                                     <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
                                         <circle
                                             cx="50"
                                             cy="50"
-                                            r="38"
+                                            r="41"
                                             className="stroke-muted/20 dark:stroke-muted/10"
-                                            strokeWidth="8"
+                                            strokeWidth="11"
                                             fill="transparent"
                                         />
                                         <motion.circle
                                             cx="50"
                                             cy="50"
-                                            r="38"
-                                            className="stroke-blue-500 transition-colors group-hover:stroke-blue-600 dark:stroke-blue-400"
-                                            strokeWidth="8"
+                                            r="41"
+                                            className="stroke-secondary transition-colors group-hover:stroke-secondary/80"
+                                            strokeWidth="11"
                                             fill="transparent"
-                                            strokeDasharray={2 * Math.PI * 38}
-                                            initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
-                                            animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - (totalCount > 0 ? (stats?.rkps || 0) / totalCount : 0)) }}
+                                            strokeDasharray={2 * Math.PI * 41}
+                                            initial={{ strokeDashoffset: 2 * Math.PI * 41 }}
+                                            animate={{ strokeDashoffset: 2 * Math.PI * 41 * (1 - (totalCount > 0 ? (stats?.rkps || 0) / totalCount : 0)) }}
                                             transition={{ duration: 1.2, ease: "easeOut" }}
                                             strokeLinecap="round"
                                         />
                                     </svg>
                                     <div className="absolute flex flex-col items-center justify-center transition-transform group-hover:translate-y-[-1px]">
-                                        <span className="text-2xl font-black text-blue-900 transition-colors group-hover:text-blue-700 dark:text-blue-300 dark:group-hover:text-blue-200">
+                                        <span className="text-5xl font-black text-secondary transition-colors">
                                             {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
                                         </span>
-                                        <span className="mt-0.5 text-[9px] font-black uppercase tracking-widest text-blue-950 dark:text-blue-300">Memiliki</span>
+                                        <span className="mt-1 text-[11px] font-black uppercase tracking-widest text-secondary/90">Memiliki</span>
                                     </div>
                                 </div>
 
-                                <div className="space-y-2.5">
-                                    <p className="text-2xl font-black text-foreground">
-                                        {stats?.rkps || 0} <span className="text-sm font-semibold text-muted-foreground">/ {totalCount} aduan</span>
+                                <div className="space-y-3">
+                                    <p className="text-3xl font-black text-foreground">
+                                        {stats?.rkps || 0} <span className="text-base font-semibold text-muted-foreground">/ {totalCount} aduan</span>
                                     </p>
-                                    <div className="flex items-center gap-2 text-xs font-semibold">
+                                    <div className="flex items-center gap-2 text-sm font-semibold">
                                         <button
                                             onClick={() => navigate('/pengaduan?rkps=Sudah')}
-                                            className="flex items-center gap-1.5 rounded-lg border border-blue-500/25 bg-blue-500/5 px-2.5 py-1.5 transition-all hover:border-blue-500/40 hover:bg-blue-500/10 text-blue-800 dark:text-blue-300 group"
+                                            className="flex items-center gap-1.5 rounded-lg border border-secondary/25 bg-secondary/5 px-2.5 py-1.5 transition-all hover:border-secondary/40 hover:bg-secondary/10 text-secondary group"
                                             title="Filter aduan dengan RKPS: Sudah"
                                         >
-                                            <span className="h-2.5 w-2.5 rounded-full bg-blue-500 transition-transform group-hover:scale-110" />
+                                            <span className="h-2.5 w-2.5 rounded-full bg-secondary transition-transform group-hover:scale-110" />
                                             <span>Sudah ({stats?.rkps || 0})</span>
                                         </button>
                                         <button
@@ -411,47 +399,51 @@ export const DashboardPage: React.FC = () => {
                         <div className="flex flex-1 flex-col gap-4 p-6 lg:p-7">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-amber-800 dark:text-amber-500">
-                                        Kesiapan Kelas KUPS
+                                    <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-accent">
+                                        Kelas KUPS
                                     </h3>
                                     <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                                         Kelas Kelompok Usaha Perhutanan Sosial dari <strong>seluruh</strong> aduan yang tercatat.
                                     </p>
                                 </div>
-                                <span className="shrink-0 rounded-xl bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                                <span className="shrink-0 rounded-xl bg-accent/10 px-2.5 py-1 text-[10px] font-bold text-accent">
                                     {((stats?.kups?.BIRU || 0) + (stats?.kups?.PERAK || 0) + (stats?.kups?.EMAS || 0) + (stats?.kups?.PLATINUM || 0))} unit
                                 </span>
                             </div>
 
                             <div className="space-y-3">
                                 {[
-                                    { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, icon: Crown, gradient: 'from-indigo-600 to-purple-500', text: 'text-indigo-700 dark:text-indigo-400', iconBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' },
-                                    { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, icon: Award, gradient: 'from-amber-600 to-yellow-500', text: 'text-amber-700 dark:text-amber-400', iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-                                    { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, icon: Medal, gradient: 'from-slate-500 to-zinc-400', text: 'text-slate-700 dark:text-slate-300', iconBg: 'bg-slate-500/10 text-slate-600 dark:text-slate-300' },
-                                    { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, icon: Shield, gradient: 'from-blue-500 to-cyan-400', text: 'text-blue-700 dark:text-blue-400', iconBg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+                                    { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, dot: 'bg-indigo-500', bar: 'bg-indigo-500', text: 'text-foreground' },
+                                    { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, dot: 'bg-amber-500', bar: 'bg-amber-500', text: 'text-foreground' },
+                                    { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, dot: 'bg-slate-400', bar: 'bg-slate-400', text: 'text-foreground' },
+                                    { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, dot: 'bg-blue-500', bar: 'bg-blue-500', text: 'text-foreground' },
                                 ].map((item, index) => {
                                     const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
                                     const percentage = (item.value / maxVal) * 100;
-                                    const Icon = item.icon;
+                                    const hasValue = item.value > 0;
 
                                     return (
                                         <div
                                             key={item.key}
                                             onClick={() => navigate(`/pengaduan?kups_kelas=${item.key}`)}
-                                            className="group flex items-center gap-3 rounded-xl border border-transparent p-1.5 transition-all hover:border-amber-500/10 hover:bg-amber-500/5 dark:hover:bg-amber-500/10 cursor-pointer"
+                                            className="group flex items-center gap-3 rounded-xl border border-transparent p-1.5 transition-all hover:border-border hover:bg-muted/40 cursor-pointer"
                                             title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
                                         >
-                                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.iconBg} transition-transform group-hover:scale-105`}>
-                                                <Icon size={15} strokeWidth={2.25} />
-                                            </div>
+                                            <span
+                                                className={cn(
+                                                    "h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-offset-2 ring-offset-card transition-transform group-hover:scale-110",
+                                                    hasValue ? item.dot : "bg-transparent",
+                                                    hasValue ? "ring-transparent" : "ring-border"
+                                                )}
+                                            />
                                             <div className="flex-1 space-y-1">
                                                 <div className="flex items-center justify-between text-xs font-semibold">
-                                                    <span className="text-foreground/90 transition-colors group-hover:text-amber-700 dark:group-hover:text-amber-400">{item.label}</span>
-                                                    <span className={`${item.text} font-bold transition-transform group-hover:scale-105`}>{item.value} unit</span>
+                                                    <span className="text-foreground/90">{item.label}</span>
+                                                    <span className={`${item.text} font-bold`}>{item.value} unit</span>
                                                 </div>
                                                 <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/50 dark:bg-muted/20">
                                                     <motion.div
-                                                        className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} shadow-sm transition-all group-hover:brightness-110`}
+                                                        className={`absolute h-full rounded-full ${item.bar} shadow-sm transition-all group-hover:brightness-110`}
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${percentage}%` }}
                                                         transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
