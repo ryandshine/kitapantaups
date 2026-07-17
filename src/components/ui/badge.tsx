@@ -16,7 +16,7 @@ const badgeVariants = cva(
         outline: "text-foreground",
         // Status variants
         success: "border-[#34A853]/30 bg-[#34A853]/10 text-[#34A853] hover:bg-[#34A853]/20",
-        warning: "border-[#FBBC05]/30 bg-[#FBBC05]/15 text-[#202124] hover:bg-[#FBBC05]/25",
+        warning: "border-[#FBBC05]/30 bg-[#FBBC05]/15 text-foreground hover:bg-[#FBBC05]/25",
         info: "border-[#4285F4]/30 bg-[#4285F4]/10 text-[#4285F4] hover:bg-[#4285F4]/20",
         gray: "border-border bg-muted text-muted-foreground hover:bg-muted/80",
       },

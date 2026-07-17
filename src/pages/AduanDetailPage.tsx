@@ -1165,13 +1165,13 @@ export const AduanDetailPage: React.FC = () => {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => navigate('/pengaduan')}
-                                    className="h-8 rounded-lg px-2.5 text-[#5a625b] hover:bg-white/35 hover:text-[#223a31]"
+                                    className="h-8 rounded-lg px-2.5 text-muted-foreground hover:bg-accent hover:text-foreground"
                                     leftIcon={<ArrowLeft size={14} />}
                                 >
                                     Kembali
                                 </Button>
-                                <span className="text-[#b8af9d]">|</span>
-                                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#66706a]">
+                                <span className="text-border">|</span>
+                                <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                     <Tag size={12} />
                                     <span>{aduan.kategoriMasalah || '-'}</span>
                                 </div>
@@ -1179,10 +1179,10 @@ export const AduanDetailPage: React.FC = () => {
 
                             <div className="flex flex-col gap-2.5">
                                 <div className="flex flex-wrap items-center gap-2.5">
-                                    <h1 className="text-2xl font-bold tracking-tight text-[#223a31] md:text-4xl">{aduan.nomorTiket}</h1>
-                                    <StatusBadge status={aduan.status || 'baru'} className="border-[#d6cab4] bg-[#ede6d7] text-[#31453d] shadow-none text-xs px-3 py-1" />
+                                    <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-4xl">{aduan.nomorTiket}</h1>
+                                    <StatusBadge status={aduan.status || 'baru'} className="border-border bg-muted text-foreground shadow-none text-xs px-3 py-1" />
                                 </div>
-                                <p className="text-[1.1rem] font-medium leading-relaxed text-[#364640]">{aduan.perihal || 'Tanpa perihal'}</p>
+                                <p className="text-[1.1rem] font-medium leading-relaxed text-foreground/85">{aduan.perihal || 'Tanpa perihal'}</p>
                             </div>
                         </div>
 
@@ -1191,11 +1191,11 @@ export const AduanDetailPage: React.FC = () => {
                                 {overviewCards.map((card) => (
                                     <div key={card.label} className="detail-panel-surface p-3">
                                         <div className="flex items-center justify-between gap-2">
-                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#66706a]">{card.label}</p>
-                                            <card.icon size={13} className="text-[#66706a]" />
+                                            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{card.label}</p>
+                                            <card.icon size={13} className="text-muted-foreground" />
                                         </div>
-                                        <p className="mt-2 text-base font-semibold text-[#223a31]">{card.value}</p>
-                                        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[#66706a]">{card.hint}</p>
+                                        <p className="mt-2 text-base font-semibold text-foreground">{card.value}</p>
+                                        <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{card.hint}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1206,7 +1206,7 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<FileText size={15} />}
                                     onClick={handlePrint}
-                                    className="h-9 rounded-xl border-[#d6cab4] bg-[#ede6d7] px-4 text-[#223a31] hover:bg-[#e3dccb] hover:text-[#223a31]"
+                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
                                     isLoading={isExportingPdf}
                                 >
                                     PDF
@@ -1216,12 +1216,12 @@ export const AduanDetailPage: React.FC = () => {
                                     size="sm"
                                     leftIcon={<Upload size={15} />}
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-9 rounded-xl border-[#d6cab4] bg-[#ede6d7] px-4 text-[#223a31] hover:bg-[#e3dccb] hover:text-[#223a31]"
+                                    className="h-9 rounded-xl border-border bg-muted px-4 text-foreground hover:bg-accent hover:text-foreground"
                                 >
                                     Upload
                                 </Button>
                                 <Button
-                                    className="h-9 rounded-xl border-none bg-[#2f6b57] px-4 text-white shadow-sm hover:bg-[#285a49] hover:shadow-md"
+                                    className="h-9 rounded-xl border-none bg-primary px-4 text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md"
                                     leftIcon={<Edit size={15} />}
                                     onClick={openEditModal}
                                 >
@@ -1234,7 +1234,7 @@ export const AduanDetailPage: React.FC = () => {
                                         leftIcon={<Trash2 size={15} />}
                                         onClick={() => setIsDeleteAduanConfirmOpen(true)}
                                         isLoading={isDeleting}
-                                        className="h-9 rounded-xl px-4 text-[#66706a] hover:bg-destructive/15 hover:text-destructive"
+                                        className="h-9 rounded-xl px-4 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
                                     >
                                         Hapus
                                     </Button>
