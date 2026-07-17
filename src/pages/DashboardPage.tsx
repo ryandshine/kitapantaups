@@ -29,7 +29,11 @@ import {
     Bot,
     Database,
     ShieldAlert,
-    Filter
+    Filter,
+    Crown,
+    Award,
+    Medal,
+    Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Select } from '../components/ui';
@@ -315,142 +319,152 @@ export const DashboardPage: React.FC = () => {
                 <h2 className="text-xl font-bold tracking-tight text-foreground px-1">
                     Rekap Perencanaan dan Kelembagaan
                 </h2>
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    {/* RKPS Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="relative overflow-hidden rounded-3xl border border-blue-500/10 bg-gradient-to-br from-blue-50/10 to-transparent p-6 shadow-sm backdrop-blur-sm dark:border-blue-500/20 dark:from-blue-950/10"
-                    >
-                        <div className="flex items-center justify-between mb-4">
+
+                <motion.div
+                    variants={itemVariants}
+                    className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-sm backdrop-blur-sm"
+                >
+                    {/* Layered glow blobs for depth */}
+                    <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/15" />
+                    <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-amber-500/10 blur-3xl dark:bg-amber-500/15" />
+
+                    <div className="relative flex flex-col lg:flex-row">
+                        {/* RKPS side */}
+                        <div className="flex flex-1 flex-col gap-5 p-6 lg:p-7">
                             <div>
-                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-blue-800 dark:text-blue-800">
+                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-blue-800 dark:text-blue-400">
                                     Dokumen RKPS
                                 </h3>
-                                <p className="text-2xl font-black text-foreground mt-1">
-                                    {stats?.rkps || 0} <span className="text-sm font-semibold text-muted-foreground">/ {totalCount} aduan</span>
+                                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                                    Proporsi aduan kelompok Perhutanan Sosial yang <strong>telah memiliki</strong> dokumen Rencana Kerja Perhutanan Sosial (RKPS).
                                 </p>
                             </div>
-                        </div>
 
-                        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-                            <div className="flex-1 space-y-3">
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Menunjukkan proporsi aduan kelompok Perhutanan Sosial yang <strong>telah memiliki</strong> dokumen Rencana Kerja Perhutanan Sosial (RKPS).
-                                </p>
-                                <div className="flex items-center gap-3 text-xs font-semibold">
-                                    <button
-                                        onClick={() => navigate('/pengaduan?rkps=Sudah')}
-                                        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-blue-500/25 bg-blue-500/5 transition-all hover:bg-blue-500/10 hover:border-blue-500/40 text-blue-800 dark:text-blue-800 group"
-                                        title="Filter aduan dengan RKPS: Sudah"
-                                    >
-                                        <span className="h-2.5 w-2.5 rounded-full bg-blue-500 group-hover:scale-110 transition-transform" />
-                                        <span>Sudah ({stats?.rkps || 0})</span>
-                                    </button>
-                                    <button
-                                        onClick={() => navigate('/pengaduan?rkps=Belum')}
-                                        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 border border-muted bg-muted/15 transition-all hover:bg-muted/30 hover:border-muted-foreground/30 text-foreground/85 dark:text-foreground/85 group"
-                                        title="Filter aduan dengan RKPS: Belum"
-                                    >
-                                        <span className="h-2.5 w-2.5 rounded-full bg-muted group-hover:scale-110 transition-transform" />
-                                        <span>Belum ({totalCount - (stats?.rkps || 0)})</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Donut Gauge */}
-                            <div 
-                                onClick={() => navigate('/pengaduan?rkps=Sudah')}
-                                className="relative flex shrink-0 items-center justify-center h-28 w-28 cursor-pointer hover:scale-105 transition-transform duration-300 group"
-                                title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
-                            >
-                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                    <circle
-                                        cx="50"
-                                        cy="50"
-                                        r="38"
-                                        className="stroke-muted/20 dark:stroke-muted/10"
-                                        strokeWidth="8"
-                                        fill="transparent"
-                                    />
-                                    <motion.circle
-                                        cx="50"
-                                        cy="50"
-                                        r="38"
-                                        className="stroke-blue-500 dark:stroke-blue-400 group-hover:stroke-blue-600 transition-colors"
-                                        strokeWidth="8"
-                                        fill="transparent"
-                                        strokeDasharray={2 * Math.PI * 38}
-                                        initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
-                                        animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - (totalCount > 0 ? (stats?.rkps || 0) / totalCount : 0)) }}
-                                        transition={{ duration: 1.2, ease: "easeOut" }}
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                                <div className="absolute flex flex-col items-center justify-center group-hover:translate-y-[-1px] transition-transform">
-                                    <span className="text-2xl font-black text-blue-900 dark:text-blue-900 group-hover:text-blue-700 dark:group-hover:text-blue-700 transition-colors">
-                                        {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
-                                    </span>
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-950 dark:text-blue-950 mt-0.5">Memiliki</span>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    {/* KUPS Card */}
-                    <motion.div
-                        variants={itemVariants}
-                        className="relative overflow-hidden rounded-3xl border border-orange-500/10 bg-gradient-to-br from-orange-50/10 to-transparent p-6 shadow-sm backdrop-blur-sm dark:border-orange-500/20 dark:from-orange-950/10"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-orange-850 dark:text-orange-850">
-                                    Kelas KUPS
-                                </h3>
-                                <p className="text-2xl font-black text-foreground mt-1">
-                                    {((stats?.kups?.BIRU || 0) + (stats?.kups?.PERAK || 0) + (stats?.kups?.EMAS || 0) + (stats?.kups?.PLATINUM || 0))} <span className="text-sm font-semibold text-muted-foreground">unit terproses</span>
-                                </p>
-                            </div>
-                            <span className="rounded-xl bg-orange-500/10 px-2.5 py-1 text-[10px] font-bold text-orange-700 dark:text-orange-700">
-                                Status Proses
-                            </span>
-                        </div>
-
-                        {/* Visual Progress Bars */}
-                        <div className="space-y-3.5">
-                            {[
-                                { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, gradient: 'from-blue-500 to-cyan-400', glow: 'shadow-blue-500/10', text: 'text-blue-800 dark:text-blue-800' },
-                                { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, gradient: 'from-slate-500 to-zinc-400', glow: 'shadow-slate-500/10', text: 'text-slate-700 dark:text-slate-700' },
-                                { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, gradient: 'from-amber-600 to-yellow-500', glow: 'shadow-amber-600/10', text: 'text-amber-800 dark:text-amber-800' },
-                                { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, gradient: 'from-indigo-600 to-purple-500', glow: 'shadow-indigo-600/10', text: 'text-indigo-800 dark:text-indigo-800' },
-                            ].map((item, index) => {
-                                const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
-                                const percentage = (item.value / maxVal) * 100;
-
-                                return (
-                                    <div 
-                                        key={index} 
-                                        onClick={() => navigate(`/pengaduan?kups_kelas=${item.key}`)}
-                                        className="space-y-1 rounded-xl border border-transparent p-1.5 transition-all hover:bg-orange-500/5 dark:hover:bg-orange-500/10 hover:border-orange-500/10 cursor-pointer group"
-                                        title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
-                                    >
-                                        <div className="flex justify-between items-center text-xs font-semibold">
-                                            <span className="text-foreground/90 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">{item.label}</span>
-                                            <span className={`${item.text} font-bold group-hover:scale-105 transition-transform`}>{item.value} unit</span>
-                                        </div>
-                                        <div className="relative h-2 w-full rounded-full bg-muted/50 overflow-hidden dark:bg-muted/20">
-                                            <motion.div
-                                                className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} ${item.glow} shadow-sm group-hover:brightness-110 transition-all`}
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${percentage}%` }}
-                                                transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
-                                            />
-                                        </div>
+                            <div className="flex items-center gap-6">
+                                {/* Donut Gauge */}
+                                <div
+                                    onClick={() => navigate('/pengaduan?rkps=Sudah')}
+                                    className="group relative flex h-28 w-28 shrink-0 cursor-pointer items-center justify-center transition-transform duration-300 hover:scale-105"
+                                    title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
+                                >
+                                    <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="38"
+                                            className="stroke-muted/20 dark:stroke-muted/10"
+                                            strokeWidth="8"
+                                            fill="transparent"
+                                        />
+                                        <motion.circle
+                                            cx="50"
+                                            cy="50"
+                                            r="38"
+                                            className="stroke-blue-500 transition-colors group-hover:stroke-blue-600 dark:stroke-blue-400"
+                                            strokeWidth="8"
+                                            fill="transparent"
+                                            strokeDasharray={2 * Math.PI * 38}
+                                            initial={{ strokeDashoffset: 2 * Math.PI * 38 }}
+                                            animate={{ strokeDashoffset: 2 * Math.PI * 38 * (1 - (totalCount > 0 ? (stats?.rkps || 0) / totalCount : 0)) }}
+                                            transition={{ duration: 1.2, ease: "easeOut" }}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute flex flex-col items-center justify-center transition-transform group-hover:translate-y-[-1px]">
+                                        <span className="text-2xl font-black text-blue-900 transition-colors group-hover:text-blue-700 dark:text-blue-300 dark:group-hover:text-blue-200">
+                                            {totalCount > 0 ? Math.round(((stats?.rkps || 0) / totalCount) * 100) : 0}%
+                                        </span>
+                                        <span className="mt-0.5 text-[9px] font-black uppercase tracking-widest text-blue-950 dark:text-blue-300">Memiliki</span>
                                     </div>
-                                );
-                            })}
+                                </div>
+
+                                <div className="space-y-2.5">
+                                    <p className="text-2xl font-black text-foreground">
+                                        {stats?.rkps || 0} <span className="text-sm font-semibold text-muted-foreground">/ {totalCount} aduan</span>
+                                    </p>
+                                    <div className="flex items-center gap-2 text-xs font-semibold">
+                                        <button
+                                            onClick={() => navigate('/pengaduan?rkps=Sudah')}
+                                            className="flex items-center gap-1.5 rounded-lg border border-blue-500/25 bg-blue-500/5 px-2.5 py-1.5 transition-all hover:border-blue-500/40 hover:bg-blue-500/10 text-blue-800 dark:text-blue-300 group"
+                                            title="Filter aduan dengan RKPS: Sudah"
+                                        >
+                                            <span className="h-2.5 w-2.5 rounded-full bg-blue-500 transition-transform group-hover:scale-110" />
+                                            <span>Sudah ({stats?.rkps || 0})</span>
+                                        </button>
+                                        <button
+                                            onClick={() => navigate('/pengaduan?rkps=Belum')}
+                                            className="flex items-center gap-1.5 rounded-lg border border-muted bg-muted/15 px-2.5 py-1.5 transition-all hover:border-muted-foreground/30 hover:bg-muted/30 text-foreground/85 group"
+                                            title="Filter aduan dengan RKPS: Belum"
+                                        >
+                                            <span className="h-2.5 w-2.5 rounded-full bg-muted transition-transform group-hover:scale-110" />
+                                            <span>Belum ({totalCount - (stats?.rkps || 0)})</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </motion.div>
-                </div>
+
+                        {/* Divider */}
+                        <div className="mx-6 border-t border-border/60 lg:mx-0 lg:my-7 lg:border-l lg:border-t-0" />
+
+                        {/* KUPS side */}
+                        <div className="flex flex-1 flex-col gap-4 p-6 lg:p-7">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-amber-800 dark:text-amber-500">
+                                        Kesiapan Kelas KUPS
+                                    </h3>
+                                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                                        Kelas Kelompok Usaha Perhutanan Sosial dari aduan yang sedang <strong>diproses</strong>.
+                                    </p>
+                                </div>
+                                <span className="shrink-0 rounded-xl bg-amber-500/10 px-2.5 py-1 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                                    {((stats?.kups?.BIRU || 0) + (stats?.kups?.PERAK || 0) + (stats?.kups?.EMAS || 0) + (stats?.kups?.PLATINUM || 0))} unit
+                                </span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {[
+                                    { key: 'PLATINUM', label: 'Kelas Platinum', value: stats?.kups?.PLATINUM || 0, icon: Crown, gradient: 'from-indigo-600 to-purple-500', text: 'text-indigo-700 dark:text-indigo-400', iconBg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' },
+                                    { key: 'EMAS', label: 'Kelas Emas', value: stats?.kups?.EMAS || 0, icon: Award, gradient: 'from-amber-600 to-yellow-500', text: 'text-amber-700 dark:text-amber-400', iconBg: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
+                                    { key: 'PERAK', label: 'Kelas Silver', value: stats?.kups?.PERAK || 0, icon: Medal, gradient: 'from-slate-500 to-zinc-400', text: 'text-slate-700 dark:text-slate-300', iconBg: 'bg-slate-500/10 text-slate-600 dark:text-slate-300' },
+                                    { key: 'BIRU', label: 'Kelas Biru', value: stats?.kups?.BIRU || 0, icon: Shield, gradient: 'from-blue-500 to-cyan-400', text: 'text-blue-700 dark:text-blue-400', iconBg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+                                ].map((item, index) => {
+                                    const maxVal = Math.max(1, stats?.kups?.BIRU || 0, stats?.kups?.PERAK || 0, stats?.kups?.EMAS || 0, stats?.kups?.PLATINUM || 0);
+                                    const percentage = (item.value / maxVal) * 100;
+                                    const Icon = item.icon;
+
+                                    return (
+                                        <div
+                                            key={item.key}
+                                            onClick={() => navigate(`/pengaduan?kups_kelas=${item.key}`)}
+                                            className="group flex items-center gap-3 rounded-xl border border-transparent p-1.5 transition-all hover:border-amber-500/10 hover:bg-amber-500/5 dark:hover:bg-amber-500/10 cursor-pointer"
+                                            title={`Klik untuk memfilter aduan dengan KUPS ${item.label}`}
+                                        >
+                                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.iconBg} transition-transform group-hover:scale-105`}>
+                                                <Icon size={15} strokeWidth={2.25} />
+                                            </div>
+                                            <div className="flex-1 space-y-1">
+                                                <div className="flex items-center justify-between text-xs font-semibold">
+                                                    <span className="text-foreground/90 transition-colors group-hover:text-amber-700 dark:group-hover:text-amber-400">{item.label}</span>
+                                                    <span className={`${item.text} font-bold transition-transform group-hover:scale-105`}>{item.value} unit</span>
+                                                </div>
+                                                <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted/50 dark:bg-muted/20">
+                                                    <motion.div
+                                                        className={`absolute h-full rounded-full bg-gradient-to-r ${item.gradient} shadow-sm transition-all group-hover:brightness-110`}
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${percentage}%` }}
+                                                        transition={{ duration: 1, delay: index * 0.1, ease: "easeOut" }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
             </div>
 
             {/* Content Section */}
