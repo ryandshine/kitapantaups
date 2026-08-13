@@ -1,10 +1,36 @@
 import { Hono } from 'hono'
+import { z } from 'zod'
+import { zValidator } from '@hono/zod-validator'
 import { requireAuth, requireAdmin } from '../middleware/auth.js'
 import { MasterService } from '../services/master.service.js'
 import { getKpsSyncJobState, startGokupsKpsSyncJob } from '../services/kps-sync.service.js'
 
 const master = new Hono()
 master.use('*', requireAuth)
+
+const KPS_SKEMA_OPTIONS = [
+  'HUTAN DESA',
+  'HUTAN KEMASYARAKATAN',
+  'HUTAN TANAMAN RAKYAT',
+  'KEMITRAAN KEHUTANAN',
+  'HUTAN ADAT',
+  'HUTAN RAKYAT',
+  'LAINNYA',
+] as const
+
+const createKpsSchema = z.object({
+  nama_lembaga: z.string().trim().min(1),
+  skema: z.enum(KPS_SKEMA_OPTIONS),
+  surat_keputusan: z.string().trim().optional(),
+  tanggal: z.string().optional(),
+  provinsi: z.string().trim().min(1),
+  kabupaten: z.string().trim().min(1),
+  kecamatan: z.string().trim().optional(),
+  desa: z.string().trim().optional(),
+  luas_total: z.number().min(0).optional(),
+  anggota_pria: z.number().int().min(0).optional(),
+  anggota_wanita: z.number().int().min(0).optional(),
+})
 
 // GET /master/status
 master.get('/status', async (c) => {
@@ -40,6 +66,15 @@ master.get('/kps/:id', async (c) => {
 master.get('/kps', async (c) => {
   const result = await MasterService.getKps(c.req.query())
   return c.json(result)
+})
+
+// POST /master/kps
+master.post('/kps', zValidator('json', createKpsSchema), async (c) => {
+  const user = c.get('user')
+  const data = c.req.valid('json')
+
+  const result = await MasterService.createKps({ ...data, created_by: user.userId })
+  return c.json(result, 201)
 })
 
 // POST /master/kps/sync

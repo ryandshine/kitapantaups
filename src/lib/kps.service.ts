@@ -31,6 +31,25 @@ export type KpsSyncState = {
     lastResult: KpsSyncResponse['lastResult'];
 };
 
+export type NewKpsInput = {
+    nama_lembaga: string;
+    skema: string;
+    surat_keputusan?: string;
+    tanggal?: string;
+    provinsi: string;
+    kabupaten: string;
+    kecamatan?: string;
+    desa?: string;
+    luas_total?: number;
+    anggota_pria?: number;
+    anggota_wanita?: number;
+};
+
+export type CreateKpsResponse = {
+    data: KpsData;
+    candidates: KpsData[];
+};
+
 export const KpsService = {
     getKpsList: async (page: number = 1, pageSize: number = 20): Promise<KpsData[]> => {
         try {
@@ -64,6 +83,10 @@ export const KpsService = {
             console.error('Error searching KPS:', error);
             return [];
         }
+    },
+
+    createKps: async (payload: NewKpsInput): Promise<CreateKpsResponse> => {
+        return await api.post<CreateKpsResponse>('/master/kps', payload);
     },
 
     getKpsById: async (id: string): Promise<KpsData | null> => {

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { pool } from '../db.js'
 
 const KPS_SELECT = `
@@ -45,7 +46,8 @@ const KPS_SELECT = `
     false AS has_petaps,
     (k.raw_payload->>'dokumen_rkps' IS NOT NULL) AS has_rkps,
     (SELECT string_agg(DISTINCT ku.kelas, ', ') FROM public.kups ku WHERE ku.lembaga_id = k.id) AS status_kelas,
-    COALESCE(k.raw_payload->>'dokumen_rkps', '-') AS status_rkps
+    COALESCE(k.raw_payload->>'dokumen_rkps', '-') AS status_rkps,
+    k.source AS source
   FROM public.kps k
 `
 
@@ -115,5 +117,63 @@ export const MasterRepository = {
   async findKpsById(id: string) {
     const result = await pool.query(`${KPS_SELECT} WHERE k.id = $1 LIMIT 1`, [id])
     return result.rows[0] || null
+  },
+
+  async findSimilarKps(namaLembaga: string, limit = 5) {
+    const result = await pool.query(
+      `${KPS_SELECT} WHERE k.nama_lembaga ILIKE $1 ORDER BY k.nama_lembaga LIMIT $2`,
+      [`%${namaLembaga}%`, limit]
+    )
+    return result.rows
+  },
+
+  async createKps(data: NewKpsInput) {
+    const id = `local-${randomUUID()}`
+
+    await pool.query(
+      `INSERT INTO public.kps (
+        id, nama_lembaga, surat_keputusan, tanggal, skema,
+        provinsi, kabupaten, kecamatan, desa,
+        luas_total, anggota_pria, anggota_wanita,
+        raw_payload, source, created_by, synced_at
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9,
+        $10, $11, $12,
+        '{}'::jsonb, 'local', $13, now()
+      )`,
+      [
+        id,
+        data.nama_lembaga.trim(),
+        data.surat_keputusan || null,
+        data.tanggal || null,
+        data.skema,
+        data.provinsi,
+        data.kabupaten,
+        data.kecamatan || null,
+        data.desa || null,
+        data.luas_total || 0,
+        data.anggota_pria || 0,
+        data.anggota_wanita || 0,
+        data.created_by || null,
+      ]
+    )
+
+    return MasterRepository.findKpsById(id)
   }
+}
+
+export type NewKpsInput = {
+  nama_lembaga: string
+  skema: string
+  surat_keputusan?: string
+  tanggal?: string
+  provinsi: string
+  kabupaten: string
+  kecamatan?: string
+  desa?: string
+  luas_total?: number
+  anggota_pria?: number
+  anggota_wanita?: number
+  created_by?: string
 }

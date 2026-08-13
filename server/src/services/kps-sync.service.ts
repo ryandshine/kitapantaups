@@ -256,8 +256,9 @@ export const syncGokupsKps = async (logger: SyncLogger = defaultLogger): Promise
   const removedStaleRows = START_PAGE === 1
   if (removedStaleRows) {
     await pool.query(
-      `DELETE FROM public.kps 
+      `DELETE FROM public.kps
        WHERE NOT (id = ANY($1::text[]))
+         AND source <> 'local'
          AND NOT EXISTS (
            SELECT 1 FROM public.aduan_kps ak WHERE ak.kps_id = public.kps.id
          )`,

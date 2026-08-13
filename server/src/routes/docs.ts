@@ -526,6 +526,16 @@ const buildOpenApiSpec = (origin: string) => ({
         ],
         responses: { 200: { description: 'Hasil pencarian KPS' } },
       },
+      post: {
+        tags: ['Master'],
+        summary: 'Tambah KPS baru secara manual',
+        description: 'Membuat entri KPS lokal (source=local) saat lembaga belum ada di sinkronisasi GoKUPS. Provinsi dan kabupaten wajib diisi.',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          201: { description: 'KPS berhasil dibuat, beserta kandidat kemiripan nama bila ada' },
+          400: { description: 'Payload tidak valid' },
+        },
+      },
     },
     '/master/kps/{id}': {
       get: {

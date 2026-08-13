@@ -44,6 +44,7 @@ export interface KpsData {
     jumlah_kk: number;
     balai?: string;
     sekwil?: string;
+    source?: 'gokups' | 'local';
     luas_hutan_lindung?: number;
     luas_hutan_produksi_terbatas?: number;
     luas_hutan_produksi?: number;

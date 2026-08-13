@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Loader2, X, MapPin } from 'lucide-react';
+import { Search, Loader2, X, MapPin, Plus } from 'lucide-react';
 import { KpsService } from '../../lib/kps.service';
 import { type KpsData } from '../../types';
 import { Input } from './input';
+import { AddKpsModal } from './AddKpsModal';
 
 interface KpsSearchProps {
     onSelect: (kps: KpsData) => void;
@@ -21,6 +22,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const [overlayStyle, setOverlayStyle] = useState<React.CSSProperties>({});
@@ -118,6 +120,11 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
         setSelectedIndex(-1);
     };
 
+    const handleKpsCreated = (kps: KpsData) => {
+        setIsAddModalOpen(false);
+        handleSelect(kps);
+    };
+
     const getDisplayName = (kps: KpsData) => kps.nama_lembaga || kps.nama_kps || '-';
     const getDisplayType = (kps: KpsData) => kps.skema || kps.kps_type || kps.jenis_kps || '-';
     const getDisplaySk = (kps: KpsData) => kps.surat_keputusan || kps.nomor_sk || '-';
@@ -165,7 +172,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                 fullWidth
             />
 
-            {isOpen && (results.length > 0 || isLoading) && createPortal(
+            {isOpen && createPortal(
                 <div style={overlayStyle} className="pointer-events-none">
                     <div
                         ref={overlayRef}
@@ -187,9 +194,16 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                     >
                                         <div className="mb-1 flex min-w-0 items-start justify-between gap-2">
                                             <div className="min-w-0 break-words text-[0.92rem] font-semibold text-foreground transition-colors group-hover:text-primary">{getDisplayName(kps)}</div>
-                                            <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-tight text-muted-foreground">
-                                                {getDisplayType(kps)}
-                                            </span>
+                                            <div className="flex shrink-0 items-center gap-1">
+                                                {kps.source === 'local' && (
+                                                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-tight text-primary">
+                                                        Data Lokal
+                                                    </span>
+                                                )}
+                                                <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-tight text-muted-foreground">
+                                                    {getDisplayType(kps)}
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="mt-1 flex flex-col gap-1 text-[10px] text-muted-foreground">
                                             <div className="flex flex-wrap items-center gap-1.5 break-all">
@@ -213,14 +227,29 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                 ))}
                             </ul>
                         ) : (
-                            <div className="p-4 text-center text-sm text-muted-foreground">
-                                Data tidak ditemukan
+                            <div className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
+                                <span>Data tidak ditemukan</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddModalOpen(true)}
+                                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
+                                >
+                                    <Plus size={12} />
+                                    Tambah KPS baru
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>,
                 document.body
             )}
+
+            <AddKpsModal
+                isOpen={isAddModalOpen}
+                initialNama={query.trim()}
+                onClose={() => setIsAddModalOpen(false)}
+                onSelect={handleKpsCreated}
+            />
         </div>
     );
 };

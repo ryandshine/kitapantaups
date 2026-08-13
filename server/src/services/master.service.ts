@@ -1,4 +1,4 @@
-import { MasterRepository } from '../repositories/master.repository.js'
+import { MasterRepository, type NewKpsInput } from '../repositories/master.repository.js'
 
 export const MasterService = {
   async getStatus() {
@@ -46,5 +46,13 @@ export const MasterService = {
 
   async getKpsById(id: string) {
     return await MasterRepository.findKpsById(id)
+  },
+
+  async createKps(input: NewKpsInput) {
+    const namaLembaga = input.nama_lembaga.trim()
+    const candidates = await MasterRepository.findSimilarKps(namaLembaga)
+    const data = await MasterRepository.createKps({ ...input, nama_lembaga: namaLembaga })
+
+    return { data, candidates }
   }
 }

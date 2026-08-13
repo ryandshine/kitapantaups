@@ -409,6 +409,11 @@ export const NewAduanPage: React.FC = () => {
                                                 <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-primary">
                                                     skema: {resolveKpsType(selectedKps) || DEFAULT_SKEMA}
                                                 </span>
+                                                {selectedKps.source === 'local' && (
+                                                    <span className="rounded-full border border-amber-300/60 bg-amber-100/60 px-2.5 py-1 text-amber-700">
+                                                        Data Lokal
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-2 xl:grid-cols-4">
