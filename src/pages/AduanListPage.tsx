@@ -352,7 +352,7 @@ export const AduanListPage: React.FC = () => {
                                             {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
                                         <td className="min-w-0 px-4 py-3 align-top">
-                                            <p className="break-words font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">{getRingkasanMasalahValue(row)}</p>
+                                            <p className="break-words font-semibold leading-snug text-foreground transition-colors group-hover:text-foreground">{getRingkasanMasalahValue(row)}</p>
                                         </td>
                                         <td className="min-w-0 px-4 py-3 align-top text-foreground">
                                             <div className="space-y-1 text-[12px]">
