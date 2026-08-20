@@ -8,6 +8,7 @@ import {
 } from '../hooks/useUser';
 import { useAuth } from '../contexts/AuthContext';
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     Users,
     Trash2,
@@ -37,6 +38,12 @@ import { cn } from '../lib/utils';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error && error.message ? error.message : fallback;
+
+type ActionMenuPosition = {
+    left: number;
+    top?: number;
+    bottom?: number;
+};
 
 const UserAvatar: React.FC<{ user: User }> = ({ user }) => {
     const safeDisplayName = (user.displayName || '').trim() || user.email?.split('@')[0] || 'User';
@@ -75,6 +82,9 @@ export const UserManagementPage: React.FC = () => {
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
     const [deleteCandidate, setDeleteCandidate] = useState<User | null>(null);
     const [openActionUserId, setOpenActionUserId] = useState<string | null>(null);
+    const [actionMenuPosition, setActionMenuPosition] = useState<ActionMenuPosition | null>(null);
+    const actionMenuRef = React.useRef<HTMLDivElement | null>(null);
+    const actionTriggerRef = React.useRef<HTMLButtonElement | null>(null);
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -183,11 +193,28 @@ export const UserManagementPage: React.FC = () => {
         const handleEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape') setOpenActionUserId(null);
         };
+        const handleOutsideClick = (event: PointerEvent) => {
+            const target = event.target as Node;
+            if (actionMenuRef.current?.contains(target) || actionTriggerRef.current?.contains(target)) return;
+            setOpenActionUserId(null);
+        };
+        const closeOnViewportChange = () => setOpenActionUserId(null);
         document.addEventListener('keydown', handleEscape);
-        return () => document.removeEventListener('keydown', handleEscape);
+        document.addEventListener('pointerdown', handleOutsideClick);
+        window.addEventListener('resize', closeOnViewportChange);
+        window.addEventListener('scroll', closeOnViewportChange, true);
+        return () => {
+            document.removeEventListener('keydown', handleEscape);
+            document.removeEventListener('pointerdown', handleOutsideClick);
+            window.removeEventListener('resize', closeOnViewportChange);
+            window.removeEventListener('scroll', closeOnViewportChange, true);
+        };
     }, [openActionUserId]);
 
-    const closeActionMenu = () => setOpenActionUserId(null);
+    const closeActionMenu = () => {
+        setOpenActionUserId(null);
+        setActionMenuPosition(null);
+    };
 
     const renderUserActions = (user: User) => {
         const isOpen = openActionUserId === user.id;
@@ -196,10 +223,30 @@ export const UserManagementPage: React.FC = () => {
         <div className="relative">
             <button
                 type="button"
+                ref={isOpen ? actionTriggerRef : undefined}
                 aria-expanded={isOpen}
                 aria-haspopup="menu"
                 aria-label={`Buka aksi untuk ${user.displayName || user.email}`}
-                onClick={() => setOpenActionUserId(isOpen ? null : user.id)}
+                onClick={(event) => {
+                    if (isOpen) {
+                        closeActionMenu();
+                        return;
+                    }
+
+                    const triggerRect = event.currentTarget.getBoundingClientRect();
+                    const menuWidth = 208;
+                    const estimatedMenuHeight = 220;
+                    const shouldOpenAbove = triggerRect.bottom + estimatedMenuHeight > window.innerHeight && triggerRect.top > estimatedMenuHeight;
+                    const left = Math.min(
+                        Math.max(8, triggerRect.right - menuWidth),
+                        Math.max(8, window.innerWidth - menuWidth - 8)
+                    );
+
+                    setActionMenuPosition(shouldOpenAbove
+                        ? { left, bottom: Math.max(8, window.innerHeight - triggerRect.top + 8) }
+                        : { left, top: Math.max(8, Math.min(window.innerHeight - estimatedMenuHeight - 8, triggerRect.bottom + 8)) });
+                    setOpenActionUserId(user.id);
+                }}
                 className={cn(
                     'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                     isOpen && 'bg-muted text-foreground'
@@ -207,8 +254,13 @@ export const UserManagementPage: React.FC = () => {
             >
                 <MoreHorizontal className="h-5 w-5" />
             </button>
-            {isOpen && (
-            <div role="menu" className="absolute bottom-full right-0 z-40 mb-2 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
+            {isOpen && actionMenuPosition && createPortal(
+            <div
+                ref={actionMenuRef}
+                role="menu"
+                className="fixed z-[100] max-h-[calc(100vh-1rem)] w-52 overflow-y-auto rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-2xl"
+                style={actionMenuPosition}
+            >
                 <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Aksi pengguna</p>
                 <button
                     type="button"
@@ -265,7 +317,8 @@ export const UserManagementPage: React.FC = () => {
                         </button>
                     </>
                 )}
-            </div>
+            </div>,
+            document.body
             )}
         </div>
         );
