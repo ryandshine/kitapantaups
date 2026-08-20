@@ -37,7 +37,7 @@ import { ActivityService } from '../lib/activity.service';
 import { getAduanCardTheme, getAduanStatusDotClass } from '../lib/neutral-theme';
 import type { AppActivity, Aduan, ActivityType } from '../types';
 import { cn } from '../lib/utils';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, formatDistanceToNowStrict } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -467,12 +467,84 @@ export const DashboardPage: React.FC = () => {
                             Aduan Terbaru
                         </h2>
                         <Link to="/pengaduan" className="group flex items-center gap-1 text-[13px] font-semibold text-muted-foreground transition-all hover:text-primary leading-none">
-                            Lihat Semua
+                            Lihat semua aduan
                             <ChevronRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                         </Link>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="hidden overflow-hidden rounded-2xl border border-border/70 bg-card/70 shadow-sm md:block">
+                        <div className="grid grid-cols-[1.15fr_1.75fr_1.1fr_0.9fr_0.9fr_32px] items-center gap-3 border-b border-border bg-muted/45 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                            <span>Tiket &amp; KPS</span>
+                            <span>Ringkasan Aduan</span>
+                            <span>Lokasi &amp; PIC</span>
+                            <span>Status</span>
+                            <span>Pembaruan</span>
+                            <span aria-hidden="true" />
+                        </div>
+                        {recentAduan.length > 0 ? recentAduan.map((aduan: Aduan) => (
+                            <button
+                                key={`table-${aduan.id}`}
+                                type="button"
+                                onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
+                                className="grid w-full grid-cols-[1.15fr_1.75fr_1.1fr_0.9fr_0.9fr_32px] items-center gap-3 border-b border-border/60 px-4 py-4 text-left transition-colors last:border-b-0 hover:bg-muted/35"
+                            >
+                                <span className="min-w-0">
+                                    <span className="block break-words text-[11px] font-bold text-primary">{aduan.nomor_tiket}</span>
+                                    <span className="mt-1 block break-words text-[10px] font-medium leading-snug text-foreground">
+                                        KPS: {getRecentAduanKpsName(aduan)}
+                                    </span>
+                                </span>
+                                <span className="min-w-0 break-words text-[11px] font-semibold leading-snug text-foreground">
+                                    {aduan.perihal || aduan.ringkasan_masalah || aduan.ringkasanMasalah || '-'}
+                                </span>
+                                <span className="min-w-0 break-words text-[10px] leading-snug text-muted-foreground">
+                                    {getRecentAduanLocation(aduan)}
+                                    <span className="mt-1 block">PIC: {aduan.picName || 'Belum ditugaskan'}</span>
+                                </span>
+                                <span className="inline-flex w-fit items-center rounded-full bg-muted px-2 py-1 text-[10px] font-semibold capitalize text-foreground">
+                                    {aduan.status.replaceAll('_', ' ')}
+                                </span>
+                                <span className="break-words text-[10px] leading-snug text-muted-foreground">
+                                    {formatDistanceToNowStrict(resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt), { addSuffix: true, locale: localeID })}
+                                </span>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                            </button>
+                        )) : (
+                            <div className="px-5 py-12 text-center text-sm font-medium text-muted-foreground">Belum ada aduan yang ditemukan</div>
+                        )}
+                    </div>
+
+                    <div className="space-y-3 md:hidden">
+                        {recentAduan.length > 0 ? recentAduan.map((aduan: Aduan) => (
+                            <button
+                                key={`mobile-${aduan.id}`}
+                                type="button"
+                                onClick={() => navigate(`/pengaduan/${aduan.nomor_tiket}`)}
+                                className="block w-full rounded-2xl border border-border/70 bg-card/70 p-4 text-left shadow-sm transition-colors hover:border-primary/25 hover:bg-card"
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="break-words text-[11px] font-bold text-primary">{aduan.nomor_tiket}</p>
+                                        <p className="mt-1 break-words text-[11px] font-semibold text-foreground">KPS: {getRecentAduanKpsName(aduan)}</p>
+                                    </div>
+                                    <span className="shrink-0 rounded-full bg-muted px-2 py-1 text-[10px] font-semibold capitalize text-foreground">{aduan.status.replaceAll('_', ' ')}</span>
+                                </div>
+                                <p className="mt-3 break-words text-sm font-semibold leading-snug text-foreground">{aduan.perihal || aduan.ringkasan_masalah || aduan.ringkasanMasalah || '-'}</p>
+                                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground">
+                                    <span>Lokasi: {getRecentAduanLocation(aduan)}</span>
+                                    <span>PIC: {aduan.picName || 'Belum ditugaskan'}</span>
+                                    <span>Diperbarui {formatDistanceToNowStrict(resolveAduanDate(aduan.updatedAt ?? aduan.created_at ?? aduan.createdAt), { addSuffix: true, locale: localeID })}</span>
+                                </div>
+                            </button>
+                        )) : (
+                            <div className="rounded-3xl border border-dashed border-border bg-card py-14 text-center">
+                                <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground/20" />
+                                <p className="text-sm font-medium text-muted-foreground">Belum ada aduan yang ditemukan</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="hidden">
                         {recentAduan.length > 0 ? (
                             recentAduan.map((aduan: Aduan, index: number) => {
                                 const theme = getAduanCardTheme(index);
