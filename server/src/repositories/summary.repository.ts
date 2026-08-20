@@ -128,7 +128,7 @@ export const SummaryRepository = {
       pool.query(`
         SELECT
           a.nomor_tiket AS ticket,
-          a.perihal,
+          COALESCE(NULLIF(BTRIM(a.surat_asal_perihal), ''), NULLIF(BTRIM(a.ringkasan_masalah), ''), '-') AS perihal,
           a.status,
           a.pic_name AS pic,
           a.created_at,
@@ -142,7 +142,7 @@ export const SummaryRepository = {
       pool.query(`
         SELECT
           a.nomor_tiket AS ticket,
-          a.perihal,
+          COALESCE(NULLIF(BTRIM(a.surat_asal_perihal), ''), NULLIF(BTRIM(a.ringkasan_masalah), ''), '-') AS perihal,
           a.status,
           COALESCE(NULLIF(BTRIM(a.pic_name), ''), 'Belum ditugaskan') AS pic,
           a.updated_at
@@ -155,7 +155,7 @@ export const SummaryRepository = {
           a.nomor_tiket AS ticket,
           a.created_at,
           a.updated_at,
-          COALESCE(NULLIF(BTRIM(a.perihal), ''), '-') AS perihal,
+          COALESCE(NULLIF(BTRIM(a.surat_asal_perihal), ''), NULLIF(BTRIM(a.ringkasan_masalah), ''), '-') AS perihal,
           COALESCE(NULLIF(BTRIM(a.pengadu_nama), ''), '-') AS pengadu,
           COALESCE(NULLIF(BTRIM(a.status), ''), 'tanpa_status') AS status,
           COALESCE(NULLIF(BTRIM(a.pic_name), ''), 'Belum ditugaskan') AS pic,
