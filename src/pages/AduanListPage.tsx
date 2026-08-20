@@ -319,7 +319,7 @@ export const AduanListPage: React.FC = () => {
                                     <th className="w-[24%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
                                     <th className="w-[23%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
                                     <th className="w-[18%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
-                                    <th className="w-[10%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pembaruan</th>
+                                    <th className="w-[10%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90" title="Waktu pembaruan terakhir">Update</th>
                                 </tr>
                             </thead>
                             <tbody>
