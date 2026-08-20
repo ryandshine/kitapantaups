@@ -309,17 +309,17 @@ export const AduanListPage: React.FC = () => {
                         <table className="w-full table-fixed text-left text-[0.82rem]">
                             <thead>
                                 <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
-                                    <th className="w-[15%] px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">
+                                    <th className="w-[13%] px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/70">Nomor Aduan</span>
                                             <span className="border-t border-white/15 pt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/85">Status</span>
                                         </div>
                                     </th>
-                                    <th className="w-[15%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
-                                    <th className="w-[25%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
-                                    <th className="w-[22%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
-                                    <th className="w-[15%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
-                                    <th className="w-[8%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
+                                    <th className="w-[12%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
+                                    <th className="w-[24%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
+                                    <th className="w-[23%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
+                                    <th className="w-[18%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
+                                    <th className="w-[10%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pembaruan</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -337,7 +337,7 @@ export const AduanListPage: React.FC = () => {
                                         role="link"
                                         className="group cursor-pointer border-b border-border/60 transition-colors hover:bg-primary/4 focus-visible:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
                                     >
-                                        <td className="px-4 py-3 align-top">
+                                        <td className="min-w-0 px-4 py-3 align-top">
                                             <div className="flex flex-col gap-2">
                                                 <span className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm">
                                                     {row.nomor_tiket}
@@ -347,26 +347,26 @@ export const AduanListPage: React.FC = () => {
                                                 </Badge>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground">
+                                        <td className="min-w-0 px-4 py-3 align-top text-foreground">
                                             <p className="font-medium">{row.pengadu_nama || '-'}</p>
                                             {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
-                                        <td className="px-4 py-3 align-top">
-                                            <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
+                                        <td className="min-w-0 px-4 py-3 align-top">
+                                            <p className="break-words font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">{getRingkasanMasalahValue(row)}</p>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground">
+                                        <td className="min-w-0 px-4 py-3 align-top text-foreground">
                                             <div className="space-y-1 text-[12px]">
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KPS</span>
-                                                    <span className="leading-snug">{formatJoinedValue(row.nama_kps)}</span>
+                                                    <span className="min-w-0 break-words leading-snug">{formatJoinedValue(row.nama_kps)}</span>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">SK</span>
-                                                    <span className="leading-snug">{formatJoinedValue(row.nomor_sk)}</span>
+                                                    <span className="min-w-0 break-words leading-snug">{formatJoinedValue(row.nomor_sk)}</span>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Skema</span>
-                                                    <span className="leading-snug">{formatJoinedValue(row.type_kps)}</span>
+                                                    <span className="min-w-0 break-words leading-snug">{formatJoinedValue(row.type_kps)}</span>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Luas</span>
@@ -380,43 +380,43 @@ export const AduanListPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kelas</span>
-                                                    <span className="leading-snug">{getKpsStatusKelas(row)}</span>
+                                                    <span className="min-w-0 break-words leading-snug">{getKpsStatusKelas(row)}</span>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">RKPS</span>
-                                                    <span className="leading-snug">{getKpsStatusRkps(row)}</span>
+                                                    <span className="min-w-0 break-words leading-snug">{getKpsStatusRkps(row)}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground">
-                                            <div className="space-y-1 text-[12px]">
-                                                <div className="flex gap-2">
-                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Provinsi</span>
-                                                    <span className="leading-snug">{row.lokasi_prov || '-'}</span>
+                                        <td className="min-w-0 px-4 py-3 align-top text-foreground">
+                                            <div className="space-y-2 text-[12px]">
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Provinsi</span>
+                                                    <span className="block break-words leading-snug">{row.lokasi_prov || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kabupaten</span>
-                                                    <span className="leading-snug">{row.lokasi_kab || '-'}</span>
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kabupaten</span>
+                                                    <span className="block break-words leading-snug">{row.lokasi_kab || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Desa</span>
-                                                    <span className="leading-snug">{row.lokasi_desa || '-'}</span>
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Desa</span>
+                                                    <span className="block break-words leading-snug">{row.lokasi_desa || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">BPS</span>
-                                                    <span className="leading-snug">{(row as any).balai || '-'}</span>
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">BPS</span>
+                                                    <span className="block break-words leading-snug">{(row as any).balai || '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top text-foreground">
-                                            <div className="space-y-1 text-[12px]">
-                                                <div className="flex gap-2">
-                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
-                                                    <span className="leading-snug">{formatDateValue(row.surat_tanggal)}</span>
+                                        <td className="min-w-0 px-4 py-3 align-top text-foreground">
+                                            <div className="space-y-2 text-[12px]">
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
+                                                    <span className="block break-words leading-snug">{formatDateValue(row.surat_tanggal)}</span>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Update</span>
-                                                    <span className="leading-snug" title={formatDateValue(row.updatedAt)}>{formatRelativeDateValue(row.updatedAt)}</span>
+                                                <div>
+                                                    <span className="block text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Update</span>
+                                                    <span className="block break-words leading-snug" title={formatDateValue(row.updatedAt)}>{formatRelativeDateValue(row.updatedAt)}</span>
                                                 </div>
                                             </div>
                                         </td>
