@@ -43,7 +43,9 @@ const menuGroups = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) => {
-    const { isAdmin } = useAuth();
+    const { isAdmin, user } = useAuth();
+    const displayName = user?.displayName?.trim() || user?.email?.split('@')[0] || 'User';
+    const initial = displayName.charAt(0).toUpperCase();
 
     return (
         <>
@@ -151,6 +153,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
 
                 {/* Bottom Section */}
                 <div className="mt-auto border-t border-sidebar-border bg-sidebar p-3">
+                    {user && (
+                        <div className={cn("mb-2 flex items-center gap-2 px-2 py-2", !isOpen && "justify-center px-0")}>
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-[10px] font-bold text-sidebar-primary-foreground">
+                                {initial}
+                            </div>
+                            {isOpen && (
+                                <div className="min-w-0 leading-tight">
+                                    <p className="truncate text-[11px] font-semibold text-sidebar-foreground">{displayName}</p>
+                                    <p className="mt-0.5 truncate text-[9px] text-sidebar-foreground/55">{user.role}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                     <button
                         onClick={onLogout}
                         className={cn(

@@ -10,7 +10,7 @@ import { cn } from '../../lib/utils';
 export const DashboardLayout: React.FC = () => {
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
-    const { user, logout } = useAuth();
+    const { logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -71,12 +71,6 @@ export const DashboardLayout: React.FC = () => {
             )}>
                 <Header
                     onMenuClick={() => setMobileSidebarOpen((prev) => !prev)}
-                    user={user ? {
-                        id: user.id,
-                        email: user.email,
-                        displayName: user.displayName,
-                        role: user.role,
-                    } : undefined}
                 />
 
                 <main className="custom-scrollbar min-h-[calc(100dvh-56px)] flex-1 overflow-x-hidden overflow-y-auto">
