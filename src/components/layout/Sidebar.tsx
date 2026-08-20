@@ -117,10 +117,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                             end={item.path === '/'}
                                             onClick={onClose}
                                             className={({ isActive }) => cn(
-                                                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium transition-all duration-200",
+                                                "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[0.92rem] font-medium transition-all duration-200",
                                                 !isOpen && "justify-center px-0",
                                                 isActive
-                                                    ? "bg-sidebar-accent text-sidebar-foreground ring-1 ring-white/8"
+                                                    ? "bg-sidebar-accent/45 text-sidebar-foreground before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-sidebar-primary"
                                                     : "text-sidebar-foreground/78 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
                                             )}
                                         >
