@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CalendarDays, Download, FileText, FolderArchive } from 'lucide-react';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, FeedbackBanner, Input } from '../components/ui';
+import { Button, Select, FeedbackBanner, Input } from '../components/ui';
 import { AduanReferenceService } from '../lib/aduan.references';
 import { ReportService } from '../lib/report.service';
 import { SkpReportService } from '../lib/skp-report.service';
@@ -28,6 +28,7 @@ export const LaporanPage: React.FC = () => {
     const [isGeneratingSkp, setIsGeneratingSkp] = useState(false);
     const [skpYears, setSkpYears] = useState<number[]>([]);
     const [selectedSkpYear, setSelectedSkpYear] = useState('');
+    const [activeReportTab, setActiveReportTab] = useState<'aduan' | 'skp'>('aduan');
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
     React.useEffect(() => {
@@ -122,13 +123,15 @@ export const LaporanPage: React.FC = () => {
     };
 
     return (
-        <div className="max-w-6xl animate-in fade-in duration-500 flex flex-col gap-6">
-            <div className="hero-panel mb-2">
+        <div className="flex max-w-6xl flex-col gap-5 animate-in fade-in duration-500">
+            <div className="relative px-1 py-2">
                 <div className="relative z-10">
-                    <h1 className="hero-heading text-3xl font-bold tracking-tight leading-none">Laporan</h1>
-                    <p className="hero-muted mt-2 text-[0.92rem]">Export data pengaduan berdasarkan wilayah dengan format kolom laporan yang sudah ditetapkan.</p>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">Pusat Pelaporan</p>
+                    <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Laporan</h1>
+                    <p className="mt-2 max-w-2xl text-[0.92rem] leading-relaxed text-muted-foreground">
+                        Buat laporan pengaduan atau arsipkan dokumen SKP sesuai kebutuhan administrasi.
+                    </p>
                 </div>
-                <div className="hero-orb" />
             </div>
 
             {feedback && (
@@ -139,29 +142,59 @@ export const LaporanPage: React.FC = () => {
                 />
             )}
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <motion.div
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="lg:col-span-2 flex flex-col"
-                >
-                <Card className="overflow-hidden flex h-full flex-col">
-                    <CardHeader className="page-section-header pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                            <FileText size={16} className="text-primary" />
-                            Laporan Umum
-                        </CardTitle>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            Export data pengaduan berdasarkan rentang tanggal, wilayah, status, dan PIC.
-                        </p>
-                    </CardHeader>
-                    <CardContent className="flex flex-1 flex-col gap-4">
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className="overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]"
+            >
+                <div className="flex border-b border-border bg-muted/30" role="tablist" aria-label="Jenis laporan">
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeReportTab === 'aduan'}
+                        onClick={() => setActiveReportTab('aduan')}
+                        className={`flex flex-1 items-center gap-2 border-b-2 px-5 py-4 text-left text-sm font-semibold transition-colors sm:px-6 ${activeReportTab === 'aduan'
+                            ? 'border-primary bg-card text-foreground'
+                            : 'border-transparent text-muted-foreground hover:bg-card/60 hover:text-foreground'
+                            }`}
+                    >
+                        <FileText size={17} className={activeReportTab === 'aduan' ? 'text-primary' : 'text-muted-foreground'} />
+                        <span>Laporan Aduan</span>
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeReportTab === 'skp'}
+                        onClick={() => setActiveReportTab('skp')}
+                        className={`flex flex-1 items-center gap-2 border-b-2 px-5 py-4 text-left text-sm font-semibold transition-colors sm:px-6 ${activeReportTab === 'skp'
+                            ? 'border-primary bg-card text-foreground'
+                            : 'border-transparent text-muted-foreground hover:bg-card/60 hover:text-foreground'
+                            }`}
+                    >
+                        <FolderArchive size={17} className={activeReportTab === 'skp' ? 'text-primary' : 'text-muted-foreground'} />
+                        <span>Arsip SKP</span>
+                    </button>
+                </div>
+
+                {activeReportTab === 'aduan' ? (
+                    <section role="tabpanel" className="p-5 sm:p-7">
+                        <div className="mb-6 flex items-start gap-3">
+                            <div className="mt-0.5 text-primary"><FileText size={20} /></div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-foreground">Export Laporan Aduan</h2>
+                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                                    Pilih periode dan filter data yang ingin dimasukkan ke dalam laporan.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2">
                             <Input
                                 type="date"
-                                label="Tanggal Awal"
+                                label="Tanggal awal"
+                                helperText="Format tanggal: DD/MM/YYYY"
+                                lang="id-ID"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                                 fullWidth
@@ -169,7 +202,9 @@ export const LaporanPage: React.FC = () => {
 
                             <Input
                                 type="date"
-                                label="Tanggal Akhir"
+                                label="Tanggal akhir"
+                                helperText="Format tanggal: DD/MM/YYYY"
+                                lang="id-ID"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
                                 fullWidth
@@ -179,7 +214,7 @@ export const LaporanPage: React.FC = () => {
                                 label="Provinsi"
                                 options={[
                                     { value: 'all', label: 'Semua Provinsi' },
-                                    ...provinces.map(p => ({ value: p, label: p }))
+                                    ...provinces.map((province) => ({ value: province, label: province }))
                                 ]}
                                 value={selectedProvinsi}
                                 onChange={setSelectedProvinsi}
@@ -208,7 +243,7 @@ export const LaporanPage: React.FC = () => {
                             )}
 
                             <Select
-                                label="Format"
+                                label="Format file"
                                 options={[
                                     { value: 'excel', label: 'Excel (.xlsx)' },
                                     { value: 'csv', label: 'CSV (.csv)' }
@@ -219,63 +254,48 @@ export const LaporanPage: React.FC = () => {
                             />
                         </div>
 
-                        <div className="mt-auto flex justify-end border-t border-border/60 pt-4">
+                        <div className="mt-7 flex flex-col gap-4 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
+                                Data yang dihasilkan akan mengikuti seluruh filter yang dipilih di atas.
+                            </p>
                             <Button
                                 className="rounded-xl font-semibold"
                                 onClick={handleGenerate}
                                 isLoading={isGenerating}
                                 leftIcon={!isGenerating && <Download size={16} />}
                             >
-                                {isGenerating ? 'Memproses...' : 'Download Laporan'}
+                                {isGenerating ? 'Memproses...' : 'Export Laporan'}
                             </Button>
                         </div>
-                    </CardContent>
-                </Card>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.4, ease: "easeOut", delay: 0.08 }}
-                    className="flex flex-col"
-                >
-                <Card className="overflow-hidden flex h-full flex-col">
-                    <CardHeader className="page-section-header pb-3">
-                        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                            <FolderArchive size={16} className="text-primary" />
-                            SKP
-                        </CardTitle>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                            Arsip ZIP per triwulan berdasarkan tanggal dokumen.
-                        </p>
-                    </CardHeader>
-                    <CardContent className="flex flex-1 flex-col gap-4">
-                        <div className="rounded-xl border border-border bg-muted/45 p-4">
-                            <div className="flex items-start gap-3">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                    <CalendarDays size={18} />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-foreground">Arsip tahunan per triwulan</p>
-                                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                                        ZIP berisi folder TW I–IV, rekap Excel, dan file dokumen tindak lanjut.
-                                    </p>
-                                </div>
+                    </section>
+                ) : (
+                    <section role="tabpanel" className="p-5 sm:p-7">
+                        <div className="mb-7 flex items-start gap-3">
+                            <div className="mt-0.5 text-primary"><CalendarDays size={20} /></div>
+                            <div>
+                                <h2 className="text-lg font-semibold text-foreground">Arsip SKP Tahunan</h2>
+                                <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                                    Buat arsip ZIP per triwulan berdasarkan tahun dokumen. Arsip berisi rekap Excel dan dokumen tindak lanjut.
+                                </p>
                             </div>
                         </div>
 
-                        <Select
-                            label="Tahun Dokumen"
-                            options={skpYears.map((year) => ({ value: String(year), label: String(year) }))}
-                            value={selectedSkpYear}
-                            onChange={setSelectedSkpYear}
-                            placeholder={isLoadingSkpYears ? 'Memuat tahun...' : 'Pilih tahun'}
-                            disabled={isLoadingSkpYears || isGeneratingSkp}
-                            fullWidth
-                        />
+                        <div className="max-w-xl">
+                            <Select
+                                label="Tahun dokumen"
+                                options={skpYears.map((year) => ({ value: String(year), label: String(year) }))}
+                                value={selectedSkpYear}
+                                onChange={setSelectedSkpYear}
+                                placeholder={isLoadingSkpYears ? 'Memuat tahun...' : 'Pilih tahun'}
+                                disabled={isLoadingSkpYears || isGeneratingSkp}
+                                fullWidth
+                            />
+                        </div>
 
-                        <div className="mt-auto flex justify-end border-t border-border/60 pt-4">
+                        <div className="mt-7 flex flex-col gap-4 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="text-xs leading-relaxed text-muted-foreground">
+                                Folder arsip akan disusun menjadi TW I sampai TW IV.
+                            </p>
                             <Button
                                 className="rounded-xl font-semibold"
                                 variant="primary"
@@ -284,13 +304,12 @@ export const LaporanPage: React.FC = () => {
                                 disabled={!selectedSkpYear || isLoadingSkpYears}
                                 leftIcon={!isGeneratingSkp && <Download size={16} />}
                             >
-                                {isGeneratingSkp ? 'Membuat ZIP...' : 'Download SKP'}
+                                {isGeneratingSkp ? 'Membuat ZIP...' : 'Download Arsip SKP'}
                             </Button>
                         </div>
-                    </CardContent>
-                </Card>
-                </motion.div>
-            </div>
+                    </section>
+                )}
+            </motion.div>
         </div>
     );
 };
