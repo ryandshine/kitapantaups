@@ -2,6 +2,7 @@ import { Readable } from 'node:stream'
 import { Hono } from 'hono'
 import { requireAuth } from '../middleware/auth.js'
 import { ReportService, SkpExportError } from '../services/report.service.js'
+import { SummaryService } from '../services/summary.service.js'
 
 const reports = new Hono()
 reports.use('*', requireAuth)
@@ -9,6 +10,11 @@ reports.use('*', requireAuth)
 reports.get('/skp/years', async (c) => {
   const years = await ReportService.getSkpYears()
   return c.json({ years })
+})
+
+reports.get('/summary', async (c) => {
+  const result = await SummaryService.getSummary()
+  return c.json(result)
 })
 
 reports.get('/skp', async (c) => {
@@ -36,4 +42,3 @@ reports.get('/skp', async (c) => {
 })
 
 export default reports
-

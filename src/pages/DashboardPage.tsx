@@ -6,6 +6,7 @@ import {
     ChevronRight,
     CircleAlert,
     Clock3,
+    Download,
     MapPin,
     Plus,
     UserRound,
@@ -16,6 +17,8 @@ import { id as localeID } from 'date-fns/locale';
 import { Button } from '../components/ui';
 import type { Aduan } from '../types';
 import { useAduanList, useDashboardStats } from '../hooks/useAduan';
+import { SummaryReportService } from '../lib/summary-report.service';
+import { SummaryPdfService } from '../lib/summary-pdf.service';
 import './DashboardPage.css';
 
 type TrendPoint = {
@@ -141,6 +144,8 @@ export const DashboardPage: React.FC = () => {
     const { data: recentAduanResult, isLoading: isLoadingAduan } = useAduanList(1, 5, undefined, undefined, { sortBy: 'updated_at' });
     const recentAduan = recentAduanResult?.data || [];
     const [tick, setTick] = useState(0);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [summaryFeedback, setSummaryFeedback] = useState<string | null>(null);
 
     useEffect(() => {
         const timer = window.setInterval(() => setTick((value) => value + 1), 60000);
@@ -165,6 +170,20 @@ export const DashboardPage: React.FC = () => {
 
     const isLoading = isLoadingStats || isLoadingAduan;
 
+    const handleDownloadSummary = async () => {
+        setIsGeneratingSummary(true);
+        setSummaryFeedback(null);
+        try {
+            const summary = await SummaryReportService.getSummary();
+            SummaryPdfService.exportSummary(summary);
+        } catch (error) {
+            console.error('Failed to create summary report:', error);
+            setSummaryFeedback(error instanceof Error ? error.message : 'Gagal membuat laporan summary.');
+        } finally {
+            setIsGeneratingSummary(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="dashboard-loading">
@@ -187,10 +206,17 @@ export const DashboardPage: React.FC = () => {
                     <h1>Ringkasan hari ini</h1>
                     <p className="dashboard-intro-copy">Prioritas kerja, kelengkapan dokumen, dan perkembangan aduan dalam satu tampilan.</p>
                 </div>
-                <Button onClick={() => navigate('/pengaduan/baru')} className="dashboard-primary-action">
-                    <Plus className="mr-2 h-4 w-4" /> Buat Aduan
-                </Button>
+                <div className="dashboard-intro-actions">
+                    <Button onClick={() => void handleDownloadSummary()} variant="ghost" disabled={isGeneratingSummary} className="dashboard-report-action" leftIcon={<Download className="h-4 w-4" />}>
+                        {isGeneratingSummary ? 'Membuat PDF...' : 'Download Laporan Summary'}
+                    </Button>
+                    <Button onClick={() => navigate('/pengaduan/baru')} className="dashboard-primary-action">
+                        <Plus className="mr-2 h-4 w-4" /> Buat Aduan
+                    </Button>
+                </div>
             </div>
+
+            {summaryFeedback && <p className="dashboard-report-feedback" role="status">{summaryFeedback}</p>}
 
             <section className="dashboard-metrics" aria-label="Ringkasan metrik">
                 <div className="dashboard-metric"><span>Total Aduan</span><strong>{total}</strong><small>Seluruh aduan tercatat</small></div>
