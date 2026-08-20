@@ -244,34 +244,29 @@ export const NewAduanPage: React.FC = () => {
 
             <form
                 onSubmit={handleSubmit}
-                className={cn(
-                    "overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-[var(--shadow-card)]",
-                    isCompact ? "space-y-5 p-4" : "space-y-8 p-6 sm:p-8"
-                )}
+                className="text-card-foreground"
             >
-                <div className={cn("grid grid-cols-1 divide-y divide-border", isCompact ? "gap-5" : "gap-8")}>
+                <div className="grid grid-cols-1">
                     {/* 1. Data Surat Masuk */}
-                    <section className="overflow-hidden">
-                        <CardHeader className="page-section-header pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="page-section-icon">
+                    <section className="border-b border-border/70 pb-8 pt-0 last:border-b-0 sm:pb-10">
+                        <CardHeader className="px-0 pb-4 pt-0">
+                            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
                                     <FileText size={20} />
                                 </div>
                                 Administrasi Surat Masuk
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
+                        <CardContent className={cn("px-0", isCompact ? "pt-5" : "pt-6")}>
                             <div className={cn("grid grid-cols-1 sm:grid-cols-2", isCompact ? "gap-3" : "gap-4")}>
-                                <div className="sm:col-span-2">
-                                    <Input
-                                        label="Nomor Surat"
-                                        placeholder="Contoh: 012/EXT/XII/2025"
-                                        value={formData.suratMasuk.nomorSurat}
-                                        onChange={e => handleSuratChange('nomorSurat', e.target.value)}
-                                        fullWidth
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    label="Nomor Surat"
+                                    placeholder="Contoh: 012/EXT/XII/2025"
+                                    value={formData.suratMasuk.nomorSurat}
+                                    onChange={e => handleSuratChange('nomorSurat', e.target.value)}
+                                    fullWidth
+                                    required
+                                />
                                 <Input
                                     type="date"
                                     label="Tanggal Surat"
@@ -324,6 +319,7 @@ export const NewAduanPage: React.FC = () => {
                                         accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.zip,.shp,.dbf,.prj,.shx,.mp3,.m4a,.wav,.ogg,.aac"
                                         uploadProgress={docUploadProgress}
                                         fileStatuses={suratFileStatuses}
+                                        compact
                                         isLoading={isSubmitting && suratFiles.length > 0 && docUploadProgress > 0 && docUploadProgress < 100}
                                     />
                                 </div>
@@ -332,36 +328,32 @@ export const NewAduanPage: React.FC = () => {
                     </section>
 
                     {/* 2. Data Pengadu */}
-                    <section className="overflow-hidden">
-                        <CardHeader className="page-section-header pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="page-section-icon">
+                    <section className="border-b border-border/70 pb-8 pt-8 last:border-b-0 sm:pb-10 sm:pt-10">
+                        <CardHeader className="px-0 pb-4 pt-0">
+                            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
                                     <User size={20} />
                                 </div>
                                 Identitas Pengadu
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
+                        <CardContent className={cn("px-0", isCompact ? "pt-5" : "pt-6")}>
                             <div className={cn("grid grid-cols-1 sm:grid-cols-2", isCompact ? "gap-4" : "gap-6")}>
-                                <div className="sm:col-span-2">
-                                    <Input
-                                        label="Nama Pengadu"
-                                        placeholder="Contoh: Bpk. Ahmad"
-                                        value={formData.pengadu.nama}
-                                        onChange={e => handlePengaduChange('nama', e.target.value)}
-                                        fullWidth
-                                        required
-                                    />
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <Input
-                                        label="Lembaga / Kelompok Pengadu"
-                                        placeholder="Contoh: KTH Wana Makmur"
-                                        value={formData.pengadu.instansi || ''}
-                                        onChange={e => handlePengaduChange('instansi', e.target.value)}
-                                        fullWidth
-                                    />
-                                </div>
+                                <Input
+                                    label="Nama Pengadu"
+                                    placeholder="Contoh: Bpk. Ahmad"
+                                    value={formData.pengadu.nama}
+                                    onChange={e => handlePengaduChange('nama', e.target.value)}
+                                    fullWidth
+                                    required
+                                />
+                                <Input
+                                    label="Lembaga / Kelompok Pengadu"
+                                    placeholder="Contoh: KTH Wana Makmur"
+                                    value={formData.pengadu.instansi || ''}
+                                    onChange={e => handlePengaduChange('instansi', e.target.value)}
+                                    fullWidth
+                                />
                                 <Input
                                     label="Nomor Telepon"
                                     placeholder="0812..."
@@ -382,16 +374,16 @@ export const NewAduanPage: React.FC = () => {
                     </section>
 
                     {/* 3. Lokasi Objek */}
-                    <section className="overflow-hidden">
-                        <CardHeader className="page-section-header pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="page-section-icon">
+                    <section className="border-b border-border/70 pb-8 pt-8 last:border-b-0 sm:pb-10 sm:pt-10">
+                        <CardHeader className="px-0 pb-4 pt-0">
+                            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
                                     <MapPin size={20} />
                                 </div>
                                 Lokasi Objek Konflik / Pengaduan
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
+                        <CardContent className={cn("px-0", isCompact ? "pt-5" : "pt-6")}>
                             <div className={cn("space-y-5", isCompact ? "mb-5" : "mb-8")}>
                                 <KpsSearch onSelect={handleKpsSelect} />
 
@@ -595,16 +587,16 @@ export const NewAduanPage: React.FC = () => {
                     </section>
 
                     {/* 4. Substansi Aduan */}
-                    <section className="overflow-hidden">
-                        <CardHeader className="page-section-header pb-6">
-                            <CardTitle className="flex items-center gap-3 text-xl">
-                                <div className="page-section-icon">
+                    <section className="pb-8 pt-8 sm:pb-10 sm:pt-10">
+                        <CardHeader className="px-0 pb-4 pt-0">
+                            <CardTitle className="flex items-center gap-3 text-lg sm:text-xl">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
                                     <AlertCircle size={20} />
                                 </div>
                                 Substansi Perkara
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
+                        <CardContent className={cn("px-0", isCompact ? "pt-5" : "pt-6")}>
                             <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3", isCompact ? "gap-4" : "gap-6")}>
                                 <Select
                                     label="Kategori Masalah"
@@ -636,7 +628,7 @@ export const NewAduanPage: React.FC = () => {
                     </section>
                 </div >
 
-                <div className={cn("flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 border-t", isCompact ? "pt-4" : "pt-6")}>
+                <div className={cn("flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 border-t border-border/70", isCompact ? "pt-4" : "pt-5")}>
                     <Button
                         type="button"
                         variant="ghost"

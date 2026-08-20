@@ -24,6 +24,7 @@ interface FileUploadProps {
     multiple?: boolean;
     uploadProgress?: number;
     fileStatuses?: FileUploadItemState[];
+    compact?: boolean;
 }
 
 const EMPTY_FILES: File[] = [];
@@ -39,7 +40,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     isLoading = false,
     multiple = false,
     uploadProgress,
-    fileStatuses = []
+    fileStatuses = [],
+    compact = false
 }) => {
     const [files, setFiles] = useState<File[]>(() => initialFiles ?? EMPTY_FILES);
     const [error, setError] = useState<string | null>(null);
@@ -182,7 +184,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             )}
 
             <div className={cn(
-                "relative group transition-all duration-300 rounded-xl border-2 border-dashed overflow-hidden",
+                "relative group overflow-hidden rounded-lg border border-dashed transition-colors duration-200",
                 error ? "border-destructive/20 bg-destructive/10" :
                     files.length > 0 ? "border-secondary/20 bg-secondary/10" :
                         "border-border hover:border-primary/40 bg-muted/30",
@@ -212,17 +214,21 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     onKeyDown={handleKeyDown}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleDrop}
-                    className="flex cursor-pointer flex-col items-center justify-center space-y-2 p-5 text-center"
+                    className={cn(
+                        "flex cursor-pointer gap-3",
+                        compact ? "items-center justify-between p-3 text-left" : "flex-col items-center justify-center space-y-2 p-5 text-center"
+                    )}
                 >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-white text-muted-foreground shadow-sm transition-colors group-hover:text-primary">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 text-muted-foreground transition-colors group-hover:text-primary">
                         {multiple && files.length > 0 ? <Plus size={18} /> : <Upload size={18} />}
                     </div>
-                    <div>
+                    <div className={cn("min-w-0", compact && "flex-1")}>
                         <p className="text-[0.92rem] font-semibold text-foreground/80">{files.length > 0 && multiple ? "Tambah Berkas Lainnya" : helperText}</p>
                         <p className="mt-0.5 text-[9px] font-medium text-muted-foreground">
                             Format: {accept.replace(/\./g, '').toUpperCase()} (Maks. {maxSizeMB}MB)
                         </p>
                     </div>
+                    {compact && <span className="shrink-0 text-[10px] font-semibold text-primary">Pilih berkas</span>}
                 </div>
             </div>
 
@@ -244,7 +250,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         exit={{ opacity: 0, x: 10 }}
-                                        className="group relative rounded-xl border border-border bg-white p-3 shadow-sm"
+                                        className="group relative rounded-lg border border-border bg-card p-3"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={cn(
