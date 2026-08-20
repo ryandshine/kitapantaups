@@ -70,41 +70,35 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
             onClose={onClose}
             title="Edit Data Aduan"
             description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            headerClassName="border-b border-border/70 px-6 pb-5 pt-6 text-left sm:px-8 sm:pb-6 sm:pt-7"
+            headerClassName="border-b border-border/70 px-6 pb-5 pr-14 pt-6 text-left sm:px-8 sm:pb-6 sm:pr-16 sm:pt-7"
             titleClassName="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
             descriptionClassName="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"
-            className={cn(detailModalClass, "flex h-[min(92vh,52rem)] max-h-[92vh] w-[min(96vw,72rem)] max-w-none flex-col overflow-hidden p-0")}
+            className={cn(detailModalClass, "flex h-[min(92vh,52rem)] max-h-[92vh] w-[min(96vw,72rem)] max-w-none flex-col gap-0 overflow-hidden p-0")}
             size="xl"
             scrollContent={false}
         >
             <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
                 <div className="min-h-0 flex-1 overflow-y-auto">
-                    <div className="grid min-h-full lg:grid-cols-[12rem_minmax(0,1fr)]">
-                        <aside className="hidden border-r border-border/70 bg-muted/15 lg:block">
-                            <div className="sticky top-0 px-5 py-7">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Bagian aduan</p>
-                                <nav className="mt-5" aria-label="Bagian formulir aduan">
-                                    {[
-                                        ['edit-ringkasan', 'Ringkasan'],
-                                        ['edit-kps', 'Kelompok / KPS'],
-                                        ['edit-pengadu', 'Pengadu & PIC'],
-                                        ['edit-administrasi', 'Administrasi'],
-                                    ].map(([id, label]) => (
-                                        <a
-                                            key={id}
-                                            href={`#${id}`}
-                                            className="group flex items-center gap-2 border-l-2 border-transparent px-3 py-3 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                                        >
-                                            <span className="h-1.5 w-1.5 rounded-full bg-border transition-colors group-hover:bg-primary" />
-                                            {label}
-                                        </a>
-                                    ))}
-                                </nav>
-                            </div>
-                        </aside>
+                    <nav className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-border/70 bg-card/95 px-4 py-3 backdrop-blur sm:px-8" aria-label="Bagian formulir aduan">
+                        {[
+                            ['edit-ringkasan', '01', 'Ringkasan'],
+                            ['edit-kps', '02', 'Kelompok / KPS'],
+                            ['edit-pengadu', '03', 'Pengadu & PIC'],
+                            ['edit-administrasi', '04', 'Administrasi'],
+                        ].map(([id, number, label]) => (
+                            <a
+                                key={id}
+                                href={`#${id}`}
+                                className="inline-flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            >
+                                <span className="text-[10px] font-semibold tabular-nums text-primary">{number}</span>
+                                {label}
+                            </a>
+                        ))}
+                    </nav>
 
-                        <div className="min-w-0 px-6 py-7 sm:px-10 sm:py-8">
-                            <div className="divide-y divide-border/70">
+                    <div className="mx-auto w-full max-w-4xl px-6 py-7 sm:px-10 sm:py-8">
+                        <div className="divide-y divide-border/70">
                 <section id="edit-ringkasan" className="scroll-mt-5 pb-8">
                     <div className="mb-4">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">01 · Ringkasan</p>
@@ -301,7 +295,6 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                 </section>
                         </div>
                     </div>
-                </div>
                 </div>
 
                 <ModalFooter className="shrink-0 border-t border-border bg-card px-6 py-4 sm:px-8">
