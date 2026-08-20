@@ -50,6 +50,8 @@ export type CreateKpsResponse = {
     candidates: KpsData[];
 };
 
+export type UpdateKpsResponse = KpsData;
+
 export const KpsService = {
     getKpsList: async (page: number = 1, pageSize: number = 20): Promise<KpsData[]> => {
         try {
@@ -87,6 +89,10 @@ export const KpsService = {
 
     createKps: async (payload: NewKpsInput): Promise<CreateKpsResponse> => {
         return await api.post<CreateKpsResponse>('/master/kps', payload);
+    },
+
+    updateKps: async (id: string, payload: NewKpsInput): Promise<UpdateKpsResponse> => {
+        return await api.patch<UpdateKpsResponse>(`/master/kps/${encodeURIComponent(id)}`, payload);
     },
 
     getKpsById: async (id: string): Promise<KpsData | null> => {

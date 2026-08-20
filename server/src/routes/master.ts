@@ -32,6 +32,12 @@ const createKpsSchema = z.object({
   anggota_wanita: z.number().int().min(0).optional(),
 })
 
+// Data GoKUPS lama dapat memiliki label skema di luar daftar pilihan lokal.
+// Admin tetap boleh mempertahankan atau membetulkan nilai tersebut.
+const updateKpsSchema = createKpsSchema.extend({
+  skema: z.string().trim().min(1),
+})
+
 // GET /master/status
 master.get('/status', async (c) => {
   const result = await MasterService.getStatus()
@@ -75,6 +81,14 @@ master.post('/kps', zValidator('json', createKpsSchema), async (c) => {
 
   const result = await MasterService.createKps({ ...data, created_by: user.userId })
   return c.json(result, 201)
+})
+
+// PATCH /master/kps/:id — hanya admin, untuk koreksi data master
+master.patch('/kps/:id', requireAdmin, zValidator('json', updateKpsSchema), async (c) => {
+  const data = c.req.valid('json')
+  const result = await MasterService.updateKps(c.req.param('id'), data)
+  if (!result) return c.json({ error: 'KPS tidak ditemukan' }, 404)
+  return c.json(result)
 })
 
 // POST /master/kps/sync

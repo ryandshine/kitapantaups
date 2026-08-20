@@ -160,6 +160,44 @@ export const MasterRepository = {
     )
 
     return MasterRepository.findKpsById(id)
+  },
+
+  async updateKps(id: string, data: NewKpsInput) {
+    const result = await pool.query(
+      `UPDATE public.kps SET
+        nama_lembaga = $2,
+        surat_keputusan = $3,
+        tanggal = $4,
+        skema = $5,
+        provinsi = $6,
+        kabupaten = $7,
+        kecamatan = $8,
+        desa = $9,
+        luas_total = $10,
+        anggota_pria = $11,
+        anggota_wanita = $12,
+        manual_override = true,
+        updated_at = now()
+       WHERE id = $1
+       RETURNING id`,
+      [
+        id,
+        data.nama_lembaga.trim(),
+        data.surat_keputusan || null,
+        data.tanggal || null,
+        data.skema,
+        data.provinsi.trim(),
+        data.kabupaten.trim(),
+        data.kecamatan?.trim() || null,
+        data.desa?.trim() || null,
+        data.luas_total || 0,
+        data.anggota_pria || 0,
+        data.anggota_wanita || 0,
+      ]
+    )
+
+    if (result.rowCount === 0) return null
+    return MasterRepository.findKpsById(id)
   }
 }
 

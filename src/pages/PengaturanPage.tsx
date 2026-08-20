@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
-import { Save as SaveIcon, UserCircle, ShieldCheck, RefreshCw, Database } from 'lucide-react';
+import { Save as SaveIcon, UserCircle, ShieldCheck, RefreshCw, Database, Pencil, Search, Loader2 } from 'lucide-react';
 import { UserService } from '../lib/user.service';
 import { useKpsSyncStatus, useSyncKps } from '../hooks/useKps';
+import { KpsService } from '../lib/kps.service';
+import type { KpsData } from '../types';
+import { EditKpsModal } from '../components/ui/EditKpsModal';
 import './PengaturanPage.css';
 
 export const PengaturanPage: React.FC = () => {
@@ -16,6 +19,10 @@ export const PengaturanPage: React.FC = () => {
     const syncStatusQuery = useKpsSyncStatus(isAdmin);
     const syncStatus = syncStatusQuery.data;
     const isSyncRunning = Boolean(syncKpsMutation.isPending || syncStatus?.isRunning);
+    const [kpsSearch, setKpsSearch] = useState('');
+    const [kpsResults, setKpsResults] = useState<KpsData[]>([]);
+    const [isSearchingKps, setIsSearchingKps] = useState(false);
+    const [editingKps, setEditingKps] = useState<KpsData | null>(null);
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -50,6 +57,29 @@ export const PengaturanPage: React.FC = () => {
             console.error(err);
             setFeedback({ type: 'error', message: 'Gagal menjalankan sinkronisasi KPS.' });
         }
+    };
+
+    const handleSearchKps = async (event: React.FormEvent) => {
+        event.preventDefault();
+        const query = kpsSearch.trim();
+        if (!query) {
+            setKpsResults([]);
+            return;
+        }
+        setIsSearchingKps(true);
+        try {
+            setKpsResults(await KpsService.searchKps(query));
+        } catch (err) {
+            console.error(err);
+            setFeedback({ type: 'error', message: 'Gagal mencari data KPS.' });
+        } finally {
+            setIsSearchingKps(false);
+        }
+    };
+
+    const handleKpsSaved = (saved: KpsData) => {
+        setKpsResults((previous) => previous.map((item) => item.id === saved.id ? saved : item));
+        setFeedback({ type: 'success', message: 'Data KPS berhasil diperbarui.' });
     };
 
     return (
@@ -141,6 +171,54 @@ export const PengaturanPage: React.FC = () => {
                 <Card className="mt-6 border-primary/12 shadow-[0_24px_60px_-38px_rgba(46,106,87,0.24)]">
                     <CardHeader className="page-section-header">
                         <CardTitle className="flex items-center gap-2">
+                            <Pencil className="h-4 w-4 text-primary" />
+                            Koreksi Data Master KPS
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-6">
+                        <p className="text-xs leading-relaxed text-muted-foreground">
+                            Cari berdasarkan nama lembaga, ID, nomor SK, provinsi, atau kabupaten untuk memperbaiki data KPS.
+                        </p>
+                        <form onSubmit={handleSearchKps} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                            <div className="flex-1">
+                                <Input
+                                    label="Cari KPS / Lembaga"
+                                    placeholder="Contoh: KTH Sinar Harapan atau nomor SK"
+                                    value={kpsSearch}
+                                    onChange={(event) => setKpsSearch(event.target.value)}
+                                    leftIcon={<Search size={16} />}
+                                    fullWidth
+                                />
+                            </div>
+                            <Button type="submit" variant="primary" isLoading={isSearchingKps} leftIcon={!isSearchingKps ? <Search size={16} /> : undefined}>
+                                Cari
+                            </Button>
+                        </form>
+                        {isSearchingKps && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 size={14} className="animate-spin" /> Mencari data KPS...</div>}
+                        {!isSearchingKps && kpsSearch.trim() && kpsResults.length === 0 && (
+                            <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">Data KPS tidak ditemukan.</p>
+                        )}
+                        {kpsResults.length > 0 && (
+                            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                                {kpsResults.map((kps) => (
+                                    <div key={kps.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                            <p className="mt-1 truncate text-[11px] text-muted-foreground">{kps.id} · {kps.surat_keputusan || kps.nomor_sk || '-'} · {kps.kabupaten || kps.lokasi_kab || '-'}, {kps.provinsi || kps.lokasi_prov || '-'}</p>
+                                        </div>
+                                        <Button type="button" variant="outline" size="sm" onClick={() => setEditingKps(kps)} leftIcon={<Pencil size={14} />}>Edit</Button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
+
+            {isAdmin && (
+                <Card className="mt-6 border-primary/12 shadow-[0_24px_60px_-38px_rgba(46,106,87,0.24)]">
+                    <CardHeader className="page-section-header">
+                        <CardTitle className="flex items-center gap-2">
                             <Database className="h-4 w-4 text-primary" />
                             Sinkronisasi Master KPS
                         </CardTitle>
@@ -219,6 +297,13 @@ export const PengaturanPage: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+
+            <EditKpsModal
+                isOpen={Boolean(editingKps)}
+                kps={editingKps}
+                onClose={() => setEditingKps(null)}
+                onSaved={handleKpsSaved}
+            />
         </div>
     );
 };

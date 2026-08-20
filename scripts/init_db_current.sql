@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS public.kps (
   synced_at        timestamptz NOT NULL DEFAULT now(),
   created_at       timestamptz NOT NULL DEFAULT now(),
   updated_at       timestamptz NOT NULL DEFAULT now(),
+  manual_override  boolean     NOT NULL DEFAULT false,
   CONSTRAINT kps_pkey PRIMARY KEY (id)
 );
 

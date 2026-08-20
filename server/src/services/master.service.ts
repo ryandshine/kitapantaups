@@ -54,5 +54,9 @@ export const MasterService = {
     const data = await MasterRepository.createKps({ ...input, nama_lembaga: namaLembaga })
 
     return { data, candidates }
+  },
+
+  async updateKps(id: string, input: NewKpsInput) {
+    return await MasterRepository.updateKps(id, input)
   }
 }

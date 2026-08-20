@@ -172,7 +172,7 @@ const upsertRows = async (rows: GokupsKpsRow[]) => {
 
   const { placeholders, values } = buildValuesClause(rows)
   await pool.query(
-    `INSERT INTO public.kps (
+    `INSERT INTO public.kps AS current_kps (
       id,
       nama_lembaga,
       surat_keputusan,
@@ -201,27 +201,27 @@ const upsertRows = async (rows: GokupsKpsRow[]) => {
     VALUES
       ${placeholders}
     ON CONFLICT (id) DO UPDATE SET
-      nama_lembaga = EXCLUDED.nama_lembaga,
-      surat_keputusan = EXCLUDED.surat_keputusan,
-      tanggal = EXCLUDED.tanggal,
-      skema = EXCLUDED.skema,
+      nama_lembaga = CASE WHEN current_kps.manual_override THEN current_kps.nama_lembaga ELSE EXCLUDED.nama_lembaga END,
+      surat_keputusan = CASE WHEN current_kps.manual_override THEN current_kps.surat_keputusan ELSE EXCLUDED.surat_keputusan END,
+      tanggal = CASE WHEN current_kps.manual_override THEN current_kps.tanggal ELSE EXCLUDED.tanggal END,
+      skema = CASE WHEN current_kps.manual_override THEN current_kps.skema ELSE EXCLUDED.skema END,
       provinsi_id = EXCLUDED.provinsi_id,
       kabupaten_id = EXCLUDED.kabupaten_id,
       kecamatan_id = EXCLUDED.kecamatan_id,
       desa_id = EXCLUDED.desa_id,
-      provinsi = EXCLUDED.provinsi,
-      kabupaten = EXCLUDED.kabupaten,
-      kecamatan = EXCLUDED.kecamatan,
-      desa = EXCLUDED.desa,
-      luas_hl = EXCLUDED.luas_hl,
-      luas_hp = EXCLUDED.luas_hp,
-      luas_hpt = EXCLUDED.luas_hpt,
-      luas_hpk = EXCLUDED.luas_hpk,
-      luas_hk = EXCLUDED.luas_hk,
-      luas_apl = EXCLUDED.luas_apl,
-      luas_total = EXCLUDED.luas_total,
-      anggota_pria = EXCLUDED.anggota_pria,
-      anggota_wanita = EXCLUDED.anggota_wanita,
+      provinsi = CASE WHEN current_kps.manual_override THEN current_kps.provinsi ELSE EXCLUDED.provinsi END,
+      kabupaten = CASE WHEN current_kps.manual_override THEN current_kps.kabupaten ELSE EXCLUDED.kabupaten END,
+      kecamatan = CASE WHEN current_kps.manual_override THEN current_kps.kecamatan ELSE EXCLUDED.kecamatan END,
+      desa = CASE WHEN current_kps.manual_override THEN current_kps.desa ELSE EXCLUDED.desa END,
+      luas_hl = CASE WHEN current_kps.manual_override THEN current_kps.luas_hl ELSE EXCLUDED.luas_hl END,
+      luas_hp = CASE WHEN current_kps.manual_override THEN current_kps.luas_hp ELSE EXCLUDED.luas_hp END,
+      luas_hpt = CASE WHEN current_kps.manual_override THEN current_kps.luas_hpt ELSE EXCLUDED.luas_hpt END,
+      luas_hpk = CASE WHEN current_kps.manual_override THEN current_kps.luas_hpk ELSE EXCLUDED.luas_hpk END,
+      luas_hk = CASE WHEN current_kps.manual_override THEN current_kps.luas_hk ELSE EXCLUDED.luas_hk END,
+      luas_apl = CASE WHEN current_kps.manual_override THEN current_kps.luas_apl ELSE EXCLUDED.luas_apl END,
+      luas_total = CASE WHEN current_kps.manual_override THEN current_kps.luas_total ELSE EXCLUDED.luas_total END,
+      anggota_pria = CASE WHEN current_kps.manual_override THEN current_kps.anggota_pria ELSE EXCLUDED.anggota_pria END,
+      anggota_wanita = CASE WHEN current_kps.manual_override THEN current_kps.anggota_wanita ELSE EXCLUDED.anggota_wanita END,
       raw_payload = EXCLUDED.raw_payload,
       synced_at = EXCLUDED.synced_at`,
     values

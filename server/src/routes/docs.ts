@@ -550,6 +550,19 @@ const buildOpenApiSpec = (origin: string) => ({
           404: { description: 'KPS tidak ditemukan' },
         },
       },
+      patch: {
+        tags: ['Master'],
+        summary: 'Koreksi data KPS oleh admin',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+        ],
+        responses: {
+          200: { description: 'Data KPS berhasil diperbarui' },
+          403: { description: 'Hanya admin yang dapat mengedit KPS' },
+          404: { description: 'KPS tidak ditemukan' },
+        },
+      },
     },
     '/master/kps/sync': {
       get: {
