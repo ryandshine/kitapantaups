@@ -17,6 +17,7 @@ interface ModalProps {
     children: React.ReactNode;
     className?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+    scrollContent?: boolean;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -26,7 +27,8 @@ export const Modal: React.FC<ModalProps> = ({
     description,
     children,
     className,
-    size = 'md'
+    size = 'md',
+    scrollContent = true,
 }) => {
     const sizeClasses = {
         sm: 'max-w-sm',
@@ -39,7 +41,11 @@ export const Modal: React.FC<ModalProps> = ({
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent
-                className={cn(sizeClasses[size], className, "max-h-[90vh] overflow-y-auto")}
+                className={cn(
+                    sizeClasses[size],
+                    className,
+                    scrollContent ? "max-h-[90vh] overflow-y-auto" : "max-h-[90vh] overflow-hidden"
+                )}
             >
                 <DialogHeader>
                     {title && <DialogTitle>{title}</DialogTitle>}
