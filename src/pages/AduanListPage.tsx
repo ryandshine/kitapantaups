@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Badge } from '../components/ui';
-import { useAduanList } from '../hooks/useAduan';
+import { useAduanCount, useAduanList } from '../hooks/useAduan';
 import { useUIDensity } from '../hooks/useUIDensity';
 import type { Aduan } from '../types';
 
@@ -49,6 +49,10 @@ export const AduanListPage: React.FC = () => {
         statusFilter,
         aduanOptions
     );
+    const { data: totalBaru } = useAduanCount({ status: 'baru' });
+    const { data: totalProses } = useAduanCount({ status: 'proses' });
+    const { data: totalMenungguTanggapan } = useAduanCount({ status: 'menunggu_tanggapan' });
+    const { data: totalSelesai } = useAduanCount({ status: 'selesai' });
 
     // Reset ke halaman 1 saat search atau filter berubah
     useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter, rkpsParam, kupsKelasParam]);
@@ -57,21 +61,14 @@ export const AduanListPage: React.FC = () => {
     const displayList = useMemo<Aduan[]>(() => aduanResult?.data || [], [aduanResult]);
     const totalCount = aduanResult?.total || 0;
     const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
-    const statusSummary = useMemo(() => {
-        return displayList.reduce<Record<string, number>>((acc, row) => {
-            const key = String(row.status || 'lainnya').toLowerCase();
-            acc[key] = (acc[key] || 0) + 1;
-            return acc;
-        }, {});
-    }, [displayList]);
-
-    const summaryCards = useMemo(() => {
-        return SUMMARY_STATUS_ORDER.map((statusKey) => ({
-            key: statusKey,
-            label: STATUS_LABELS[statusKey],
-            count: statusSummary[statusKey] || 0,
-        }));
-    }, [statusSummary]);
+    const summaryCards = useMemo<Array<{ key: typeof SUMMARY_STATUS_ORDER[number]; label: string; count: number }>>(() => {
+        return [
+            { key: 'baru', label: STATUS_LABELS.baru, count: totalBaru || 0 },
+            { key: 'proses', label: STATUS_LABELS.proses, count: totalProses || 0 },
+            { key: 'menunggu_tanggapan', label: STATUS_LABELS.menunggu_tanggapan, count: totalMenungguTanggapan || 0 },
+            { key: 'selesai', label: STATUS_LABELS.selesai, count: totalSelesai || 0 },
+        ];
+    }, [totalBaru, totalProses, totalMenungguTanggapan, totalSelesai]);
 
     const scrollToListSection = () => {
         window.requestAnimationFrame(() => {
@@ -115,6 +112,18 @@ export const AduanListPage: React.FC = () => {
     const formatDateValue = (value?: Date) => {
         if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '-';
         return DATE_FORMATTER.format(value);
+    };
+
+    const formatRelativeDateValue = (value?: Date) => {
+        if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '-';
+        const diffInSeconds = Math.max(0, Math.floor((Date.now() - value.getTime()) / 1000));
+        if (diffInSeconds < 60) return 'Baru saja';
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes} menit lalu`;
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours} jam lalu`;
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays} hari lalu`;
     };
 
     const getKpsStatusKelas = (row: Aduan) => {
@@ -184,7 +193,8 @@ export const AduanListPage: React.FC = () => {
                         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                         <input
                             type="text"
-                            placeholder="Cari nomor tiket, perihal, KPS, lokasi, SK, pengadu, atau instansi... (Global Search)"
+                            placeholder="Cari tiket, KPS, lokasi, pengadu..."
+                            aria-label="Cari nomor tiket, perihal, KPS, lokasi, pengadu, atau instansi"
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                             className={`w-full rounded-2xl border border-border bg-muted pl-12 pr-4 font-medium text-foreground placeholder:text-muted-foreground transition-all focus:border-primary/60 focus:ring-4 focus:ring-primary/10 ${isCompact ? 'h-11 text-[0.95rem]' : 'h-13 text-[1rem]'}`}
@@ -241,6 +251,21 @@ export const AduanListPage: React.FC = () => {
                         </Button>
                     </div>
                 )}
+                {statusFilter !== 'all' && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status aktif:</span>
+                        <Badge variant="gray" className="rounded-lg px-2.5 py-1 text-xs font-bold uppercase">
+                            {STATUS_LABELS[statusFilter] || statusFilter}
+                        </Badge>
+                        <button
+                            type="button"
+                            onClick={() => setStatusFilter('all')}
+                            className="ml-auto text-xs font-bold text-destructive hover:underline"
+                        >
+                            Hapus status
+                        </button>
+                    </div>
+                )}
                 <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5">
                         <button
@@ -279,21 +304,22 @@ export const AduanListPage: React.FC = () => {
                         <span className="text-sm font-medium">Memuat data dari Dashboard...</span>
                     </div>
                 ) : displayList.length > 0 ? (
-                    <div className="overflow-x-auto custom-scrollbar-horizontal">
-                        <table className="w-full min-w-[1120px] text-left text-[0.88rem]">
+                    <>
+                        <div className="hidden overflow-hidden md:block">
+                        <table className="w-full table-fixed text-left text-[0.82rem]">
                             <thead>
                                 <tr className="border-b border-primary/20 bg-primary text-primary-foreground">
-                                    <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">
-                                        <div className="inline-flex min-w-[8.5rem] flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 shadow-[0_1px_0_rgba(255,255,255,0.12)_inset] backdrop-blur-sm">
+                                    <th className="w-[15%] px-4 py-4 text-left text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">
+                                        <div className="flex flex-col gap-1">
                                             <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/70">Nomor Aduan</span>
                                             <span className="border-t border-white/15 pt-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-primary-foreground/85">Status</span>
                                         </div>
                                     </th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
-                                    <th className="px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
+                                    <th className="w-[15%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Pengadu</th>
+                                    <th className="w-[25%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Ringkasan Masalah</th>
+                                    <th className="w-[22%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">KPS</th>
+                                    <th className="w-[15%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Wilayah</th>
+                                    <th className="w-[8%] px-4 py-4 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground/90">Tanggal</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -301,10 +327,18 @@ export const AduanListPage: React.FC = () => {
                                     <tr
                                         key={row.nomor_tiket}
                                         onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                        className="border-b border-border/60 transition-colors hover:bg-primary/4 cursor-pointer group"
+                                        onKeyDown={(event) => {
+                                            if (event.key === 'Enter' || event.key === ' ') {
+                                                event.preventDefault();
+                                                navigate(`/pengaduan/${row.nomor_tiket}`);
+                                            }
+                                        }}
+                                        tabIndex={0}
+                                        role="link"
+                                        className="group cursor-pointer border-b border-border/60 transition-colors hover:bg-primary/4 focus-visible:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
                                     >
-                                        <td className="px-4 py-3 align-top min-w-[170px]">
-                                            <div className="flex flex-col gap-2 rounded-2xl border border-border/50 bg-muted/30 px-3 py-3 shadow-[0_1px_0_rgba(255,255,255,0.35)_inset]">
+                                        <td className="px-4 py-3 align-top">
+                                            <div className="flex flex-col gap-2">
                                                 <span className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm">
                                                     {row.nomor_tiket}
                                                 </span>
@@ -313,76 +347,76 @@ export const AduanListPage: React.FC = () => {
                                                 </Badge>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top min-w-[140px] text-foreground">
+                                        <td className="px-4 py-3 align-top text-foreground">
                                             <p className="font-medium">{row.pengadu_nama || '-'}</p>
                                             {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
-                                        <td className="px-4 py-3 align-top min-w-[240px]">
+                                        <td className="px-4 py-3 align-top">
                                             <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">{getRingkasanMasalahValue(row)}</p>
                                         </td>
-                                        <td className="px-4 py-3 align-top min-w-[220px] text-foreground">
-                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
-                                                <div className="flex gap-2 px-3 py-2">
+                                        <td className="px-4 py-3 align-top text-foreground">
+                                            <div className="space-y-1 text-[12px]">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KPS</span>
                                                     <span className="leading-snug">{formatJoinedValue(row.nama_kps)}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">SK</span>
                                                     <span className="leading-snug">{formatJoinedValue(row.nomor_sk)}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Skema</span>
                                                     <span className="leading-snug">{formatJoinedValue(row.type_kps)}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Luas</span>
                                                     <span className="font-medium tabular-nums whitespace-nowrap">
                                                         {Number(row.lokasi_luas_ha || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Ha
                                                     </span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">KK</span>
                                                     <span className="font-medium tabular-nums">{row.jumlah_kk ?? '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kelas</span>
                                                     <span className="leading-snug">{getKpsStatusKelas(row)}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">RKPS</span>
                                                     <span className="leading-snug">{getKpsStatusRkps(row)}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top min-w-[240px] text-foreground">
-                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
-                                                <div className="flex gap-2 px-3 py-2">
+                                        <td className="px-4 py-3 align-top text-foreground">
+                                            <div className="space-y-1 text-[12px]">
+                                                <div className="flex gap-2">
                                                     <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Provinsi</span>
                                                     <span className="leading-snug">{row.lokasi_prov || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Kabupaten</span>
                                                     <span className="leading-snug">{row.lokasi_kab || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Desa</span>
                                                     <span className="leading-snug">{row.lokasi_desa || '-'}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
+                                                <div className="flex gap-2">
                                                     <span className="w-20 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">BPS</span>
                                                     <span className="leading-snug">{(row as any).balai || '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 align-top min-w-[180px] text-foreground">
-                                            <div className="divide-y divide-border/50 rounded-xl border border-border/50 bg-muted/25">
-                                                <div className="flex gap-2 px-3 py-2">
+                                        <td className="px-4 py-3 align-top text-foreground">
+                                            <div className="space-y-1 text-[12px]">
+                                                <div className="flex gap-2">
                                                     <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Surat</span>
                                                     <span className="leading-snug">{formatDateValue(row.surat_tanggal)}</span>
                                                 </div>
-                                                <div className="flex gap-2 px-3 py-2">
-                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Dibuat</span>
-                                                    <span className="leading-snug">{formatDateValue(row.created_at || row.createdAt)}</span>
+                                                <div className="flex gap-2">
+                                                    <span className="w-14 shrink-0 pt-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground/80">Update</span>
+                                                    <span className="leading-snug" title={formatDateValue(row.updatedAt)}>{formatRelativeDateValue(row.updatedAt)}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -390,7 +424,46 @@ export const AduanListPage: React.FC = () => {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
+                        </div>
+                        <div className="grid gap-3 p-3 md:hidden">
+                            {displayList.map((row) => (
+                                <button
+                                    key={row.nomor_tiket}
+                                    type="button"
+                                    onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
+                                    className="w-full rounded-xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-primary/35 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <span className="font-mono text-xs font-bold text-foreground">{row.nomor_tiket}</span>
+                                            <p className="mt-1 truncate text-sm font-semibold text-foreground">{getRingkasanMasalahValue(row)}</p>
+                                        </div>
+                                        <Badge variant="gray" className="shrink-0 whitespace-nowrap text-[10px] font-bold uppercase">
+                                            {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
+                                        </Badge>
+                                    </div>
+                                    <div className="mt-3 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+                                        <div>
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Pengadu</span>
+                                            <p className="mt-0.5 text-foreground">{row.pengadu_nama || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">KPS</span>
+                                            <p className="mt-0.5 text-foreground">{formatJoinedValue(row.nama_kps)}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Wilayah</span>
+                                            <p className="mt-0.5 text-foreground">{[row.lokasi_kab, row.lokasi_prov].filter(Boolean).join(', ') || '-'}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Diperbarui</span>
+                                            <p className="mt-0.5 text-foreground" title={formatDateValue(row.updatedAt)}>{formatRelativeDateValue(row.updatedAt)}</p>
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </>
                 ) : (
                     <div className="flex h-48 items-center justify-center px-6 text-center italic text-muted-foreground">
                         Tidak ada data pengaduan yang ditemukan.
