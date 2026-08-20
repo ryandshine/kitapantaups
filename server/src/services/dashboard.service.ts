@@ -28,6 +28,11 @@ export const DashboardService = {
       last_30_days: data.recent,
       rkps: data.rkps,
       kups: kupsMap,
+      monthly_trend: data.monthlyTrend.map((row: { month: string; received: number; resolved: number }) => ({
+        month: row.month,
+        received: Number(row.received),
+        resolved: Number(row.resolved),
+      })),
     }
   }
 }

@@ -202,6 +202,7 @@ export const AduanService = {
         total: number;
         by_status: Record<string, number>;
         last_30_days: number;
+        monthly_trend: Array<{ month: string; received: number; resolved: number }>;
         rkps?: number;
         kups?: {
             BIRU: number;
@@ -215,6 +216,7 @@ export const AduanService = {
                 total: number;
                 by_status: Record<string, number>;
                 last_30_days: number;
+                monthly_trend: Array<{ month: string; received: number; resolved: number }>;
                 rkps: number;
                 kups: {
                     BIRU: number;
@@ -230,7 +232,8 @@ export const AduanService = {
                 by_status: {},
                 last_30_days: 0,
                 rkps: 0,
-                kups: { BIRU: 0, PERAK: 0, EMAS: 0, PLATINUM: 0 }
+                kups: { BIRU: 0, PERAK: 0, EMAS: 0, PLATINUM: 0 },
+                monthly_trend: [],
             };
         }
     },
