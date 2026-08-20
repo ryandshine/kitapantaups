@@ -18,6 +18,9 @@ interface ModalProps {
     className?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
     scrollContent?: boolean;
+    headerClassName?: string;
+    titleClassName?: string;
+    descriptionClassName?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -29,6 +32,9 @@ export const Modal: React.FC<ModalProps> = ({
     className,
     size = 'md',
     scrollContent = true,
+    headerClassName,
+    titleClassName,
+    descriptionClassName,
 }) => {
     const sizeClasses = {
         sm: 'max-w-sm',
@@ -47,10 +53,10 @@ export const Modal: React.FC<ModalProps> = ({
                     scrollContent ? "max-h-[90vh] overflow-y-auto" : "max-h-[90vh] overflow-hidden"
                 )}
             >
-                <DialogHeader>
-                    {title && <DialogTitle>{title}</DialogTitle>}
+                <DialogHeader className={headerClassName}>
+                    {title && <DialogTitle className={titleClassName}>{title}</DialogTitle>}
                     {/* Always render DialogDescription to satisfy Radix UI accessibility requirement */}
-                    <DialogDescription className={description ? undefined : 'sr-only'}>
+                    <DialogDescription className={description ? descriptionClassName : 'sr-only'}>
                         {description || title || 'Dialog'}
                     </DialogDescription>
                 </DialogHeader>

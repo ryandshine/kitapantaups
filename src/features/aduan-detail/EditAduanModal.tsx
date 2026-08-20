@@ -70,17 +70,20 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
             onClose={onClose}
             title="Edit Data Aduan"
             description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            className={cn(detailModalClass, "flex max-w-5xl h-[90vh] max-h-[90vh] flex-col overflow-hidden p-0")}
+            headerClassName="border-b border-border/70 px-6 pb-5 pt-6 text-left sm:px-8 sm:pb-6 sm:pt-7"
+            titleClassName="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+            descriptionClassName="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"
+            className={cn(detailModalClass, "flex h-[min(92vh,52rem)] max-h-[92vh] w-[min(96vw,72rem)] max-w-none flex-col overflow-hidden p-0")}
             size="xl"
             scrollContent={false}
         >
             <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
-                <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 sm:px-8">
-                    <div className="grid gap-8 lg:grid-cols-[9rem_minmax(0,1fr)]">
-                        <aside className="hidden lg:block">
-                            <div className="sticky top-0 border-r border-border/70 pr-5">
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                    <div className="grid min-h-full lg:grid-cols-[12rem_minmax(0,1fr)]">
+                        <aside className="hidden border-r border-border/70 bg-muted/15 lg:block">
+                            <div className="sticky top-0 px-5 py-7">
                                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Bagian aduan</p>
-                                <nav className="mt-4 space-y-1" aria-label="Bagian formulir aduan">
+                                <nav className="mt-5" aria-label="Bagian formulir aduan">
                                     {[
                                         ['edit-ringkasan', 'Ringkasan'],
                                         ['edit-kps', 'Kelompok / KPS'],
@@ -90,8 +93,9 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                         <a
                                             key={id}
                                             href={`#${id}`}
-                                            className="block border-l-2 border-transparent px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-foreground"
+                                            className="group flex items-center gap-2 border-l-2 border-transparent px-3 py-3 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                                         >
+                                            <span className="h-1.5 w-1.5 rounded-full bg-border transition-colors group-hover:bg-primary" />
                                             {label}
                                         </a>
                                     ))}
@@ -99,7 +103,8 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                             </div>
                         </aside>
 
-                        <div className="min-w-0 divide-y divide-border/70">
+                        <div className="min-w-0 px-6 py-7 sm:px-10 sm:py-8">
+                            <div className="divide-y divide-border/70">
                 <section id="edit-ringkasan" className="scroll-mt-5 pb-8">
                     <div className="mb-4">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">01 · Ringkasan</p>
@@ -204,7 +209,7 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     </div>
                                 );
                             })}
-                        </div>
+                            </div>
                     )}
                 </section>
 
@@ -296,6 +301,7 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                 </section>
                         </div>
                     </div>
+                </div>
                 </div>
 
                 <ModalFooter className="shrink-0 border-t border-border bg-card px-6 py-4 sm:px-8">
