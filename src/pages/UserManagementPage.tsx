@@ -17,7 +17,8 @@ import {
     XCircle,
     ShieldAlert,
     UserPlus,
-    KeyRound
+    KeyRound,
+    MoreHorizontal
 } from 'lucide-react';
 import {
     Card,
@@ -36,9 +37,6 @@ import { cn } from '../lib/utils';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error && error.message ? error.message : fallback;
-
-const isUserRole = (value: string): value is User['role'] =>
-    value === 'admin' || value === 'staf';
 
 const UserAvatar: React.FC<{ user: User }> = ({ user }) => {
     const safeDisplayName = (user.displayName || '').trim() || user.email?.split('@')[0] || 'User';
@@ -176,6 +174,80 @@ export const UserManagementPage: React.FC = () => {
         u.displayName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const activeUserCount = users.filter((user) => user.isActive).length;
+    const inactiveUserCount = users.length - activeUserCount;
+
+    const closeActionMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.currentTarget.closest('details')?.removeAttribute('open');
+    };
+
+    const renderUserActions = (user: User) => (
+        <details className="relative">
+            <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
+                <MoreHorizontal className="h-5 w-5" />
+                <span className="sr-only">Buka aksi untuk {user.displayName || user.email}</span>
+            </summary>
+            <div className="absolute right-0 top-full z-30 mt-2 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
+                <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Aksi pengguna</p>
+                <button
+                    type="button"
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors hover:bg-muted"
+                    onClick={(event) => {
+                        closeActionMenu(event);
+                        openResetPasswordModal(user);
+                    }}
+                    disabled={updatingUserId === user.id}
+                >
+                    <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
+                    Reset password
+                </button>
+                {user.id !== currentUser?.id && (
+                    <>
+                        <button
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors hover:bg-muted"
+                            onClick={(event) => {
+                                closeActionMenu(event);
+                                void handleRoleChange(user.id, user.role === 'admin' ? 'staf' : 'admin');
+                            }}
+                            disabled={updatingUserId === user.id}
+                        >
+                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                            Jadikan {user.role === 'admin' ? 'Staf' : 'Admin'}
+                        </button>
+                        <button
+                            type="button"
+                            className={cn(
+                                'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors',
+                                user.isActive ? 'text-destructive hover:bg-destructive/10' : 'text-secondary hover:bg-secondary/10'
+                            )}
+                            onClick={(event) => {
+                                closeActionMenu(event);
+                                void handleToggleStatus(user);
+                            }}
+                            disabled={updatingUserId === user.id}
+                        >
+                            {user.isActive ? <XCircle className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
+                            {user.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                        </button>
+                        <button
+                            type="button"
+                            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
+                            onClick={(event) => {
+                                closeActionMenu(event);
+                                setDeleteCandidate(user);
+                            }}
+                            disabled={updatingUserId === user.id}
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Hapus pengguna
+                        </button>
+                    </>
+                )}
+            </div>
+        </details>
+    );
+
     if (!isAdmin) {
         return (
             <div className="flex flex-col items-center justify-center h-96 gap-4">
@@ -189,24 +261,20 @@ export const UserManagementPage: React.FC = () => {
     }
 
     return (
-        <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="hero-panel mb-6">
-                <div className="relative z-10 flex items-center justify-between">
-                    <div className="flex flex-col gap-1">
-                        <h1 className="hero-heading text-3xl font-bold tracking-tight">Manajemen Pengguna</h1>
-                        <p className="hero-muted text-[0.92rem]">Kelola hak akses dan peran pengguna dalam sistem.</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            className="hero-button"
-                            leftIcon={<UserPlus className="h-4 w-4" />}
-                            onClick={() => setIsAddModalOpen(true)}
-                        >
-                            Tambah Pengguna
-                        </Button>
-                    </div>
+        <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex flex-col gap-4 px-1 py-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">Administrasi Sistem</p>
+                    <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Manajemen Pengguna</h1>
+                    <p className="mt-2 text-[0.92rem] leading-relaxed text-muted-foreground">Kelola hak akses dan peran pengguna dalam sistem.</p>
                 </div>
-                <div className="hero-orb" />
+                <Button
+                    className="w-full rounded-xl font-semibold sm:w-auto"
+                    leftIcon={<UserPlus className="h-4 w-4" />}
+                    onClick={() => setIsAddModalOpen(true)}
+                >
+                    Tambah Pengguna
+                </Button>
             </div>
 
             {feedback && (
@@ -218,38 +286,53 @@ export const UserManagementPage: React.FC = () => {
             )}
 
             <Card className="overflow-hidden">
-                <CardHeader className="page-section-header pb-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <CardTitle className="flex items-center gap-2">
-                            <Users className="h-4 w-4 text-primary" />
-                            Daftar Pengguna ({filteredUsers.length})
-                        </CardTitle>
-                        <div className="relative">
+                <CardHeader className="border-b border-border/70 bg-transparent p-5 sm:p-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2 text-lg">
+                                <Users className="h-5 w-5 text-primary" />
+                                Pengguna ({filteredUsers.length})
+                            </CardTitle>
+                            <p className="mt-1 text-xs text-muted-foreground">Kelola akun, peran, dan status akses pengguna.</p>
+                        </div>
+                        <div className="relative w-full md:w-72">
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 placeholder="Cari nama atau email..."
-                                className="w-full pl-9 md:w-64"
+                                aria-label="Cari nama atau email pengguna"
+                                className="w-full pl-9"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
                     </div>
+                    <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/60 pt-4 text-xs">
+                        <span className="font-semibold text-foreground"><strong className="mr-1 text-base tabular-nums">{users.length}</strong> Pengguna</span>
+                        <span className="text-muted-foreground"><strong className="mr-1 text-base tabular-nums text-primary">{activeUserCount}</strong> Aktif</span>
+                        <span className="text-muted-foreground"><strong className="mr-1 text-base tabular-nums text-destructive">{inactiveUserCount}</strong> Nonaktif</span>
+                    </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                    <div className="hidden overflow-hidden md:block">
+                        <table className="w-full table-fixed text-sm">
+                            <colgroup>
+                                <col className="w-[45%]" />
+                                <col className="w-[18%]" />
+                                <col className="w-[18%]" />
+                                <col className="w-[19%]" />
+                            </colgroup>
                             <thead>
-                                <tr className="border-b bg-muted/20">
-                                    <th className="px-4 py-3 text-left font-semibold">Pengguna</th>
-                                    <th className="px-4 py-3 text-left font-semibold">Role / Peran</th>
-                                    <th className="px-4 py-3 text-left font-semibold text-center">Status</th>
-                                    <th className="px-4 py-3 text-right font-semibold">Aksi</th>
+                                <tr className="border-b border-border/70 bg-muted/20">
+                                    <th className="px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Pengguna</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Peran</th>
+                                    <th className="px-4 py-3.5 text-left text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Status</th>
+                                    <th className="px-5 py-3.5 text-right text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading && users.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="py-12 text-center text-muted-foreground italic">
+                                        <td colSpan={4} className="py-12 text-center text-muted-foreground">
                                             <div className="flex flex-col items-center gap-2">
                                                 <RefreshCw className="h-6 w-6 animate-spin" />
                                                 Memuat data pengguna...
@@ -258,104 +341,70 @@ export const UserManagementPage: React.FC = () => {
                                     </tr>
                                 ) : filteredUsers.length === 0 ? (
                                     <tr>
-                                        <td colSpan={4} className="py-12 text-center text-muted-foreground italic">
-                                            User tidak ditemukan.
-                                        </td>
+                                        <td colSpan={4} className="py-12 text-center text-muted-foreground">Pengguna tidak ditemukan.</td>
                                     </tr>
                                 ) : (
                                     filteredUsers.map((u) => (
-                                        <tr key={u.id} className="border-b hover:bg-muted/20 transition-colors">
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-3">
+                                        <tr key={u.id} className="border-b border-border/60 transition-colors last:border-b-0 hover:bg-primary/5">
+                                            <td className="min-w-0 px-5 py-4">
+                                                <div className="flex min-w-0 items-center gap-3">
                                                     <UserAvatar user={u} />
-                                                    <div className="flex flex-col leading-tight">
-                                                        <span className="font-semibold text-foreground">{(u.displayName || '').trim() || u.email?.split('@')[0] || 'User'}</span>
-                                                        <span className="text-xs text-muted-foreground">{u.email}</span>
+                                                    <div className="min-w-0 leading-tight">
+                                                        <span className="block truncate font-semibold text-foreground">{(u.displayName || '').trim() || u.email?.split('@')[0] || 'User'}</span>
+                                                        <span className="block truncate text-xs text-muted-foreground">{u.email}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-2 max-w-[140px]">
-                                                    <Select
-                                                        value={u.role}
-                                                        onChange={(val) => {
-                                                            if (isUserRole(val)) {
-                                                                void handleRoleChange(u.id, val);
-                                                            }
-                                                        }}
-                                                        disabled={u.id === currentUser?.id || updatingUserId === u.id}
-                                                        options={[
-                                                            { value: 'admin', label: 'Admin' },
-                                                            { value: 'staf', label: 'Staf' },
-                                                        ]}
-                                                        className="h-8 py-0 px-2 text-xs"
-                                                    />
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                <span
-                                                    className={cn(
-                                                        'inline-flex items-center rounded-full px-3 h-7 text-[10px] font-semibold uppercase tracking-wider',
-                                                        u.isActive
-                                                            ? 'status-soft-green'
-                                                            : 'status-soft-red'
-                                                    )}
-                                                >
-                                                    {u.isActive ? (
-                                                        <>
-                                                            <CheckCircle className="h-3 w-3 mr-1" />
-                                                            Aktif
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <XCircle className="h-3 w-3 mr-1" />
-                                                            Non-Aktif
-                                                        </>
-                                                    )}
+                                            <td className="px-4 py-4">
+                                                <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-foreground">
+                                                    {u.role === 'admin' ? 'Admin' : 'Staf'}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="h-8 px-2 text-[11px]"
-                                                        onClick={() => openResetPasswordModal(u)}
-                                                        disabled={updatingUserId === u.id}
-                                                    >
-                                                        <KeyRound className="h-3.5 w-3.5 mr-1" />
-                                                        Password
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className={cn(
-                                                            'h-8 px-2 text-[11px]',
-                                                            u.isActive
-                                                                ? 'border-destructive/20 text-destructive hover:bg-destructive/10'
-                                                                : 'border-secondary/20 text-secondary hover:bg-secondary/10'
-                                                        )}
-                                                        onClick={() => handleToggleStatus(u)}
-                                                        disabled={u.id === currentUser?.id || updatingUserId === u.id}
-                                                    >
-                                                        {u.isActive ? 'Nonaktifkan' : 'Aktifkan'}
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
-                                                        onClick={() => setDeleteCandidate(u)}
-                                                        disabled={u.id === currentUser?.id || updatingUserId === u.id}
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
+                                            <td className="px-4 py-4">
+                                                <span className={cn('inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider', u.isActive ? 'status-soft-green' : 'status-soft-red')}>
+                                                    {u.isActive ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                                    {u.isActive ? 'Aktif' : 'Nonaktif'}
+                                                </span>
                                             </td>
+                                            <td className="px-5 py-4 text-right">{renderUserActions(u)}</td>
                                         </tr>
                                     ))
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    <div className="grid gap-3 p-3 md:hidden">
+                        {loading && users.length === 0 ? (
+                            <div className="flex flex-col items-center gap-2 py-12 text-sm text-muted-foreground">
+                                <RefreshCw className="h-6 w-6 animate-spin" />
+                                Memuat data pengguna...
+                            </div>
+                        ) : filteredUsers.length === 0 ? (
+                            <p className="py-12 text-center text-sm text-muted-foreground">Pengguna tidak ditemukan.</p>
+                        ) : (
+                            filteredUsers.map((u) => (
+                                <article key={u.id} className="rounded-xl border border-border bg-muted/15 p-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <UserAvatar user={u} />
+                                            <div className="min-w-0 leading-tight">
+                                                <p className="truncate font-semibold text-foreground">{(u.displayName || '').trim() || u.email?.split('@')[0] || 'User'}</p>
+                                                <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                                            </div>
+                                        </div>
+                                        {renderUserActions(u)}
+                                    </div>
+                                    <div className="mt-4 flex items-center gap-2 border-t border-border/60 pt-3">
+                                        <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-foreground">{u.role === 'admin' ? 'Admin' : 'Staf'}</span>
+                                        <span className={cn('inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider', u.isActive ? 'status-soft-green' : 'status-soft-red')}>
+                                            {u.isActive ? <CheckCircle className="mr-1 h-3 w-3" /> : <XCircle className="mr-1 h-3 w-3" />}
+                                            {u.isActive ? 'Aktif' : 'Nonaktif'}
+                                        </span>
+                                    </div>
+                                </article>
+                            ))
+                        )}
                     </div>
                 </CardContent>
             </Card>
