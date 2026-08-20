@@ -168,23 +168,21 @@ export const AduanListPage: React.FC = () => {
             variants={containerVariants}
             className="flex flex-col gap-5"
         >
-            <div className="hero-panel">
-                <div className="relative z-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-                    <div>
-                        <motion.h1 variants={itemVariants} className="hero-heading text-2xl font-semibold tracking-tight md:text-3xl">Daftar Pengaduan</motion.h1>
-                        <motion.p variants={itemVariants} className="hero-muted mt-1.5 text-[0.92rem] leading-relaxed">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
-                    </div>
-                    <motion.div variants={itemVariants} className="flex items-center gap-3">
-                        <Button
-                            className="hero-button"
-                            onClick={() => navigate('/pengaduan/baru')}
-                        >
-                            <Plus size={18} className="mr-2" />
-                            Buat Aduan
-                        </Button>
-                    </motion.div>
+            <div className="flex flex-col gap-4 px-1 py-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <motion.p variants={itemVariants} className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">Layanan Aduan</motion.p>
+                    <motion.h1 variants={itemVariants} className="mt-2 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Daftar Pengaduan</motion.h1>
+                    <motion.p variants={itemVariants} className="mt-2 text-[0.92rem] leading-relaxed text-muted-foreground">Kelola dan pantau seluruh data pengaduan yang masuk.</motion.p>
                 </div>
-                <div className="hero-orb" />
+                <motion.div variants={itemVariants} className="flex w-full items-center gap-3 sm:w-auto">
+                    <Button
+                        className="w-full rounded-xl font-semibold sm:w-auto"
+                        onClick={() => navigate('/pengaduan/baru')}
+                    >
+                        <Plus size={18} className="mr-2" />
+                        Buat Aduan
+                    </Button>
+                </motion.div>
             </div>
 
             <motion.div variants={itemVariants} className="space-y-3">
