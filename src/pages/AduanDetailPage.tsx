@@ -1523,7 +1523,9 @@ export const AduanDetailPage: React.FC = () => {
                                         Ubah status aduan ke <span className="font-semibold text-foreground">PROSES</span> untuk menambah Riwayat Penanganan.
                                     </p>
                                 )}
-                                <div className="flex flex-col gap-3">
+                                <div className="relative">
+                                    <div aria-hidden="true" className="pointer-events-none absolute bottom-4 left-4 top-4 w-px bg-border" />
+                                    <div className="relative flex flex-col divide-y divide-border/70">
                                     {qTindakLanjutList.length === 0 ? (
                                         <p className="py-6 text-center text-sm italic text-muted-foreground">
                                             Belum ada langkah penanganan
@@ -1538,16 +1540,10 @@ export const AduanDetailPage: React.FC = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, x: -16, transition: { duration: 0.18 } }}
                                                 transition={{ duration: 0.25, ease: "easeOut" }}
-                                                className="group relative flex items-start gap-3 overflow-hidden border-t border-border/70 py-3.5 first:border-t-0"
+                                                className="group relative grid grid-cols-[2rem_minmax(0,1fr)] items-start gap-3 overflow-hidden py-4 first:pt-0 last:pb-0"
                                             >
-                                                {/* Decorative element */}
                                                 <div className={cn(
-                                                    "absolute left-0 top-0 bottom-0 w-1",
-                                                    index === 0 ? "bg-primary/70" : "bg-border"
-                                                )} />
-
-                                                <div className={cn(
-                                                    "flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-primary-foreground shadow-sm",
+                                                    "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-primary-foreground shadow-sm",
                                                     index === 0 ? "bg-primary" : "bg-muted-foreground/70"
                                                 )}>
                                                     {qTindakLanjutList.length - index}
@@ -1618,6 +1614,7 @@ export const AduanDetailPage: React.FC = () => {
                                         ))}
                                         </AnimatePresence>
                                     )}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
