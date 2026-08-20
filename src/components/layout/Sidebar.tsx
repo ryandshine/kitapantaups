@@ -112,6 +112,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onLogout }) =
                                         <NavLink
                                             key={item.path}
                                             to={item.path}
+                                            end={item.path === '/'}
+                                            onClick={onClose}
                                             className={({ isActive }) => cn(
                                                 "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.92rem] font-medium transition-all duration-200",
                                                 !isOpen && "justify-center px-0",
