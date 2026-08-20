@@ -187,7 +187,7 @@ export const AduanListPage: React.FC = () => {
                 <div className="hero-orb" />
             </div>
 
-            <motion.div variants={itemVariants} className="page-filter-panel">
+            <motion.div variants={itemVariants} className="space-y-3">
                 <div className="flex flex-col items-center gap-3 lg:flex-row">
                     <div className="relative w-full">
                         <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -204,7 +204,7 @@ export const AduanListPage: React.FC = () => {
 
                 {/* Active Filters Display */}
                 {(rkpsParam || kupsKelasParam) && (
-                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
                         <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">Filter Aktif:</span>
                         {rkpsParam && (
                             <Badge variant="info" className="gap-1.5 px-2.5 py-1 font-bold text-xs uppercase rounded-lg">
@@ -252,7 +252,7 @@ export const AduanListPage: React.FC = () => {
                     </div>
                 )}
                 {statusFilter !== 'all' && (
-                    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/15 bg-primary/5 px-4 py-2 text-[0.88rem]">
                         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status aktif:</span>
                         <Badge variant="gray" className="rounded-lg px-2.5 py-1 text-xs font-bold uppercase">
                             {STATUS_LABELS[statusFilter] || statusFilter}
@@ -266,14 +266,15 @@ export const AduanListPage: React.FC = () => {
                         </button>
                     </div>
                 )}
-                <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div className="grid w-full grid-cols-2 divide-x divide-y divide-border/70 md:grid-cols-5 md:divide-y-0">
                         <button
                             type="button"
                             onClick={handleAllSummaryCardClick}
-                            className={`flex min-h-[4.5rem] flex-col justify-center rounded-2xl border px-3 py-2 text-left transition-all ${statusFilter === 'all'
-                                ? 'border-primary/35 bg-primary/8 shadow-sm'
-                                : 'border-border bg-muted/40 hover:border-primary/20 hover:bg-muted/70'
+                            aria-pressed={statusFilter === 'all'}
+                            className={`flex min-h-[4.5rem] flex-col justify-center px-3 py-2 text-left transition-colors ${statusFilter === 'all'
+                                ? 'bg-primary/10'
+                                : 'hover:bg-primary/5'
                                 }`}
                         >
                             <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Semua</span>
@@ -284,9 +285,10 @@ export const AduanListPage: React.FC = () => {
                                 key={item.key}
                                 type="button"
                                 onClick={() => handleSummaryCardClick(item.key)}
-                                className={`flex min-h-[4.5rem] flex-col justify-center rounded-2xl border px-3 py-2 text-left transition-all ${statusFilter === item.key
-                                    ? 'border-primary/35 bg-primary/8 shadow-sm'
-                                    : 'border-border bg-muted/40 hover:border-primary/20 hover:bg-muted/70'
+                                aria-pressed={statusFilter === item.key}
+                                className={`flex min-h-[4.5rem] flex-col justify-center px-3 py-2 text-left transition-colors ${statusFilter === item.key
+                                    ? 'bg-primary/10'
+                                    : 'hover:bg-primary/5'
                                     }`}
                             >
                                 <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{item.label}</span>
