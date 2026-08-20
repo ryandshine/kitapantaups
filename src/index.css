@@ -260,26 +260,16 @@
   }
 
   .detail-panel {
-    background:
-      radial-gradient(circle at top right, rgba(47, 107, 87, 0.22), transparent 34%),
-      radial-gradient(circle at bottom left, rgba(221, 232, 222, 0.9), transparent 30%),
-      linear-gradient(180deg, rgba(242, 246, 236, 0.99), rgba(230, 237, 226, 0.99));
-    border-color: rgba(47, 107, 87, 0.22);
-    box-shadow:
-      0 18px 50px rgba(34, 58, 49, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.55);
-    @apply border text-foreground sm:rounded-2xl;
+    background: hsl(var(--card));
+    border-color: hsl(var(--border) / 0.8);
+    box-shadow: none;
+    @apply border-b text-foreground;
   }
 
   .dark .detail-panel {
-    background:
-      radial-gradient(circle at top right, rgba(74, 156, 127, 0.2), transparent 34%),
-      radial-gradient(circle at bottom left, rgba(45, 61, 53, 0.7), transparent 30%),
-      linear-gradient(180deg, rgba(39, 54, 47, 0.99), rgba(30, 43, 37, 0.99));
-    border-color: rgba(74, 156, 127, 0.22);
-    box-shadow:
-      0 18px 50px rgba(10, 16, 13, 0.32),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    background: hsl(var(--background));
+    border-color: hsl(var(--border) / 0.8);
+    box-shadow: none;
   }
 
   .detail-panel-orb {
@@ -288,13 +278,13 @@
   }
 
   .detail-panel-surface {
-    @apply rounded-2xl border border-white/45 bg-white/55 backdrop-blur-md;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    @apply border-b border-border/60 bg-muted/20;
+    box-shadow: none;
   }
 
   .dark .detail-panel-surface {
-    @apply border-white/10 bg-black/15;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    @apply border-border/60 bg-muted/20;
+    box-shadow: none;
   }
 
   .status-soft-blue {

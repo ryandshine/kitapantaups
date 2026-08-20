@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, MapPin, User, AlertCircle, Save, X, Info } from 'lucide-react';
 import {
     Button,
-    Card,
     CardHeader,
     CardTitle,
     CardContent,
@@ -245,10 +244,16 @@ export const NewAduanPage: React.FC = () => {
                 />
             )}
 
-            <form onSubmit={handleSubmit} className={cn("flex flex-col", isCompact ? "gap-5" : "gap-8")}>
-                <div className={cn("grid grid-cols-1", isCompact ? "gap-5" : "gap-8")}>
+            <form
+                onSubmit={handleSubmit}
+                className={cn(
+                    "overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-[var(--shadow-card)]",
+                    isCompact ? "space-y-5 p-4" : "space-y-8 p-6 sm:p-8"
+                )}
+            >
+                <div className={cn("grid grid-cols-1 divide-y divide-border", isCompact ? "gap-5" : "gap-8")}>
                     {/* 1. Data Surat Masuk */}
-                    <Card className="apple-card overflow-hidden">
+                    <section className="overflow-hidden">
                         <CardHeader className="page-section-header pb-6">
                             <CardTitle className="flex items-center gap-3 text-xl">
                                 <div className="page-section-icon">
@@ -326,10 +331,10 @@ export const NewAduanPage: React.FC = () => {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
+                    </section>
 
                     {/* 2. Data Pengadu */}
-                    <Card className="apple-card overflow-hidden">
+                    <section className="overflow-hidden">
                         <CardHeader className="page-section-header pb-6">
                             <CardTitle className="flex items-center gap-3 text-xl">
                                 <div className="page-section-icon">
@@ -376,10 +381,10 @@ export const NewAduanPage: React.FC = () => {
                                 />
                             </div>
                         </CardContent>
-                    </Card>
+                    </section>
 
                     {/* 3. Lokasi Objek */}
-                    <Card className="apple-card overflow-hidden">
+                    <section className="overflow-hidden">
                         <CardHeader className="page-section-header pb-6">
                             <CardTitle className="flex items-center gap-3 text-xl">
                                 <div className="page-section-icon">
@@ -389,11 +394,11 @@ export const NewAduanPage: React.FC = () => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className={cn(isCompact ? "pt-5 px-5" : "pt-8 px-8")}>
-                            <div className={cn("rounded-2xl border border-border bg-muted/40", isCompact ? "mb-5 p-4 space-y-4" : "mb-8 p-6 space-y-6")}>
+                            <div className={cn("space-y-5", isCompact ? "mb-5" : "mb-8")}>
                                 <KpsSearch onSelect={handleKpsSelect} />
 
                                 {selectedKps && (
-                                    <div className="page-filter-panel animate-in fade-in slide-in-from-top-2 p-4 duration-300">
+                                    <div className="border-l-2 border-primary/45 bg-muted/25 py-3 pl-4 pr-1 animate-in fade-in slide-in-from-top-2 duration-300">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="min-w-0">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">KPS Terpilih</p>
@@ -417,19 +422,19 @@ export const NewAduanPage: React.FC = () => {
                                             </div>
                                         </div>
                                         <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-foreground sm:grid-cols-2 xl:grid-cols-4">
-                                            <div className="page-subpanel px-3 py-2">
+                                            <div className="border-l border-border/70 pl-3 py-1.5">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">surat_keputusan</p>
                                                 <p className="mt-1 break-words">{getKpsDisplaySk(selectedKps)}</p>
                                             </div>
-                                            <div className="page-subpanel px-3 py-2">
+                                            <div className="border-l border-border/70 pl-3 py-1.5">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">luas_total</p>
                                                 <p className="mt-1">{getKpsDisplayLuas(selectedKps).toLocaleString('id-ID')} Ha</p>
                                             </div>
-                                            <div className="page-subpanel px-3 py-2">
+                                            <div className="border-l border-border/70 pl-3 py-1.5">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_pria</p>
                                                 <p className="mt-1">{getKpsDisplayAnggotaPria(selectedKps).toLocaleString('id-ID')}</p>
                                             </div>
-                                            <div className="page-subpanel px-3 py-2">
+                                            <div className="border-l border-border/70 pl-3 py-1.5">
                                                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">anggota_wanita</p>
                                                 <p className="mt-1">{getKpsDisplayAnggotaWanita(selectedKps).toLocaleString('id-ID')}</p>
                                             </div>
@@ -470,7 +475,7 @@ export const NewAduanPage: React.FC = () => {
                                 {selectedKpsList.length > 0 && (
                                     <div className={cn("flex flex-col animate-in fade-in slide-in-from-top-4 duration-500", isCompact ? "mt-5 gap-4" : "mt-8 gap-6")}>
                                         {/* 1. Summary Header & Global Actions */}
-                                        <div className="page-filter-panel flex flex-col items-start justify-between gap-4 p-5 sm:flex-row sm:items-center">
+                                        <div className="flex flex-col items-start justify-between gap-4 border-y border-border/70 py-4 sm:flex-row sm:items-center">
                                             <div className="flex flex-wrap gap-6 text-sm">
                                                 <div className="flex flex-col gap-1">
                                                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Total luas_total</span>
@@ -510,10 +515,10 @@ export const NewAduanPage: React.FC = () => {
                                             {selectedKpsList.map((kps) => (
                                                 <div
                                                     key={kps.id}
-                                                    className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
+                                                    className="flex flex-col overflow-hidden border-t border-border/70 pt-4"
                                                 >
                                                     {/* Card Header */}
-                                                    <div className="flex items-start gap-4 border-b border-border bg-muted/70 p-4">
+                                                    <div className="flex items-start gap-4 border-b border-border/70 pb-4">
                                                         <div className="shrink-0 rounded-xl bg-primary/10 p-2.5 text-primary">
                                                             <Info size={18} />
                                                         </div>
@@ -542,7 +547,7 @@ export const NewAduanPage: React.FC = () => {
                                                     </div>
 
                                                     {/* Card Body - Mini Grid */}
-                                                    <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2">
+                                                    <div className="grid grid-cols-1 gap-x-6 gap-y-4 pt-4 sm:grid-cols-2">
                                                         <div className="space-y-0.5">
                                                             <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">id</p>
                                                             <p className="text-xs font-medium text-foreground leading-none break-all">{getKpsDisplayId(kps)}</p>
@@ -589,10 +594,10 @@ export const NewAduanPage: React.FC = () => {
                             </div>
 
                         </CardContent>
-                    </Card>
+                    </section>
 
                     {/* 4. Substansi Aduan */}
-                    <Card className="apple-card overflow-hidden">
+                    <section className="overflow-hidden">
                         <CardHeader className="page-section-header pb-6">
                             <CardTitle className="flex items-center gap-3 text-xl">
                                 <div className="page-section-icon">
@@ -630,7 +635,7 @@ export const NewAduanPage: React.FC = () => {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card >
+                    </section>
                 </div >
 
                 <div className={cn("flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 border-t", isCompact ? "pt-4" : "pt-6")}>

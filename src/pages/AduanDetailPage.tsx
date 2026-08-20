@@ -1275,7 +1275,7 @@ export const AduanDetailPage: React.FC = () => {
             {isAdmin && (
                 <motion.div
                     variants={itemVariants}
-                    className="no-print relative overflow-hidden rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-[var(--shadow-card)]"
+                    className="no-print relative overflow-hidden border-b border-border/70 bg-transparent py-5 text-card-foreground"
                 >
                     <div className="mb-3 flex items-center gap-2">
                         <Settings size={15} className="text-muted-foreground" />
@@ -1438,7 +1438,7 @@ export const AduanDetailPage: React.FC = () => {
                             ) : (
                                 <div className="grid grid-cols-1 gap-2.5">
                                     {lokasiObjekItems.map((item, index) => (
-                                    <div key={`lokasi-kps-${index}`} className="rounded-xl border border-border bg-muted/60 p-3">
+                                    <div key={`lokasi-kps-${index}`} className="border-t border-border/70 py-3 first:border-t-0">
                                         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                                             <div className="flex flex-col gap-1">
                                                 <span className={detailLabelClass}>BPS (Balai)</span>
@@ -1538,7 +1538,7 @@ export const AduanDetailPage: React.FC = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, x: -16, transition: { duration: 0.18 } }}
                                                 transition={{ duration: 0.25, ease: "easeOut" }}
-                                                className="group relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-muted/60 p-3.5 shadow-sm"
+                                                className="group relative flex items-start gap-3 overflow-hidden border-t border-border/70 py-3.5 first:border-t-0"
                                             >
                                                 {/* Decorative element */}
                                                 <div className={cn(
@@ -1665,7 +1665,7 @@ export const AduanDetailPage: React.FC = () => {
                                 )}
 
                                 {allAttachments.map((file) => (
-                                    <div key={file.id} className="group flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-3 transition-all hover:border-primary/25 hover:bg-accent/70">
+                                    <div key={file.id} className="group flex items-center gap-3 border-t border-border/70 py-3 transition-all hover:bg-accent/40">
                                         <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground">
                                             {file.source === 'Dok. Tindak Lanjut' ? <FolderOpen size={20} /> : <FileText size={20} />}
                                         </div>

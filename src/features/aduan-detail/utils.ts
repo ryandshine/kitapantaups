@@ -510,8 +510,8 @@ export const openProtectedFile = async ({
     }
 };
 
-export const detailCardClass = "overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-[var(--shadow-card)]";
-export const detailCardHeaderClass = "border-b border-border bg-muted/70";
+export const detailCardClass = "overflow-hidden rounded-none border-b border-border/70 bg-transparent text-card-foreground shadow-none ring-0";
+export const detailCardHeaderClass = "border-b border-border/70 bg-transparent";
 export const detailSectionClass = "rounded-xl border border-border bg-muted/60 p-4";
 export const detailSectionSoftClass = "rounded-xl border border-border bg-muted/40 p-4";
 export const detailBadgeClass = "border-border bg-muted text-foreground";
