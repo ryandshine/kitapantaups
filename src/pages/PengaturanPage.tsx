@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Input, Card, CardHeader, CardTitle, CardContent, FeedbackBanner } from '../components/ui';
-import { Save as SaveIcon, UserCircle, ShieldCheck, RefreshCw, Database, Pencil, Search, Loader2 } from 'lucide-react';
+import { Button, Input, Card, FeedbackBanner } from '../components/ui';
+import { Save as SaveIcon, ShieldCheck, RefreshCw, Database, Pencil, Search, Loader2 } from 'lucide-react';
 import { UserService } from '../lib/user.service';
 import { useKpsSyncStatus, useSyncKps } from '../hooks/useKps';
 import { KpsService } from '../lib/kps.service';
@@ -23,6 +23,7 @@ export const PengaturanPage: React.FC = () => {
     const [kpsResults, setKpsResults] = useState<KpsData[]>([]);
     const [isSearchingKps, setIsSearchingKps] = useState(false);
     const [editingKps, setEditingKps] = useState<KpsData | null>(null);
+    const [activeSettingsTab, setActiveSettingsTab] = useState<'profile' | 'master' | 'sync'>('profile');
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -83,107 +84,138 @@ export const PengaturanPage: React.FC = () => {
     };
 
     return (
-        <div className="mx-auto max-w-4xl animate-in fade-in duration-500">
-            <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-[#2e6a57] to-[#1e4639] p-6 shadow-2xl md:p-10">
-                <div className="absolute top-0 right-0 h-64 w-64 -translate-y-1/2 translate-x-1/2 rounded-full bg-white/10 blur-3xl" />
-                <div className="relative z-10 flex flex-col items-center gap-6 text-center md:flex-row md:items-center md:text-left">
-                    <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-[2.2rem] border-4 border-white/20 bg-white/15 shadow-2xl backdrop-blur-xl">
-                        <UserCircle className="h-20 w-20 text-white/90" />
-                    </div>
-                    <div className="flex flex-col gap-1.5 text-white">
-                        <p className="text-[0.72rem] font-bold uppercase tracking-[0.3em] text-white/60">Profil Saya</p>
-                        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">{user?.displayName || '-'}</h1>
-                        <div className="mt-1 flex flex-wrap items-center justify-center gap-2 md:justify-start">
-                            <span className="rounded-lg bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-                                {user?.role}
-                            </span>
-                            <span className="text-[11px] font-medium text-white/50">
-                                ID: {user?.id.substring(0, 8).toUpperCase()}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+        <div className="mx-auto flex max-w-4xl flex-col gap-5 animate-in fade-in duration-500">
+            <div className="flex flex-col gap-2 px-1 py-2">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">Administrasi Akun</p>
+                <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">Pengaturan</h1>
+                <p className="max-w-2xl text-[0.92rem] leading-relaxed text-muted-foreground">Kelola profil, akses akun, dan data master sistem dari satu tempat.</p>
             </div>
 
             {feedback && (
-                <div className="mb-8">
-                    <FeedbackBanner
-                        type={feedback.type}
-                        message={feedback.message}
-                        onClose={() => setFeedback(null)}
-                    />
-                </div>
+                <FeedbackBanner
+                    type={feedback.type}
+                    message={feedback.message}
+                    onClose={() => setFeedback(null)}
+                />
             )}
 
-            <Card className="border-primary/12 shadow-[var(--shadow-card)]">
-                <CardHeader className="page-section-header">
-                    <CardTitle>Perbarui Profil</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-6">
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <Input
-                            label="Nama Lengkap"
-                            placeholder="Masukkan nama lengkap"
-                            value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)}
-                            fullWidth
-                        />
-                        <Input
-                            label="Email Dinas"
-                            value={user?.email || ''}
-                            disabled
-                            fullWidth
-                            helperText="Email tidak dapat diubah secara mandiri."
-                        />
-                        <Input
-                            label="Nomor Telepon"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="+62 812..."
-                            fullWidth
-                        />
-                        <div className="flex flex-col gap-1.5">
-                            <label className="ml-0.5 text-[0.82rem] font-semibold text-foreground/72">Role Sistem</label>
-                            <div className="flex h-10 items-center rounded-xl border border-border/80 bg-background/88 px-3 text-[0.92rem] font-medium text-foreground">
-                                {user?.role?.toUpperCase()}
+            <Card className="overflow-hidden">
+                <div className="flex border-b border-border bg-muted/25" role="tablist" aria-label="Bagian pengaturan">
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeSettingsTab === 'profile'}
+                        onClick={() => setActiveSettingsTab('profile')}
+                        className={`flex flex-1 items-center justify-center border-b-2 px-4 py-4 text-sm font-semibold transition-colors ${activeSettingsTab === 'profile' ? 'border-primary bg-card text-foreground' : 'border-transparent text-muted-foreground hover:bg-card/60 hover:text-foreground'}`}
+                    >
+                        Profil
+                    </button>
+                    {isAdmin && (
+                        <>
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeSettingsTab === 'master'}
+                                onClick={() => setActiveSettingsTab('master')}
+                                className={`flex flex-1 items-center justify-center border-b-2 px-4 py-4 text-sm font-semibold transition-colors ${activeSettingsTab === 'master' ? 'border-primary bg-card text-foreground' : 'border-transparent text-muted-foreground hover:bg-card/60 hover:text-foreground'}`}
+                            >
+                                Master KPS
+                            </button>
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeSettingsTab === 'sync'}
+                                onClick={() => setActiveSettingsTab('sync')}
+                                className={`flex flex-1 items-center justify-center border-b-2 px-4 py-4 text-sm font-semibold transition-colors ${activeSettingsTab === 'sync' ? 'border-primary bg-card text-foreground' : 'border-transparent text-muted-foreground hover:bg-card/60 hover:text-foreground'}`}
+                            >
+                                Sinkronisasi
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {activeSettingsTab === 'profile' && (
+                    <section role="tabpanel">
+                        <div className="flex flex-col gap-4 border-b border-border/70 p-5 sm:flex-row sm:items-center sm:p-7">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-semibold text-primary-foreground">
+                                {(user?.displayName?.trim() || user?.email || 'U').charAt(0).toUpperCase()}
                             </div>
-                            <span className="ml-0.5 text-[10px] leading-relaxed text-muted-foreground">Perubahan hak akses dikelola oleh Administrator Sistem.</span>
+                            <div className="min-w-0">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-primary">Profil saya</p>
+                                <h2 className="mt-1 truncate text-2xl font-semibold tracking-tight text-foreground">{user?.displayName || '-'}</h2>
+                                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                    <span className="rounded-full bg-primary/10 px-2.5 py-1 font-semibold uppercase tracking-wider text-primary">{user?.role}</span>
+                                    <span>ID: {user?.id.substring(0, 8).toUpperCase()}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex justify-end border-t border-border pt-5">
-                        <Button
-                            variant="primary"
-                            onClick={handleSave}
-                            isLoading={isSaving}
-                            className="px-8 shadow-lg shadow-primary/20"
-                            leftIcon={<SaveIcon size={16} />}
-                        >
-                            Simpan Perubahan
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
+                        <div className="p-5 sm:p-7">
+                            <div className="mb-6">
+                                <h3 className="text-lg font-semibold text-foreground">Informasi Profil</h3>
+                                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Perbarui informasi yang digunakan untuk komunikasi internal.</p>
+                            </div>
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                <Input
+                                    label="Nama lengkap"
+                                    placeholder="Masukkan nama lengkap"
+                                    value={displayName}
+                                    onChange={(e) => setDisplayName(e.target.value)}
+                                    fullWidth
+                                />
+                                <Input
+                                    label="Email dinas"
+                                    value={user?.email || ''}
+                                    disabled
+                                    fullWidth
+                                    helperText="Email tidak dapat diubah secara mandiri."
+                                />
+                                <Input
+                                    label="Nomor telepon"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    placeholder="+62 812..."
+                                    fullWidth
+                                />
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="ml-0.5 text-[0.82rem] font-semibold text-foreground/72">Role sistem</label>
+                                    <div className="flex h-10 items-center rounded-xl border border-border/80 bg-background/88 px-3 text-[0.92rem] font-medium text-foreground">
+                                        {user?.role?.toUpperCase()}
+                                    </div>
+                                    <span className="ml-0.5 text-[10px] leading-relaxed text-muted-foreground">Hak akses dikelola oleh Administrator Sistem.</span>
+                                </div>
+                            </div>
 
+                            <div className="mt-7 flex flex-col gap-4 border-t border-border/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                                <p className="text-xs leading-relaxed text-muted-foreground">Perubahan akan diterapkan ke profil akun Anda.</p>
+                                <Button
+                                    variant="primary"
+                                    onClick={handleSave}
+                                    isLoading={isSaving}
+                                    className="w-full rounded-xl sm:w-auto"
+                                    leftIcon={<SaveIcon size={16} />}
+                                >
+                                    Simpan Perubahan
+                                </Button>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
-
-            {isAdmin && (
-                <Card className="mt-6 border-primary/12 shadow-[0_24px_60px_-38px_rgba(46,106,87,0.24)]">
-                    <CardHeader className="page-section-header">
-                        <CardTitle className="flex items-center gap-2">
-                            <Pencil className="h-4 w-4 text-primary" />
-                            Koreksi Data Master KPS
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-6">
-                        <p className="text-xs leading-relaxed text-muted-foreground">
-                            Cari berdasarkan nama lembaga, ID, nomor SK, provinsi, atau kabupaten untuk memperbaiki data KPS.
-                        </p>
-                        <form onSubmit={handleSearchKps} className="flex flex-col gap-2 sm:flex-row sm:items-end">
+                {isAdmin && activeSettingsTab === 'master' && (
+                    <section role="tabpanel" className="p-5 sm:p-7">
+                        <div className="mb-6 flex items-start gap-3">
+                            <Pencil className="mt-0.5 h-5 w-5 text-primary" />
+                            <div>
+                                <h2 className="text-lg font-semibold text-foreground">Koreksi Data Master KPS</h2>
+                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Cari berdasarkan nama lembaga, ID, nomor SK, provinsi, atau kabupaten untuk memperbaiki data KPS.</p>
+                            </div>
+                        </div>
+                        <form onSubmit={handleSearchKps} className="flex flex-col gap-3 sm:flex-row sm:items-end">
                             <div className="flex-1">
                                 <Input
-                                    label="Cari KPS / Lembaga"
-                                    placeholder="Contoh: KTH Sinar Harapan atau nomor SK"
+                                    label="Cari KPS atau lembaga"
+                                    placeholder="Nama lembaga, nomor SK, provinsi..."
                                     value={kpsSearch}
                                     onChange={(event) => setKpsSearch(event.target.value)}
                                     leftIcon={<Search size={16} />}
@@ -191,15 +223,15 @@ export const PengaturanPage: React.FC = () => {
                                 />
                             </div>
                             <Button type="submit" variant="primary" isLoading={isSearchingKps} leftIcon={!isSearchingKps ? <Search size={16} /> : undefined}>
-                                Cari
+                                Cari Data
                             </Button>
                         </form>
-                        {isSearchingKps && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 size={14} className="animate-spin" /> Mencari data KPS...</div>}
+                        {isSearchingKps && <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 size={14} className="animate-spin" /> Mencari data KPS...</div>}
                         {!isSearchingKps && kpsSearch.trim() && kpsResults.length === 0 && (
-                            <p className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">Data KPS tidak ditemukan.</p>
+                            <p className="mt-4 rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">Data KPS tidak ditemukan.</p>
                         )}
                         {kpsResults.length > 0 && (
-                            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border">
+                            <div className="mt-5 divide-y divide-border overflow-hidden rounded-xl border border-border">
                                 {kpsResults.map((kps) => (
                                     <div key={kps.id} className="flex items-center justify-between gap-3 px-4 py-3">
                                         <div className="min-w-0">
@@ -211,41 +243,40 @@ export const PengaturanPage: React.FC = () => {
                                 ))}
                             </div>
                         )}
-                    </CardContent>
-                </Card>
-            )}
+                    </section>
+                )}
 
-            {isAdmin && (
-                <Card className="mt-6 border-primary/12 shadow-[0_24px_60px_-38px_rgba(46,106,87,0.24)]">
-                    <CardHeader className="page-section-header">
-                        <CardTitle className="flex items-center gap-2">
-                            <Database className="h-4 w-4 text-primary" />
-                            Sinkronisasi Master KPS
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 pt-6">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="text-xs leading-relaxed text-muted-foreground">
+                {isAdmin && activeSettingsTab === 'sync' && (
+                    <section role="tabpanel" className="p-5 sm:p-7">
+                        <div className="mb-6 flex items-start gap-3">
+                            <Database className="mt-0.5 h-5 w-5 text-primary" />
+                            <div>
+                                <h2 className="text-lg font-semibold text-foreground">Sinkronisasi Master KPS</h2>
+                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Perbarui data master KPS dari sumber sistem secara berkala.</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+                            <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
                                 {isSyncRunning
                                     ? 'Sinkronisasi sedang berjalan. Halaman akan memperbarui status secara otomatis.'
-                                    : 'Sinkronisasi master KPS dapat dijalankan kapan saja dari sini.'}
-                            </div>
+                                    : 'Sinkronisasi master KPS dapat dijalankan kapan saja dari halaman ini.'}
+                            </p>
                             <Button
                                 variant="primary"
                                 onClick={handleSyncKps}
                                 isLoading={isSyncRunning}
                                 disabled={isSyncRunning}
-                                className="px-6 shadow-lg shadow-primary/20"
+                                className="w-full rounded-xl sm:w-auto"
                                 leftIcon={<RefreshCw size={16} />}
                             >
-                                    {isSyncRunning ? 'Sedang sync...' : 'Sync KPS'}
+                                {isSyncRunning ? 'Sedang sync...' : 'Sync KPS'}
                             </Button>
                         </div>
 
                         {isSyncRunning && (
-                            <div className="space-y-2" aria-live="polite">
+                            <div className="mt-5 space-y-2" aria-live="polite">
                                 <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                                    <span>Progress Sync</span>
+                                    <span>Progress sync</span>
                                     <span>Berjalan</span>
                                 </div>
                                 <div className="sync-progress-track" role="progressbar" aria-label="Progres sinkronisasi KPS" aria-valuetext="Sinkronisasi sedang berjalan">
@@ -255,48 +286,30 @@ export const PengaturanPage: React.FC = () => {
                         )}
 
                         {(syncStatus?.isRunning || syncStatus?.lastResult || syncStatus?.lastError) && (
-                            <div className="rounded-2xl border border-border bg-background/90 p-4">
+                            <div className="mt-5 rounded-xl border border-border bg-background/90 p-4">
                                 <div className="flex items-start gap-3">
                                     <div className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-full ${syncStatus?.isRunning ? 'bg-primary/10 text-primary' : syncStatus?.lastError ? 'bg-destructive/10 text-destructive' : 'bg-secondary/10 text-secondary'}`}>
-                                        {syncStatus?.isRunning ? (
-                                            <RefreshCw className="h-4 w-4 animate-spin" />
-                                        ) : syncStatus?.lastError ? (
-                                            <ShieldCheck className="h-4 w-4" />
-                                        ) : (
-                                            <Database className="h-4 w-4" />
-                                        )}
+                                        {syncStatus?.isRunning ? <RefreshCw className="h-4 w-4 animate-spin" /> : syncStatus?.lastError ? <ShieldCheck className="h-4 w-4" /> : <Database className="h-4 w-4" />}
                                     </div>
                                     <div className="min-w-0 flex-1">
                                         <p className="text-sm font-semibold text-foreground">
-                                            {syncStatus?.isRunning
-                                                ? 'Sinkronisasi sedang berjalan'
-                                                : syncStatus?.lastError
-                                                    ? 'Sinkronisasi gagal'
-                                                    : 'Sinkronisasi terakhir selesai'}
+                                            {syncStatus?.isRunning ? 'Sinkronisasi sedang berjalan' : syncStatus?.lastError ? 'Sinkronisasi gagal' : 'Sinkronisasi terakhir selesai'}
                                         </p>
                                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                                            {syncStatus?.isRunning
-                                                ? ''
-                                                : syncStatus?.lastError
-                                                    ? syncStatus.lastError
-                                                    : syncStatus?.lastResult
-                                                        ? `Berhasil memproses ${syncStatus.lastResult.uniqueRows.toLocaleString('id-ID')} data.`
-                                                        : 'Belum ada status sync yang tercatat.'}
+                                            {syncStatus?.isRunning ? '' : syncStatus?.lastError ? syncStatus.lastError : syncStatus?.lastResult ? `Berhasil memproses ${syncStatus.lastResult.uniqueRows.toLocaleString('id-ID')} data.` : 'Belum ada status sync yang tercatat.'}
                                         </p>
                                         <div className="mt-2 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                                             {syncStatus?.startedAt && <span>Mulai: {new Date(syncStatus.startedAt).toLocaleString('id-ID')}</span>}
                                             {syncStatus?.finishedAt && <span>Selesai: {new Date(syncStatus.finishedAt).toLocaleString('id-ID')}</span>}
-                                            {syncStatus?.lastResult?.processedRows !== undefined && (
-                                                <span>Diproses: {syncStatus.lastResult.processedRows.toLocaleString('id-ID')}</span>
-                                            )}
+                                            {syncStatus?.lastResult?.processedRows !== undefined && <span>Diproses: {syncStatus.lastResult.processedRows.toLocaleString('id-ID')}</span>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
-            )}
+                    </section>
+                )}
+            </Card>
 
             <EditKpsModal
                 isOpen={Boolean(editingKps)}
