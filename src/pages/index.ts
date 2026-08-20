@@ -2,6 +2,7 @@ export { LoginPage } from './LoginPage';
 export { DashboardPage } from './DashboardPage';
 export { AduanDetailPage } from './AduanDetailPage';
 export { NewAduanPage } from './NewAduanPage';
+export { EditAduanPage } from './EditAduanPage';
 export { AduanListPage } from './AduanListPage';
 export { LaporanPage } from './LaporanPage';
 export { PengaturanPage } from './PengaturanPage';

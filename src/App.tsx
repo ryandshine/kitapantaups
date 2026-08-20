@@ -7,6 +7,7 @@ import {
   AduanDetailPage,
   AduanListPage,
   NewAduanPage,
+  EditAduanPage,
   LaporanPage,
   PengaturanPage,
   UserManagementPage
@@ -53,6 +54,7 @@ function AppRoutes() {
         <Route path="/pengaduan" element={<AduanListPage />} />
         <Route path="/pengaduan/baru" element={<NewAduanPage />} />
         <Route path="/pengaduan/:nomorTiket" element={<AduanDetailPage />} />
+        <Route path="/pengaduan/:nomorTiket/edit" element={<EditAduanPage />} />
 
         <Route path="/laporan" element={<LaporanPage />} />
 

@@ -67,7 +67,6 @@ import {
     buildEditFormFromSelectedKps,
     buildLokasiObjekItems,
     buildSelectedUploadStates,
-    buildStoredUploadState,
     detailBadgeClass,
     detailCardClass,
     detailCardHeaderClass,
@@ -681,56 +680,8 @@ export const AduanDetailPage: React.FC = () => {
     };
 
     const openEditModal = async () => {
-        if (!aduan) return;
-        const baseForm = buildEditAduanForm(aduan);
-        setEditForm({
-            ...baseForm,
-            picName: !isAdmin ? (user?.displayName || user?.email || '') : baseForm.picName,
-            picId: !isAdmin ? (user?.id || '') : baseForm.picId,
-        });
-        setSuratUploadProgress(0);
-        setSuratFile(null);
-        const storedSuratFileName = baseForm.fileUrl?.split('/').pop()?.split('?')[0] || 'Surat Terarsip';
-        setSuratFileStatuses(baseForm.fileUrl ? buildStoredUploadState(storedSuratFileName) : []);
-
-        // Initialize selected KPS list from current aduan detail first (instant UI parity with detail view)
-        const fallbackList: KpsData[] = Array.isArray(aduan.kps_items) && aduan.kps_items.length > 0
-            ? aduan.kps_items.map((item) => normalizeSelectedKps(item))
-            : (((aduan.kps_ids && aduan.kps_ids.length > 0)
-                ? aduan.kps_ids
-                : (aduan.kpsId ? [aduan.kpsId] : [])
-            ) as string[]).map((id: string, idx: number) => normalizeSelectedKps({
-                id,
-                nama_lembaga: aduan.nama_kps?.[idx] || '-',
-                skema: aduan.jenis_kps?.[idx] || aduan.type_kps?.[idx] || '-',
-                surat_keputusan: aduan.nomor_sk?.[idx] || '-',
-                lokasi_prov: aduan.lokasi?.provinsi || '',
-                lokasi_kab: aduan.lokasi?.kabupaten || '',
-                lokasi_kec: aduan.lokasi?.kecamatan || '',
-                lokasi_desa: aduan.lokasi?.desa || '',
-                lokasi_luas_ha: Number(aduan.lokasi?.luasHa ?? aduan.lokasi_luas_ha ?? 0),
-                jumlah_kk: Number(aduan.jumlahKK ?? aduan.jumlah_kk ?? 0),
-                kps_type: aduan.type_kps?.[idx] || aduan.jenis_kps?.[idx] || '-',
-            }));
-        const selectedIds = fallbackList.map((item) => getNormalizedKpsId(item)).filter(Boolean);
-        setEditSelectedKpsList(fallbackList);
-
-        if (selectedIds.length > 0) {
-            try {
-                const list = await Promise.all(selectedIds.map((id: string) => KpsService.getKpsById(id)));
-                const enriched = list
-                    .map((item, idx: number) => normalizeSelectedKps(item || fallbackList[idx]))
-                    .filter((item): item is KpsData => !!item);
-                setEditSelectedKpsList(enriched);
-            } catch (err) {
-                console.error('Failed to load existing KPS data for edit', err);
-                setEditSelectedKpsList(fallbackList);
-            }
-        } else {
-            setEditSelectedKpsList(fallbackList);
-        }
-
-        setIsEditModalOpen(true);
+        if (!aduan || !nomorTiket) return;
+        navigate(`/pengaduan/${nomorTiket}/edit`);
     };
 
     const handleKpsSelect = (kps: KpsData) => {
