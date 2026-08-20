@@ -216,16 +216,14 @@ export const NewAduanPage: React.FC = () => {
                 >
                     Kembali
                 </Button>
-                <div className="hero-panel mb-2">
-                    <div className="relative z-10 flex flex-col gap-1.5">
-                        <h1 className="hero-heading flex items-center gap-3 text-2xl font-semibold tracking-tight md:text-3xl">
-                            Input Aduan Baru
-                        </h1>
-                        <p className="hero-muted max-w-2xl text-[0.95rem] leading-relaxed">
-                            Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
-                        </p>
-                    </div>
-                    <div className="hero-orb" />
+                <div className="border-b border-border/70 pb-5">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary">Layanan Aduan</p>
+                    <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+                        Input Aduan Baru
+                    </h1>
+                    <p className="mt-2 max-w-2xl text-[0.95rem] leading-relaxed text-muted-foreground">
+                        Lengkapi formulir di bawah untuk mendaftarkan pengaduan baru ke dalam sistem.
+                    </p>
                 </div>
             </div>
 
