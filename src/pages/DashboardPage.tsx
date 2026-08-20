@@ -250,7 +250,7 @@ export const DashboardPage: React.FC = () => {
             initial="hidden"
             animate="visible"
             variants={containerVariants}
-            className="space-y-5"
+            className="space-y-6"
         >
             {/* Hero + Stats bento cluster */}
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-stretch">
@@ -277,7 +277,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
 
                 {/* Stats 2x2 tile grid */}
-                <div className="grid grid-cols-2 gap-4 lg:col-span-7">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-7">
                     {statCards.map((stat, i) => {
                         // Reuses the app's existing semantic tokens (secondary/accent/destructive/primary)
                         // instead of ad hoc rainbow colors, to match neutral-theme.ts conventions.
@@ -326,11 +326,11 @@ export const DashboardPage: React.FC = () => {
                                 </h3>
                             </div>
 
-                            <div className="flex items-center gap-8">
+                            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8">
                                 {/* Donut Gauge */}
                                 <div
                                     onClick={() => navigate('/pengaduan?rkps=Sudah')}
-                                    className="group relative flex h-44 w-44 shrink-0 cursor-pointer items-center justify-center transition-transform duration-300 hover:scale-105"
+                                    className="group relative flex h-36 w-36 shrink-0 cursor-pointer items-center justify-center transition-transform duration-300 hover:scale-105 sm:h-44 sm:w-44"
                                     title="Klik untuk memfilter aduan yang sudah memiliki dokumen RKPS"
                                 >
                                     <svg className="h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
@@ -364,11 +364,11 @@ export const DashboardPage: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-3 text-center sm:text-left">
                                     <p className="text-3xl font-black text-foreground">
                                         {stats?.rkps || 0} <span className="text-base font-semibold text-muted-foreground">/ {totalCount} aduan</span>
                                     </p>
-                                    <div className="flex items-center gap-2 text-sm font-semibold">
+                                    <div className="flex flex-wrap items-center justify-center gap-2 text-sm font-semibold sm:justify-start">
                                         <button
                                             onClick={() => navigate('/pengaduan?rkps=Sudah')}
                                             className="flex items-center gap-1.5 rounded-lg border border-secondary/25 bg-secondary/5 px-2.5 py-1.5 transition-all hover:border-secondary/40 hover:bg-secondary/10 text-secondary group"
