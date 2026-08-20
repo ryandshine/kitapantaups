@@ -342,7 +342,7 @@ export const AduanListPage: React.FC = () => {
                                                 <span className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm">
                                                     {row.nomor_tiket}
                                                 </span>
-                                                <Badge variant="gray" className="w-fit whitespace-nowrap border border-border bg-muted text-[10px] font-bold uppercase tracking-[0.16em] text-foreground">
+                                                <Badge variant="gray" className="w-fit max-w-full whitespace-normal break-words border border-border bg-muted text-[10px] font-bold uppercase leading-tight tracking-[0.16em] text-foreground">
                                                     {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
                                                 </Badge>
                                             </div>
