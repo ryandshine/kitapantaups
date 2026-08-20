@@ -74,6 +74,7 @@ export const UserManagementPage: React.FC = () => {
     });
     const [feedback, setFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
     const [deleteCandidate, setDeleteCandidate] = useState<User | null>(null);
+    const [openActionUserId, setOpenActionUserId] = useState<string | null>(null);
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -177,23 +178,43 @@ export const UserManagementPage: React.FC = () => {
     const activeUserCount = users.filter((user) => user.isActive).length;
     const inactiveUserCount = users.length - activeUserCount;
 
-    const closeActionMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.currentTarget.closest('details')?.removeAttribute('open');
-    };
+    React.useEffect(() => {
+        if (!openActionUserId) return;
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setOpenActionUserId(null);
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [openActionUserId]);
 
-    const renderUserActions = (user: User) => (
-        <details className="relative">
-            <summary className="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary [&::-webkit-details-marker]:hidden">
+    const closeActionMenu = () => setOpenActionUserId(null);
+
+    const renderUserActions = (user: User) => {
+        const isOpen = openActionUserId === user.id;
+
+        return (
+        <div className="relative">
+            <button
+                type="button"
+                aria-expanded={isOpen}
+                aria-haspopup="menu"
+                aria-label={`Buka aksi untuk ${user.displayName || user.email}`}
+                onClick={() => setOpenActionUserId(isOpen ? null : user.id)}
+                className={cn(
+                    'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    isOpen && 'bg-muted text-foreground'
+                )}
+            >
                 <MoreHorizontal className="h-5 w-5" />
-                <span className="sr-only">Buka aksi untuk {user.displayName || user.email}</span>
-            </summary>
-            <div className="absolute right-0 top-full z-30 mt-2 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
+            </button>
+            {isOpen && (
+            <div role="menu" className="absolute bottom-full right-0 z-40 mb-2 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-xl">
                 <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Aksi pengguna</p>
                 <button
                     type="button"
                     className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors hover:bg-muted"
-                    onClick={(event) => {
-                        closeActionMenu(event);
+                    onClick={() => {
+                        closeActionMenu();
                         openResetPasswordModal(user);
                     }}
                     disabled={updatingUserId === user.id}
@@ -206,8 +227,8 @@ export const UserManagementPage: React.FC = () => {
                         <button
                             type="button"
                             className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors hover:bg-muted"
-                            onClick={(event) => {
-                                closeActionMenu(event);
+                            onClick={() => {
+                                closeActionMenu();
                                 void handleRoleChange(user.id, user.role === 'admin' ? 'staf' : 'admin');
                             }}
                             disabled={updatingUserId === user.id}
@@ -221,8 +242,8 @@ export const UserManagementPage: React.FC = () => {
                                 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors',
                                 user.isActive ? 'text-destructive hover:bg-destructive/10' : 'text-secondary hover:bg-secondary/10'
                             )}
-                            onClick={(event) => {
-                                closeActionMenu(event);
+                            onClick={() => {
+                                closeActionMenu();
                                 void handleToggleStatus(user);
                             }}
                             disabled={updatingUserId === user.id}
@@ -233,8 +254,8 @@ export const UserManagementPage: React.FC = () => {
                         <button
                             type="button"
                             className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
-                            onClick={(event) => {
-                                closeActionMenu(event);
+                            onClick={() => {
+                                closeActionMenu();
                                 setDeleteCandidate(user);
                             }}
                             disabled={updatingUserId === user.id}
@@ -245,8 +266,10 @@ export const UserManagementPage: React.FC = () => {
                     </>
                 )}
             </div>
-        </details>
-    );
+            )}
+        </div>
+        );
+    };
 
     if (!isAdmin) {
         return (
