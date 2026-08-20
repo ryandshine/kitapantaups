@@ -70,16 +70,16 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
             onClose={onClose}
             title="Edit Data Aduan"
             description="Perbarui informasi inti aduan tanpa mengubah riwayat penanganan."
-            headerClassName="border-b border-border/70 px-6 pb-5 pr-14 pt-6 text-left sm:px-8 sm:pb-6 sm:pr-16 sm:pt-7"
+            headerClassName="shrink-0 border-b border-border/70 bg-card px-6 pb-5 pr-14 pt-6 text-left sm:px-8 sm:pb-6 sm:pr-16 sm:pt-7"
             titleClassName="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
             descriptionClassName="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground"
-            className={cn(detailModalClass, "flex h-[min(92vh,52rem)] max-h-[92vh] w-[min(96vw,72rem)] max-w-none flex-col gap-0 overflow-hidden p-0")}
+            className={cn(detailModalClass, "!flex h-[min(92vh,52rem)] max-h-[92vh] w-[min(96vw,72rem)] max-w-none flex-col gap-0 overflow-hidden p-0")}
             size="xl"
             scrollContent={false}
         >
-            <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
-                <div className="min-h-0 flex-1 overflow-y-auto">
-                    <nav className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-border/70 bg-card/95 px-4 py-3 backdrop-blur sm:px-8" aria-label="Bagian formulir aduan">
+            <form onSubmit={onSubmit} className="flex h-full min-h-0 flex-1 flex-col">
+                <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+                    <nav className="sticky top-0 z-10 flex shrink-0 gap-1 overflow-x-auto border-b border-border/70 bg-card/95 px-4 py-3 backdrop-blur sm:px-8" aria-label="Bagian formulir aduan">
                         {[
                             ['edit-ringkasan', '01', 'Ringkasan'],
                             ['edit-kps', '02', 'Kelompok / KPS'],
@@ -297,7 +297,7 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                     </div>
                 </div>
 
-                <ModalFooter className="shrink-0 border-t border-border bg-card px-6 py-4 sm:px-8">
+                <ModalFooter className="mt-auto shrink-0 border-t border-border bg-card px-6 py-4 sm:px-8">
                     <Button
                         type="button"
                         variant="ghost"
