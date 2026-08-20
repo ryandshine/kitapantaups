@@ -123,7 +123,7 @@
 }
 
 @media (max-width: 700px) {
-  .dashboard-forest-shell { margin: -1rem -.75rem; padding: 1rem .75rem; border-radius: 1.2rem; }
+  .dashboard-forest-shell { margin: -1rem -.75rem; padding: 3.75rem .75rem 1rem; border-radius: 1.2rem; }
   .dashboard-intro { align-items: flex-start; flex-direction: column; }
   .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard-rkps { align-items: flex-start; flex-direction: column; }

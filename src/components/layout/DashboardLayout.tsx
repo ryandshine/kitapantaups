@@ -73,7 +73,7 @@ export const DashboardLayout: React.FC = () => {
                     onMenuClick={() => setMobileSidebarOpen((prev) => !prev)}
                 />
 
-                <main className="custom-scrollbar min-h-[calc(100dvh-56px)] flex-1 overflow-x-hidden overflow-y-auto">
+                <main className="custom-scrollbar min-h-dvh flex-1 overflow-x-hidden overflow-y-auto">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}
