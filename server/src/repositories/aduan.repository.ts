@@ -1,4 +1,5 @@
 import { pool } from '../db.js'
+import { generateAduanTicketNumber } from '../lib/aduan-ticket.js'
 
 const ADUAN_BASE_SELECT = `
   a.id,
@@ -256,10 +257,37 @@ export const AduanRepository = {
     return Number(countResult.rows[0].count)
   },
 
-  async create(data: any, nomorTiket: string, userId: string) {
+  async getMaxSequenceByYear(year: number, client?: any) {
+    const executor = client || pool
+    const prefix = `ADU${year.toString().slice(2)}%`
+    const result = await executor.query(
+      `SELECT COALESCE(MAX(NULLIF(SUBSTRING(nomor_tiket FROM 6), '')::integer), 0) AS max_seq
+       FROM public.aduan
+       WHERE nomor_tiket LIKE $1`,
+      [prefix]
+    )
+    return Number(result.rows[0].max_seq)
+  },
+
+  async create(data: any, nomorTiket: string | null | undefined, userId: string) {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
+      await client.query('LOCK TABLE public.aduan IN SHARE ROW EXCLUSIVE MODE')
+
+      let finalNomorTiket = nomorTiket
+      if (!finalNomorTiket) {
+        const year = new Date().getFullYear()
+        const prefix = `ADU${year.toString().slice(2)}%`
+        const seqResult = await client.query(
+          `SELECT COALESCE(MAX(NULLIF(SUBSTRING(nomor_tiket FROM 6), '')::integer), 0) AS max_seq
+           FROM public.aduan
+           WHERE nomor_tiket LIKE $1`,
+          [prefix]
+        )
+        const nextSeq = Number(seqResult.rows[0].max_seq) + 1
+        finalNomorTiket = generateAduanTicketNumber(year, nextSeq)
+      }
 
       const kpsRows = await getOrderedKpsRows(client, data.kps_ids || [])
       const namaKps = kpsRows.map((row: any) => row.nama_kps)
@@ -275,7 +303,7 @@ export const AduanRepository = {
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
         RETURNING *`,
         [
-          nomorTiket, data.surat_nomor, data.surat_tanggal, data.surat_asal_perihal,
+          finalNomorTiket, data.surat_nomor, data.surat_tanggal, data.surat_asal_perihal,
           data.pengadu_nama, data.pengadu_telepon, data.pengadu_email, data.pengadu_instansi, data.kategori_masalah, data.ringkasan_masalah,
           data.lokasi_prov, data.lokasi_kab, data.lokasi_kec, data.lokasi_desa, data.lokasi_luas_ha,
           data.jumlah_kk, data.lokasi_lat, data.lokasi_lng, data.pic_id, data.pic_name, userId,

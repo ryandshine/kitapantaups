@@ -165,11 +165,7 @@ export const AduanService = {
   },
 
   async create(data: any, userId: string) {
-    const year = new Date().getFullYear()
-    const count = await AduanRepository.countByYear(year)
-    const nomorTiket = generateAduanTicketNumber(year, count + 1)
-
-    return await AduanRepository.create(data, nomorTiket, userId)
+    return await AduanRepository.create(data, null, userId)
   },
 
   async update(id: string, data: any, user: any) {
