@@ -30,14 +30,15 @@ export const TindakLanjutRepository = {
     return result.rows[0]
   },
 
-  async update(id: string, data: any) {
+  async update(id: string, data: any, userId?: string) {
     const result = await pool.query(
       `UPDATE tindak_lanjut
        SET tanggal = COALESCE($1, tanggal),
            jenis_tl = COALESCE($2, jenis_tl),
            keterangan = COALESCE($3, keterangan),
            file_urls = COALESCE($4, file_urls),
-           nomor_surat_output = COALESCE($5, nomor_surat_output)
+           nomor_surat_output = COALESCE($5, nomor_surat_output),
+           updated_by = $7
        WHERE id = $6
        RETURNING *`,
       [
@@ -47,6 +48,7 @@ export const TindakLanjutRepository = {
         data.file_urls ?? null,
         data.nomor_surat_output ?? null,
         id,
+        userId ?? null,
       ]
     )
     return result.rowCount !== null && result.rowCount > 0 ? result.rows[0] : null
@@ -67,7 +69,8 @@ export const TindakLanjutRepository = {
            jenis_tl = $3,
            keterangan = $4,
            file_urls = $5,
-           nomor_surat_output = $6
+           nomor_surat_output = $6,
+           updated_by = $7
        WHERE id = $1`,
       [
         id,
@@ -76,6 +79,7 @@ export const TindakLanjutRepository = {
         data.keterangan,
         data.file_urls,
         data.nomor_surat_output,
+        data.updated_by ?? null,
       ]
     )
   },

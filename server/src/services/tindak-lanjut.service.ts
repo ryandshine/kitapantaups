@@ -36,11 +36,11 @@ export const TindakLanjutService = {
     }
   },
 
-  async update(id: string, data: any) {
+  async update(id: string, data: any, userId?: string) {
     const before = await TindakLanjutRepository.findById(id)
     if (!before) return null
 
-    const updated = await TindakLanjutRepository.update(id, data)
+    const updated = await TindakLanjutRepository.update(id, data, userId)
     if (!updated) return null
 
     try {

@@ -243,6 +243,8 @@ CREATE TABLE IF NOT EXISTS public.tindak_lanjut (
   created_by          uuid        REFERENCES public.users(id),
   created_by_name     text,
   created_at          timestamptz NOT NULL DEFAULT now(),
+  updated_at          timestamptz NOT NULL DEFAULT now(),
+  updated_by          uuid        REFERENCES public.users(id),
   CONSTRAINT tindak_lanjut_pkey PRIMARY KEY (id)
 );
 

@@ -36,6 +36,7 @@ tl.post('/', zValidator('json', tlSchema), async (c) => {
 // PUT /tindak-lanjut/:id
 export const updateTl = async (c: any) => {
   const id = c.req.param('id')
+  const user = c.get('user')
   const body = await c.req.json()
 
   const dataParse = tlSchema.partial().safeParse(body)
@@ -43,7 +44,7 @@ export const updateTl = async (c: any) => {
     return c.json({ error: 'Payload tidak valid', issues: dataParse.error.flatten() }, 400)
   }
 
-  const result = await TindakLanjutService.update(id, dataParse.data)
+  const result = await TindakLanjutService.update(id, dataParse.data, user?.userId)
   
   if (!result) {
     return c.json({ error: 'Tindak lanjut tidak ditemukan' }, 404)
