@@ -499,7 +499,18 @@ export const openProtectedFile = async ({
             });
         }
 
-        window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        // Blob URL harus tetap hidup selama tab preview terbuka, karena viewer PDF memakainya
+        // untuk download, print, dan reload. Untuk unduhan langsung, cukup tunda sebentar.
+        if (canPreview && previewWindow) {
+            const watcher = window.setInterval(() => {
+                if (previewWindow.closed) {
+                    window.clearInterval(watcher);
+                    URL.revokeObjectURL(blobUrl);
+                }
+            }, 5_000);
+        } else {
+            window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+        }
     } catch (error) {
         previewWindow?.close();
         console.error('Failed to open protected file:', error);

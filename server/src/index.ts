@@ -113,9 +113,15 @@ app.get('/uploads/*', async (c) => {
       '.aac': 'audio/aac',
     }
 
+    const inlineExts = new Set(['.pdf', '.png', '.jpg', '.jpeg', '.mp3', '.m4a', '.wav', '.ogg', '.aac'])
+    const baseName = path.basename(absolutePath)
+    const asciiName = baseName.replace(/[^\x20-\x7e]|["\\]/g, '_')
+    const contentDisposition = `${inlineExts.has(ext) ? 'inline' : 'attachment'}; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(baseName)}`
+
     return new Response(webStream as any, {
       headers: {
         'Content-Type': mimeMap[ext] || 'application/octet-stream',
+        'Content-Disposition': contentDisposition,
         'Content-Length': fileStat.size.toString(),
         'Cache-Control': 'private, no-store, max-age=0',
         'Pragma': 'no-cache',
