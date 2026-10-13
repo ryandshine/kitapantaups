@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import React, { useMemo, useRef } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button, Badge } from '../components/ui';
@@ -25,9 +25,25 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('id-ID', {
 export const AduanListPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [currentPage, setCurrentPage] = useState(1);
+    // State daftar disimpan di URL supaya tombol Back dan "buka di tab baru" mempertahankan pencarian, filter, dan halaman.
+    const searchTerm = searchParams.get('q') || '';
+    const statusFilter = searchParams.get('status') || 'all';
+    const currentPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+
+    const updateParams = (updates: Record<string, string>, resetPage = true) => {
+        setSearchParams((prev) => {
+            const next = new URLSearchParams(prev);
+            Object.entries(updates).forEach(([key, value]) => {
+                if (!value || (key === 'status' && value === 'all') || (key === 'page' && value === '1')) next.delete(key);
+                else next.set(key, value);
+            });
+            if (resetPage && !('page' in updates)) next.delete('page');
+            return next;
+        }, { replace: true });
+    };
+    const setSearchTerm = (value: string) => updateParams({ q: value });
+    const setStatusFilter = (value: string) => updateParams({ status: value });
+    const setCurrentPage = (page: number) => updateParams({ page: String(page) }, false);
     const { isCompact } = useUIDensity();
     const itemsPerPage = 10;
     const listSectionRef = useRef<HTMLDivElement>(null);
@@ -54,9 +70,6 @@ export const AduanListPage: React.FC = () => {
     const { data: totalMenungguTanggapan } = useAduanCount({ status: 'menunggu_tanggapan' });
     const { data: totalSelesai } = useAduanCount({ status: 'selesai' });
 
-    // Reset ke halaman 1 saat search atau filter berubah
-    useEffect(() => { setCurrentPage(1); }, [searchTerm, statusFilter, rkpsParam, kupsKelasParam]);
-
     const loading = loadingItems;
     const displayList = useMemo<Aduan[]>(() => aduanResult?.data || [], [aduanResult]);
     const totalCount = aduanResult?.total || 0;
@@ -77,13 +90,11 @@ export const AduanListPage: React.FC = () => {
     };
 
     const handleSummaryCardClick = (statusKey: typeof SUMMARY_STATUS_ORDER[number]) => {
-        setCurrentPage(1);
         setStatusFilter(statusKey);
         scrollToListSection();
     };
 
     const handleAllSummaryCardClick = () => {
-        setCurrentPage(1);
         setStatusFilter('all');
         scrollToListSection();
     };
@@ -211,6 +222,7 @@ export const AduanListPage: React.FC = () => {
                                     onClick={() => {
                                         const newParams = new URLSearchParams(searchParams);
                                         newParams.delete('rkps');
+                                        newParams.delete('page');
                                         setSearchParams(newParams);
                                     }}
                                     className="ml-1 hover:text-destructive font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
@@ -226,6 +238,7 @@ export const AduanListPage: React.FC = () => {
                                     onClick={() => {
                                         const newParams = new URLSearchParams(searchParams);
                                         newParams.delete('kups_kelas');
+                                        newParams.delete('page');
                                         setSearchParams(newParams);
                                     }}
                                     className="ml-1 hover:text-destructive font-black text-xs inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/40 dark:bg-black/20"
@@ -241,7 +254,9 @@ export const AduanListPage: React.FC = () => {
                             onClick={() => {
                                 const newParams = new URLSearchParams(searchParams);
                                 newParams.delete('rkps');
+                                        newParams.delete('page');
                                 newParams.delete('kups_kelas');
+                                        newParams.delete('page');
                                 setSearchParams(newParams);
                             }}
                         >
@@ -326,7 +341,12 @@ export const AduanListPage: React.FC = () => {
                                 {displayList.map((row) => (
                                     <tr
                                         key={row.nomor_tiket}
-                                        onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
+                                        onClick={(event) => {
+                                            if ((event.target as HTMLElement).closest('a')) return;
+                                            const url = `/pengaduan/${row.nomor_tiket}`;
+                                            if (event.ctrlKey || event.metaKey) window.open(url, '_blank');
+                                            else navigate(url);
+                                        }}
                                         onKeyDown={(event) => {
                                             if (event.key === 'Enter' || event.key === ' ') {
                                                 event.preventDefault();
@@ -339,9 +359,12 @@ export const AduanListPage: React.FC = () => {
                                     >
                                         <td className="min-w-0 px-4 py-3 align-top">
                                             <div className="flex flex-col gap-2">
-                                                <span className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm">
+                                                <Link
+                                                    to={`/pengaduan/${row.nomor_tiket}`}
+                                                    className="inline-flex w-fit rounded-md border border-border bg-background px-2 py-0.5 font-mono text-[12px] font-bold text-foreground shadow-sm hover:border-primary/40"
+                                                >
                                                     {row.nomor_tiket}
-                                                </span>
+                                                </Link>
                                                 <Badge variant="gray" className="w-fit max-w-full whitespace-normal break-words border border-border bg-muted text-[10px] font-bold uppercase leading-tight tracking-[0.16em] text-foreground">
                                                     {STATUS_LABELS[String(row.status || '').toLowerCase()] || row.status?.toUpperCase?.() || '-'}
                                                 </Badge>
@@ -352,7 +375,7 @@ export const AduanListPage: React.FC = () => {
                                             {row.pengadu_instansi && <p className="mt-0.5 text-[12px] text-muted-foreground">{row.pengadu_instansi}</p>}
                                         </td>
                                         <td className="min-w-0 px-4 py-3 align-top">
-                                            <p className="break-words font-semibold leading-snug text-foreground transition-colors group-hover:text-foreground">{getRingkasanMasalahValue(row)}</p>
+                                            <Link to={`/pengaduan/${row.nomor_tiket}`} className="block break-words font-semibold leading-snug text-foreground transition-colors group-hover:text-foreground">{getRingkasanMasalahValue(row)}</Link>
                                         </td>
                                         <td className="min-w-0 px-4 py-3 align-top text-foreground">
                                             <div className="space-y-1 text-[12px]">
@@ -427,11 +450,10 @@ export const AduanListPage: React.FC = () => {
                         </div>
                         <div className="grid gap-3 p-3 md:hidden">
                             {displayList.map((row) => (
-                                <button
+                                <Link
                                     key={row.nomor_tiket}
-                                    type="button"
-                                    onClick={() => navigate(`/pengaduan/${row.nomor_tiket}`)}
-                                    className="w-full rounded-xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-primary/35 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                    to={`/pengaduan/${row.nomor_tiket}`}
+                                    className="block w-full rounded-xl border border-border bg-muted/20 p-4 text-left transition-colors hover:border-primary/35 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -460,7 +482,7 @@ export const AduanListPage: React.FC = () => {
                                             <p className="mt-0.5 text-foreground" title={formatDateValue(row.updatedAt)}>{formatRelativeDateValue(row.updatedAt)}</p>
                                         </div>
                                     </div>
-                                </button>
+                                </Link>
                             ))}
                         </div>
                     </>
