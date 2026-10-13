@@ -54,7 +54,7 @@ import { getZipEntryName } from '../lib/archive-file-name';
 import { AduanFollowUpService } from '../lib/aduan.followups';
 import { AduanReferenceService } from '../lib/aduan.references';
 import { useAuth } from '../contexts/AuthContext';
-import { cn } from '../lib/utils';
+import { cn, toLocalDateInput } from '../lib/utils';
 import { useAduanByTicket, useUpdateAduan, useDeleteAduan } from '../hooks/useAduan';
 import { useTindakLanjutList, useCreateTindakLanjut, useDeleteTindakLanjut, useUpdateTindakLanjut } from '../hooks/useTindakLanjut';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
@@ -203,7 +203,7 @@ export const AduanDetailPage: React.FC = () => {
     const [isTLModalOpen, setIsTLModalOpen] = useState(false);
     const [tlForm, setTlForm] = useState({
         jenisTL: DEFAULT_JENIS_TL_SELECT_OPTIONS[0].value,
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: toLocalDateInput(),
         keterangan: '',
         nomorSuratOutput: '',
         files: [] as File[]
@@ -213,7 +213,7 @@ export const AduanDetailPage: React.FC = () => {
     const [editTlForm, setEditTlForm] = useState({
         id: '',
         jenisTL: '',
-        tanggal: new Date().toISOString().split('T')[0],
+        tanggal: toLocalDateInput(),
         keterangan: '',
         nomorSuratOutput: '',
         fileUrls: [] as string[],
@@ -529,7 +529,7 @@ export const AduanDetailPage: React.FC = () => {
                     setIsTLModalOpen(false);
                     setTlForm({
                         jenisTL: DEFAULT_JENIS_TL_SELECT_OPTIONS[0].value,
-                        tanggal: new Date().toISOString().split('T')[0],
+                        tanggal: toLocalDateInput(),
                         keterangan: '',
                         nomorSuratOutput: '',
                         files: []
@@ -611,7 +611,7 @@ export const AduanDetailPage: React.FC = () => {
         setEditTlForm({
             id: tl.id,
             jenisTL: normalizeJenisTlLabel(tl.jenisTL),
-            tanggal: new Date(tl.tanggal).toISOString().split('T')[0],
+            tanggal: toLocalDateInput(tl.tanggal),
             keterangan: tl.keterangan || '',
             nomorSuratOutput: tl.nomorSuratOutput || '',
             fileUrls: tl.fileUrls || [],
@@ -626,7 +626,7 @@ export const AduanDetailPage: React.FC = () => {
         setEditTlForm({
             id: '',
             jenisTL: '',
-            tanggal: new Date().toISOString().split('T')[0],
+            tanggal: toLocalDateInput(),
             keterangan: '',
             nomorSuratOutput: '',
             fileUrls: [],

@@ -25,3 +25,14 @@ export function calculateSkAge(date: string | Date | null | undefined): number |
 
   return age >= 0 ? age : 0;
 }
+
+/**
+ * Format tanggal ke 'YYYY-MM-DD' memakai zona waktu lokal (untuk <input type="date">).
+ * Jangan pakai toISOString() — itu UTC, sehingga tanggal 00:00 WIB bergeser mundur 1 hari.
+ */
+export function toLocalDateInput(date: string | Date = new Date()): string {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
