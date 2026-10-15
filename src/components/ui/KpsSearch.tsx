@@ -112,6 +112,14 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
         };
     }, [query]);
 
+    const handleOpenAddModal = (initialName?: string) => {
+        if (typeof initialName === 'string' && initialName.trim()) {
+            setQuery(initialName.trim());
+        }
+        setIsOpen(false);
+        setIsAddModalOpen(true);
+    };
+
     const handleSelect = (kps: KpsData) => {
         onSelect(kps);
         setQuery('');
@@ -153,8 +161,22 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
 
     return (
         <div className="relative w-full overflow-visible" ref={containerRef}>
+            <div className="flex items-center justify-between gap-2 mb-1">
+                {label && (
+                    <label className="ml-0.5 text-[0.82rem] font-semibold text-foreground/72">
+                        {label}
+                    </label>
+                )}
+                <button
+                    type="button"
+                    onClick={() => handleOpenAddModal(query.trim())}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                    <Plus size={13} />
+                    <span>Tambah KPS Manual</span>
+                </button>
+            </div>
             <Input
-                label={label}
                 placeholder={placeholder}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -164,7 +186,7 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                     isLoading ? (
                         <Loader2 size={18} className="animate-spin text-primary" />
                     ) : query ? (
-                        <button onClick={() => setQuery('')} className="hover:text-foreground">
+                        <button type="button" onClick={() => setQuery('')} className="hover:text-foreground">
                             <X size={18} />
                         </button>
                     ) : null
@@ -225,13 +247,23 @@ export const KpsSearch: React.FC<KpsSearchProps> = ({
                                         </div>
                                     </li>
                                 ))}
+                                <li className="border-t border-border/70 p-2 text-center bg-muted/20">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleOpenAddModal(query.trim())}
+                                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline py-1 px-2"
+                                    >
+                                        <Plus size={12} />
+                                        Tidak menemukan KPS yang dicari? Tambah KPS baru
+                                    </button>
+                                </li>
                             </ul>
                         ) : (
                             <div className="flex flex-col items-center gap-2 p-4 text-center text-sm text-muted-foreground">
                                 <span>Data tidak ditemukan</span>
                                 <button
                                     type="button"
-                                    onClick={() => setIsAddModalOpen(true)}
+                                    onClick={() => handleOpenAddModal(query.trim())}
                                     className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/10"
                                 >
                                     <Plus size={12} />

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Input, Card, FeedbackBanner } from '../components/ui';
-import { Save as SaveIcon, ShieldCheck, RefreshCw, Database, Pencil, Search, Loader2 } from 'lucide-react';
+import { Save as SaveIcon, ShieldCheck, RefreshCw, Database, Pencil, Search, Loader2, Plus } from 'lucide-react';
 import { UserService } from '../lib/user.service';
 import { useKpsSyncStatus, useSyncKps } from '../hooks/useKps';
 import { KpsService } from '../lib/kps.service';
 import type { KpsData } from '../types';
 import { EditKpsModal } from '../components/ui/EditKpsModal';
+import { AddKpsModal } from '../components/ui/AddKpsModal';
 import './PengaturanPage.css';
 
 export const PengaturanPage: React.FC = () => {
@@ -23,7 +24,17 @@ export const PengaturanPage: React.FC = () => {
     const [kpsResults, setKpsResults] = useState<KpsData[]>([]);
     const [isSearchingKps, setIsSearchingKps] = useState(false);
     const [editingKps, setEditingKps] = useState<KpsData | null>(null);
+    const [isAddKpsModalOpen, setIsAddKpsModalOpen] = useState(false);
     const [activeSettingsTab, setActiveSettingsTab] = useState<'profile' | 'master' | 'sync'>('profile');
+
+    const handleKpsCreated = (kps: KpsData) => {
+        setIsAddKpsModalOpen(false);
+        setKpsResults((prev) => [kps, ...prev.filter((item) => item.id !== kps.id)]);
+        setFeedback({
+            type: 'success',
+            message: `KPS "${kps.nama_lembaga || kps.nama_kps}" berhasil ditambahkan secara manual ke master.`,
+        });
+    };
 
     React.useEffect(() => {
         if (!feedback) return;
@@ -204,12 +215,24 @@ export const PengaturanPage: React.FC = () => {
 
                 {isAdmin && activeSettingsTab === 'master' && (
                     <section role="tabpanel" className="p-5 sm:p-7">
-                        <div className="mb-6 flex items-start gap-3">
-                            <Pencil className="mt-0.5 h-5 w-5 text-primary" />
-                            <div>
-                                <h2 className="text-lg font-semibold text-foreground">Koreksi Data Master KPS</h2>
-                                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Cari berdasarkan nama lembaga, ID, nomor SK, provinsi, atau kabupaten untuk memperbaiki data KPS.</p>
+                        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex items-start gap-3">
+                                <Pencil className="mt-0.5 h-5 w-5 text-primary" />
+                                <div>
+                                    <h2 className="text-lg font-semibold text-foreground">Koreksi Data Master KPS</h2>
+                                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">Cari berdasarkan nama lembaga, ID, nomor SK, provinsi, atau kabupaten untuk memperbaiki data KPS.</p>
+                                </div>
                             </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setIsAddKpsModalOpen(true)}
+                                leftIcon={<Plus size={14} />}
+                                className="shrink-0"
+                            >
+                                Tambah KPS Baru
+                            </Button>
                         </div>
                         <form onSubmit={handleSearchKps} className="flex flex-col gap-3 sm:flex-row sm:items-end">
                             <div className="flex-1">
@@ -228,14 +251,32 @@ export const PengaturanPage: React.FC = () => {
                         </form>
                         {isSearchingKps && <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Loader2 size={14} className="animate-spin" /> Mencari data KPS...</div>}
                         {!isSearchingKps && kpsSearch.trim() && kpsResults.length === 0 && (
-                            <p className="mt-4 rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">Data KPS tidak ditemukan.</p>
+                            <div className="mt-4 flex flex-col items-center gap-3 rounded-xl border border-dashed border-border p-6 text-center">
+                                <p className="text-xs text-muted-foreground">Data KPS "{kpsSearch}" tidak ditemukan di master.</p>
+                                <Button
+                                    type="button"
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={() => setIsAddKpsModalOpen(true)}
+                                    leftIcon={<Plus size={14} />}
+                                >
+                                    Tambah KPS Baru Secara Manual
+                                </Button>
+                            </div>
                         )}
                         {kpsResults.length > 0 && (
                             <div className="mt-5 divide-y divide-border overflow-hidden rounded-xl border border-border">
                                 {kpsResults.map((kps) => (
                                     <div key={kps.id} className="flex items-center justify-between gap-3 px-4 py-3">
                                         <div className="min-w-0">
-                                            <p className="truncate text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className="truncate text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                                {kps.source === 'local' && (
+                                                    <span className="rounded-full border border-amber-300/60 bg-amber-100/60 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+                                                        Data Lokal
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="mt-1 truncate text-[11px] text-muted-foreground">{kps.id} · {kps.surat_keputusan || kps.nomor_sk || '-'} · {kps.kabupaten || kps.lokasi_kab || '-'}, {kps.provinsi || kps.lokasi_prov || '-'}</p>
                                         </div>
                                         <Button type="button" variant="outline" size="sm" onClick={() => setEditingKps(kps)} leftIcon={<Pencil size={14} />}>Edit</Button>
@@ -316,6 +357,13 @@ export const PengaturanPage: React.FC = () => {
                 kps={editingKps}
                 onClose={() => setEditingKps(null)}
                 onSaved={handleKpsSaved}
+            />
+
+            <AddKpsModal
+                isOpen={isAddKpsModalOpen}
+                initialNama={kpsSearch.trim()}
+                onClose={() => setIsAddKpsModalOpen(false)}
+                onSelect={handleKpsCreated}
             />
         </div>
     );

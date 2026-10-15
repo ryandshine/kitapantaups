@@ -150,7 +150,14 @@ export const EditAduanModal: React.FC<EditAduanModalProps> = ({
                                     <div key={`card-${kpsId || kps.nama_kps}`} className="border-t border-border/70 py-3 first:border-t-0">
                                         <div className="mb-3 flex items-start justify-between gap-3">
                                             <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="truncate text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                                    {kps.source === 'local' && (
+                                                        <span className="rounded-full border border-amber-300/60 bg-amber-100/60 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+                                                            Data Lokal
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <p className="mt-0.5 text-[10px] text-muted-foreground">{kps.surat_keputusan || kps.nomor_sk || '-'} · {kps.skema || resolveKpsType(kps) || '-'}</p>
                                             </div>
                                             <button

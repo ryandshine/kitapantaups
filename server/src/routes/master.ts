@@ -19,17 +19,17 @@ const KPS_SKEMA_OPTIONS = [
 ] as const
 
 const createKpsSchema = z.object({
-  nama_lembaga: z.string().trim().min(1),
+  nama_lembaga: z.string().trim().min(1, 'Nama lembaga wajib diisi'),
   skema: z.enum(KPS_SKEMA_OPTIONS),
-  surat_keputusan: z.string().trim().optional(),
-  tanggal: z.string().optional(),
-  provinsi: z.string().trim().min(1),
-  kabupaten: z.string().trim().min(1),
-  kecamatan: z.string().trim().optional(),
-  desa: z.string().trim().optional(),
-  luas_total: z.number().min(0).optional(),
-  anggota_pria: z.number().int().min(0).optional(),
-  anggota_wanita: z.number().int().min(0).optional(),
+  surat_keputusan: z.string().trim().optional().transform((v) => v || undefined),
+  tanggal: z.string().trim().optional().transform((v) => v || undefined),
+  provinsi: z.string().trim().min(1, 'Provinsi wajib diisi').transform((v) => v.toUpperCase()),
+  kabupaten: z.string().trim().min(1, 'Kabupaten wajib diisi').transform((v) => v.toUpperCase()),
+  kecamatan: z.string().trim().optional().transform((v) => v || undefined),
+  desa: z.string().trim().optional().transform((v) => v || undefined),
+  luas_total: z.number().min(0).optional().default(0),
+  anggota_pria: z.number().int().min(0).optional().default(0),
+  anggota_wanita: z.number().int().min(0).optional().default(0),
 })
 
 // Data GoKUPS lama dapat memiliki label skema di luar daftar pilihan lokal.

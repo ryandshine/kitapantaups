@@ -87,6 +87,7 @@ export const normalizeSelectedKps = (kps?: Partial<KpsData>): KpsData => {
         skema: kps?.skema || normalizedType || '',
         balai: kps?.balai || '',
         sekwil: kps?.sekwil || '',
+        source: kps?.source || (normalizedId.startsWith('local-') ? 'local' : 'gokups'),
     };
 };
 

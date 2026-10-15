@@ -265,7 +265,14 @@ export const EditAduanPage: React.FC = () => {
                                             <div key={kpsId || kps.nama_kps} className="border-b border-border/70 py-5 last:border-b-0">
                                                 <div className="flex items-start justify-between gap-4">
                                                     <div className="min-w-0">
-                                                        <p className="break-words text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="break-words text-sm font-semibold text-foreground">{kps.nama_lembaga || kps.nama_kps || '-'}</p>
+                                                            {kps.source === 'local' && (
+                                                                <span className="rounded-full border border-amber-300/60 bg-amber-100/60 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+                                                                    Data Lokal
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                         <p className="mt-1 text-xs text-muted-foreground">{kps.surat_keputusan || kps.nomor_sk || '-'} · {kps.skema || resolveKpsType(kps) || '-'}</p>
                                                     </div>
                                                     <button type="button" onClick={() => handleRemoveKps(kpsId)} className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"><Trash2 size={13} /> Hapus</button>

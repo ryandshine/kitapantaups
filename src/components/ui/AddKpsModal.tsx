@@ -18,7 +18,62 @@ const SKEMA_OPTIONS = [
     { value: 'LAINNYA', label: 'Lainnya' },
 ];
 
-const createEmptyForm = (namaLembaga: string): NewKpsInput => ({
+const PROVINSI_INDONESIA = [
+    'ACEH',
+    'BALI',
+    'BANTEN',
+    'BENGKULU',
+    'D I YOGYAKARTA',
+    'DKI JAKARTA',
+    'GORONTALO',
+    'JAMBI',
+    'JAWA BARAT',
+    'JAWA TENGAH',
+    'JAWA TIMUR',
+    'KALIMANTAN BARAT',
+    'KALIMANTAN SELATAN',
+    'KALIMANTAN TENGAH',
+    'KALIMANTAN TIMUR',
+    'KALIMANTAN UTARA',
+    'KEPULAUAN BANGKA BELITUNG',
+    'KEPULAUAN RIAU',
+    'LAMPUNG',
+    'MALUKU',
+    'MALUKU UTARA',
+    'NUSA TENGGARA BARAT',
+    'NUSA TENGGARA TIMUR',
+    'PAPUA',
+    'PAPUA BARAT',
+    'PAPUA BARAT DAYA',
+    'PAPUA PEGUNUNGAN',
+    'PAPUA SELATAN',
+    'PAPUA TENGAH',
+    'RIAU',
+    'SULAWESI BARAT',
+    'SULAWESI SELATAN',
+    'SULAWESI TENGAH',
+    'SULAWESI TENGGARA',
+    'SULAWESI UTARA',
+    'SUMATERA BARAT',
+    'SUMATERA SELATAN',
+    'SUMATERA UTARA'
+];
+
+interface FormState {
+    nama_lembaga: string;
+    skema: string;
+    surat_keputusan: string;
+    tanggal: string;
+    provinsi: string;
+    kabupaten: string;
+    kecamatan: string;
+    desa: string;
+    luas_total: string;
+    anggota_pria: string;
+    anggota_wanita: string;
+}
+
+const createEmptyForm = (namaLembaga: string): FormState => ({
     nama_lembaga: namaLembaga,
     skema: 'HUTAN KEMASYARAKATAN',
     surat_keputusan: '',
@@ -27,9 +82,9 @@ const createEmptyForm = (namaLembaga: string): NewKpsInput => ({
     kabupaten: '',
     kecamatan: '',
     desa: '',
-    luas_total: 0,
-    anggota_pria: 0,
-    anggota_wanita: 0,
+    luas_total: '',
+    anggota_pria: '',
+    anggota_wanita: '',
 });
 
 interface AddKpsModalProps {
@@ -40,7 +95,7 @@ interface AddKpsModalProps {
 }
 
 export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = '', onClose, onSelect }) => {
-    const [form, setForm] = useState<NewKpsInput>(() => createEmptyForm(initialNama));
+    const [form, setForm] = useState<FormState>(() => createEmptyForm(initialNama));
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [result, setResult] = useState<{ data: KpsData; candidates: KpsData[] } | null>(null);
@@ -53,13 +108,17 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
         }
     }, [isOpen, initialNama]);
 
-    const updateField = <K extends keyof NewKpsInput>(field: K, value: NewKpsInput[K]) => {
+    const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.nama_lembaga.trim() || !form.provinsi.trim() || !form.kabupaten.trim()) {
+        const trimmedNama = form.nama_lembaga.trim();
+        const trimmedProvinsi = form.provinsi.trim().toUpperCase();
+        const trimmedKabupaten = form.kabupaten.trim().toUpperCase();
+
+        if (!trimmedNama || !trimmedProvinsi || !trimmedKabupaten) {
             setError('Nama Lembaga, Provinsi, dan Kabupaten wajib diisi.');
             return;
         }
@@ -68,14 +127,21 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
         setError('');
         try {
             const payload: NewKpsInput = {
-                ...form,
-                nama_lembaga: form.nama_lembaga.trim(),
-                provinsi: form.provinsi.trim(),
-                kabupaten: form.kabupaten.trim(),
+                nama_lembaga: trimmedNama,
+                skema: form.skema,
+                surat_keputusan: form.surat_keputusan.trim() || undefined,
+                tanggal: form.tanggal.trim() || undefined,
+                provinsi: trimmedProvinsi,
+                kabupaten: trimmedKabupaten,
+                kecamatan: form.kecamatan.trim() || undefined,
+                desa: form.desa.trim() || undefined,
+                luas_total: form.luas_total ? Number(form.luas_total) : 0,
+                anggota_pria: form.anggota_pria ? Number(form.anggota_pria) : 0,
+                anggota_wanita: form.anggota_wanita ? Number(form.anggota_wanita) : 0,
             };
             const response = await KpsService.createKps(payload);
 
-            if (response.candidates.length > 0) {
+            if (response.candidates && response.candidates.length > 0) {
                 setResult(response);
             } else {
                 onSelect(response.data);
@@ -110,10 +176,10 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
             >
                 <div className="space-y-3">
                     <p className="text-sm text-muted-foreground">
-                        Ditemukan {result.candidates.length} data dengan nama mirip. Pilih salah satu jika memang sama,
+                        Ditemukan {result.candidates.length} data dengan nama mirip di master KPS. Pilih salah satu jika memang sama,
                         atau tetap gunakan data baru yang barusan dibuat.
                     </p>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
                         {result.candidates.map((candidate) => (
                             <button
                                 key={candidate.id}
@@ -130,9 +196,16 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                         ))}
                     </div>
                 </div>
-                <ModalFooter className="mt-4">
-                    <Button variant="outline" onClick={onClose}>Batal</Button>
-                    <Button onClick={handleUseNew}>Tetap Pakai Data Baru</Button>
+                <ModalFooter className="mt-4 gap-2">
+                    <Button type="button" variant="outline" onClick={() => setResult(null)}>
+                        Kembali ke Form
+                    </Button>
+                    <Button type="button" variant="ghost" onClick={onClose}>
+                        Batal
+                    </Button>
+                    <Button type="button" onClick={handleUseNew}>
+                        Tetap Pakai Data Baru
+                    </Button>
                 </ModalFooter>
             </Modal>
         );
@@ -155,7 +228,8 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                 </div>
 
                 <Input
-                    label="Nama Lembaga / KPS"
+                    label="Nama Lembaga / KPS *"
+                    placeholder="Contoh: KTH Sinar Harapan"
                     value={form.nama_lembaga}
                     onChange={(e) => updateField('nama_lembaga', e.target.value)}
                     required
@@ -167,12 +241,14 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                     options={SKEMA_OPTIONS}
                     value={form.skema}
                     onChange={(value) => updateField('skema', value)}
+                    usePortal={false}
                     fullWidth
                 />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Input
                         label="Nomor SK"
+                        placeholder="Contoh: SK.123/MENLHK/..."
                         value={form.surat_keputusan}
                         onChange={(e) => updateField('surat_keputusan', e.target.value)}
                         fullWidth
@@ -187,17 +263,27 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                        <Input
+                            label="Provinsi *"
+                            placeholder="Ketik atau pilih provinsi..."
+                            value={form.provinsi}
+                            onChange={(e) => updateField('provinsi', e.target.value.toUpperCase())}
+                            list="kps-modal-provinsi-list"
+                            required
+                            fullWidth
+                        />
+                        <datalist id="kps-modal-provinsi-list">
+                            {PROVINSI_INDONESIA.map((prov) => (
+                                <option key={prov} value={prov} />
+                            ))}
+                        </datalist>
+                    </div>
                     <Input
-                        label="Provinsi"
-                        value={form.provinsi}
-                        onChange={(e) => updateField('provinsi', e.target.value)}
-                        required
-                        fullWidth
-                    />
-                    <Input
-                        label="Kabupaten"
+                        label="Kabupaten *"
+                        placeholder="Contoh: BOGOR"
                         value={form.kabupaten}
-                        onChange={(e) => updateField('kabupaten', e.target.value)}
+                        onChange={(e) => updateField('kabupaten', e.target.value.toUpperCase())}
                         required
                         fullWidth
                     />
@@ -206,12 +292,14 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <Input
                         label="Kecamatan"
+                        placeholder="Contoh: Cisarua"
                         value={form.kecamatan}
                         onChange={(e) => updateField('kecamatan', e.target.value)}
                         fullWidth
                     />
                     <Input
                         label="Desa"
+                        placeholder="Contoh: Tugu Selatan"
                         value={form.desa}
                         onChange={(e) => updateField('desa', e.target.value)}
                         fullWidth
@@ -223,24 +311,28 @@ export const AddKpsModal: React.FC<AddKpsModalProps> = ({ isOpen, initialNama = 
                         label="Luas Total (Ha)"
                         type="number"
                         min={0}
+                        step="any"
+                        placeholder="0"
                         value={form.luas_total}
-                        onChange={(e) => updateField('luas_total', Number(e.target.value) || 0)}
+                        onChange={(e) => updateField('luas_total', e.target.value)}
                         fullWidth
                     />
                     <Input
                         label="Anggota Pria"
                         type="number"
                         min={0}
+                        placeholder="0"
                         value={form.anggota_pria}
-                        onChange={(e) => updateField('anggota_pria', Number(e.target.value) || 0)}
+                        onChange={(e) => updateField('anggota_pria', e.target.value)}
                         fullWidth
                     />
                     <Input
                         label="Anggota Wanita"
                         type="number"
                         min={0}
+                        placeholder="0"
                         value={form.anggota_wanita}
-                        onChange={(e) => updateField('anggota_wanita', Number(e.target.value) || 0)}
+                        onChange={(e) => updateField('anggota_wanita', e.target.value)}
                         fullWidth
                     />
                 </div>

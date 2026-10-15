@@ -50,7 +50,7 @@ export const MasterService = {
 
   async createKps(input: NewKpsInput) {
     const namaLembaga = input.nama_lembaga.trim()
-    const candidates = await MasterRepository.findSimilarKps(namaLembaga)
+    const candidates = await MasterRepository.findSimilarKps(namaLembaga, 5, input.provinsi)
     const data = await MasterRepository.createKps({ ...input, nama_lembaga: namaLembaga })
 
     return { data, candidates }

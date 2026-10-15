@@ -119,7 +119,15 @@ export const MasterRepository = {
     return result.rows[0] || null
   },
 
-  async findSimilarKps(namaLembaga: string, limit = 5) {
+  async findSimilarKps(namaLembaga: string, limit = 5, provinsi?: string) {
+    if (provinsi) {
+      const result = await pool.query(
+        `${KPS_SELECT} WHERE k.nama_lembaga ILIKE $1 AND k.provinsi ILIKE $2 ORDER BY k.nama_lembaga LIMIT $3`,
+        [`%${namaLembaga}%`, `%${provinsi}%`, limit]
+      )
+      if (result.rows.length > 0) return result.rows
+    }
+
     const result = await pool.query(
       `${KPS_SELECT} WHERE k.nama_lembaga ILIKE $1 ORDER BY k.nama_lembaga LIMIT $2`,
       [`%${namaLembaga}%`, limit]
@@ -145,16 +153,16 @@ export const MasterRepository = {
       [
         id,
         data.nama_lembaga.trim(),
-        data.surat_keputusan || null,
-        data.tanggal || null,
+        data.surat_keputusan?.trim() || null,
+        data.tanggal?.trim() || null,
         data.skema,
-        data.provinsi,
-        data.kabupaten,
-        data.kecamatan || null,
-        data.desa || null,
-        data.luas_total || 0,
-        data.anggota_pria || 0,
-        data.anggota_wanita || 0,
+        data.provinsi.trim().toUpperCase(),
+        data.kabupaten.trim().toUpperCase(),
+        data.kecamatan?.trim() || null,
+        data.desa?.trim() || null,
+        Number(data.luas_total) || 0,
+        Number(data.anggota_pria) || 0,
+        Number(data.anggota_wanita) || 0,
         data.created_by || null,
       ]
     )

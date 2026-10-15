@@ -109,6 +109,7 @@ export const getKpsDisplayTotalAnggotaWanita = (kpsList: KpsData[]) =>
 export const normalizeSelectedKps = (kps: KpsData): KpsData => ({
     ...kps,
     id: String(kps.id || ''),
+    source: kps.source || (String(kps.id || '').startsWith('local-') ? 'local' : 'gokups'),
     nama_lembaga: kps.nama_lembaga || kps.nama_kps || '',
     surat_keputusan: kps.surat_keputusan || kps.nomor_sk || '',
     skema: kps.skema || kps.kps_type || kps.jenis_kps || '',

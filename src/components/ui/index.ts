@@ -14,6 +14,7 @@ export * from './confirm-dialog';
 // Compatibility Wrappers & Custom Components
 export { Modal, ModalFooter } from './Modal';
 export { KpsSearch } from './KpsSearch';
+export { AddKpsModal } from './AddKpsModal';
 export { FileUpload } from './FileUpload';
 export type { FileUploadItemState, FileUploadStatus } from './FileUpload';
 
